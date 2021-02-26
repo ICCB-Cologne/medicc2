@@ -1,0 +1,11 @@
+.pylintrc
+.vscode
+build
+test
+*.pdf
+*.so
+*.code-workspace
+*.pyc
+__pycache__
+
+

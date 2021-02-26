@@ -1,0 +1,108 @@
+#%% import and load data
+import imp
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import pandas as pd
+import numpy as np
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+
+%matplotlib inline
+from plotnine import *
+import Bio
+
+import fstlib
+import medicc
+
+#%%
+wgd_example_df = medicc.io.read_tsv_as_dataframe('../examples/output/WGD Example_final_cn_profiles.tsv')
+wgd_example_tree = medicc.io.import_tree('../examples/output/WGD Example_final_tree.new', 'diploid')
+tx_df = medicc.io.read_tsv_as_dataframe('../examples/output/LTX-WGD_final_cn_profiles.tsv')
+tx_tree = medicc.io.import_tree('../examples/output/LTX-WGD_final_tree.new', 'diploid')
+evo001_df = medicc.io.read_tsv_as_dataframe('../examples/output/EVO001_EP_final_cn_profiles.tsv')
+evo001_tree = medicc.io.import_tree('../examples/output/EVO001_EP_final_tree.new', 'diploid')
+ptx011_df = medicc.io.read_tsv_as_dataframe('../examples/output/PTX011_final_cn_profiles.tsv')
+ptx011_tree = medicc.io.import_tree('../examples/output/PTX011_final_tree.new', 'diploid')
+ptx011_nowgd_df = medicc.io.read_tsv_as_dataframe('../examples/output/PTX011-nowgd_final_cn_profiles.tsv')
+ptx011_nowgd_tree = medicc.io.import_tree('../examples/output/PTX011-nowgd_final_tree.new', 'diploid')
+
+# %%
+imp.reload(medicc.plot) 
+def plot_ptx011(df, tree, title='PTX011'):
+	plotdat = df.reset_index()
+	plotdat['chrom'] = plotdat.chrom.str.replace('chr','')
+	plotdat.set_index(['sample_id', 'chrom', 'start', 'end'], inplace=True)
+	labels = {'diploid':'Diploid', 
+		'Primary':'Primary', 
+		'LAdrenalMet':'Left\nAdrenal\nMetast.',
+		'RRib7Met':'Right\nRib7\nMetast.',
+		'RIngLNMet':'Right\nIngLN\nMetast.',
+		'RSubduralMet':'Right\nSubdural\nMetast.',
+		'internal_1':'MRCA\nAll',
+		'internal_2':'MRCA\nMetast.',
+		'internal_3':'',
+		'internal_4':'MRCA\nRight\nside',
+		}
+	fig = medicc.plot.plot_cn_profiles(
+		plotdat,
+		tree, 
+		title=title, 
+		normal_name='diploid', 
+		tree_width_scale=1,
+		track_width_scale=0.6, 
+		height_scale=1, 
+		hide_normal_chromosomes=True,
+		ignore_segment_lengths=False,
+		label_func = lambda x:labels[x])
+	return fig
+fig = plot_ptx011(ptx011_df, ptx011_tree, title='PTX011')
+fig.savefig('../examples/output/PTX011.pdf', bbox_inches='tight')
+fig = plot_ptx011(ptx011_nowgd_df, ptx011_nowgd_tree, title='PTX011 w/o WGD')
+fig.savefig('../examples/output/PTX011-noWGD.pdf', bbox_inches='tight')
+
+# %%
+imp.reload(medicc.plot) 
+fig = medicc.plot.plot_cn_profiles(
+	evo001_df, 
+	evo001_tree, 
+	title="EVO001", 
+	normal_name='diploid', 
+	tree_width_scale=1.5,
+	track_width_scale=1, 
+	height_scale=1, 
+	hide_normal_chromosomes=True,
+	label_func = lambda x:x.replace('_',' ').replace('G RLX001', 'G-RLX001\n'))
+fig.savefig('../examples/output/EVO001.pdf', bbox_inches='tight')
+
+# %%
+imp.reload(medicc.plot) 
+fig = medicc.plot.plot_cn_profiles(
+	tx_df, 
+	tx_tree, 
+	title="TX", 
+	normal_name='diploid', 
+	tree_width_scale=1,
+	track_width_scale=0.32, 
+	height_scale=1.1, 
+	hide_normal_chromosomes=False,
+	label_func = lambda x:x.replace('M_EX2_', '').replace('_',' '))
+fig.savefig('../examples/output/LTX-WGD.pdf', bbox_inches='tight')
+
+#%%
+imp.reload(medicc.plot)
+fig = medicc.plot.plot_cn_profiles(
+	wgd_example_df, 
+	wgd_example_tree, 
+	title="WGD Example", 
+	normal_name='diploid', 
+	tree_width_scale=1,
+	track_width_scale=0.75, 
+	height_scale=1, 
+	hide_normal_chromosomes=False,
+	label_func = lambda x:x.replace('_',' ').replace('taxon', 'sample '))
+fig.savefig('../examples/output/WGD Example.pdf', bbox_inches='tight')
+
+
+ # %%

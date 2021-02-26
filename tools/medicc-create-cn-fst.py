@@ -1,0 +1,37 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import logging
+import argparse
+import medicc
+
+# prepare logger and parse command line arguments
+logging.basicConfig()
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+parser = argparse.ArgumentParser()
+parser.add_argument("output_folder", type=str, help="output folder")
+parser.add_argument("--max-cn", "-m", type=int, required=False, default=8, help="Maximum copy-number per allel (default:8).")
+parser.add_argument("--sep", "-s", type=str, required=False, default='X', help="Chromosome separator (default:\"X\")")
+parser.add_argument("--wgd", "-w", action='store_true', required=False, default=False)
+parser.add_argument("--prefix", "-p", action='store', required=False, default='fst')
+parser.add_argument("--write-symbol-table", action='store_true', required=False, default=False)
+args = parser.parse_args()
+
+separator = args.sep
+
+logger.info('Creating symbol table.')
+symbol_table = medicc.create_symbol_table(args.max_cn, separator)
+logger.info('Symbol table: %s', str(list(symbol_table)))
+
+logger.info('Creating FSTs.')
+fst = medicc.create_copynumber_fst(symbol_table, separator, args.wgd)
+logger.info('FST: %d states.', fst.num_states())
+
+logger.info('Writing.')
+if args.write_symbol_table:
+    symbol_table.write_text(os.path.join(args.output_folder, "%s_symbols.txt" % args.prefix))
+fst.write(os.path.join(args.output_folder, "%s_asymm.fst" % args.prefix))
+logger.info('Done.')
+

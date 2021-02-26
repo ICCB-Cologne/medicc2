@@ -1,0 +1,168 @@
+import random
+import logging
+import numpy as np
+import scipy as sp
+import pandas as pd
+import Bio
+from medicc import tools
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+def evolve(cnstr, mu=5, plen=0.2, pwgd=0.05, pgain=0.5, maxcn=8, mincn=0, verbose=True):
+    """ Evolves a copy-number string, e.g. 11111X11111 with the given parameters. """
+    nevents = sp.stats.poisson.rvs(mu, size=1)[0]
+    cnstr_new = np.array(list(cnstr))
+    nloss = ngain = nwgd = 0
+    for i in range(nevents):
+        if np.random.uniform() <= pwgd: ## WGD
+            nwgd += 1
+            _mutate(cnstr_new, 'gain', 0, len(cnstr_new), maxcn, mincn, ignore_chr_boundaries=True, verbose=verbose)
+        else:
+            available_positions = np.flatnonzero((cnstr_new != '0') & (cnstr_new != 'X'))
+            if len(available_positions) == 0:
+                logger.warning("No available positions to mutate.")
+                break
+            start = np.random.choice(available_positions)
+            length = np.random.geometric(plen)
+            end = min(start+length, np.max(available_positions)+1)
+            if np.random.uniform() <= pgain: ## gain
+                ngain += 1
+                _mutate(cnstr_new, 'gain', start, end, maxcn, mincn, verbose=verbose)
+            else:
+                nloss += 1
+                _mutate(cnstr_new, 'loss', start, end, maxcn, mincn, verbose=verbose)
+    return ("".join(cnstr_new), nloss, ngain, nwgd)
+
+def _mutate(cnstr, event, start, end, maxcn, mincn, ignore_chr_boundaries=False, verbose=True):
+    """ Mutates an individual copy-number string, e.g. 1111X111111. """
+    if verbose:
+        logger.info("%s event from %d to %d", event, start, end)
+    for i in range(start, end):
+        if cnstr[i]=='X':
+            if ignore_chr_boundaries:
+                continue
+            else:
+                break
+        oldcn = tools.hex2int(cnstr[i])
+        if event == 'gain':
+            if oldcn != 0:
+                newcn = oldcn + 1
+            else:
+                newcn = oldcn
+            if newcn > maxcn:
+                newcn = maxcn
+        elif event == 'loss':
+            newcn = oldcn - 1
+            if newcn < mincn:
+                newcn = mincn
+        else:
+            logger.error('unknown event')
+            newcn = oldcn
+        cnstr[i] = tools.int2hex(newcn)
+
+def rcoal(n, tips = None):
+    """As in rcoal function in R package Ape, function generates a random tree and random branch lengths."""
+    x = np.divide(2*np.random.exponential(size = n-1),np.multiply(np.array(list(reversed(range(2,n+1)))), np.array(list(reversed(range(1, n))))))
+    if (n == 2):
+        edge = pd.DataFrame()
+        edge['a'] = [2,2]
+        edge['b'] = [0,1]
+        edge['name_a'] = pd.Series(['root','root'])
+        if tips and len(tips)==n:
+            edge['name_b'] = pd.Series([tips[0],tips[1]])
+        else:
+            edge['name_b'] = pd.Series(['sp_0001','sp_0002'])
+        edge['edge_length'] = np.array([x,x])
+        reordered = edge.copy()
+    elif (n == 3):
+        edge = pd.DataFrame()
+        edge['a'] = [3,4,4,3]
+        edge['b'] = [4,0,1,2]
+        edge['name_a'] = pd.Series(['root','in_1','in_1','root'])
+        if tips and len(tips)==n:
+            edge['name_b'] = pd.Series(['in_1',tips[0],tips[1],tips[2]])
+        else:
+            edge['name_b'] = pd.Series(['in_1','sp_0001','sp_0002','sp_0003'])
+        edge['edge_length'] = np.array([x[1],x[0],x[0],sum(x)])
+        reordered = edge.copy()
+    else:
+        edge = np.zeros((2*n - 2,2), dtype=float)
+        edge_length = np.array([0]*(2*n - 2),dtype = float)
+        h = np.array([0]*(2*n - 1),dtype = float)
+        node_height = np.cumsum(x)
+        pool = np.array(list(range(0,n)))# 1:n
+        nextnode  = 2*n - 2
+        for i in range(0,n-1):
+            y = random.sample(list(pool), 2)
+            ind = np.array([i*2 , i*2 + 1])
+            edge[ind, 1] = y
+            edge[ind, 0] = nextnode
+            edge_length[ind] = node_height[i] - h[y]
+            h[nextnode] = node_height[i]
+            pool = np.append(pool[np.isin(pool,y,invert = True)],[nextnode],axis = 0)
+            nextnode -= 1
+        edge = pd.DataFrame(edge,dtype = object)
+        edge.columns = ['a','b']
+
+
+        reordered = pd.DataFrame()
+        root = edge.index[-2]
+        parent = [edge.iloc[root][0]] #stack
+        child = edge.iloc[root][1]
+        reordered = reordered.append(edge.iloc[root])
+        edge.drop(edge.index[root], inplace = True)
+        while  not edge.empty:
+            if (set (edge.a.isin([parent[-1]]))) == {False}:#checks if both occurences took place, and value can be popped out of stack
+                del parent[-1]
+            if child <= n :
+                root = edge.a.isin([parent[-1]]).idxmax()
+                child = int(edge.iloc[edge.index==root]['b'])
+                reordered = reordered.append(edge.iloc[edge.index==root])
+                edge.drop(root, inplace = True)
+                if child < n:
+                    if (set (edge.a.isin([parent[-1]]))) == {False}:
+                        del parent[-1]
+            else:
+                parent.append(child)
+                root =  edge.a.isin([child]).idxmax()
+                child = int(edge.iloc[edge.index==root]['b'])
+                reordered = reordered.append(edge.iloc[edge.index==root])
+                edge.drop(root, inplace = True)
+                if child < n:
+                    if (set (edge.a.isin([parent[-1]]))) == {False}:
+                        del parent[-1]
+        reordered['a'] = reordered['a'].astype(int)
+        reordered['b'] = reordered['b'].astype(int)
+        reordered.loc[:,'edge_length'] = pd.Series(edge_length).reindex(index=reordered.index)
+        reordered.replace((reordered['b'].loc[reordered['b']<n].values),list(range(0,n)), inplace = True)
+        reordered.edge_length = round(reordered.edge_length,3)
+        reordered.index = range(len(reordered))
+
+        if tips and len(tips)==n:
+            reordered['name_b'] = [tips[reordered.b[i]] if (reordered.b[i] < n)  else '' for i in reordered.index]
+        else:
+            reordered['name_b'] = ["sp_{0:04d}".format(reordered.b[i] +1) if (reordered.b[i] < n)  else '' for i in reordered.index]
+        reordered.at[reordered.name_b=='', 'name_b'] = ["in_{0:d}".format(i +1) for i in range(len(reordered[reordered.name_b=='']))]
+        internal_names =  reordered[reordered.b>n][['b','name_b']].copy()
+        internal_names.set_index(['b'], inplace = True)
+        internal_names = internal_names.append(pd.DataFrame(data = ['root'], index= [n], columns = ['name_b']))
+        reordered['name_a'] = [internal_names.name_b .loc[i]for i in reordered.a]
+
+    reordered = reordered[['a','b','name_a', 'name_b', 'edge_length']]
+    return _edgelist_to_tree(reordered)
+
+def _edgelist_to_tree(el, add_normal=True, normal_name='diploid'):
+    clades = {name:Bio.Phylo.PhyloXML.Clade(name=name) for name in el[['name_a','name_b']].stack().unique()} 
+    if add_normal:
+        clades[normal_name] = Bio.Phylo.PhyloXML.Clade(name=normal_name, branch_length=0)
+        clades['root'].clades.append(clades[normal_name])
+
+    for _, row in el.iterrows():
+        parent = clades[row['name_a']]
+        child = clades[row['name_b']]
+        child.branch_length = row['edge_length']
+        parent.clades.append(child)
+    
+    tree = Bio.Phylo.PhyloXML.Phylogeny(root = clades['root'])
+    return tree
