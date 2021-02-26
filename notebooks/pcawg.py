@@ -13,7 +13,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 %matplotlib inline
 import seaborn as sns
-import plotnine as pn
 import fstlib
 import medicc
 
