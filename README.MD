@@ -16,7 +16,7 @@ MEDICC2 is available under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
 ## Dependencies: ##
 All dependencies including OpenFST should be directly installable via conda.
 
-A YML file with a suggested MEDICC2 conda environment is provied in 'doc/medicc2.yml'.
+**A YML file with a suggested MEDICC2 conda environment is provided in 'doc/medicc2.yml'.**
 
 MEDICC2 contains modified code of the *pywrapfst* Python module from [OpenFST](http://www.openfst.org/) as permitted by the [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) license.
 
