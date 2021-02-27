@@ -14,11 +14,13 @@ MEDICC2 is available under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
 * Run **python setup.py build_ext --inplace** to compile the fstlib C extensions.
 
 ## Dependencies: ##
-All dependencies including OpenFST should be directly installable via conda. There is typically no need for manual compilation. Tested on Unix and Windows WSL2.
+All dependencies including OpenFST should be directly installable via conda.
+
+A YML file with a suggested MEDICC2 conda environment is provied in 'doc/medicc2.yml'.
 
 MEDICC2 contains modified code of the *pywrapfst* Python module from [OpenFST](http://www.openfst.org/) as permitted by the [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) license.
 
-Dependencies:
+Dependencies: 
 
 * Python 3.9
 * Mandatory: OpenFST 1.8.0, Biopython 1.78, Numpy 1.20.1, SciPy 1.6.0, Pandas 1.2.2, Matplotlib 3.3.4, Seaborn 0.11.1, Cython 0.29.21
