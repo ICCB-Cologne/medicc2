@@ -10,8 +10,8 @@ from cython.operator cimport preincrement as inc   # ++foo
 
 ## my imports
 from libcpp.vector cimport vector
-from pywrapfst cimport *
-from cops cimport *
+from .pywrapfst cimport *
+from .cops cimport *
 import numpy as np
 
 def runme():

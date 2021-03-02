@@ -1,14 +1,10 @@
-import fstlib.core
-import fstlib.algos
-from io import StringIO
-import math
 import numpy as np
 import pandas as pd
-import re
-import csv
 import functools
 import logging
-import multiprocessing as mp
+import fstlib
+import fstlib.core
+import fstlib.algos
 
 logger = logging.getLogger(__name__)
 
@@ -142,40 +138,6 @@ def multicommand(func, ifsts, prune_nstate = -1, prune_weight = "", prune_level 
         level += 1
         
     logger.info("done (%d function calls)!" % funcalls)
-        
-    return ofst
-
-def multicommand_parallel(func, ifsts, delta_min=fstlib.DEF_DELTA, determinize=False, minimize=False, rmepsilon=False, sort=None):
-
-    remaining = ifsts[:]
-    level = 0
-    while len(remaining)>1:
-        output = mp.Queue()
-        processes = []
-        for i in range(len(remaining)//2): ## build pairs
-            ind1 = 2*i
-            ind2 = 2*i+1
-            ifst1 = remaining[ind1]
-            ifst2 = remaining[ind2]
-                
-            processes.append(mp.Process(target=_exec_func, args=(func, ifst1, ifst2, delta_min, output, determinize, minimize, rmepsilon, sort)))
-
-        # Run processes
-        for p in processes:
-            p.start()
-
-        # Exit the completed processes
-        #for p in processes:
-        #	p.join()
-
-        # Get process results from the output queue
-        if len(remaining) % 2 !=0:
-            output.put(remaining[-1])
-
-        remaining = [output.get() for p in processes]			
-        level += 1
-        
-    logger.info("done!")
         
     return ofst
 

@@ -18,25 +18,25 @@ setup(
                 "License :: OSI Approved :: MIT License",
                 "Operating System :: OS Independent",
     ],
-    packages=['medicc', 'fstlib'],
+    packages=['medicc', 'fstlib', 'fstlib.cext'],
     scripts=['tools/medicc-convert-old-input.py',
              'tools/medicc-create-cn-fst.py',
-             'medicc.py',
-             'medicc-phase.py'],
+             'medicc2.py',
+             'tools/medicc-phase.py'],
     license='GPL-3',
     ext_modules = cythonize([
         Extension("fstlib.cext.pywrapfst", 
                   ["fstlib/cext/pywrapfst.pyx"],
-        include_dirs=['fstlib/cext'],
+                  include_dirs=['fstlib/cext'],
                   libraries=["fst", "fstfar", "fstscript", "fstfarscript"],
-        extra_compile_args=['-std=c++17'],
-        language = "c++"),
+                  extra_compile_args=['-std=c++17'],
+                  language = "c++"),
 
         Extension("fstlib.cext.ops", 
                   ["fstlib/cext/ops.pyx"],
-        include_dirs=['fstlib/cext'],                  
-        libraries=["fst", "fstfar", "fstscript", "fstfarscript"],
-        extra_compile_args=['-std=c++17'],
-        language = "c++")
+                  include_dirs=['fstlib/cext'],
+                  libraries=["fst", "fstfar", "fstscript", "fstfarscript"],
+                  extra_compile_args=['-std=c++17'],
+                  language = "c++")
     ])
 )
