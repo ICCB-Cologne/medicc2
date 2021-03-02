@@ -1,8 +1,8 @@
-from dataclasses import dataclass
 import logging
-import numpy as np
-import fstlib
+from dataclasses import dataclass
 
+import fstlib
+import numpy as np
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

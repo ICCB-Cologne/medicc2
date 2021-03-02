@@ -1,9 +1,11 @@
-import os
 import argparse
 import logging
+import os
+
 import numpy as np
-import medicc
+
 import fstlib
+import medicc
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()

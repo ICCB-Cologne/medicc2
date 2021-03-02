@@ -1,8 +1,9 @@
-import pandas as pd
-import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from medicc import tools, core
+import numpy as np
+import pandas as pd
+
+from medicc import core, tools
 
 COL_ALLELE_A = mpl.colors.to_rgba('orange')
 COL_ALLELE_B = mpl.colors.to_rgba('teal')

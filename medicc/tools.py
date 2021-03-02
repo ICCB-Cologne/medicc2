@@ -1,10 +1,10 @@
 import logging
 import re
-import Bio
-import pandas as pd
-import numpy as np
-import fstlib
 
+import Bio
+import fstlib
+import numpy as np
+import pandas as pd
 
 logging.basicConfig(level=logging.DEBUG)
 

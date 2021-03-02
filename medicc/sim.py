@@ -1,9 +1,11 @@
-import random
 import logging
-import numpy as np
-import scipy as sp
-import pandas as pd
+import random
+
 import Bio
+import numpy as np
+import pandas as pd
+import scipy as sp
+
 from medicc import tools
 
 logger = logging.getLogger(__name__)

@@ -5,10 +5,11 @@ Created on 09 Dec 2019
 '''
 
 import logging
-import numpy
+
 import Bio
-import Bio.Phylo
 import Bio.Nexus
+import Bio.Phylo
+import numpy
 
 SS_TAXON_SEPERATOR = ","
 CHR_SEPARATOR = "X"

@@ -1,6 +1,7 @@
 import logging
 
 import fstlib
+
 from medicc import tools
 
 SYMBOL_GAP = 'gap'

@@ -1,16 +1,17 @@
-import os 
-from typing import List
-import pandas as pd
-import numpy as np
-import Bio
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import logging
+import os
+from typing import List
 
+import Bio
 import fstlib
-from medicc import core, tools, io
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
+from medicc import core, io, tools
+
+matplotlib.use("Agg")
 logger = logging.getLogger(__name__)
 
 def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv', separator='X', allele_columns=['cn_a','cn_b'], maxcn=8):

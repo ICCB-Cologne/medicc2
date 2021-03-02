@@ -1,9 +1,9 @@
-import numpy as np
-import pandas as pd
 import Bio
 import Bio.Phylo
-
 import fstlib
+import numpy as np
+import pandas as pd
+
 
 def reconstruct_ancestors(tree, samples_dict, model, normal_name):
     fsa_dict = samples_dict.copy()

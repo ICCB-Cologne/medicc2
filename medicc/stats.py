@@ -89,6 +89,7 @@ def wgd_test(d_wgd, d_no_wgd, nchr, chr_length):
         #prob = sp.stats.chi2.cdf(res, 1)
 
         from statsmodels.stats.proportion import binom_test
+
         #y1, n1, y2, n2 = 20, 150.0, 30, 500.0
         y1, y2 = d_wgd, d_no_wgd
         n1 = 1

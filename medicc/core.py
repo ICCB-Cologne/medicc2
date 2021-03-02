@@ -1,14 +1,15 @@
 import copy
-from itertools import combinations
 import logging
-from typing import List, Dict
+from itertools import combinations
+from typing import Dict, List
+
 import Bio
+import fstlib
 import numpy as np
 import pandas as pd
 
 import medicc
-from medicc import io, tools, nj, stats
-import fstlib
+from medicc import io, nj, stats, tools
 
 # prepare logger 
 logging.basicConfig()
