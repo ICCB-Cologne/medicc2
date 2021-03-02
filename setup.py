@@ -1,5 +1,9 @@
-from setuptools import Extension, setup
+import sys
+
 from Cython.Build import cythonize
+from setuptools import Extension, setup
+
+sys.path.append('fstlib/cext')
 
 setup(
     name='MEDICC2',
@@ -22,14 +26,14 @@ setup(
     license='GPL-3',
     ext_modules = cythonize([
         Extension("fstlib.cext.pywrapfst", 
-        ["fstlib/cext/pywrapfst.pyx"],
+                  ["fstlib/cext/pywrapfst.pyx"],
         include_dirs=['fstlib/cext'],
-        libraries=["fst", "fstfar", "fstscript", "fstfarscript"],
+                  libraries=["fst", "fstfar", "fstscript", "fstfarscript"],
         extra_compile_args=['-std=c++17'],
         language = "c++"),
 
         Extension("fstlib.cext.ops", 
-        ["fstlib/cext/ops.pyx"],
+                  ["fstlib/cext/ops.pyx"],
         include_dirs=['fstlib/cext'],                  
         libraries=["fst", "fstfar", "fstscript", "fstfarscript"],
         extra_compile_args=['-std=c++17'],
