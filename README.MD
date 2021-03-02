@@ -35,8 +35,14 @@ Email questions, feature requests and bug reports to **Roland Schwarz, roland.sc
 
 ## Please cite: ##
 
+Petkovic M, Watkins TBK, Colliver E, Laskina S, Swanton C, Haase K, Schwarz RF.  
+**Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2.**  
+bioRxiv 2021 Feb 28; doi: 10.1101/2021.02.28.433227  
+
+Schwarz RF, Trinh A, Sipos B, Brenton JD, Goldman N, Markowetz F.  
+**Phylogenetic quantification of intra-tumour heterogeneity.**  
 PLoS Comput Biol. 2014 Apr 17;10(4):e1003535. doi: 10.1371/journal.pcbi.1003535.
-**Phylogenetic quantification of intra-tumour heterogeneity.**
-Schwarz RF, Trinh A, Sipos B, Brenton JD, Goldman N, Markowetz F.
+
+
 
 February 2021, Roland Schwarz
