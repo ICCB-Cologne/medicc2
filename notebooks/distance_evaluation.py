@@ -125,15 +125,18 @@ descr = {'dist_fst_wgd_asymm':'MED (WGD)',
     'nevents': 'True distance'}
 
 
-# %% final plot
+
 scale = 0.8
-distnames = [('nevents', c) for c in rand.columns if c.startswith('dist') and c.endswith('asymm')]
+distnames = []
+distnames.append(('nevents', 'dist_fst_wgd_asymm'))
+distnames.append(('nevents', 'dist_fst_no_wgd_asymm'))
 distnames.append(('nevents', 'dist_euclidean'))
 distnames.append(('dist_fst_wgd_asymm', 'dist_fst_wgd_symm'))
 distnames.append(('nevents_tree', 'tree_dist_fst_wgd_symm'))
 distnames.append(('nevents_tree', 'tree_dist_euclidean'))
 distnames = np.array(distnames)
 
+# %% final plot
 def plot_variables(df, variables):
     nplots = len(variables)
     if nplots>=2:
