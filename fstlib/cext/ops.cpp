@@ -967,7 +967,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_reverse;
 struct __pyx_opt_args_6fstlib_4cext_9pywrapfst__shortestdistance;
 struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_shortestpath;
 
-/* "pywrapfst.pxd":103
+/* "fstlib/cext/pywrapfst.pxd":103
  * # SymbolTable.
  * 
  * ctypedef fst.SymbolTable * SymbolTable_ptr             # <<<<<<<<<<<<<<
@@ -976,7 +976,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_shortestpath;
  */
 typedef fst::SymbolTable *__pyx_t_6fstlib_4cext_9pywrapfst_SymbolTable_ptr;
 
-/* "pywrapfst.pxd":104
+/* "fstlib/cext/pywrapfst.pxd":104
  * 
  * ctypedef fst.SymbolTable * SymbolTable_ptr
  * ctypedef const fst.SymbolTable * const_SymbolTable_ptr             # <<<<<<<<<<<<<<
@@ -985,7 +985,7 @@ typedef fst::SymbolTable *__pyx_t_6fstlib_4cext_9pywrapfst_SymbolTable_ptr;
  */
 typedef fst::SymbolTable const *__pyx_t_6fstlib_4cext_9pywrapfst_const_SymbolTable_ptr;
 
-/* "pywrapfst.pxd":160
+/* "fstlib/cext/pywrapfst.pxd":160
  *   cdef fst.SymbolTable *_mutable_raw_ptr_or_raise(self) except *
  * 
  *   cpdef int64 add_symbol(self, symbol, int64 key=?) except *             # <<<<<<<<<<<<<<
@@ -997,7 +997,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_19_MutableSymbolTable_add_symbol 
   int64 key;
 };
 
-/* "pywrapfst.pxd":207
+/* "fstlib/cext/pywrapfst.pxd":207
  * 
  * 
  * ctypedef fst.EncodeMapperClass * EncodeMapperClass_ptr             # <<<<<<<<<<<<<<
@@ -1006,7 +1006,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_19_MutableSymbolTable_add_symbol 
  */
 typedef fst::script::EncodeMapperClass *__pyx_t_6fstlib_4cext_9pywrapfst_EncodeMapperClass_ptr;
 
-/* "pywrapfst.pxd":241
+/* "fstlib/cext/pywrapfst.pxd":241
  * 
  * 
  * ctypedef fst.FstClass * FstClass_ptr             # <<<<<<<<<<<<<<
@@ -1015,7 +1015,7 @@ typedef fst::script::EncodeMapperClass *__pyx_t_6fstlib_4cext_9pywrapfst_EncodeM
  */
 typedef fst::script::FstClass *__pyx_t_6fstlib_4cext_9pywrapfst_FstClass_ptr;
 
-/* "pywrapfst.pxd":242
+/* "fstlib/cext/pywrapfst.pxd":242
  * 
  * ctypedef fst.FstClass * FstClass_ptr
  * ctypedef const fst.FstClass * const_FstClass_ptr             # <<<<<<<<<<<<<<
@@ -1024,7 +1024,7 @@ typedef fst::script::FstClass *__pyx_t_6fstlib_4cext_9pywrapfst_FstClass_ptr;
  */
 typedef fst::script::FstClass const *__pyx_t_6fstlib_4cext_9pywrapfst_const_FstClass_ptr;
 
-/* "pywrapfst.pxd":243
+/* "fstlib/cext/pywrapfst.pxd":243
  * ctypedef fst.FstClass * FstClass_ptr
  * ctypedef const fst.FstClass * const_FstClass_ptr
  * ctypedef fst.MutableFstClass * MutableFstClass_ptr             # <<<<<<<<<<<<<<
@@ -1033,7 +1033,7 @@ typedef fst::script::FstClass const *__pyx_t_6fstlib_4cext_9pywrapfst_const_FstC
  */
 typedef fst::script::MutableFstClass *__pyx_t_6fstlib_4cext_9pywrapfst_MutableFstClass_ptr;
 
-/* "pywrapfst.pxd":244
+/* "fstlib/cext/pywrapfst.pxd":244
  * ctypedef const fst.FstClass * const_FstClass_ptr
  * ctypedef fst.MutableFstClass * MutableFstClass_ptr
  * ctypedef fst.VectorFstClass * VectorFstClass_ptr             # <<<<<<<<<<<<<<
@@ -1042,7 +1042,7 @@ typedef fst::script::MutableFstClass *__pyx_t_6fstlib_4cext_9pywrapfst_MutableFs
  */
 typedef fst::script::VectorFstClass *__pyx_t_6fstlib_4cext_9pywrapfst_VectorFstClass_ptr;
 
-/* "pywrapfst.pxd":260
+/* "fstlib/cext/pywrapfst.pxd":260
  *   cpdef Fst copy(self)
  * 
  *   cpdef void draw(self,             # <<<<<<<<<<<<<<
@@ -1068,7 +1068,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_3Fst_draw {
   bool show_weight_one;
 };
 
-/* "pywrapfst.pxd":292
+/* "fstlib/cext/pywrapfst.pxd":292
  *   cpdef _FstSymbolTableView output_symbols(self)
  * 
  *   cpdef string print(self,             # <<<<<<<<<<<<<<
@@ -1085,7 +1085,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_3Fst_print {
   PyObject *missing_sym;
 };
 
-/* "pywrapfst.pxd":325
+/* "fstlib/cext/pywrapfst.pxd":325
  *   cpdef void add_states(self, size_t)
  * 
  *   cdef void _arcsort(self, sort_type=?) except *             # <<<<<<<<<<<<<<
@@ -1097,7 +1097,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__arcsort {
   PyObject *sort_type;
 };
 
-/* "pywrapfst.pxd":327
+/* "fstlib/cext/pywrapfst.pxd":327
  *   cdef void _arcsort(self, sort_type=?) except *
  * 
  *   cdef void _closure(self, bool closure_plus=?)             # <<<<<<<<<<<<<<
@@ -1109,7 +1109,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__closure {
   bool closure_plus;
 };
 
-/* "pywrapfst.pxd":335
+/* "fstlib/cext/pywrapfst.pxd":335
  *   cdef void _decode(self, EncodeMapper) except *
  * 
  *   cdef void _delete_arcs(self, int64 state, size_t n=?) except *             # <<<<<<<<<<<<<<
@@ -1121,7 +1121,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__delete_arcs {
   size_t n;
 };
 
-/* "pywrapfst.pxd":337
+/* "fstlib/cext/pywrapfst.pxd":337
  *   cdef void _delete_arcs(self, int64 state, size_t n=?) except *
  * 
  *   cdef void _delete_states(self, states=?) except *             # <<<<<<<<<<<<<<
@@ -1133,7 +1133,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__delete_states {
   PyObject *states;
 };
 
-/* "pywrapfst.pxd":343
+/* "fstlib/cext/pywrapfst.pxd":343
  *   cdef void _invert(self)
  * 
  *   cdef void _minimize(self, float delta=?, bool allow_nondet=?) except *             # <<<<<<<<<<<<<<
@@ -1146,7 +1146,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__minimize {
   bool allow_nondet;
 };
 
-/* "pywrapfst.pxd":351
+/* "fstlib/cext/pywrapfst.pxd":351
  *   cdef void _project(self, project_type) except *
  * 
  *   cdef void _prune(self, float delta=?, int64 nstate=?, weight=?) except *             # <<<<<<<<<<<<<<
@@ -1160,7 +1160,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__prune {
   PyObject *weight;
 };
 
-/* "pywrapfst.pxd":353
+/* "fstlib/cext/pywrapfst.pxd":353
  *   cdef void _prune(self, float delta=?, int64 nstate=?, weight=?) except *
  * 
  *   cdef void _push(self,             # <<<<<<<<<<<<<<
@@ -1174,7 +1174,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__push {
   bool to_final;
 };
 
-/* "pywrapfst.pxd":358
+/* "fstlib/cext/pywrapfst.pxd":358
  *                   bool to_final=?)
  * 
  *   cdef void _relabel_pairs(self, ipairs=?, opairs=?) except *             # <<<<<<<<<<<<<<
@@ -1187,7 +1187,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__relabel_pairs {
   PyObject *opairs;
 };
 
-/* "pywrapfst.pxd":360
+/* "fstlib/cext/pywrapfst.pxd":360
  *   cdef void _relabel_pairs(self, ipairs=?, opairs=?) except *
  * 
  *   cdef void _relabel_tables(self,             # <<<<<<<<<<<<<<
@@ -1206,7 +1206,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__relabel_tables {
   bool attach_new_osymbols;
 };
 
-/* "pywrapfst.pxd":374
+/* "fstlib/cext/pywrapfst.pxd":374
  *   cdef void _reserve_states(self, int64 n)
  * 
  *   cdef void _reweight(self, potentials, bool to_final=?) except *             # <<<<<<<<<<<<<<
@@ -1218,7 +1218,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__reweight {
   bool to_final;
 };
 
-/* "pywrapfst.pxd":376
+/* "fstlib/cext/pywrapfst.pxd":376
  *   cdef void _reweight(self, potentials, bool to_final=?) except *
  * 
  *   cdef void _rmepsilon(self,             # <<<<<<<<<<<<<<
@@ -1234,7 +1234,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__rmepsilon {
   float delta;
 };
 
-/* "pywrapfst.pxd":383
+/* "fstlib/cext/pywrapfst.pxd":383
  *                        float delta=?) except *
  * 
  *   cdef void _set_final(self, int64 state, weight=?) except *             # <<<<<<<<<<<<<<
@@ -1246,7 +1246,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__set_final {
   PyObject *weight;
 };
 
-/* "pywrapfst.pxd":489
+/* "fstlib/cext/pywrapfst.pxd":489
  * 
  * 
  * cdef Fst _map(Fst ifst, float delta=?, map_type=?, double power=?, weight=?)             # <<<<<<<<<<<<<<
@@ -1261,7 +1261,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst__map {
   PyObject *weight;
 };
 
-/* "pywrapfst.pxd":491
+/* "fstlib/cext/pywrapfst.pxd":491
  * cdef Fst _map(Fst ifst, float delta=?, map_type=?, double power=?, weight=?)
  * 
  * cpdef Fst arcmap(Fst ifst, float delta=?, map_type=?, double power=?, weight=?)             # <<<<<<<<<<<<<<
@@ -1276,7 +1276,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_arcmap {
   PyObject *weight;
 };
 
-/* "pywrapfst.pxd":493
+/* "fstlib/cext/pywrapfst.pxd":493
  * cpdef Fst arcmap(Fst ifst, float delta=?, map_type=?, double power=?, weight=?)
  * 
  * cpdef MutableFst compose(Fst ifst1,             # <<<<<<<<<<<<<<
@@ -1289,7 +1289,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_compose {
   bool connect;
 };
 
-/* "pywrapfst.pxd":498
+/* "fstlib/cext/pywrapfst.pxd":498
  *                          bool connect=?)
  * 
  * cpdef Fst convert(Fst ifst, fst_type=?)             # <<<<<<<<<<<<<<
@@ -1301,7 +1301,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_convert {
   PyObject *fst_type;
 };
 
-/* "pywrapfst.pxd":500
+/* "fstlib/cext/pywrapfst.pxd":500
  * cpdef Fst convert(Fst ifst, fst_type=?)
  * 
  * cpdef MutableFst determinize(Fst ifst,             # <<<<<<<<<<<<<<
@@ -1318,7 +1318,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_determinize {
   bool increment_subsequential_label;
 };
 
-/* "pywrapfst.pxd":508
+/* "fstlib/cext/pywrapfst.pxd":508
  *                              bool increment_subsequential_label=?)
  * 
  * cpdef MutableFst difference(Fst ifst1,             # <<<<<<<<<<<<<<
@@ -1331,7 +1331,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_difference {
   bool connect;
 };
 
-/* "pywrapfst.pxd":513
+/* "fstlib/cext/pywrapfst.pxd":513
  *                             bool connect=?)
  * 
  * cpdef MutableFst disambiguate(Fst ifst,             # <<<<<<<<<<<<<<
@@ -1346,7 +1346,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_disambiguate {
   PyObject *weight;
 };
 
-/* "pywrapfst.pxd":519
+/* "fstlib/cext/pywrapfst.pxd":519
  *                               weight=?)
  * 
  * cpdef MutableFst epsnormalize(Fst ifst, bool eps_norm_output=?)             # <<<<<<<<<<<<<<
@@ -1358,7 +1358,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_epsnormalize {
   bool eps_norm_output;
 };
 
-/* "pywrapfst.pxd":521
+/* "fstlib/cext/pywrapfst.pxd":521
  * cpdef MutableFst epsnormalize(Fst ifst, bool eps_norm_output=?)
  * 
  * cpdef bool equal(Fst ifst1, Fst ifst2, float delta=?)             # <<<<<<<<<<<<<<
@@ -1370,7 +1370,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_equal {
   float delta;
 };
 
-/* "pywrapfst.pxd":523
+/* "fstlib/cext/pywrapfst.pxd":523
  * cpdef bool equal(Fst ifst1, Fst ifst2, float delta=?)
  * 
  * cpdef bool equivalent(Fst ifst1, Fst ifst2, float delta=?) except *             # <<<<<<<<<<<<<<
@@ -1382,7 +1382,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_equivalent {
   float delta;
 };
 
-/* "pywrapfst.pxd":525
+/* "fstlib/cext/pywrapfst.pxd":525
  * cpdef bool equivalent(Fst ifst1, Fst ifst2, float delta=?) except *
  * 
  * cpdef MutableFst intersect(Fst ifst1,             # <<<<<<<<<<<<<<
@@ -1395,7 +1395,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_intersect {
   bool connect;
 };
 
-/* "pywrapfst.pxd":530
+/* "fstlib/cext/pywrapfst.pxd":530
  *                            bool connect=?)
  * 
  * cpdef bool isomorphic(Fst ifst1, Fst ifst2, float delta=?)             # <<<<<<<<<<<<<<
@@ -1407,7 +1407,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_isomorphic {
   float delta;
 };
 
-/* "pywrapfst.pxd":532
+/* "fstlib/cext/pywrapfst.pxd":532
  * cpdef bool isomorphic(Fst ifst1, Fst ifst2, float delta=?)
  * 
  * cpdef MutableFst prune(Fst ifst,             # <<<<<<<<<<<<<<
@@ -1421,7 +1421,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_prune {
   PyObject *weight;
 };
 
-/* "pywrapfst.pxd":537
+/* "fstlib/cext/pywrapfst.pxd":537
  *                        weight=?)
  * 
  * cpdef MutableFst push(Fst ifst,             # <<<<<<<<<<<<<<
@@ -1438,7 +1438,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_push {
   bool to_final;
 };
 
-/* "pywrapfst.pxd":545
+/* "fstlib/cext/pywrapfst.pxd":545
  *                       bool to_final=?)
  * 
  * cpdef bool randequivalent(Fst ifst1,             # <<<<<<<<<<<<<<
@@ -1454,7 +1454,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_randequivalent {
   uint64 seed;
 };
 
-/* "pywrapfst.pxd":553
+/* "fstlib/cext/pywrapfst.pxd":553
  *                           uint64 seed=?) except *
  * 
  * cpdef MutableFst randgen(Fst ifst,             # <<<<<<<<<<<<<<
@@ -1471,7 +1471,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_randgen {
   uint64 seed;
 };
 
-/* "pywrapfst.pxd":561
+/* "fstlib/cext/pywrapfst.pxd":561
  *                          uint64 seed=?)
  * 
  * cpdef MutableFst replace(pairs,             # <<<<<<<<<<<<<<
@@ -1486,7 +1486,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_replace {
   int64 return_label;
 };
 
-/* "pywrapfst.pxd":567
+/* "fstlib/cext/pywrapfst.pxd":567
  *                          int64 return_label=?)
  * 
  * cpdef MutableFst reverse(Fst ifst, bool require_superinitial=?)             # <<<<<<<<<<<<<<
@@ -1498,7 +1498,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_reverse {
   bool require_superinitial;
 };
 
-/* "pywrapfst.pxd":569
+/* "fstlib/cext/pywrapfst.pxd":569
  * cpdef MutableFst reverse(Fst ifst, bool require_superinitial=?)
  * 
  * cdef void _shortestdistance(Fst ifst,             # <<<<<<<<<<<<<<
@@ -1513,7 +1513,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst__shortestdistance {
   bool reverse;
 };
 
-/* "pywrapfst.pxd":576
+/* "fstlib/cext/pywrapfst.pxd":576
  *                             bool reverse=?) except *
  * 
  * cpdef MutableFst shortestpath(Fst ifst,             # <<<<<<<<<<<<<<
@@ -1530,7 +1530,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_shortestpath {
   PyObject *weight;
 };
 
-/* "pywrapfst.pxd":71
+/* "fstlib/cext/pywrapfst.pxd":71
  * 
  * 
  * cdef class Weight:             # <<<<<<<<<<<<<<
@@ -1544,7 +1544,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight {
 };
 
 
-/* "pywrapfst.pxd":107
+/* "fstlib/cext/pywrapfst.pxd":107
  * 
  * 
  * cdef class SymbolTableView:             # <<<<<<<<<<<<<<
@@ -1557,7 +1557,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView {
 };
 
 
-/* "pywrapfst.pxd":138
+/* "fstlib/cext/pywrapfst.pxd":138
  * 
  * 
  * cdef class _EncodeMapperSymbolTableView(SymbolTableView):             # <<<<<<<<<<<<<<
@@ -1571,7 +1571,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView {
 };
 
 
-/* "pywrapfst.pxd":146
+/* "fstlib/cext/pywrapfst.pxd":146
  * 
  * 
  * cdef class _FstSymbolTableView(SymbolTableView):             # <<<<<<<<<<<<<<
@@ -1585,7 +1585,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst__FstSymbolTableView {
 };
 
 
-/* "pywrapfst.pxd":154
+/* "fstlib/cext/pywrapfst.pxd":154
  * 
  * 
  * cdef class _MutableSymbolTable(SymbolTableView):             # <<<<<<<<<<<<<<
@@ -1597,7 +1597,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableSymbolTable {
 };
 
 
-/* "pywrapfst.pxd":167
+/* "fstlib/cext/pywrapfst.pxd":167
  * 
  * 
  * cdef class _MutableFstSymbolTableView(_MutableSymbolTable):             # <<<<<<<<<<<<<<
@@ -1611,7 +1611,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView {
 };
 
 
-/* "pywrapfst.pxd":175
+/* "fstlib/cext/pywrapfst.pxd":175
  * 
  * 
  * cdef class SymbolTable(_MutableSymbolTable):             # <<<<<<<<<<<<<<
@@ -1624,7 +1624,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTable {
 };
 
 
-/* "pywrapfst.pxd":198
+/* "fstlib/cext/pywrapfst.pxd":198
  * 
  * 
  * cdef class _SymbolTableIterator:             # <<<<<<<<<<<<<<
@@ -1638,7 +1638,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst__SymbolTableIterator {
 };
 
 
-/* "pywrapfst.pxd":210
+/* "fstlib/cext/pywrapfst.pxd":210
  * 
  * 
  * cdef class EncodeMapper:             # <<<<<<<<<<<<<<
@@ -1652,7 +1652,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper {
 };
 
 
-/* "pywrapfst.pxd":247
+/* "fstlib/cext/pywrapfst.pxd":247
  * 
  * 
  * cdef class Fst:             # <<<<<<<<<<<<<<
@@ -1666,7 +1666,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst {
 };
 
 
-/* "pywrapfst.pxd":313
+/* "fstlib/cext/pywrapfst.pxd":313
  * 
  * 
  * cdef class MutableFst(Fst):             # <<<<<<<<<<<<<<
@@ -1679,7 +1679,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst {
 };
 
 
-/* "pywrapfst.pxd":394
+/* "fstlib/cext/pywrapfst.pxd":394
  * 
  * 
  * cdef class VectorFst(MutableFst):             # <<<<<<<<<<<<<<
@@ -1691,7 +1691,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst_VectorFst {
 };
 
 
-/* "pywrapfst.pxd":416
+/* "fstlib/cext/pywrapfst.pxd":416
  * 
  * 
  * cdef class Arc:             # <<<<<<<<<<<<<<
@@ -1705,7 +1705,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst_Arc {
 };
 
 
-/* "pywrapfst.pxd":426
+/* "fstlib/cext/pywrapfst.pxd":426
  * 
  * 
  * cdef class _ArcIterator:             # <<<<<<<<<<<<<<
@@ -1720,7 +1720,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst__ArcIterator {
 };
 
 
-/* "pywrapfst.pxd":448
+/* "fstlib/cext/pywrapfst.pxd":448
  * 
  * 
  * cdef class _MutableArcIterator:             # <<<<<<<<<<<<<<
@@ -1735,7 +1735,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableArcIterator {
 };
 
 
-/* "pywrapfst.pxd":472
+/* "fstlib/cext/pywrapfst.pxd":472
  * 
  * 
  * cdef class _StateIterator:             # <<<<<<<<<<<<<<
@@ -1750,7 +1750,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst__StateIterator {
 };
 
 
-/* "pywrapfst.pxd":592
+/* "fstlib/cext/pywrapfst.pxd":592
  * 
  * 
  * cdef class Compiler:             # <<<<<<<<<<<<<<
@@ -1774,7 +1774,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst_Compiler {
 };
 
 
-/* "pywrapfst.pxd":613
+/* "fstlib/cext/pywrapfst.pxd":613
  * # FarReader.
  * 
  * cdef class FarReader:             # <<<<<<<<<<<<<<
@@ -1788,7 +1788,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarReader {
 };
 
 
-/* "pywrapfst.pxd":638
+/* "fstlib/cext/pywrapfst.pxd":638
  * # FarWriter.
  * 
  * cdef class FarWriter:             # <<<<<<<<<<<<<<
@@ -1803,7 +1803,7 @@ struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarWriter {
 
 
 
-/* "pywrapfst.pxd":71
+/* "fstlib/cext/pywrapfst.pxd":71
  * 
  * 
  * cdef class Weight:             # <<<<<<<<<<<<<<
@@ -1821,7 +1821,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Weight {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Weight *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_Weight;
 
 
-/* "pywrapfst.pxd":107
+/* "fstlib/cext/pywrapfst.pxd":107
  * 
  * 
  * cdef class SymbolTableView:             # <<<<<<<<<<<<<<
@@ -1848,7 +1848,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_SymbolTableView {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_SymbolTableView *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_SymbolTableView;
 
 
-/* "pywrapfst.pxd":138
+/* "fstlib/cext/pywrapfst.pxd":138
  * 
  * 
  * cdef class _EncodeMapperSymbolTableView(SymbolTableView):             # <<<<<<<<<<<<<<
@@ -1862,7 +1862,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView *__pyx_vtabptr_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView;
 
 
-/* "pywrapfst.pxd":146
+/* "fstlib/cext/pywrapfst.pxd":146
  * 
  * 
  * cdef class _FstSymbolTableView(SymbolTableView):             # <<<<<<<<<<<<<<
@@ -1876,7 +1876,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__FstSymbolTableView {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__FstSymbolTableView *__pyx_vtabptr_6fstlib_4cext_9pywrapfst__FstSymbolTableView;
 
 
-/* "pywrapfst.pxd":154
+/* "fstlib/cext/pywrapfst.pxd":154
  * 
  * 
  * cdef class _MutableSymbolTable(SymbolTableView):             # <<<<<<<<<<<<<<
@@ -1895,7 +1895,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableSymbolTable {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableSymbolTable *__pyx_vtabptr_6fstlib_4cext_9pywrapfst__MutableSymbolTable;
 
 
-/* "pywrapfst.pxd":167
+/* "fstlib/cext/pywrapfst.pxd":167
  * 
  * 
  * cdef class _MutableFstSymbolTableView(_MutableSymbolTable):             # <<<<<<<<<<<<<<
@@ -1909,7 +1909,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView *__pyx_vtabptr_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView;
 
 
-/* "pywrapfst.pxd":175
+/* "fstlib/cext/pywrapfst.pxd":175
  * 
  * 
  * cdef class SymbolTable(_MutableSymbolTable):             # <<<<<<<<<<<<<<
@@ -1923,7 +1923,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_SymbolTable {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_SymbolTable *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_SymbolTable;
 
 
-/* "pywrapfst.pxd":210
+/* "fstlib/cext/pywrapfst.pxd":210
  * 
  * 
  * cdef class EncodeMapper:             # <<<<<<<<<<<<<<
@@ -1945,7 +1945,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_EncodeMapper {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_EncodeMapper *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_EncodeMapper;
 
 
-/* "pywrapfst.pxd":247
+/* "fstlib/cext/pywrapfst.pxd":247
  * 
  * 
  * cdef class Fst:             # <<<<<<<<<<<<<<
@@ -1977,7 +1977,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Fst {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Fst *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_Fst;
 
 
-/* "pywrapfst.pxd":313
+/* "fstlib/cext/pywrapfst.pxd":313
  * 
  * 
  * cdef class MutableFst(Fst):             # <<<<<<<<<<<<<<
@@ -2021,7 +2021,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_MutableFst {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_MutableFst *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_MutableFst;
 
 
-/* "pywrapfst.pxd":394
+/* "fstlib/cext/pywrapfst.pxd":394
  * 
  * 
  * cdef class VectorFst(MutableFst):             # <<<<<<<<<<<<<<
@@ -2035,7 +2035,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_VectorFst {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_VectorFst *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_VectorFst;
 
 
-/* "pywrapfst.pxd":416
+/* "fstlib/cext/pywrapfst.pxd":416
  * 
  * 
  * cdef class Arc:             # <<<<<<<<<<<<<<
@@ -2049,7 +2049,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Arc {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Arc *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_Arc;
 
 
-/* "pywrapfst.pxd":426
+/* "fstlib/cext/pywrapfst.pxd":426
  * 
  * 
  * cdef class _ArcIterator:             # <<<<<<<<<<<<<<
@@ -2070,7 +2070,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__ArcIterator {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__ArcIterator *__pyx_vtabptr_6fstlib_4cext_9pywrapfst__ArcIterator;
 
 
-/* "pywrapfst.pxd":448
+/* "fstlib/cext/pywrapfst.pxd":448
  * 
  * 
  * cdef class _MutableArcIterator:             # <<<<<<<<<<<<<<
@@ -2092,7 +2092,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableArcIterator {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableArcIterator *__pyx_vtabptr_6fstlib_4cext_9pywrapfst__MutableArcIterator;
 
 
-/* "pywrapfst.pxd":472
+/* "fstlib/cext/pywrapfst.pxd":472
  * 
  * 
  * cdef class _StateIterator:             # <<<<<<<<<<<<<<
@@ -2109,7 +2109,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__StateIterator {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__StateIterator *__pyx_vtabptr_6fstlib_4cext_9pywrapfst__StateIterator;
 
 
-/* "pywrapfst.pxd":592
+/* "fstlib/cext/pywrapfst.pxd":592
  * 
  * 
  * cdef class Compiler:             # <<<<<<<<<<<<<<
@@ -2124,7 +2124,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Compiler {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Compiler *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_Compiler;
 
 
-/* "pywrapfst.pxd":613
+/* "fstlib/cext/pywrapfst.pxd":613
  * # FarReader.
  * 
  * cdef class FarReader:             # <<<<<<<<<<<<<<
@@ -2146,7 +2146,7 @@ struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_FarReader {
 static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_FarReader *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_FarReader;
 
 
-/* "pywrapfst.pxd":638
+/* "fstlib/cext/pywrapfst.pxd":638
  * # FarWriter.
  * 
  * cdef class FarWriter:             # <<<<<<<<<<<<<<

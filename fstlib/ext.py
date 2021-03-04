@@ -1,5 +1,7 @@
 import logging
+
 import pandas as pd
+
 import fstlib
 import fstlib.cext.ops
 from fstlib.cext import pywrapfst
