@@ -894,25 +894,25 @@ static const char *__pyx_f[] = {
 };
 
 /*--- Type declarations ---*/
-struct __pyx_obj_9pywrapfst_Weight;
-struct __pyx_obj_9pywrapfst_SymbolTableView;
-struct __pyx_obj_9pywrapfst__EncodeMapperSymbolTableView;
-struct __pyx_obj_9pywrapfst__FstSymbolTableView;
-struct __pyx_obj_9pywrapfst__MutableSymbolTable;
-struct __pyx_obj_9pywrapfst__MutableFstSymbolTableView;
-struct __pyx_obj_9pywrapfst_SymbolTable;
-struct __pyx_obj_9pywrapfst__SymbolTableIterator;
-struct __pyx_obj_9pywrapfst_EncodeMapper;
-struct __pyx_obj_9pywrapfst_Fst;
-struct __pyx_obj_9pywrapfst_MutableFst;
-struct __pyx_obj_9pywrapfst_VectorFst;
-struct __pyx_obj_9pywrapfst_Arc;
-struct __pyx_obj_9pywrapfst__ArcIterator;
-struct __pyx_obj_9pywrapfst__MutableArcIterator;
-struct __pyx_obj_9pywrapfst__StateIterator;
-struct __pyx_obj_9pywrapfst_Compiler;
-struct __pyx_obj_9pywrapfst_FarReader;
-struct __pyx_obj_9pywrapfst_FarWriter;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__FstSymbolTableView;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableSymbolTable;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTable;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__SymbolTableIterator;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_VectorFst;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_Arc;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__ArcIterator;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableArcIterator;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__StateIterator;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_Compiler;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarReader;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarWriter;
 
 /* "cpywrapfst.pxd":508
  * 
@@ -931,129 +931,129 @@ typedef std::pair<int64,fst::script::FstClass const *>  __pyx_t_10cpywrapfst_Lab
  * 
  */
 typedef std::pair<int64,int64>  __pyx_t_10cpywrapfst_LabelPair;
-struct __pyx_opt_args_9pywrapfst_19_MutableSymbolTable_add_symbol;
-struct __pyx_opt_args_9pywrapfst_3Fst_draw;
-struct __pyx_opt_args_9pywrapfst_3Fst_print;
-struct __pyx_opt_args_9pywrapfst_10MutableFst__arcsort;
-struct __pyx_opt_args_9pywrapfst_10MutableFst__closure;
-struct __pyx_opt_args_9pywrapfst_10MutableFst__delete_arcs;
-struct __pyx_opt_args_9pywrapfst_10MutableFst__delete_states;
-struct __pyx_opt_args_9pywrapfst_10MutableFst__minimize;
-struct __pyx_opt_args_9pywrapfst_10MutableFst__prune;
-struct __pyx_opt_args_9pywrapfst_10MutableFst__push;
-struct __pyx_opt_args_9pywrapfst_10MutableFst__relabel_pairs;
-struct __pyx_opt_args_9pywrapfst_10MutableFst__relabel_tables;
-struct __pyx_opt_args_9pywrapfst_10MutableFst__reweight;
-struct __pyx_opt_args_9pywrapfst_10MutableFst__rmepsilon;
-struct __pyx_opt_args_9pywrapfst_10MutableFst__set_final;
-struct __pyx_opt_args_9pywrapfst__map;
-struct __pyx_opt_args_9pywrapfst_arcmap;
-struct __pyx_opt_args_9pywrapfst_compose;
-struct __pyx_opt_args_9pywrapfst_convert;
-struct __pyx_opt_args_9pywrapfst_determinize;
-struct __pyx_opt_args_9pywrapfst_difference;
-struct __pyx_opt_args_9pywrapfst_disambiguate;
-struct __pyx_opt_args_9pywrapfst_epsnormalize;
-struct __pyx_opt_args_9pywrapfst_equal;
-struct __pyx_opt_args_9pywrapfst_equivalent;
-struct __pyx_opt_args_9pywrapfst_intersect;
-struct __pyx_opt_args_9pywrapfst_isomorphic;
-struct __pyx_opt_args_9pywrapfst_prune;
-struct __pyx_opt_args_9pywrapfst_push;
-struct __pyx_opt_args_9pywrapfst_randequivalent;
-struct __pyx_opt_args_9pywrapfst_randgen;
-struct __pyx_opt_args_9pywrapfst_replace;
-struct __pyx_opt_args_9pywrapfst_reverse;
-struct __pyx_opt_args_9pywrapfst__shortestdistance;
-struct __pyx_opt_args_9pywrapfst_shortestpath;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_19_MutableSymbolTable_add_symbol;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_3Fst_draw;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_3Fst_print;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__arcsort;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__closure;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__delete_arcs;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__delete_states;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__minimize;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__prune;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__push;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__relabel_pairs;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__relabel_tables;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__reweight;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__rmepsilon;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__set_final;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst__map;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_arcmap;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_compose;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_convert;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_determinize;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_difference;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_disambiguate;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_epsnormalize;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_equal;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_equivalent;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_intersect;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_isomorphic;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_prune;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_push;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_randequivalent;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_randgen;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_replace;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_reverse;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst__shortestdistance;
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_shortestpath;
 
-/* "pywrapfst.pxd":103
+/* "fstlib/cext/pywrapfst.pxd":103
  * # SymbolTable.
  * 
  * ctypedef fst.SymbolTable * SymbolTable_ptr             # <<<<<<<<<<<<<<
  * ctypedef const fst.SymbolTable * const_SymbolTable_ptr
  * 
  */
-typedef fst::SymbolTable *__pyx_t_9pywrapfst_SymbolTable_ptr;
+typedef fst::SymbolTable *__pyx_t_6fstlib_4cext_9pywrapfst_SymbolTable_ptr;
 
-/* "pywrapfst.pxd":104
+/* "fstlib/cext/pywrapfst.pxd":104
  * 
  * ctypedef fst.SymbolTable * SymbolTable_ptr
  * ctypedef const fst.SymbolTable * const_SymbolTable_ptr             # <<<<<<<<<<<<<<
  * 
  * 
  */
-typedef fst::SymbolTable const *__pyx_t_9pywrapfst_const_SymbolTable_ptr;
+typedef fst::SymbolTable const *__pyx_t_6fstlib_4cext_9pywrapfst_const_SymbolTable_ptr;
 
-/* "pywrapfst.pxd":160
+/* "fstlib/cext/pywrapfst.pxd":160
  *   cdef fst.SymbolTable *_mutable_raw_ptr_or_raise(self) except *
  * 
  *   cpdef int64 add_symbol(self, symbol, int64 key=?) except *             # <<<<<<<<<<<<<<
  * 
  *   cpdef void add_table(self, SymbolTableView syms) except *
  */
-struct __pyx_opt_args_9pywrapfst_19_MutableSymbolTable_add_symbol {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_19_MutableSymbolTable_add_symbol {
   int __pyx_n;
   int64 key;
 };
 
-/* "pywrapfst.pxd":207
+/* "fstlib/cext/pywrapfst.pxd":207
  * 
  * 
  * ctypedef fst.EncodeMapperClass * EncodeMapperClass_ptr             # <<<<<<<<<<<<<<
  * 
  * 
  */
-typedef fst::script::EncodeMapperClass *__pyx_t_9pywrapfst_EncodeMapperClass_ptr;
+typedef fst::script::EncodeMapperClass *__pyx_t_6fstlib_4cext_9pywrapfst_EncodeMapperClass_ptr;
 
-/* "pywrapfst.pxd":241
+/* "fstlib/cext/pywrapfst.pxd":241
  * 
  * 
  * ctypedef fst.FstClass * FstClass_ptr             # <<<<<<<<<<<<<<
  * ctypedef const fst.FstClass * const_FstClass_ptr
  * ctypedef fst.MutableFstClass * MutableFstClass_ptr
  */
-typedef fst::script::FstClass *__pyx_t_9pywrapfst_FstClass_ptr;
+typedef fst::script::FstClass *__pyx_t_6fstlib_4cext_9pywrapfst_FstClass_ptr;
 
-/* "pywrapfst.pxd":242
+/* "fstlib/cext/pywrapfst.pxd":242
  * 
  * ctypedef fst.FstClass * FstClass_ptr
  * ctypedef const fst.FstClass * const_FstClass_ptr             # <<<<<<<<<<<<<<
  * ctypedef fst.MutableFstClass * MutableFstClass_ptr
  * ctypedef fst.VectorFstClass * VectorFstClass_ptr
  */
-typedef fst::script::FstClass const *__pyx_t_9pywrapfst_const_FstClass_ptr;
+typedef fst::script::FstClass const *__pyx_t_6fstlib_4cext_9pywrapfst_const_FstClass_ptr;
 
-/* "pywrapfst.pxd":243
+/* "fstlib/cext/pywrapfst.pxd":243
  * ctypedef fst.FstClass * FstClass_ptr
  * ctypedef const fst.FstClass * const_FstClass_ptr
  * ctypedef fst.MutableFstClass * MutableFstClass_ptr             # <<<<<<<<<<<<<<
  * ctypedef fst.VectorFstClass * VectorFstClass_ptr
  * 
  */
-typedef fst::script::MutableFstClass *__pyx_t_9pywrapfst_MutableFstClass_ptr;
+typedef fst::script::MutableFstClass *__pyx_t_6fstlib_4cext_9pywrapfst_MutableFstClass_ptr;
 
-/* "pywrapfst.pxd":244
+/* "fstlib/cext/pywrapfst.pxd":244
  * ctypedef const fst.FstClass * const_FstClass_ptr
  * ctypedef fst.MutableFstClass * MutableFstClass_ptr
  * ctypedef fst.VectorFstClass * VectorFstClass_ptr             # <<<<<<<<<<<<<<
  * 
  * 
  */
-typedef fst::script::VectorFstClass *__pyx_t_9pywrapfst_VectorFstClass_ptr;
+typedef fst::script::VectorFstClass *__pyx_t_6fstlib_4cext_9pywrapfst_VectorFstClass_ptr;
 
-/* "pywrapfst.pxd":260
+/* "fstlib/cext/pywrapfst.pxd":260
  *   cpdef Fst copy(self)
  * 
  *   cpdef void draw(self,             # <<<<<<<<<<<<<<
  *                   source,
  *                   SymbolTableView isymbols=?,
  */
-struct __pyx_opt_args_9pywrapfst_3Fst_draw {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_3Fst_draw {
   int __pyx_n;
-  struct __pyx_obj_9pywrapfst_SymbolTableView *isymbols;
-  struct __pyx_obj_9pywrapfst_SymbolTableView *osymbols;
-  struct __pyx_obj_9pywrapfst_SymbolTableView *ssymbols;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *isymbols;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *osymbols;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *ssymbols;
   bool acceptor;
   PyObject *title;
   double width;
@@ -1068,164 +1068,164 @@ struct __pyx_opt_args_9pywrapfst_3Fst_draw {
   bool show_weight_one;
 };
 
-/* "pywrapfst.pxd":292
+/* "fstlib/cext/pywrapfst.pxd":292
  *   cpdef _FstSymbolTableView output_symbols(self)
  * 
  *   cpdef string print(self,             # <<<<<<<<<<<<<<
  *                     SymbolTableView isymbols=?,
  *                     SymbolTableView osymbols=?,
  */
-struct __pyx_opt_args_9pywrapfst_3Fst_print {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_3Fst_print {
   int __pyx_n;
-  struct __pyx_obj_9pywrapfst_SymbolTableView *isymbols;
-  struct __pyx_obj_9pywrapfst_SymbolTableView *osymbols;
-  struct __pyx_obj_9pywrapfst_SymbolTableView *ssymbols;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *isymbols;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *osymbols;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *ssymbols;
   bool acceptor;
   bool show_weight_one;
   PyObject *missing_sym;
 };
 
-/* "pywrapfst.pxd":325
+/* "fstlib/cext/pywrapfst.pxd":325
  *   cpdef void add_states(self, size_t)
  * 
  *   cdef void _arcsort(self, sort_type=?) except *             # <<<<<<<<<<<<<<
  * 
  *   cdef void _closure(self, bool closure_plus=?)
  */
-struct __pyx_opt_args_9pywrapfst_10MutableFst__arcsort {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__arcsort {
   int __pyx_n;
   PyObject *sort_type;
 };
 
-/* "pywrapfst.pxd":327
+/* "fstlib/cext/pywrapfst.pxd":327
  *   cdef void _arcsort(self, sort_type=?) except *
  * 
  *   cdef void _closure(self, bool closure_plus=?)             # <<<<<<<<<<<<<<
  * 
  *   cdef void _concat(self, Fst fst2) except *
  */
-struct __pyx_opt_args_9pywrapfst_10MutableFst__closure {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__closure {
   int __pyx_n;
   bool closure_plus;
 };
 
-/* "pywrapfst.pxd":335
+/* "fstlib/cext/pywrapfst.pxd":335
  *   cdef void _decode(self, EncodeMapper) except *
  * 
  *   cdef void _delete_arcs(self, int64 state, size_t n=?) except *             # <<<<<<<<<<<<<<
  * 
  *   cdef void _delete_states(self, states=?) except *
  */
-struct __pyx_opt_args_9pywrapfst_10MutableFst__delete_arcs {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__delete_arcs {
   int __pyx_n;
   size_t n;
 };
 
-/* "pywrapfst.pxd":337
+/* "fstlib/cext/pywrapfst.pxd":337
  *   cdef void _delete_arcs(self, int64 state, size_t n=?) except *
  * 
  *   cdef void _delete_states(self, states=?) except *             # <<<<<<<<<<<<<<
  * 
  *   cdef void _encode(self, EncodeMapper) except *
  */
-struct __pyx_opt_args_9pywrapfst_10MutableFst__delete_states {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__delete_states {
   int __pyx_n;
   PyObject *states;
 };
 
-/* "pywrapfst.pxd":343
+/* "fstlib/cext/pywrapfst.pxd":343
  *   cdef void _invert(self)
  * 
  *   cdef void _minimize(self, float delta=?, bool allow_nondet=?) except *             # <<<<<<<<<<<<<<
  * 
  *   cpdef _MutableArcIterator mutable_arcs(self, int64 state)
  */
-struct __pyx_opt_args_9pywrapfst_10MutableFst__minimize {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__minimize {
   int __pyx_n;
   float delta;
   bool allow_nondet;
 };
 
-/* "pywrapfst.pxd":351
+/* "fstlib/cext/pywrapfst.pxd":351
  *   cdef void _project(self, project_type) except *
  * 
  *   cdef void _prune(self, float delta=?, int64 nstate=?, weight=?) except *             # <<<<<<<<<<<<<<
  * 
  *   cdef void _push(self,
  */
-struct __pyx_opt_args_9pywrapfst_10MutableFst__prune {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__prune {
   int __pyx_n;
   float delta;
   int64 nstate;
   PyObject *weight;
 };
 
-/* "pywrapfst.pxd":353
+/* "fstlib/cext/pywrapfst.pxd":353
  *   cdef void _prune(self, float delta=?, int64 nstate=?, weight=?) except *
  * 
  *   cdef void _push(self,             # <<<<<<<<<<<<<<
  *                   float delta=?,
  *                   bool remove_total_weight=?,
  */
-struct __pyx_opt_args_9pywrapfst_10MutableFst__push {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__push {
   int __pyx_n;
   float delta;
   bool remove_total_weight;
   bool to_final;
 };
 
-/* "pywrapfst.pxd":358
+/* "fstlib/cext/pywrapfst.pxd":358
  *                   bool to_final=?)
  * 
  *   cdef void _relabel_pairs(self, ipairs=?, opairs=?) except *             # <<<<<<<<<<<<<<
  * 
  *   cdef void _relabel_tables(self,
  */
-struct __pyx_opt_args_9pywrapfst_10MutableFst__relabel_pairs {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__relabel_pairs {
   int __pyx_n;
   PyObject *ipairs;
   PyObject *opairs;
 };
 
-/* "pywrapfst.pxd":360
+/* "fstlib/cext/pywrapfst.pxd":360
  *   cdef void _relabel_pairs(self, ipairs=?, opairs=?) except *
  * 
  *   cdef void _relabel_tables(self,             # <<<<<<<<<<<<<<
  *                             SymbolTableView old_isymbols=?,
  *                             SymbolTableView new_isymbols=?,
  */
-struct __pyx_opt_args_9pywrapfst_10MutableFst__relabel_tables {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__relabel_tables {
   int __pyx_n;
-  struct __pyx_obj_9pywrapfst_SymbolTableView *old_isymbols;
-  struct __pyx_obj_9pywrapfst_SymbolTableView *new_isymbols;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *old_isymbols;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *new_isymbols;
   PyObject *unknown_isymbol;
   bool attach_new_isymbols;
-  struct __pyx_obj_9pywrapfst_SymbolTableView *old_osymbols;
-  struct __pyx_obj_9pywrapfst_SymbolTableView *new_osymbols;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *old_osymbols;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *new_osymbols;
   PyObject *unknown_osymbol;
   bool attach_new_osymbols;
 };
 
-/* "pywrapfst.pxd":374
+/* "fstlib/cext/pywrapfst.pxd":374
  *   cdef void _reserve_states(self, int64 n)
  * 
  *   cdef void _reweight(self, potentials, bool to_final=?) except *             # <<<<<<<<<<<<<<
  * 
  *   cdef void _rmepsilon(self,
  */
-struct __pyx_opt_args_9pywrapfst_10MutableFst__reweight {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__reweight {
   int __pyx_n;
   bool to_final;
 };
 
-/* "pywrapfst.pxd":376
+/* "fstlib/cext/pywrapfst.pxd":376
  *   cdef void _reweight(self, potentials, bool to_final=?) except *
  * 
  *   cdef void _rmepsilon(self,             # <<<<<<<<<<<<<<
  *                        queue_type=?,
  *                        bool connect=?,
  */
-struct __pyx_opt_args_9pywrapfst_10MutableFst__rmepsilon {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__rmepsilon {
   int __pyx_n;
   PyObject *queue_type;
   bool connect;
@@ -1234,26 +1234,26 @@ struct __pyx_opt_args_9pywrapfst_10MutableFst__rmepsilon {
   float delta;
 };
 
-/* "pywrapfst.pxd":383
+/* "fstlib/cext/pywrapfst.pxd":383
  *                        float delta=?) except *
  * 
  *   cdef void _set_final(self, int64 state, weight=?) except *             # <<<<<<<<<<<<<<
  * 
  *   cdef void _set_start(self, int64 state) except *
  */
-struct __pyx_opt_args_9pywrapfst_10MutableFst__set_final {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__set_final {
   int __pyx_n;
   PyObject *weight;
 };
 
-/* "pywrapfst.pxd":489
+/* "fstlib/cext/pywrapfst.pxd":489
  * 
  * 
  * cdef Fst _map(Fst ifst, float delta=?, map_type=?, double power=?, weight=?)             # <<<<<<<<<<<<<<
  * 
  * cpdef Fst arcmap(Fst ifst, float delta=?, map_type=?, double power=?, weight=?)
  */
-struct __pyx_opt_args_9pywrapfst__map {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst__map {
   int __pyx_n;
   float delta;
   PyObject *map_type;
@@ -1261,14 +1261,14 @@ struct __pyx_opt_args_9pywrapfst__map {
   PyObject *weight;
 };
 
-/* "pywrapfst.pxd":491
+/* "fstlib/cext/pywrapfst.pxd":491
  * cdef Fst _map(Fst ifst, float delta=?, map_type=?, double power=?, weight=?)
  * 
  * cpdef Fst arcmap(Fst ifst, float delta=?, map_type=?, double power=?, weight=?)             # <<<<<<<<<<<<<<
  * 
  * cpdef MutableFst compose(Fst ifst1,
  */
-struct __pyx_opt_args_9pywrapfst_arcmap {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_arcmap {
   int __pyx_n;
   float delta;
   PyObject *map_type;
@@ -1276,39 +1276,39 @@ struct __pyx_opt_args_9pywrapfst_arcmap {
   PyObject *weight;
 };
 
-/* "pywrapfst.pxd":493
+/* "fstlib/cext/pywrapfst.pxd":493
  * cpdef Fst arcmap(Fst ifst, float delta=?, map_type=?, double power=?, weight=?)
  * 
  * cpdef MutableFst compose(Fst ifst1,             # <<<<<<<<<<<<<<
  *                          Fst ifst2,
  *                          compose_filter=?,
  */
-struct __pyx_opt_args_9pywrapfst_compose {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_compose {
   int __pyx_n;
   PyObject *compose_filter;
   bool connect;
 };
 
-/* "pywrapfst.pxd":498
+/* "fstlib/cext/pywrapfst.pxd":498
  *                          bool connect=?)
  * 
  * cpdef Fst convert(Fst ifst, fst_type=?)             # <<<<<<<<<<<<<<
  * 
  * cpdef MutableFst determinize(Fst ifst,
  */
-struct __pyx_opt_args_9pywrapfst_convert {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_convert {
   int __pyx_n;
   PyObject *fst_type;
 };
 
-/* "pywrapfst.pxd":500
+/* "fstlib/cext/pywrapfst.pxd":500
  * cpdef Fst convert(Fst ifst, fst_type=?)
  * 
  * cpdef MutableFst determinize(Fst ifst,             # <<<<<<<<<<<<<<
  *                              float delta=?,
  *                              det_type=?,
  */
-struct __pyx_opt_args_9pywrapfst_determinize {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_determinize {
   int __pyx_n;
   float delta;
   PyObject *det_type;
@@ -1318,27 +1318,27 @@ struct __pyx_opt_args_9pywrapfst_determinize {
   bool increment_subsequential_label;
 };
 
-/* "pywrapfst.pxd":508
+/* "fstlib/cext/pywrapfst.pxd":508
  *                              bool increment_subsequential_label=?)
  * 
  * cpdef MutableFst difference(Fst ifst1,             # <<<<<<<<<<<<<<
  *                             Fst ifst2,
  *                             compose_filter=?,
  */
-struct __pyx_opt_args_9pywrapfst_difference {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_difference {
   int __pyx_n;
   PyObject *compose_filter;
   bool connect;
 };
 
-/* "pywrapfst.pxd":513
+/* "fstlib/cext/pywrapfst.pxd":513
  *                             bool connect=?)
  * 
  * cpdef MutableFst disambiguate(Fst ifst,             # <<<<<<<<<<<<<<
  *                               float delta=?,
  *                               int64 nstate=?,
  */
-struct __pyx_opt_args_9pywrapfst_disambiguate {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_disambiguate {
   int __pyx_n;
   float delta;
   int64 nstate;
@@ -1346,89 +1346,89 @@ struct __pyx_opt_args_9pywrapfst_disambiguate {
   PyObject *weight;
 };
 
-/* "pywrapfst.pxd":519
+/* "fstlib/cext/pywrapfst.pxd":519
  *                               weight=?)
  * 
  * cpdef MutableFst epsnormalize(Fst ifst, bool eps_norm_output=?)             # <<<<<<<<<<<<<<
  * 
  * cpdef bool equal(Fst ifst1, Fst ifst2, float delta=?)
  */
-struct __pyx_opt_args_9pywrapfst_epsnormalize {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_epsnormalize {
   int __pyx_n;
   bool eps_norm_output;
 };
 
-/* "pywrapfst.pxd":521
+/* "fstlib/cext/pywrapfst.pxd":521
  * cpdef MutableFst epsnormalize(Fst ifst, bool eps_norm_output=?)
  * 
  * cpdef bool equal(Fst ifst1, Fst ifst2, float delta=?)             # <<<<<<<<<<<<<<
  * 
  * cpdef bool equivalent(Fst ifst1, Fst ifst2, float delta=?) except *
  */
-struct __pyx_opt_args_9pywrapfst_equal {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_equal {
   int __pyx_n;
   float delta;
 };
 
-/* "pywrapfst.pxd":523
+/* "fstlib/cext/pywrapfst.pxd":523
  * cpdef bool equal(Fst ifst1, Fst ifst2, float delta=?)
  * 
  * cpdef bool equivalent(Fst ifst1, Fst ifst2, float delta=?) except *             # <<<<<<<<<<<<<<
  * 
  * cpdef MutableFst intersect(Fst ifst1,
  */
-struct __pyx_opt_args_9pywrapfst_equivalent {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_equivalent {
   int __pyx_n;
   float delta;
 };
 
-/* "pywrapfst.pxd":525
+/* "fstlib/cext/pywrapfst.pxd":525
  * cpdef bool equivalent(Fst ifst1, Fst ifst2, float delta=?) except *
  * 
  * cpdef MutableFst intersect(Fst ifst1,             # <<<<<<<<<<<<<<
  *                            Fst ifst2,
  *                            compose_filter=?,
  */
-struct __pyx_opt_args_9pywrapfst_intersect {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_intersect {
   int __pyx_n;
   PyObject *compose_filter;
   bool connect;
 };
 
-/* "pywrapfst.pxd":530
+/* "fstlib/cext/pywrapfst.pxd":530
  *                            bool connect=?)
  * 
  * cpdef bool isomorphic(Fst ifst1, Fst ifst2, float delta=?)             # <<<<<<<<<<<<<<
  * 
  * cpdef MutableFst prune(Fst ifst,
  */
-struct __pyx_opt_args_9pywrapfst_isomorphic {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_isomorphic {
   int __pyx_n;
   float delta;
 };
 
-/* "pywrapfst.pxd":532
+/* "fstlib/cext/pywrapfst.pxd":532
  * cpdef bool isomorphic(Fst ifst1, Fst ifst2, float delta=?)
  * 
  * cpdef MutableFst prune(Fst ifst,             # <<<<<<<<<<<<<<
  *                        float delta=?,
  *                        int64 nstate=?,
  */
-struct __pyx_opt_args_9pywrapfst_prune {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_prune {
   int __pyx_n;
   float delta;
   int64 nstate;
   PyObject *weight;
 };
 
-/* "pywrapfst.pxd":537
+/* "fstlib/cext/pywrapfst.pxd":537
  *                        weight=?)
  * 
  * cpdef MutableFst push(Fst ifst,             # <<<<<<<<<<<<<<
  *                       float delta=?,
  *                       bool push_weights=?,
  */
-struct __pyx_opt_args_9pywrapfst_push {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_push {
   int __pyx_n;
   float delta;
   bool push_weights;
@@ -1438,14 +1438,14 @@ struct __pyx_opt_args_9pywrapfst_push {
   bool to_final;
 };
 
-/* "pywrapfst.pxd":545
+/* "fstlib/cext/pywrapfst.pxd":545
  *                       bool to_final=?)
  * 
  * cpdef bool randequivalent(Fst ifst1,             # <<<<<<<<<<<<<<
  *                           Fst ifst2,
  *                           int32 npath=?,
  */
-struct __pyx_opt_args_9pywrapfst_randequivalent {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_randequivalent {
   int __pyx_n;
   int32 npath;
   float delta;
@@ -1454,14 +1454,14 @@ struct __pyx_opt_args_9pywrapfst_randequivalent {
   uint64 seed;
 };
 
-/* "pywrapfst.pxd":553
+/* "fstlib/cext/pywrapfst.pxd":553
  *                           uint64 seed=?) except *
  * 
  * cpdef MutableFst randgen(Fst ifst,             # <<<<<<<<<<<<<<
  *                          int32 npath=?,
  *                          select=?,
  */
-struct __pyx_opt_args_9pywrapfst_randgen {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_randgen {
   int __pyx_n;
   int32 npath;
   PyObject *select;
@@ -1471,14 +1471,14 @@ struct __pyx_opt_args_9pywrapfst_randgen {
   uint64 seed;
 };
 
-/* "pywrapfst.pxd":561
+/* "fstlib/cext/pywrapfst.pxd":561
  *                          uint64 seed=?)
  * 
  * cpdef MutableFst replace(pairs,             # <<<<<<<<<<<<<<
  *                          call_arc_labeling=?,
  *                          return_arc_labeling=?,
  */
-struct __pyx_opt_args_9pywrapfst_replace {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_replace {
   int __pyx_n;
   PyObject *call_arc_labeling;
   PyObject *return_arc_labeling;
@@ -1486,26 +1486,26 @@ struct __pyx_opt_args_9pywrapfst_replace {
   int64 return_label;
 };
 
-/* "pywrapfst.pxd":567
+/* "fstlib/cext/pywrapfst.pxd":567
  *                          int64 return_label=?)
  * 
  * cpdef MutableFst reverse(Fst ifst, bool require_superinitial=?)             # <<<<<<<<<<<<<<
  * 
  * cdef void _shortestdistance(Fst ifst,
  */
-struct __pyx_opt_args_9pywrapfst_reverse {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_reverse {
   int __pyx_n;
   bool require_superinitial;
 };
 
-/* "pywrapfst.pxd":569
+/* "fstlib/cext/pywrapfst.pxd":569
  * cpdef MutableFst reverse(Fst ifst, bool require_superinitial=?)
  * 
  * cdef void _shortestdistance(Fst ifst,             # <<<<<<<<<<<<<<
  *                             vector[fst.WeightClass] *,
  *                             float delta=?,
  */
-struct __pyx_opt_args_9pywrapfst__shortestdistance {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst__shortestdistance {
   int __pyx_n;
   float delta;
   int64 nstate;
@@ -1513,14 +1513,14 @@ struct __pyx_opt_args_9pywrapfst__shortestdistance {
   bool reverse;
 };
 
-/* "pywrapfst.pxd":576
+/* "fstlib/cext/pywrapfst.pxd":576
  *                             bool reverse=?) except *
  * 
  * cpdef MutableFst shortestpath(Fst ifst,             # <<<<<<<<<<<<<<
  *                               float delta=?,
  *                               int32 nshortest=?,
  */
-struct __pyx_opt_args_9pywrapfst_shortestpath {
+struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_shortestpath {
   int __pyx_n;
   float delta;
   int32 nshortest;
@@ -1530,236 +1530,236 @@ struct __pyx_opt_args_9pywrapfst_shortestpath {
   PyObject *weight;
 };
 
-/* "pywrapfst.pxd":71
+/* "fstlib/cext/pywrapfst.pxd":71
  * 
  * 
  * cdef class Weight:             # <<<<<<<<<<<<<<
  * 
  *   cdef unique_ptr[fst.WeightClass] _weight
  */
-struct __pyx_obj_9pywrapfst_Weight {
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight {
   PyObject_HEAD
-  struct __pyx_vtabstruct_9pywrapfst_Weight *__pyx_vtab;
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Weight *__pyx_vtab;
   std::unique_ptr<fst::script::WeightClass>  _weight;
 };
 
 
-/* "pywrapfst.pxd":107
+/* "fstlib/cext/pywrapfst.pxd":107
  * 
  * 
  * cdef class SymbolTableView:             # <<<<<<<<<<<<<<
  * 
  *   cdef const fst.SymbolTable *_raw(self)
  */
-struct __pyx_obj_9pywrapfst_SymbolTableView {
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView {
   PyObject_HEAD
-  struct __pyx_vtabstruct_9pywrapfst_SymbolTableView *__pyx_vtab;
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_SymbolTableView *__pyx_vtab;
 };
 
 
-/* "pywrapfst.pxd":138
+/* "fstlib/cext/pywrapfst.pxd":138
  * 
  * 
  * cdef class _EncodeMapperSymbolTableView(SymbolTableView):             # <<<<<<<<<<<<<<
  * 
  *   # Indicates whether this view is of an input or output SymbolTable
  */
-struct __pyx_obj_9pywrapfst__EncodeMapperSymbolTableView {
-  struct __pyx_obj_9pywrapfst_SymbolTableView __pyx_base;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView {
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView __pyx_base;
   bool _input_side;
   std::shared_ptr<fst::script::EncodeMapperClass>  _mapper;
 };
 
 
-/* "pywrapfst.pxd":146
+/* "fstlib/cext/pywrapfst.pxd":146
  * 
  * 
  * cdef class _FstSymbolTableView(SymbolTableView):             # <<<<<<<<<<<<<<
  * 
  *   # Indicates whether this view is of an input or output SymbolTable
  */
-struct __pyx_obj_9pywrapfst__FstSymbolTableView {
-  struct __pyx_obj_9pywrapfst_SymbolTableView __pyx_base;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__FstSymbolTableView {
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView __pyx_base;
   bool _input_side;
   std::shared_ptr<fst::script::FstClass>  _fst;
 };
 
 
-/* "pywrapfst.pxd":154
+/* "fstlib/cext/pywrapfst.pxd":154
  * 
  * 
  * cdef class _MutableSymbolTable(SymbolTableView):             # <<<<<<<<<<<<<<
  * 
  *   cdef fst.SymbolTable *_mutable_raw(self)
  */
-struct __pyx_obj_9pywrapfst__MutableSymbolTable {
-  struct __pyx_obj_9pywrapfst_SymbolTableView __pyx_base;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableSymbolTable {
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView __pyx_base;
 };
 
 
-/* "pywrapfst.pxd":167
+/* "fstlib/cext/pywrapfst.pxd":167
  * 
  * 
  * cdef class _MutableFstSymbolTableView(_MutableSymbolTable):             # <<<<<<<<<<<<<<
  * 
  *   # Indicates whether this view is of an input or output SymbolTable
  */
-struct __pyx_obj_9pywrapfst__MutableFstSymbolTableView {
-  struct __pyx_obj_9pywrapfst__MutableSymbolTable __pyx_base;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView {
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableSymbolTable __pyx_base;
   bool _input_side;
   std::shared_ptr<fst::script::MutableFstClass>  _mfst;
 };
 
 
-/* "pywrapfst.pxd":175
+/* "fstlib/cext/pywrapfst.pxd":175
  * 
  * 
  * cdef class SymbolTable(_MutableSymbolTable):             # <<<<<<<<<<<<<<
  * 
  *   cdef unique_ptr[fst.SymbolTable] _smart_table
  */
-struct __pyx_obj_9pywrapfst_SymbolTable {
-  struct __pyx_obj_9pywrapfst__MutableSymbolTable __pyx_base;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTable {
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableSymbolTable __pyx_base;
   std::unique_ptr<fst::SymbolTable>  _smart_table;
 };
 
 
-/* "pywrapfst.pxd":198
+/* "fstlib/cext/pywrapfst.pxd":198
  * 
  * 
  * cdef class _SymbolTableIterator:             # <<<<<<<<<<<<<<
  * 
  *   cdef SymbolTableView _table
  */
-struct __pyx_obj_9pywrapfst__SymbolTableIterator {
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__SymbolTableIterator {
   PyObject_HEAD
-  struct __pyx_obj_9pywrapfst_SymbolTableView *_table;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *_table;
   std::unique_ptr<fst::SymbolTable::iterator>  _siter;
 };
 
 
-/* "pywrapfst.pxd":210
+/* "fstlib/cext/pywrapfst.pxd":210
  * 
  * 
  * cdef class EncodeMapper:             # <<<<<<<<<<<<<<
  * 
  *   cdef shared_ptr[fst.EncodeMapperClass] _mapper
  */
-struct __pyx_obj_9pywrapfst_EncodeMapper {
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper {
   PyObject_HEAD
-  struct __pyx_vtabstruct_9pywrapfst_EncodeMapper *__pyx_vtab;
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_EncodeMapper *__pyx_vtab;
   std::shared_ptr<fst::script::EncodeMapperClass>  _mapper;
 };
 
 
-/* "pywrapfst.pxd":247
+/* "fstlib/cext/pywrapfst.pxd":247
  * 
  * 
  * cdef class Fst:             # <<<<<<<<<<<<<<
  * 
  *   cdef shared_ptr[fst.FstClass] _fst
  */
-struct __pyx_obj_9pywrapfst_Fst {
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst {
   PyObject_HEAD
-  struct __pyx_vtabstruct_9pywrapfst_Fst *__pyx_vtab;
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Fst *__pyx_vtab;
   std::shared_ptr<fst::script::FstClass>  _fst;
 };
 
 
-/* "pywrapfst.pxd":313
+/* "fstlib/cext/pywrapfst.pxd":313
  * 
  * 
  * cdef class MutableFst(Fst):             # <<<<<<<<<<<<<<
  * 
  *   cdef shared_ptr[fst.MutableFstClass] _mfst
  */
-struct __pyx_obj_9pywrapfst_MutableFst {
-  struct __pyx_obj_9pywrapfst_Fst __pyx_base;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst {
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst __pyx_base;
   std::shared_ptr<fst::script::MutableFstClass>  _mfst;
 };
 
 
-/* "pywrapfst.pxd":394
+/* "fstlib/cext/pywrapfst.pxd":394
  * 
  * 
  * cdef class VectorFst(MutableFst):             # <<<<<<<<<<<<<<
  * 
  *     pass
  */
-struct __pyx_obj_9pywrapfst_VectorFst {
-  struct __pyx_obj_9pywrapfst_MutableFst __pyx_base;
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_VectorFst {
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst __pyx_base;
 };
 
 
-/* "pywrapfst.pxd":416
+/* "fstlib/cext/pywrapfst.pxd":416
  * 
  * 
  * cdef class Arc:             # <<<<<<<<<<<<<<
  * 
  *   cdef unique_ptr[fst.ArcClass] _arc
  */
-struct __pyx_obj_9pywrapfst_Arc {
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_Arc {
   PyObject_HEAD
-  struct __pyx_vtabstruct_9pywrapfst_Arc *__pyx_vtab;
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Arc *__pyx_vtab;
   std::unique_ptr<fst::script::ArcClass>  _arc;
 };
 
 
-/* "pywrapfst.pxd":426
+/* "fstlib/cext/pywrapfst.pxd":426
  * 
  * 
  * cdef class _ArcIterator:             # <<<<<<<<<<<<<<
  * 
  *   cdef shared_ptr[fst.FstClass] _fst
  */
-struct __pyx_obj_9pywrapfst__ArcIterator {
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__ArcIterator {
   PyObject_HEAD
-  struct __pyx_vtabstruct_9pywrapfst__ArcIterator *__pyx_vtab;
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__ArcIterator *__pyx_vtab;
   std::shared_ptr<fst::script::FstClass>  _fst;
   std::unique_ptr<fst::script::ArcIteratorClass>  _aiter;
 };
 
 
-/* "pywrapfst.pxd":448
+/* "fstlib/cext/pywrapfst.pxd":448
  * 
  * 
  * cdef class _MutableArcIterator:             # <<<<<<<<<<<<<<
  * 
  *   cdef shared_ptr[fst.MutableFstClass] _mfst
  */
-struct __pyx_obj_9pywrapfst__MutableArcIterator {
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableArcIterator {
   PyObject_HEAD
-  struct __pyx_vtabstruct_9pywrapfst__MutableArcIterator *__pyx_vtab;
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableArcIterator *__pyx_vtab;
   std::shared_ptr<fst::script::MutableFstClass>  _mfst;
   std::unique_ptr<fst::script::MutableArcIteratorClass>  _aiter;
 };
 
 
-/* "pywrapfst.pxd":472
+/* "fstlib/cext/pywrapfst.pxd":472
  * 
  * 
  * cdef class _StateIterator:             # <<<<<<<<<<<<<<
  * 
  *   cdef shared_ptr[fst.FstClass] _fst
  */
-struct __pyx_obj_9pywrapfst__StateIterator {
+struct __pyx_obj_6fstlib_4cext_9pywrapfst__StateIterator {
   PyObject_HEAD
-  struct __pyx_vtabstruct_9pywrapfst__StateIterator *__pyx_vtab;
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__StateIterator *__pyx_vtab;
   std::shared_ptr<fst::script::FstClass>  _fst;
   std::unique_ptr<fst::script::StateIteratorClass>  _siter;
 };
 
 
-/* "pywrapfst.pxd":592
+/* "fstlib/cext/pywrapfst.pxd":592
  * 
  * 
  * cdef class Compiler:             # <<<<<<<<<<<<<<
  * 
  *   cdef unique_ptr[stringstream] _sstrm
  */
-struct __pyx_obj_9pywrapfst_Compiler {
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_Compiler {
   PyObject_HEAD
-  struct __pyx_vtabstruct_9pywrapfst_Compiler *__pyx_vtab;
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Compiler *__pyx_vtab;
   std::unique_ptr<std::stringstream>  _sstrm;
   std::string _fst_type;
   std::string _arc_type;
@@ -1774,36 +1774,36 @@ struct __pyx_obj_9pywrapfst_Compiler {
 };
 
 
-/* "pywrapfst.pxd":613
+/* "fstlib/cext/pywrapfst.pxd":613
  * # FarReader.
  * 
  * cdef class FarReader:             # <<<<<<<<<<<<<<
  * 
  *   cdef unique_ptr[fst.FarReaderClass] _reader
  */
-struct __pyx_obj_9pywrapfst_FarReader {
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarReader {
   PyObject_HEAD
-  struct __pyx_vtabstruct_9pywrapfst_FarReader *__pyx_vtab;
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_FarReader *__pyx_vtab;
   std::unique_ptr<fst::script::FarReaderClass>  _reader;
 };
 
 
-/* "pywrapfst.pxd":638
+/* "fstlib/cext/pywrapfst.pxd":638
  * # FarWriter.
  * 
  * cdef class FarWriter:             # <<<<<<<<<<<<<<
  * 
  *   cdef unique_ptr[fst.FarWriterClass] _writer
  */
-struct __pyx_obj_9pywrapfst_FarWriter {
+struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarWriter {
   PyObject_HEAD
-  struct __pyx_vtabstruct_9pywrapfst_FarWriter *__pyx_vtab;
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_FarWriter *__pyx_vtab;
   std::unique_ptr<fst::script::FarWriterClass>  _writer;
 };
 
 
 
-/* "pywrapfst.pxd":71
+/* "fstlib/cext/pywrapfst.pxd":71
  * 
  * 
  * cdef class Weight:             # <<<<<<<<<<<<<<
@@ -1811,17 +1811,17 @@ struct __pyx_obj_9pywrapfst_FarWriter {
  *   cdef unique_ptr[fst.WeightClass] _weight
  */
 
-struct __pyx_vtabstruct_9pywrapfst_Weight {
-  void (*_check_weight)(struct __pyx_obj_9pywrapfst_Weight *);
-  struct __pyx_obj_9pywrapfst_Weight *(*copy)(struct __pyx_obj_9pywrapfst_Weight *, int __pyx_skip_dispatch);
-  std::string (*to_string)(struct __pyx_obj_9pywrapfst_Weight *, int __pyx_skip_dispatch);
-  std::string (*type)(struct __pyx_obj_9pywrapfst_Weight *, int __pyx_skip_dispatch);
-  bool (*member)(struct __pyx_obj_9pywrapfst_Weight *, int __pyx_skip_dispatch);
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Weight {
+  void (*_check_weight)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *);
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *(*copy)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *, int __pyx_skip_dispatch);
+  std::string (*to_string)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *, int __pyx_skip_dispatch);
+  std::string (*type)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *, int __pyx_skip_dispatch);
+  bool (*member)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_9pywrapfst_Weight *__pyx_vtabptr_9pywrapfst_Weight;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Weight *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_Weight;
 
 
-/* "pywrapfst.pxd":107
+/* "fstlib/cext/pywrapfst.pxd":107
  * 
  * 
  * cdef class SymbolTableView:             # <<<<<<<<<<<<<<
@@ -1829,26 +1829,26 @@ static struct __pyx_vtabstruct_9pywrapfst_Weight *__pyx_vtabptr_9pywrapfst_Weigh
  *   cdef const fst.SymbolTable *_raw(self)
  */
 
-struct __pyx_vtabstruct_9pywrapfst_SymbolTableView {
-  fst::SymbolTable const *(*_raw)(struct __pyx_obj_9pywrapfst_SymbolTableView *);
-  void (*_raise_nonexistent)(struct __pyx_obj_9pywrapfst_SymbolTableView *);
-  fst::SymbolTable const *(*_raw_ptr_or_raise)(struct __pyx_obj_9pywrapfst_SymbolTableView *);
-  int64 (*available_key)(struct __pyx_obj_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
-  PyObject *(*checksum)(struct __pyx_obj_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
-  struct __pyx_obj_9pywrapfst_SymbolTable *(*copy)(struct __pyx_obj_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
-  int64 (*get_nth_key)(struct __pyx_obj_9pywrapfst_SymbolTableView *, Py_ssize_t, int __pyx_skip_dispatch);
-  PyObject *(*labeled_checksum)(struct __pyx_obj_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
-  bool (*member)(struct __pyx_obj_9pywrapfst_SymbolTableView *, PyObject *, int __pyx_skip_dispatch);
-  std::string (*name)(struct __pyx_obj_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
-  size_t (*num_symbols)(struct __pyx_obj_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
-  void (*write)(struct __pyx_obj_9pywrapfst_SymbolTableView *, PyObject *, int __pyx_skip_dispatch);
-  void (*write_text)(struct __pyx_obj_9pywrapfst_SymbolTableView *, PyObject *, int __pyx_skip_dispatch);
-  PyObject *(*write_to_string)(struct __pyx_obj_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_SymbolTableView {
+  fst::SymbolTable const *(*_raw)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *);
+  void (*_raise_nonexistent)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *);
+  fst::SymbolTable const *(*_raw_ptr_or_raise)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *);
+  int64 (*available_key)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
+  PyObject *(*checksum)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTable *(*copy)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
+  int64 (*get_nth_key)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *, Py_ssize_t, int __pyx_skip_dispatch);
+  PyObject *(*labeled_checksum)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
+  bool (*member)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *, PyObject *, int __pyx_skip_dispatch);
+  std::string (*name)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
+  size_t (*num_symbols)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
+  void (*write)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *, PyObject *, int __pyx_skip_dispatch);
+  void (*write_text)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *, PyObject *, int __pyx_skip_dispatch);
+  PyObject *(*write_to_string)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_9pywrapfst_SymbolTableView *__pyx_vtabptr_9pywrapfst_SymbolTableView;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_SymbolTableView *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_SymbolTableView;
 
 
-/* "pywrapfst.pxd":138
+/* "fstlib/cext/pywrapfst.pxd":138
  * 
  * 
  * cdef class _EncodeMapperSymbolTableView(SymbolTableView):             # <<<<<<<<<<<<<<
@@ -1856,13 +1856,13 @@ static struct __pyx_vtabstruct_9pywrapfst_SymbolTableView *__pyx_vtabptr_9pywrap
  *   # Indicates whether this view is of an input or output SymbolTable
  */
 
-struct __pyx_vtabstruct_9pywrapfst__EncodeMapperSymbolTableView {
-  struct __pyx_vtabstruct_9pywrapfst_SymbolTableView __pyx_base;
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView {
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_SymbolTableView __pyx_base;
 };
-static struct __pyx_vtabstruct_9pywrapfst__EncodeMapperSymbolTableView *__pyx_vtabptr_9pywrapfst__EncodeMapperSymbolTableView;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView *__pyx_vtabptr_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView;
 
 
-/* "pywrapfst.pxd":146
+/* "fstlib/cext/pywrapfst.pxd":146
  * 
  * 
  * cdef class _FstSymbolTableView(SymbolTableView):             # <<<<<<<<<<<<<<
@@ -1870,13 +1870,13 @@ static struct __pyx_vtabstruct_9pywrapfst__EncodeMapperSymbolTableView *__pyx_vt
  *   # Indicates whether this view is of an input or output SymbolTable
  */
 
-struct __pyx_vtabstruct_9pywrapfst__FstSymbolTableView {
-  struct __pyx_vtabstruct_9pywrapfst_SymbolTableView __pyx_base;
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__FstSymbolTableView {
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_SymbolTableView __pyx_base;
 };
-static struct __pyx_vtabstruct_9pywrapfst__FstSymbolTableView *__pyx_vtabptr_9pywrapfst__FstSymbolTableView;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__FstSymbolTableView *__pyx_vtabptr_6fstlib_4cext_9pywrapfst__FstSymbolTableView;
 
 
-/* "pywrapfst.pxd":154
+/* "fstlib/cext/pywrapfst.pxd":154
  * 
  * 
  * cdef class _MutableSymbolTable(SymbolTableView):             # <<<<<<<<<<<<<<
@@ -1884,18 +1884,18 @@ static struct __pyx_vtabstruct_9pywrapfst__FstSymbolTableView *__pyx_vtabptr_9py
  *   cdef fst.SymbolTable *_mutable_raw(self)
  */
 
-struct __pyx_vtabstruct_9pywrapfst__MutableSymbolTable {
-  struct __pyx_vtabstruct_9pywrapfst_SymbolTableView __pyx_base;
-  fst::SymbolTable *(*_mutable_raw)(struct __pyx_obj_9pywrapfst__MutableSymbolTable *);
-  fst::SymbolTable *(*_mutable_raw_ptr_or_raise)(struct __pyx_obj_9pywrapfst__MutableSymbolTable *);
-  int64 (*add_symbol)(struct __pyx_obj_9pywrapfst__MutableSymbolTable *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_9pywrapfst_19_MutableSymbolTable_add_symbol *__pyx_optional_args);
-  void (*add_table)(struct __pyx_obj_9pywrapfst__MutableSymbolTable *, struct __pyx_obj_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
-  void (*set_name)(struct __pyx_obj_9pywrapfst__MutableSymbolTable *, PyObject *, int __pyx_skip_dispatch);
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableSymbolTable {
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_SymbolTableView __pyx_base;
+  fst::SymbolTable *(*_mutable_raw)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableSymbolTable *);
+  fst::SymbolTable *(*_mutable_raw_ptr_or_raise)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableSymbolTable *);
+  int64 (*add_symbol)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableSymbolTable *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_19_MutableSymbolTable_add_symbol *__pyx_optional_args);
+  void (*add_table)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableSymbolTable *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *, int __pyx_skip_dispatch);
+  void (*set_name)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableSymbolTable *, PyObject *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_9pywrapfst__MutableSymbolTable *__pyx_vtabptr_9pywrapfst__MutableSymbolTable;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableSymbolTable *__pyx_vtabptr_6fstlib_4cext_9pywrapfst__MutableSymbolTable;
 
 
-/* "pywrapfst.pxd":167
+/* "fstlib/cext/pywrapfst.pxd":167
  * 
  * 
  * cdef class _MutableFstSymbolTableView(_MutableSymbolTable):             # <<<<<<<<<<<<<<
@@ -1903,13 +1903,13 @@ static struct __pyx_vtabstruct_9pywrapfst__MutableSymbolTable *__pyx_vtabptr_9py
  *   # Indicates whether this view is of an input or output SymbolTable
  */
 
-struct __pyx_vtabstruct_9pywrapfst__MutableFstSymbolTableView {
-  struct __pyx_vtabstruct_9pywrapfst__MutableSymbolTable __pyx_base;
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView {
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableSymbolTable __pyx_base;
 };
-static struct __pyx_vtabstruct_9pywrapfst__MutableFstSymbolTableView *__pyx_vtabptr_9pywrapfst__MutableFstSymbolTableView;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView *__pyx_vtabptr_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView;
 
 
-/* "pywrapfst.pxd":175
+/* "fstlib/cext/pywrapfst.pxd":175
  * 
  * 
  * cdef class SymbolTable(_MutableSymbolTable):             # <<<<<<<<<<<<<<
@@ -1917,13 +1917,13 @@ static struct __pyx_vtabstruct_9pywrapfst__MutableFstSymbolTableView *__pyx_vtab
  *   cdef unique_ptr[fst.SymbolTable] _smart_table
  */
 
-struct __pyx_vtabstruct_9pywrapfst_SymbolTable {
-  struct __pyx_vtabstruct_9pywrapfst__MutableSymbolTable __pyx_base;
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_SymbolTable {
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableSymbolTable __pyx_base;
 };
-static struct __pyx_vtabstruct_9pywrapfst_SymbolTable *__pyx_vtabptr_9pywrapfst_SymbolTable;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_SymbolTable *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_SymbolTable;
 
 
-/* "pywrapfst.pxd":210
+/* "fstlib/cext/pywrapfst.pxd":210
  * 
  * 
  * cdef class EncodeMapper:             # <<<<<<<<<<<<<<
@@ -1931,21 +1931,21 @@ static struct __pyx_vtabstruct_9pywrapfst_SymbolTable *__pyx_vtabptr_9pywrapfst_
  *   cdef shared_ptr[fst.EncodeMapperClass] _mapper
  */
 
-struct __pyx_vtabstruct_9pywrapfst_EncodeMapper {
-  std::string (*arc_type)(struct __pyx_obj_9pywrapfst_EncodeMapper *, int __pyx_skip_dispatch);
-  std::string (*weight_type)(struct __pyx_obj_9pywrapfst_EncodeMapper *, int __pyx_skip_dispatch);
-  uint8 (*flags)(struct __pyx_obj_9pywrapfst_EncodeMapper *, int __pyx_skip_dispatch);
-  void (*write)(struct __pyx_obj_9pywrapfst_EncodeMapper *, PyObject *, int __pyx_skip_dispatch);
-  PyObject *(*write_to_string)(struct __pyx_obj_9pywrapfst_EncodeMapper *, int __pyx_skip_dispatch);
-  struct __pyx_obj_9pywrapfst__EncodeMapperSymbolTableView *(*input_symbols)(struct __pyx_obj_9pywrapfst_EncodeMapper *, int __pyx_skip_dispatch);
-  struct __pyx_obj_9pywrapfst__EncodeMapperSymbolTableView *(*output_symbols)(struct __pyx_obj_9pywrapfst_EncodeMapper *, int __pyx_skip_dispatch);
-  void (*_set_input_symbols)(struct __pyx_obj_9pywrapfst_EncodeMapper *, struct __pyx_obj_9pywrapfst_SymbolTableView *);
-  void (*_set_output_symbols)(struct __pyx_obj_9pywrapfst_EncodeMapper *, struct __pyx_obj_9pywrapfst_SymbolTableView *);
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_EncodeMapper {
+  std::string (*arc_type)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper *, int __pyx_skip_dispatch);
+  std::string (*weight_type)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper *, int __pyx_skip_dispatch);
+  uint8 (*flags)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper *, int __pyx_skip_dispatch);
+  void (*write)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper *, PyObject *, int __pyx_skip_dispatch);
+  PyObject *(*write_to_string)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper *, int __pyx_skip_dispatch);
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView *(*input_symbols)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper *, int __pyx_skip_dispatch);
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView *(*output_symbols)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper *, int __pyx_skip_dispatch);
+  void (*_set_input_symbols)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *);
+  void (*_set_output_symbols)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *);
 };
-static struct __pyx_vtabstruct_9pywrapfst_EncodeMapper *__pyx_vtabptr_9pywrapfst_EncodeMapper;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_EncodeMapper *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_EncodeMapper;
 
 
-/* "pywrapfst.pxd":247
+/* "fstlib/cext/pywrapfst.pxd":247
  * 
  * 
  * cdef class Fst:             # <<<<<<<<<<<<<<
@@ -1953,31 +1953,31 @@ static struct __pyx_vtabstruct_9pywrapfst_EncodeMapper *__pyx_vtabptr_9pywrapfst
  *   cdef shared_ptr[fst.FstClass] _fst
  */
 
-struct __pyx_vtabstruct_9pywrapfst_Fst {
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Fst {
   std::string (*_local_render_svg)(std::string const &);
-  std::string (*arc_type)(struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch);
-  struct __pyx_obj_9pywrapfst__ArcIterator *(*arcs)(struct __pyx_obj_9pywrapfst_Fst *, int64, int __pyx_skip_dispatch);
-  struct __pyx_obj_9pywrapfst_Fst *(*copy)(struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch);
-  void (*draw)(struct __pyx_obj_9pywrapfst_Fst *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_9pywrapfst_3Fst_draw *__pyx_optional_args);
-  struct __pyx_obj_9pywrapfst_Weight *(*final)(struct __pyx_obj_9pywrapfst_Fst *, int64, int __pyx_skip_dispatch);
-  std::string (*fst_type)(struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch);
-  struct __pyx_obj_9pywrapfst__FstSymbolTableView *(*input_symbols)(struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch);
-  size_t (*num_arcs)(struct __pyx_obj_9pywrapfst_Fst *, int64, int __pyx_skip_dispatch);
-  size_t (*num_input_epsilons)(struct __pyx_obj_9pywrapfst_Fst *, int64, int __pyx_skip_dispatch);
-  size_t (*num_output_epsilons)(struct __pyx_obj_9pywrapfst_Fst *, int64, int __pyx_skip_dispatch);
-  struct __pyx_obj_9pywrapfst__FstSymbolTableView *(*output_symbols)(struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch);
-  std::string (*print)(struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch, struct __pyx_opt_args_9pywrapfst_3Fst_print *__pyx_optional_args);
-  int64 (*start)(struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch);
-  struct __pyx_obj_9pywrapfst__StateIterator *(*states)(struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch);
-  bool (*verify)(struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch);
-  std::string (*weight_type)(struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch);
-  void (*write)(struct __pyx_obj_9pywrapfst_Fst *, PyObject *, int __pyx_skip_dispatch);
-  PyObject *(*write_to_string)(struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch);
+  std::string (*arc_type)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch);
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst__ArcIterator *(*arcs)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int64, int __pyx_skip_dispatch);
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *(*copy)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch);
+  void (*draw)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_3Fst_draw *__pyx_optional_args);
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *(*final)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int64, int __pyx_skip_dispatch);
+  std::string (*fst_type)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch);
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst__FstSymbolTableView *(*input_symbols)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch);
+  size_t (*num_arcs)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int64, int __pyx_skip_dispatch);
+  size_t (*num_input_epsilons)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int64, int __pyx_skip_dispatch);
+  size_t (*num_output_epsilons)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int64, int __pyx_skip_dispatch);
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst__FstSymbolTableView *(*output_symbols)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch);
+  std::string (*print)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_3Fst_print *__pyx_optional_args);
+  int64 (*start)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch);
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst__StateIterator *(*states)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch);
+  bool (*verify)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch);
+  std::string (*weight_type)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch);
+  void (*write)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, PyObject *, int __pyx_skip_dispatch);
+  PyObject *(*write_to_string)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_9pywrapfst_Fst *__pyx_vtabptr_9pywrapfst_Fst;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Fst *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_Fst;
 
 
-/* "pywrapfst.pxd":313
+/* "fstlib/cext/pywrapfst.pxd":313
  * 
  * 
  * cdef class MutableFst(Fst):             # <<<<<<<<<<<<<<
@@ -1985,43 +1985,43 @@ static struct __pyx_vtabstruct_9pywrapfst_Fst *__pyx_vtabptr_9pywrapfst_Fst;
  *   cdef shared_ptr[fst.MutableFstClass] _mfst
  */
 
-struct __pyx_vtabstruct_9pywrapfst_MutableFst {
-  struct __pyx_vtabstruct_9pywrapfst_Fst __pyx_base;
-  void (*_check_mutating_imethod)(struct __pyx_obj_9pywrapfst_MutableFst *);
-  void (*_add_arc)(struct __pyx_obj_9pywrapfst_MutableFst *, int64, struct __pyx_obj_9pywrapfst_Arc *);
-  int64 (*add_state)(struct __pyx_obj_9pywrapfst_MutableFst *, int __pyx_skip_dispatch);
-  void (*add_states)(struct __pyx_obj_9pywrapfst_MutableFst *, size_t, int __pyx_skip_dispatch);
-  void (*_arcsort)(struct __pyx_obj_9pywrapfst_MutableFst *, struct __pyx_opt_args_9pywrapfst_10MutableFst__arcsort *__pyx_optional_args);
-  void (*_closure)(struct __pyx_obj_9pywrapfst_MutableFst *, struct __pyx_opt_args_9pywrapfst_10MutableFst__closure *__pyx_optional_args);
-  void (*_concat)(struct __pyx_obj_9pywrapfst_MutableFst *, struct __pyx_obj_9pywrapfst_Fst *);
-  void (*_connect)(struct __pyx_obj_9pywrapfst_MutableFst *);
-  void (*_decode)(struct __pyx_obj_9pywrapfst_MutableFst *, struct __pyx_obj_9pywrapfst_EncodeMapper *);
-  void (*_delete_arcs)(struct __pyx_obj_9pywrapfst_MutableFst *, int64, struct __pyx_opt_args_9pywrapfst_10MutableFst__delete_arcs *__pyx_optional_args);
-  void (*_delete_states)(struct __pyx_obj_9pywrapfst_MutableFst *, struct __pyx_opt_args_9pywrapfst_10MutableFst__delete_states *__pyx_optional_args);
-  void (*_encode)(struct __pyx_obj_9pywrapfst_MutableFst *, struct __pyx_obj_9pywrapfst_EncodeMapper *);
-  void (*_invert)(struct __pyx_obj_9pywrapfst_MutableFst *);
-  void (*_minimize)(struct __pyx_obj_9pywrapfst_MutableFst *, struct __pyx_opt_args_9pywrapfst_10MutableFst__minimize *__pyx_optional_args);
-  struct __pyx_obj_9pywrapfst__MutableArcIterator *(*mutable_arcs)(struct __pyx_obj_9pywrapfst_MutableFst *, int64, int __pyx_skip_dispatch);
-  int64 (*num_states)(struct __pyx_obj_9pywrapfst_MutableFst *, int __pyx_skip_dispatch);
-  void (*_project)(struct __pyx_obj_9pywrapfst_MutableFst *, PyObject *);
-  void (*_prune)(struct __pyx_obj_9pywrapfst_MutableFst *, struct __pyx_opt_args_9pywrapfst_10MutableFst__prune *__pyx_optional_args);
-  void (*_push)(struct __pyx_obj_9pywrapfst_MutableFst *, struct __pyx_opt_args_9pywrapfst_10MutableFst__push *__pyx_optional_args);
-  void (*_relabel_pairs)(struct __pyx_obj_9pywrapfst_MutableFst *, struct __pyx_opt_args_9pywrapfst_10MutableFst__relabel_pairs *__pyx_optional_args);
-  void (*_relabel_tables)(struct __pyx_obj_9pywrapfst_MutableFst *, struct __pyx_opt_args_9pywrapfst_10MutableFst__relabel_tables *__pyx_optional_args);
-  void (*_reserve_arcs)(struct __pyx_obj_9pywrapfst_MutableFst *, int64, size_t);
-  void (*_reserve_states)(struct __pyx_obj_9pywrapfst_MutableFst *, int64);
-  void (*_reweight)(struct __pyx_obj_9pywrapfst_MutableFst *, PyObject *, struct __pyx_opt_args_9pywrapfst_10MutableFst__reweight *__pyx_optional_args);
-  void (*_rmepsilon)(struct __pyx_obj_9pywrapfst_MutableFst *, struct __pyx_opt_args_9pywrapfst_10MutableFst__rmepsilon *__pyx_optional_args);
-  void (*_set_final)(struct __pyx_obj_9pywrapfst_MutableFst *, int64, struct __pyx_opt_args_9pywrapfst_10MutableFst__set_final *__pyx_optional_args);
-  void (*_set_start)(struct __pyx_obj_9pywrapfst_MutableFst *, int64);
-  void (*_set_input_symbols)(struct __pyx_obj_9pywrapfst_MutableFst *, struct __pyx_obj_9pywrapfst_SymbolTableView *);
-  void (*_set_output_symbols)(struct __pyx_obj_9pywrapfst_MutableFst *, struct __pyx_obj_9pywrapfst_SymbolTableView *);
-  void (*_topsort)(struct __pyx_obj_9pywrapfst_MutableFst *);
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_MutableFst {
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Fst __pyx_base;
+  void (*_check_mutating_imethod)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *);
+  void (*_add_arc)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, int64, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Arc *);
+  int64 (*add_state)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, int __pyx_skip_dispatch);
+  void (*add_states)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, size_t, int __pyx_skip_dispatch);
+  void (*_arcsort)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__arcsort *__pyx_optional_args);
+  void (*_closure)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__closure *__pyx_optional_args);
+  void (*_concat)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *);
+  void (*_connect)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *);
+  void (*_decode)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper *);
+  void (*_delete_arcs)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, int64, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__delete_arcs *__pyx_optional_args);
+  void (*_delete_states)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__delete_states *__pyx_optional_args);
+  void (*_encode)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper *);
+  void (*_invert)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *);
+  void (*_minimize)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__minimize *__pyx_optional_args);
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableArcIterator *(*mutable_arcs)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, int64, int __pyx_skip_dispatch);
+  int64 (*num_states)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, int __pyx_skip_dispatch);
+  void (*_project)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, PyObject *);
+  void (*_prune)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__prune *__pyx_optional_args);
+  void (*_push)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__push *__pyx_optional_args);
+  void (*_relabel_pairs)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__relabel_pairs *__pyx_optional_args);
+  void (*_relabel_tables)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__relabel_tables *__pyx_optional_args);
+  void (*_reserve_arcs)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, int64, size_t);
+  void (*_reserve_states)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, int64);
+  void (*_reweight)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, PyObject *, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__reweight *__pyx_optional_args);
+  void (*_rmepsilon)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__rmepsilon *__pyx_optional_args);
+  void (*_set_final)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, int64, struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_10MutableFst__set_final *__pyx_optional_args);
+  void (*_set_start)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, int64);
+  void (*_set_input_symbols)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *);
+  void (*_set_output_symbols)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView *);
+  void (*_topsort)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *);
 };
-static struct __pyx_vtabstruct_9pywrapfst_MutableFst *__pyx_vtabptr_9pywrapfst_MutableFst;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_MutableFst *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_MutableFst;
 
 
-/* "pywrapfst.pxd":394
+/* "fstlib/cext/pywrapfst.pxd":394
  * 
  * 
  * cdef class VectorFst(MutableFst):             # <<<<<<<<<<<<<<
@@ -2029,13 +2029,13 @@ static struct __pyx_vtabstruct_9pywrapfst_MutableFst *__pyx_vtabptr_9pywrapfst_M
  *     pass
  */
 
-struct __pyx_vtabstruct_9pywrapfst_VectorFst {
-  struct __pyx_vtabstruct_9pywrapfst_MutableFst __pyx_base;
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_VectorFst {
+  struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_MutableFst __pyx_base;
 };
-static struct __pyx_vtabstruct_9pywrapfst_VectorFst *__pyx_vtabptr_9pywrapfst_VectorFst;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_VectorFst *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_VectorFst;
 
 
-/* "pywrapfst.pxd":416
+/* "fstlib/cext/pywrapfst.pxd":416
  * 
  * 
  * cdef class Arc:             # <<<<<<<<<<<<<<
@@ -2043,13 +2043,13 @@ static struct __pyx_vtabstruct_9pywrapfst_VectorFst *__pyx_vtabptr_9pywrapfst_Ve
  *   cdef unique_ptr[fst.ArcClass] _arc
  */
 
-struct __pyx_vtabstruct_9pywrapfst_Arc {
-  struct __pyx_obj_9pywrapfst_Arc *(*copy)(struct __pyx_obj_9pywrapfst_Arc *, int __pyx_skip_dispatch);
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Arc {
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Arc *(*copy)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Arc *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_9pywrapfst_Arc *__pyx_vtabptr_9pywrapfst_Arc;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Arc *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_Arc;
 
 
-/* "pywrapfst.pxd":426
+/* "fstlib/cext/pywrapfst.pxd":426
  * 
  * 
  * cdef class _ArcIterator:             # <<<<<<<<<<<<<<
@@ -2057,20 +2057,20 @@ static struct __pyx_vtabstruct_9pywrapfst_Arc *__pyx_vtabptr_9pywrapfst_Arc;
  *   cdef shared_ptr[fst.FstClass] _fst
  */
 
-struct __pyx_vtabstruct_9pywrapfst__ArcIterator {
-  bool (*done)(struct __pyx_obj_9pywrapfst__ArcIterator *, int __pyx_skip_dispatch);
-  uint8 (*flags)(struct __pyx_obj_9pywrapfst__ArcIterator *, int __pyx_skip_dispatch);
-  void (*next)(struct __pyx_obj_9pywrapfst__ArcIterator *, int __pyx_skip_dispatch);
-  size_t (*position)(struct __pyx_obj_9pywrapfst__ArcIterator *, int __pyx_skip_dispatch);
-  void (*reset)(struct __pyx_obj_9pywrapfst__ArcIterator *, int __pyx_skip_dispatch);
-  void (*seek)(struct __pyx_obj_9pywrapfst__ArcIterator *, size_t, int __pyx_skip_dispatch);
-  void (*set_flags)(struct __pyx_obj_9pywrapfst__ArcIterator *, uint8, uint8, int __pyx_skip_dispatch);
-  PyObject *(*value)(struct __pyx_obj_9pywrapfst__ArcIterator *, int __pyx_skip_dispatch);
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__ArcIterator {
+  bool (*done)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__ArcIterator *, int __pyx_skip_dispatch);
+  uint8 (*flags)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__ArcIterator *, int __pyx_skip_dispatch);
+  void (*next)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__ArcIterator *, int __pyx_skip_dispatch);
+  size_t (*position)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__ArcIterator *, int __pyx_skip_dispatch);
+  void (*reset)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__ArcIterator *, int __pyx_skip_dispatch);
+  void (*seek)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__ArcIterator *, size_t, int __pyx_skip_dispatch);
+  void (*set_flags)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__ArcIterator *, uint8, uint8, int __pyx_skip_dispatch);
+  PyObject *(*value)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__ArcIterator *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_9pywrapfst__ArcIterator *__pyx_vtabptr_9pywrapfst__ArcIterator;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__ArcIterator *__pyx_vtabptr_6fstlib_4cext_9pywrapfst__ArcIterator;
 
 
-/* "pywrapfst.pxd":448
+/* "fstlib/cext/pywrapfst.pxd":448
  * 
  * 
  * cdef class _MutableArcIterator:             # <<<<<<<<<<<<<<
@@ -2078,21 +2078,21 @@ static struct __pyx_vtabstruct_9pywrapfst__ArcIterator *__pyx_vtabptr_9pywrapfst
  *   cdef shared_ptr[fst.MutableFstClass] _mfst
  */
 
-struct __pyx_vtabstruct_9pywrapfst__MutableArcIterator {
-  bool (*done)(struct __pyx_obj_9pywrapfst__MutableArcIterator *, int __pyx_skip_dispatch);
-  uint8 (*flags)(struct __pyx_obj_9pywrapfst__MutableArcIterator *, int __pyx_skip_dispatch);
-  void (*next)(struct __pyx_obj_9pywrapfst__MutableArcIterator *, int __pyx_skip_dispatch);
-  size_t (*position)(struct __pyx_obj_9pywrapfst__MutableArcIterator *, int __pyx_skip_dispatch);
-  void (*reset)(struct __pyx_obj_9pywrapfst__MutableArcIterator *, int __pyx_skip_dispatch);
-  void (*seek)(struct __pyx_obj_9pywrapfst__MutableArcIterator *, size_t, int __pyx_skip_dispatch);
-  void (*set_flags)(struct __pyx_obj_9pywrapfst__MutableArcIterator *, uint8, uint8, int __pyx_skip_dispatch);
-  void (*set_value)(struct __pyx_obj_9pywrapfst__MutableArcIterator *, struct __pyx_obj_9pywrapfst_Arc *, int __pyx_skip_dispatch);
-  PyObject *(*value)(struct __pyx_obj_9pywrapfst__MutableArcIterator *, int __pyx_skip_dispatch);
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableArcIterator {
+  bool (*done)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableArcIterator *, int __pyx_skip_dispatch);
+  uint8 (*flags)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableArcIterator *, int __pyx_skip_dispatch);
+  void (*next)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableArcIterator *, int __pyx_skip_dispatch);
+  size_t (*position)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableArcIterator *, int __pyx_skip_dispatch);
+  void (*reset)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableArcIterator *, int __pyx_skip_dispatch);
+  void (*seek)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableArcIterator *, size_t, int __pyx_skip_dispatch);
+  void (*set_flags)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableArcIterator *, uint8, uint8, int __pyx_skip_dispatch);
+  void (*set_value)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableArcIterator *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Arc *, int __pyx_skip_dispatch);
+  PyObject *(*value)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableArcIterator *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_9pywrapfst__MutableArcIterator *__pyx_vtabptr_9pywrapfst__MutableArcIterator;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableArcIterator *__pyx_vtabptr_6fstlib_4cext_9pywrapfst__MutableArcIterator;
 
 
-/* "pywrapfst.pxd":472
+/* "fstlib/cext/pywrapfst.pxd":472
  * 
  * 
  * cdef class _StateIterator:             # <<<<<<<<<<<<<<
@@ -2100,16 +2100,16 @@ static struct __pyx_vtabstruct_9pywrapfst__MutableArcIterator *__pyx_vtabptr_9py
  *   cdef shared_ptr[fst.FstClass] _fst
  */
 
-struct __pyx_vtabstruct_9pywrapfst__StateIterator {
-  bool (*done)(struct __pyx_obj_9pywrapfst__StateIterator *, int __pyx_skip_dispatch);
-  void (*next)(struct __pyx_obj_9pywrapfst__StateIterator *, int __pyx_skip_dispatch);
-  void (*reset)(struct __pyx_obj_9pywrapfst__StateIterator *, int __pyx_skip_dispatch);
-  int64 (*value)(struct __pyx_obj_9pywrapfst__StateIterator *, int __pyx_skip_dispatch);
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__StateIterator {
+  bool (*done)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__StateIterator *, int __pyx_skip_dispatch);
+  void (*next)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__StateIterator *, int __pyx_skip_dispatch);
+  void (*reset)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__StateIterator *, int __pyx_skip_dispatch);
+  int64 (*value)(struct __pyx_obj_6fstlib_4cext_9pywrapfst__StateIterator *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_9pywrapfst__StateIterator *__pyx_vtabptr_9pywrapfst__StateIterator;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__StateIterator *__pyx_vtabptr_6fstlib_4cext_9pywrapfst__StateIterator;
 
 
-/* "pywrapfst.pxd":592
+/* "fstlib/cext/pywrapfst.pxd":592
  * 
  * 
  * cdef class Compiler:             # <<<<<<<<<<<<<<
@@ -2117,14 +2117,14 @@ static struct __pyx_vtabstruct_9pywrapfst__StateIterator *__pyx_vtabptr_9pywrapf
  *   cdef unique_ptr[stringstream] _sstrm
  */
 
-struct __pyx_vtabstruct_9pywrapfst_Compiler {
-  struct __pyx_obj_9pywrapfst_Fst *(*compile)(struct __pyx_obj_9pywrapfst_Compiler *, int __pyx_skip_dispatch);
-  void (*write)(struct __pyx_obj_9pywrapfst_Compiler *, PyObject *, int __pyx_skip_dispatch);
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Compiler {
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *(*compile)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Compiler *, int __pyx_skip_dispatch);
+  void (*write)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Compiler *, PyObject *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_9pywrapfst_Compiler *__pyx_vtabptr_9pywrapfst_Compiler;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Compiler *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_Compiler;
 
 
-/* "pywrapfst.pxd":613
+/* "fstlib/cext/pywrapfst.pxd":613
  * # FarReader.
  * 
  * cdef class FarReader:             # <<<<<<<<<<<<<<
@@ -2132,21 +2132,21 @@ static struct __pyx_vtabstruct_9pywrapfst_Compiler *__pyx_vtabptr_9pywrapfst_Com
  *   cdef unique_ptr[fst.FarReaderClass] _reader
  */
 
-struct __pyx_vtabstruct_9pywrapfst_FarReader {
-  std::string (*arc_type)(struct __pyx_obj_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
-  bool (*done)(struct __pyx_obj_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
-  bool (*error)(struct __pyx_obj_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
-  std::string (*far_type)(struct __pyx_obj_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
-  bool (*find)(struct __pyx_obj_9pywrapfst_FarReader *, PyObject *, int __pyx_skip_dispatch);
-  struct __pyx_obj_9pywrapfst_Fst *(*get_fst)(struct __pyx_obj_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
-  std::string (*get_key)(struct __pyx_obj_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
-  void (*next)(struct __pyx_obj_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
-  void (*reset)(struct __pyx_obj_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_FarReader {
+  std::string (*arc_type)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
+  bool (*done)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
+  bool (*error)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
+  std::string (*far_type)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
+  bool (*find)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarReader *, PyObject *, int __pyx_skip_dispatch);
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *(*get_fst)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
+  std::string (*get_key)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
+  void (*next)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
+  void (*reset)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarReader *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_9pywrapfst_FarReader *__pyx_vtabptr_9pywrapfst_FarReader;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_FarReader *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_FarReader;
 
 
-/* "pywrapfst.pxd":638
+/* "fstlib/cext/pywrapfst.pxd":638
  * # FarWriter.
  * 
  * cdef class FarWriter:             # <<<<<<<<<<<<<<
@@ -2154,14 +2154,14 @@ static struct __pyx_vtabstruct_9pywrapfst_FarReader *__pyx_vtabptr_9pywrapfst_Fa
  *   cdef unique_ptr[fst.FarWriterClass] _writer
  */
 
-struct __pyx_vtabstruct_9pywrapfst_FarWriter {
-  std::string (*arc_type)(struct __pyx_obj_9pywrapfst_FarWriter *, int __pyx_skip_dispatch);
-  void (*close)(struct __pyx_obj_9pywrapfst_FarWriter *);
-  void (*add)(struct __pyx_obj_9pywrapfst_FarWriter *, PyObject *, struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch);
-  bool (*error)(struct __pyx_obj_9pywrapfst_FarWriter *, int __pyx_skip_dispatch);
-  std::string (*far_type)(struct __pyx_obj_9pywrapfst_FarWriter *, int __pyx_skip_dispatch);
+struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_FarWriter {
+  std::string (*arc_type)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarWriter *, int __pyx_skip_dispatch);
+  void (*close)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarWriter *);
+  void (*add)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarWriter *, PyObject *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch);
+  bool (*error)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarWriter *, int __pyx_skip_dispatch);
+  std::string (*far_type)(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarWriter *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_9pywrapfst_FarWriter *__pyx_vtabptr_9pywrapfst_FarWriter;
+static struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_FarWriter *__pyx_vtabptr_6fstlib_4cext_9pywrapfst_FarWriter;
 
 /* --- Runtime support code (head) --- */
 /* Refnanny.proto */
@@ -2422,35 +2422,35 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 /* Module declarations from 'cpywrapfst' */
 
-/* Module declarations from 'pywrapfst' */
-static PyTypeObject *__pyx_ptype_9pywrapfst_Weight = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst_SymbolTableView = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst__EncodeMapperSymbolTableView = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst__FstSymbolTableView = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst__MutableSymbolTable = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst__MutableFstSymbolTableView = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst_SymbolTable = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst__SymbolTableIterator = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst_EncodeMapper = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst_Fst = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst_MutableFst = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst_VectorFst = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst_Arc = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst__ArcIterator = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst__MutableArcIterator = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst__StateIterator = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst_Compiler = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst_FarReader = 0;
-static PyTypeObject *__pyx_ptype_9pywrapfst_FarWriter = 0;
-static struct __pyx_obj_9pywrapfst_MutableFst *(*__pyx_f_9pywrapfst__init_MutableFst)(__pyx_t_9pywrapfst_MutableFstClass_ptr); /*proto*/
+/* Module declarations from 'fstlib.cext.pywrapfst' */
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst_Weight = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst_SymbolTableView = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst__FstSymbolTableView = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst__MutableSymbolTable = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst_SymbolTable = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst__SymbolTableIterator = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst_EncodeMapper = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst_Fst = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst_MutableFst = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst_VectorFst = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst_Arc = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst__ArcIterator = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst__MutableArcIterator = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst__StateIterator = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst_Compiler = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst_FarReader = 0;
+static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst_FarWriter = 0;
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *(*__pyx_f_6fstlib_4cext_9pywrapfst__init_MutableFst)(__pyx_t_6fstlib_4cext_9pywrapfst_MutableFstClass_ptr); /*proto*/
 
 /* Module declarations from 'cops' */
 
 /* Module declarations from 'fstlib.cext.ops' */
-static struct __pyx_obj_9pywrapfst_MutableFst *__pyx_f_6fstlib_4cext_3ops_align(struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
-static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_std(struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
-static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_log(struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
-static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_kernel_score_std(struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *__pyx_f_6fstlib_4cext_3ops_align(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_std(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_log(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_kernel_score_std(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
 static CYTHON_INLINE PyObject *__pyx_convert_PyObject_string_to_py_std__in_string(std::string const &); /*proto*/
 static CYTHON_INLINE PyObject *__pyx_convert_PyUnicode_string_to_py_std__in_string(std::string const &); /*proto*/
 static CYTHON_INLINE PyObject *__pyx_convert_PyStr_string_to_py_std__in_string(std::string const &); /*proto*/
@@ -2495,10 +2495,10 @@ static PyObject *__pyx_n_s_pyx_vtable;
 static PyObject *__pyx_n_s_runme;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_pf_6fstlib_4cext_3ops_runme(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
-static PyObject *__pyx_pf_6fstlib_4cext_3ops_2align(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
-static PyObject *__pyx_pf_6fstlib_4cext_3ops_4score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
-static PyObject *__pyx_pf_6fstlib_4cext_3ops_6score_log(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
-static PyObject *__pyx_pf_6fstlib_4cext_3ops_8kernel_score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_2align(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_4score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_6score_log(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_8kernel_score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_codeobj__2;
 /* Late includes */
@@ -2575,9 +2575,9 @@ static PyObject *__pyx_pf_6fstlib_4cext_3ops_runme(CYTHON_UNUSED PyObject *__pyx
  */
 
 static PyObject *__pyx_pw_6fstlib_4cext_3ops_3align(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static struct __pyx_obj_9pywrapfst_MutableFst *__pyx_f_6fstlib_4cext_3ops_align(struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *__pyx_f_6fstlib_4cext_3ops_align(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
   std::unique_ptr<fst::script::VectorFstClass>  __pyx_v_tfst;
-  struct __pyx_obj_9pywrapfst_MutableFst *__pyx_r = NULL;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   int __pyx_lineno = 0;
@@ -2596,7 +2596,7 @@ static struct __pyx_obj_9pywrapfst_MutableFst *__pyx_f_6fstlib_4cext_3ops_align(
     PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "arc_type");
     __PYX_ERR(0, 23, __pyx_L1_error)
   }
-  __pyx_v_tfst.reset(new fst::script::VectorFstClass(((struct __pyx_vtabstruct_9pywrapfst_Fst *)__pyx_v_ifst1->__pyx_vtab)->arc_type(__pyx_v_ifst1, 0)));
+  __pyx_v_tfst.reset(new fst::script::VectorFstClass(((struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Fst *)__pyx_v_ifst1->__pyx_vtab)->arc_type(__pyx_v_ifst1, 0)));
 
   /* "fstlib/cext/ops.pyx":26
  * 
@@ -2627,9 +2627,9 @@ static struct __pyx_obj_9pywrapfst_MutableFst *__pyx_f_6fstlib_4cext_3ops_align(
  * cpdef Weight score_std(Fst model, Fst ifst1, Fst ifst2):
  */
   __Pyx_XDECREF(((PyObject *)__pyx_r));
-  __pyx_t_1 = ((PyObject *)__pyx_f_9pywrapfst__init_MutableFst(__pyx_v_tfst.release())); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 28, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_6fstlib_4cext_9pywrapfst__init_MutableFst(__pyx_v_tfst.release())); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_r = ((struct __pyx_obj_9pywrapfst_MutableFst *)__pyx_t_1);
+  __pyx_r = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
@@ -2655,9 +2655,9 @@ static struct __pyx_obj_9pywrapfst_MutableFst *__pyx_f_6fstlib_4cext_3ops_align(
 /* Python wrapper */
 static PyObject *__pyx_pw_6fstlib_4cext_3ops_3align(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_pw_6fstlib_4cext_3ops_3align(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -2708,9 +2708,9 @@ static PyObject *__pyx_pw_6fstlib_4cext_3ops_3align(PyObject *__pyx_self, PyObje
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
     }
-    __pyx_v_model = ((struct __pyx_obj_9pywrapfst_Fst *)values[0]);
-    __pyx_v_ifst1 = ((struct __pyx_obj_9pywrapfst_Fst *)values[1]);
-    __pyx_v_ifst2 = ((struct __pyx_obj_9pywrapfst_Fst *)values[2]);
+    __pyx_v_model = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *)values[0]);
+    __pyx_v_ifst1 = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *)values[1]);
+    __pyx_v_ifst2 = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *)values[2]);
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
@@ -2720,9 +2720,9 @@ static PyObject *__pyx_pw_6fstlib_4cext_3ops_3align(PyObject *__pyx_self, PyObje
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
   __pyx_r = __pyx_pf_6fstlib_4cext_3ops_2align(__pyx_self, __pyx_v_model, __pyx_v_ifst1, __pyx_v_ifst2);
 
   /* function exit code */
@@ -2734,7 +2734,7 @@ static PyObject *__pyx_pw_6fstlib_4cext_3ops_3align(PyObject *__pyx_self, PyObje
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6fstlib_4cext_3ops_2align(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2) {
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_2align(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -2769,10 +2769,10 @@ static PyObject *__pyx_pf_6fstlib_4cext_3ops_2align(CYTHON_UNUSED PyObject *__py
  */
 
 static PyObject *__pyx_pw_6fstlib_4cext_3ops_5score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_std(struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_std(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
   fst::script::WeightClass __pyx_v_distance;
-  struct __pyx_obj_9pywrapfst_Weight *__pyx_v_retval = NULL;
-  struct __pyx_obj_9pywrapfst_Weight *__pyx_r = NULL;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_v_retval = NULL;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -2826,10 +2826,10 @@ static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_std(
   PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9pywrapfst_Weight), __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 32, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_6fstlib_4cext_9pywrapfst_Weight), __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 32, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_v_retval = ((struct __pyx_obj_9pywrapfst_Weight *)__pyx_t_2);
+  __pyx_v_retval = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *)__pyx_t_2);
   __pyx_t_2 = 0;
 
   /* "fstlib/cext/ops.pyx":33
@@ -2869,9 +2869,9 @@ static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_std(
 /* Python wrapper */
 static PyObject *__pyx_pw_6fstlib_4cext_3ops_5score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_pw_6fstlib_4cext_3ops_5score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -2922,9 +2922,9 @@ static PyObject *__pyx_pw_6fstlib_4cext_3ops_5score_std(PyObject *__pyx_self, Py
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
     }
-    __pyx_v_model = ((struct __pyx_obj_9pywrapfst_Fst *)values[0]);
-    __pyx_v_ifst1 = ((struct __pyx_obj_9pywrapfst_Fst *)values[1]);
-    __pyx_v_ifst2 = ((struct __pyx_obj_9pywrapfst_Fst *)values[2]);
+    __pyx_v_model = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *)values[0]);
+    __pyx_v_ifst1 = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *)values[1]);
+    __pyx_v_ifst2 = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *)values[2]);
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
@@ -2934,9 +2934,9 @@ static PyObject *__pyx_pw_6fstlib_4cext_3ops_5score_std(PyObject *__pyx_self, Py
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
   __pyx_r = __pyx_pf_6fstlib_4cext_3ops_4score_std(__pyx_self, __pyx_v_model, __pyx_v_ifst1, __pyx_v_ifst2);
 
   /* function exit code */
@@ -2948,7 +2948,7 @@ static PyObject *__pyx_pw_6fstlib_4cext_3ops_5score_std(PyObject *__pyx_self, Py
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6fstlib_4cext_3ops_4score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2) {
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_4score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -2983,10 +2983,10 @@ static PyObject *__pyx_pf_6fstlib_4cext_3ops_4score_std(CYTHON_UNUSED PyObject *
  */
 
 static PyObject *__pyx_pw_6fstlib_4cext_3ops_7score_log(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_log(struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_log(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
   fst::script::WeightClass __pyx_v_distance;
-  struct __pyx_obj_9pywrapfst_Weight *__pyx_v_retval = NULL;
-  struct __pyx_obj_9pywrapfst_Weight *__pyx_r = NULL;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_v_retval = NULL;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -3040,10 +3040,10 @@ static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_log(
   PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9pywrapfst_Weight), __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_6fstlib_4cext_9pywrapfst_Weight), __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 38, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_v_retval = ((struct __pyx_obj_9pywrapfst_Weight *)__pyx_t_2);
+  __pyx_v_retval = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *)__pyx_t_2);
   __pyx_t_2 = 0;
 
   /* "fstlib/cext/ops.pyx":39
@@ -3083,9 +3083,9 @@ static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_log(
 /* Python wrapper */
 static PyObject *__pyx_pw_6fstlib_4cext_3ops_7score_log(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_pw_6fstlib_4cext_3ops_7score_log(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -3136,9 +3136,9 @@ static PyObject *__pyx_pw_6fstlib_4cext_3ops_7score_log(PyObject *__pyx_self, Py
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
     }
-    __pyx_v_model = ((struct __pyx_obj_9pywrapfst_Fst *)values[0]);
-    __pyx_v_ifst1 = ((struct __pyx_obj_9pywrapfst_Fst *)values[1]);
-    __pyx_v_ifst2 = ((struct __pyx_obj_9pywrapfst_Fst *)values[2]);
+    __pyx_v_model = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *)values[0]);
+    __pyx_v_ifst1 = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *)values[1]);
+    __pyx_v_ifst2 = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *)values[2]);
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
@@ -3148,9 +3148,9 @@ static PyObject *__pyx_pw_6fstlib_4cext_3ops_7score_log(PyObject *__pyx_self, Py
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 36, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 36, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 36, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 36, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 36, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 36, __pyx_L1_error)
   __pyx_r = __pyx_pf_6fstlib_4cext_3ops_6score_log(__pyx_self, __pyx_v_model, __pyx_v_ifst1, __pyx_v_ifst2);
 
   /* function exit code */
@@ -3162,7 +3162,7 @@ static PyObject *__pyx_pw_6fstlib_4cext_3ops_7score_log(PyObject *__pyx_self, Py
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6fstlib_4cext_3ops_6score_log(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2) {
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_6score_log(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3197,10 +3197,10 @@ static PyObject *__pyx_pf_6fstlib_4cext_3ops_6score_log(CYTHON_UNUSED PyObject *
  */
 
 static PyObject *__pyx_pw_6fstlib_4cext_3ops_9kernel_score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_kernel_score_std(struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_kernel_score_std(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
   fst::script::WeightClass __pyx_v_distance;
-  struct __pyx_obj_9pywrapfst_Weight *__pyx_v_retval = NULL;
-  struct __pyx_obj_9pywrapfst_Weight *__pyx_r = NULL;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_v_retval = NULL;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -3254,10 +3254,10 @@ static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_kernel_sco
   PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9pywrapfst_Weight), __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_6fstlib_4cext_9pywrapfst_Weight), __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_v_retval = ((struct __pyx_obj_9pywrapfst_Weight *)__pyx_t_2);
+  __pyx_v_retval = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *)__pyx_t_2);
   __pyx_t_2 = 0;
 
   /* "fstlib/cext/ops.pyx":44
@@ -3297,9 +3297,9 @@ static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_kernel_sco
 /* Python wrapper */
 static PyObject *__pyx_pw_6fstlib_4cext_3ops_9kernel_score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_pw_6fstlib_4cext_3ops_9kernel_score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -3350,9 +3350,9 @@ static PyObject *__pyx_pw_6fstlib_4cext_3ops_9kernel_score_std(PyObject *__pyx_s
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
     }
-    __pyx_v_model = ((struct __pyx_obj_9pywrapfst_Fst *)values[0]);
-    __pyx_v_ifst1 = ((struct __pyx_obj_9pywrapfst_Fst *)values[1]);
-    __pyx_v_ifst2 = ((struct __pyx_obj_9pywrapfst_Fst *)values[2]);
+    __pyx_v_model = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *)values[0]);
+    __pyx_v_ifst1 = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *)values[1]);
+    __pyx_v_ifst2 = ((struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *)values[2]);
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
@@ -3362,9 +3362,9 @@ static PyObject *__pyx_pw_6fstlib_4cext_3ops_9kernel_score_std(PyObject *__pyx_s
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 41, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 41, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 41, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 41, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 41, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 41, __pyx_L1_error)
   __pyx_r = __pyx_pf_6fstlib_4cext_3ops_8kernel_score_std(__pyx_self, __pyx_v_model, __pyx_v_ifst1, __pyx_v_ifst2);
 
   /* function exit code */
@@ -3376,7 +3376,7 @@ static PyObject *__pyx_pw_6fstlib_4cext_3ops_9kernel_score_std(PyObject *__pyx_s
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6fstlib_4cext_3ops_8kernel_score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2) {
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_8kernel_score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3811,64 +3811,64 @@ static int __Pyx_modinit_type_import_code(void) {
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_import_code", 0);
   /*--- Type import code ---*/
-  __pyx_t_1 = PyImport_ImportModule("pywrapfst"); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 71, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("fstlib.cext.pywrapfst"); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_ptype_9pywrapfst_Weight = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "Weight", sizeof(struct __pyx_obj_9pywrapfst_Weight), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst_Weight) __PYX_ERR(2, 71, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst_Weight = (struct __pyx_vtabstruct_9pywrapfst_Weight*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst_Weight->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst_Weight)) __PYX_ERR(2, 71, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst_SymbolTableView = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "SymbolTableView", sizeof(struct __pyx_obj_9pywrapfst_SymbolTableView), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst_SymbolTableView) __PYX_ERR(2, 107, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst_SymbolTableView = (struct __pyx_vtabstruct_9pywrapfst_SymbolTableView*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst_SymbolTableView->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst_SymbolTableView)) __PYX_ERR(2, 107, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst__EncodeMapperSymbolTableView = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "_EncodeMapperSymbolTableView", sizeof(struct __pyx_obj_9pywrapfst__EncodeMapperSymbolTableView), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst__EncodeMapperSymbolTableView) __PYX_ERR(2, 138, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst__EncodeMapperSymbolTableView = (struct __pyx_vtabstruct_9pywrapfst__EncodeMapperSymbolTableView*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst__EncodeMapperSymbolTableView->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst__EncodeMapperSymbolTableView)) __PYX_ERR(2, 138, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst__FstSymbolTableView = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "_FstSymbolTableView", sizeof(struct __pyx_obj_9pywrapfst__FstSymbolTableView), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst__FstSymbolTableView) __PYX_ERR(2, 146, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst__FstSymbolTableView = (struct __pyx_vtabstruct_9pywrapfst__FstSymbolTableView*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst__FstSymbolTableView->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst__FstSymbolTableView)) __PYX_ERR(2, 146, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst__MutableSymbolTable = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "_MutableSymbolTable", sizeof(struct __pyx_obj_9pywrapfst__MutableSymbolTable), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst__MutableSymbolTable) __PYX_ERR(2, 154, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst__MutableSymbolTable = (struct __pyx_vtabstruct_9pywrapfst__MutableSymbolTable*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst__MutableSymbolTable->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst__MutableSymbolTable)) __PYX_ERR(2, 154, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst__MutableFstSymbolTableView = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "_MutableFstSymbolTableView", sizeof(struct __pyx_obj_9pywrapfst__MutableFstSymbolTableView), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst__MutableFstSymbolTableView) __PYX_ERR(2, 167, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst__MutableFstSymbolTableView = (struct __pyx_vtabstruct_9pywrapfst__MutableFstSymbolTableView*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst__MutableFstSymbolTableView->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst__MutableFstSymbolTableView)) __PYX_ERR(2, 167, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst_SymbolTable = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "SymbolTable", sizeof(struct __pyx_obj_9pywrapfst_SymbolTable), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst_SymbolTable) __PYX_ERR(2, 175, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst_SymbolTable = (struct __pyx_vtabstruct_9pywrapfst_SymbolTable*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst_SymbolTable->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst_SymbolTable)) __PYX_ERR(2, 175, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst__SymbolTableIterator = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "_SymbolTableIterator", sizeof(struct __pyx_obj_9pywrapfst__SymbolTableIterator), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst__SymbolTableIterator) __PYX_ERR(2, 198, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst_EncodeMapper = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "EncodeMapper", sizeof(struct __pyx_obj_9pywrapfst_EncodeMapper), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst_EncodeMapper) __PYX_ERR(2, 210, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst_EncodeMapper = (struct __pyx_vtabstruct_9pywrapfst_EncodeMapper*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst_EncodeMapper->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst_EncodeMapper)) __PYX_ERR(2, 210, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst_Fst = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "Fst", sizeof(struct __pyx_obj_9pywrapfst_Fst), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst_Fst) __PYX_ERR(2, 247, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst_Fst = (struct __pyx_vtabstruct_9pywrapfst_Fst*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst_Fst->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst_Fst)) __PYX_ERR(2, 247, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst_MutableFst = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "MutableFst", sizeof(struct __pyx_obj_9pywrapfst_MutableFst), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst_MutableFst) __PYX_ERR(2, 313, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst_MutableFst = (struct __pyx_vtabstruct_9pywrapfst_MutableFst*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst_MutableFst->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst_MutableFst)) __PYX_ERR(2, 313, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst_VectorFst = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "VectorFst", sizeof(struct __pyx_obj_9pywrapfst_VectorFst), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst_VectorFst) __PYX_ERR(2, 394, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst_VectorFst = (struct __pyx_vtabstruct_9pywrapfst_VectorFst*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst_VectorFst->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst_VectorFst)) __PYX_ERR(2, 394, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst_Arc = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "Arc", sizeof(struct __pyx_obj_9pywrapfst_Arc), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst_Arc) __PYX_ERR(2, 416, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst_Arc = (struct __pyx_vtabstruct_9pywrapfst_Arc*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst_Arc->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst_Arc)) __PYX_ERR(2, 416, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst__ArcIterator = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "_ArcIterator", sizeof(struct __pyx_obj_9pywrapfst__ArcIterator), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst__ArcIterator) __PYX_ERR(2, 426, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst__ArcIterator = (struct __pyx_vtabstruct_9pywrapfst__ArcIterator*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst__ArcIterator->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst__ArcIterator)) __PYX_ERR(2, 426, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst__MutableArcIterator = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "_MutableArcIterator", sizeof(struct __pyx_obj_9pywrapfst__MutableArcIterator), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst__MutableArcIterator) __PYX_ERR(2, 448, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst__MutableArcIterator = (struct __pyx_vtabstruct_9pywrapfst__MutableArcIterator*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst__MutableArcIterator->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst__MutableArcIterator)) __PYX_ERR(2, 448, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst__StateIterator = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "_StateIterator", sizeof(struct __pyx_obj_9pywrapfst__StateIterator), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst__StateIterator) __PYX_ERR(2, 472, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst__StateIterator = (struct __pyx_vtabstruct_9pywrapfst__StateIterator*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst__StateIterator->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst__StateIterator)) __PYX_ERR(2, 472, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst_Compiler = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "Compiler", sizeof(struct __pyx_obj_9pywrapfst_Compiler), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst_Compiler) __PYX_ERR(2, 592, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst_Compiler = (struct __pyx_vtabstruct_9pywrapfst_Compiler*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst_Compiler->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst_Compiler)) __PYX_ERR(2, 592, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst_FarReader = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "FarReader", sizeof(struct __pyx_obj_9pywrapfst_FarReader), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst_FarReader) __PYX_ERR(2, 613, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst_FarReader = (struct __pyx_vtabstruct_9pywrapfst_FarReader*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst_FarReader->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst_FarReader)) __PYX_ERR(2, 613, __pyx_L1_error)
-  __pyx_ptype_9pywrapfst_FarWriter = __Pyx_ImportType(__pyx_t_1, "pywrapfst", "FarWriter", sizeof(struct __pyx_obj_9pywrapfst_FarWriter), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_9pywrapfst_FarWriter) __PYX_ERR(2, 638, __pyx_L1_error)
-  __pyx_vtabptr_9pywrapfst_FarWriter = (struct __pyx_vtabstruct_9pywrapfst_FarWriter*)__Pyx_GetVtable(__pyx_ptype_9pywrapfst_FarWriter->tp_dict); if (unlikely(!__pyx_vtabptr_9pywrapfst_FarWriter)) __PYX_ERR(2, 638, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst_Weight = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "Weight", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst_Weight) __PYX_ERR(2, 71, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst_Weight = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Weight*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst_Weight->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst_Weight)) __PYX_ERR(2, 71, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst_SymbolTableView = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "SymbolTableView", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTableView), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst_SymbolTableView) __PYX_ERR(2, 107, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst_SymbolTableView = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_SymbolTableView*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst_SymbolTableView->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst_SymbolTableView)) __PYX_ERR(2, 107, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "_EncodeMapperSymbolTableView", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView) __PYX_ERR(2, 138, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst__EncodeMapperSymbolTableView)) __PYX_ERR(2, 138, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst__FstSymbolTableView = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "_FstSymbolTableView", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst__FstSymbolTableView), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst__FstSymbolTableView) __PYX_ERR(2, 146, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst__FstSymbolTableView = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__FstSymbolTableView*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst__FstSymbolTableView->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst__FstSymbolTableView)) __PYX_ERR(2, 146, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst__MutableSymbolTable = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "_MutableSymbolTable", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableSymbolTable), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst__MutableSymbolTable) __PYX_ERR(2, 154, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst__MutableSymbolTable = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableSymbolTable*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst__MutableSymbolTable->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst__MutableSymbolTable)) __PYX_ERR(2, 154, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "_MutableFstSymbolTableView", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView) __PYX_ERR(2, 167, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst__MutableFstSymbolTableView)) __PYX_ERR(2, 167, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst_SymbolTable = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "SymbolTable", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst_SymbolTable), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst_SymbolTable) __PYX_ERR(2, 175, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst_SymbolTable = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_SymbolTable*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst_SymbolTable->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst_SymbolTable)) __PYX_ERR(2, 175, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst__SymbolTableIterator = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "_SymbolTableIterator", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst__SymbolTableIterator), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst__SymbolTableIterator) __PYX_ERR(2, 198, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst_EncodeMapper = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "EncodeMapper", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst_EncodeMapper), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst_EncodeMapper) __PYX_ERR(2, 210, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst_EncodeMapper = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_EncodeMapper*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst_EncodeMapper->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst_EncodeMapper)) __PYX_ERR(2, 210, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "Fst", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst_Fst) __PYX_ERR(2, 247, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst_Fst = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Fst*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst_Fst->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst_Fst)) __PYX_ERR(2, 247, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst_MutableFst = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "MutableFst", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst_MutableFst) __PYX_ERR(2, 313, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst_MutableFst = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_MutableFst*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst_MutableFst->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst_MutableFst)) __PYX_ERR(2, 313, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst_VectorFst = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "VectorFst", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst_VectorFst), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst_VectorFst) __PYX_ERR(2, 394, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst_VectorFst = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_VectorFst*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst_VectorFst->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst_VectorFst)) __PYX_ERR(2, 394, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst_Arc = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "Arc", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Arc), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst_Arc) __PYX_ERR(2, 416, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst_Arc = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Arc*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst_Arc->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst_Arc)) __PYX_ERR(2, 416, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst__ArcIterator = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "_ArcIterator", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst__ArcIterator), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst__ArcIterator) __PYX_ERR(2, 426, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst__ArcIterator = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__ArcIterator*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst__ArcIterator->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst__ArcIterator)) __PYX_ERR(2, 426, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst__MutableArcIterator = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "_MutableArcIterator", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst__MutableArcIterator), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst__MutableArcIterator) __PYX_ERR(2, 448, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst__MutableArcIterator = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__MutableArcIterator*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst__MutableArcIterator->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst__MutableArcIterator)) __PYX_ERR(2, 448, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst__StateIterator = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "_StateIterator", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst__StateIterator), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst__StateIterator) __PYX_ERR(2, 472, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst__StateIterator = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst__StateIterator*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst__StateIterator->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst__StateIterator)) __PYX_ERR(2, 472, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst_Compiler = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "Compiler", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Compiler), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst_Compiler) __PYX_ERR(2, 592, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst_Compiler = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_Compiler*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst_Compiler->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst_Compiler)) __PYX_ERR(2, 592, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst_FarReader = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "FarReader", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarReader), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst_FarReader) __PYX_ERR(2, 613, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst_FarReader = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_FarReader*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst_FarReader->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst_FarReader)) __PYX_ERR(2, 613, __pyx_L1_error)
+  __pyx_ptype_6fstlib_4cext_9pywrapfst_FarWriter = __Pyx_ImportType(__pyx_t_1, "fstlib.cext.pywrapfst", "FarWriter", sizeof(struct __pyx_obj_6fstlib_4cext_9pywrapfst_FarWriter), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_6fstlib_4cext_9pywrapfst_FarWriter) __PYX_ERR(2, 638, __pyx_L1_error)
+  __pyx_vtabptr_6fstlib_4cext_9pywrapfst_FarWriter = (struct __pyx_vtabstruct_6fstlib_4cext_9pywrapfst_FarWriter*)__Pyx_GetVtable(__pyx_ptype_6fstlib_4cext_9pywrapfst_FarWriter->tp_dict); if (unlikely(!__pyx_vtabptr_6fstlib_4cext_9pywrapfst_FarWriter)) __PYX_ERR(2, 638, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -3894,9 +3894,9 @@ static int __Pyx_modinit_function_import_code(void) {
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__Pyx_modinit_function_import_code", 0);
   /*--- Function import code ---*/
-  __pyx_t_1 = PyImport_ImportModule("pywrapfst"); if (!__pyx_t_1) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("fstlib.cext.pywrapfst"); if (!__pyx_t_1) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_ImportFunction(__pyx_t_1, "_init_MutableFst", (void (**)(void))&__pyx_f_9pywrapfst__init_MutableFst, "struct __pyx_obj_9pywrapfst_MutableFst *(__pyx_t_9pywrapfst_MutableFstClass_ptr)") < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__Pyx_ImportFunction(__pyx_t_1, "_init_MutableFst", (void (**)(void))&__pyx_f_6fstlib_4cext_9pywrapfst__init_MutableFst, "struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *(__pyx_t_6fstlib_4cext_9pywrapfst_MutableFstClass_ptr)") < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -4109,7 +4109,7 @@ if (!__Pyx_RefNanny) {
   #endif
 
   /* "fstlib/cext/ops.pyx":15
- * from pywrapfst cimport *
+ * from fstlib.cext.pywrapfst cimport *
  * from cops cimport *
  * import numpy as np             # <<<<<<<<<<<<<<
  * 

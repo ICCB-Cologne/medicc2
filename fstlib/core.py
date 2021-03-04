@@ -1,16 +1,18 @@
 """ Python class for finite-state transducers over the real or log semiring"""
 
-import pywrapfst
-import math
-import sys
 import logging
+import math
+import os
+import sys
+import tempfile
+from io import StringIO
+
+import numpy as np
+import pandas as pd
+
 import fstlib
 import fstlib.algos
-from io import StringIO
-import os
-import tempfile
-import pandas as pd
-import numpy as np
+from fstlib.cext import pywrapfst
 
 log = logging.getLogger(__name__)
 

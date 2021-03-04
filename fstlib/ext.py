@@ -1,7 +1,9 @@
 import logging
-import fstlib
+
 import pandas as pd
-import pywrapfst
+
+import fstlib
+from fstlib.cext import ops, pywrapfst
 
 log = logging.getLogger(__name__)
 
