@@ -3,15 +3,16 @@ import logging
 import pandas as pd
 
 import fstlib
-from fstlib.cext import ops, pywrapfst
+import fstlib.cext.ops
+from fstlib.cext import pywrapfst
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 try:
     from fstlib.cext.ops import *
-    log.info('Using accelerated C operations.')
+    logger.info('Using accelerated C operations.')
 except ImportError:
-    log.warn('Accelerated C operations not available.')
+    logger.warn('Accelerated C operations not available.')
 
 def align(model, ifst1, ifst2):
     ofst = fstlib.cext.ops.align(model.fst, ifst1.fst, ifst2.fst)

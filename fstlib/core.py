@@ -14,7 +14,7 @@ import fstlib
 import fstlib.algos
 from fstlib.cext import pywrapfst
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 class Fst:
     """ Class that describes a finite-state transducer.
@@ -33,7 +33,7 @@ class Fst:
 
     def _repr_png_(self):
         if self.num_states() > 50: ## don't draw, too large, too slow
-            log.info('Too many states to draw')
+            logger.info('Too many states to draw')
             return
         g = self.to_graphviz(width=12, height=14)
         g.format='png'
@@ -41,7 +41,7 @@ class Fst:
 
     def _repr_svg_(self):
         if self.num_states() > 50: ## don't draw, too large, too slow
-            log.info('Too many states to draw')
+            logger.info('Too many states to draw')
             return
         g = self.to_graphviz(width=12, height=14)
         g.format='svg'
@@ -471,7 +471,7 @@ def prune(ifst, delta=fstlib.DEF_DELTA, nstate=fstlib.NO_STATE_ID, weight=None):
 def push(ifst, delta=fstlib.DEF_DELTA, push_weights=True, push_labels=False, 
          remove_common_affix=False, remove_total_weight=False, to_final=False):
     if remove_total_weight:
-        log.warn('remove_total_weight dysfunctional due to bug in pywrapfst. Use destructive method instead.')
+        logger.warn('remove_total_weight dysfunctional due to bug in pywrapfst. Use destructive method instead.')
     newfst = pywrapfst.push(ifst.fst, delta, push_weights, push_labels, remove_common_affix, remove_total_weight, to_final)
     return Fst(newfst)
 

@@ -4,11 +4,11 @@ Created on 21 Jan 2010
 @author: rfs
 '''
 
-from fstlib.core import *
-import numpy
+
+import numpy as np
 import collections
-import fstlib
 from itertools import combinations
+import fstlib
 
 """ Creates special transducers for special occasions ;) """
     
@@ -76,7 +76,7 @@ def create_three_state_global_alignment_fst(scoring_matrix, gap_open, gap_extend
     for s in alphabet:
         symbol_table.add_symbol(s)
         
-    myfst = Fst(arc_type='standard')
+    myfst = fstlib.Fst(arc_type='standard')
     myfst.set_input_symbols(symbol_table)
     myfst.set_output_symbols(symbol_table)
     myfst.add_states(3)
@@ -113,7 +113,7 @@ def create_three_state_global_alignment_fst(scoring_matrix, gap_open, gap_extend
 
 def create_kgram_fst(symbol_table, k, gap_cost=None):
     st = dict(symbol_table)
-    myfst = Fst(arc_type='log')
+    myfst = fstlib.Fst(arc_type='log')
     myfst.set_input_symbols(symbol_table)
     myfst.set_output_symbols(symbol_table)
     myfst.add_states(k+1)
@@ -135,7 +135,7 @@ def create_kgram_fst(symbol_table, k, gap_cost=None):
     return myfst
 
 def from_string(seq, final_weight=None, arc_weight=None, arc_type = 'log', isymbols=None, osymbols=None):
-    myfst = Fst(arc_type=arc_type)
+    myfst = fstlib.Fst(arc_type=arc_type)
     startid = myfst.add_state()
     myfst.set_start(startid)
     myfst.set_input_symbols(isymbols)
@@ -159,7 +159,7 @@ def from_string(seq, final_weight=None, arc_weight=None, arc_type = 'log', isymb
     return myfst
 
 def from_array(seq, final_weight=None, arc_weight=None, arc_type = 'standard', symbols=None):
-    myfst = Fst(arc_type=arc_type)
+    myfst = fstlib.Fst(arc_type=arc_type)
     startid = myfst.add_state()
     myfst.set_start(startid)
     myfst.set_input_symbols(symbols)
@@ -216,14 +216,14 @@ def create_fixed_length_hmm_from_count_matrix(count_matrix, symbol_table, keys=N
         raise FSTFactoryError("Column sumns must not be zero.")
                 
     for i in range(0, seq_length):
-        which = numpy.nonzero(count_matrix[:,i]>0)[0]
+        which = np.nonzero(count_matrix[:,i]>0)[0]
         for j in which:
             key = keys[j]
             prob = count_matrix[j,i]
             if normalize:
                 prob = float(prob) / count_sum[i]
             if prob > 0:
-                prob = - math.log(prob)
+                prob = - np.log(prob)
                 myfst.add_arc(i, (key, key, prob, i+1))
         
     return myfst

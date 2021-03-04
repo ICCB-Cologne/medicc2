@@ -966,7 +966,7 @@ struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_reverse;
 struct __pyx_opt_args_6fstlib_4cext_9pywrapfst__shortestdistance;
 struct __pyx_opt_args_6fstlib_4cext_9pywrapfst_shortestpath;
 
-/* "fstlib/cext/pywrapfst.pxd":103
+/* "pywrapfst.pxd":103
  * # SymbolTable.
  * 
  * ctypedef fst.SymbolTable * SymbolTable_ptr             # <<<<<<<<<<<<<<
@@ -2443,13 +2443,13 @@ static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst_FarReader = 0;
 static PyTypeObject *__pyx_ptype_6fstlib_4cext_9pywrapfst_FarWriter = 0;
 static struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *(*__pyx_f_6fstlib_4cext_9pywrapfst__init_MutableFst)(__pyx_t_6fstlib_4cext_9pywrapfst_MutableFstClass_ptr); /*proto*/
 
-/* Module declarations from 'cops' */
+/* Module declarations from 'fstlib.cext.cops' */
 
-/* Module declarations from 'ops' */
-static struct __pyx_obj_9pywrapfst_MutableFst *__pyx_f_3ops_align(struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
-static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_3ops_score_std(struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
-static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_3ops_score_log(struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
-static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_3ops_kernel_score_std(struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, struct __pyx_obj_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
+/* Module declarations from 'fstlib.cext.ops' */
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *__pyx_f_6fstlib_4cext_3ops_align(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_std(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_log(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_kernel_score_std(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *, int __pyx_skip_dispatch); /*proto*/
 static CYTHON_INLINE PyObject *__pyx_convert_PyObject_string_to_py_std__in_string(std::string const &); /*proto*/
 static CYTHON_INLINE PyObject *__pyx_convert_PyUnicode_string_to_py_std__in_string(std::string const &); /*proto*/
 static CYTHON_INLINE PyObject *__pyx_convert_PyStr_string_to_py_std__in_string(std::string const &); /*proto*/
@@ -2493,11 +2493,11 @@ static PyObject *__pyx_n_s_print;
 static PyObject *__pyx_n_s_pyx_vtable;
 static PyObject *__pyx_n_s_runme;
 static PyObject *__pyx_n_s_test;
-static PyObject *__pyx_pf_3ops_runme(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
-static PyObject *__pyx_pf_3ops_2align(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
-static PyObject *__pyx_pf_3ops_4score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
-static PyObject *__pyx_pf_3ops_6score_log(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
-static PyObject *__pyx_pf_3ops_8kernel_score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_runme(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_2align(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_4score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_6score_log(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_8kernel_score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2); /* proto */
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_codeobj__2;
 /* Late includes */
@@ -2573,8 +2573,8 @@ static PyObject *__pyx_pf_3ops_runme(CYTHON_UNUSED PyObject *__pyx_self) {
  *   cdef unique_ptr[fst.VectorFstClass] tfst
  */
 
-static PyObject *__pyx_pw_3ops_3align(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static struct __pyx_obj_9pywrapfst_MutableFst *__pyx_f_3ops_align(struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_6fstlib_4cext_3ops_3align(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *__pyx_f_6fstlib_4cext_3ops_align(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
   std::unique_ptr<fst::script::VectorFstClass>  __pyx_v_tfst;
   struct __pyx_obj_6fstlib_4cext_9pywrapfst_MutableFst *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -2652,11 +2652,11 @@ static struct __pyx_obj_9pywrapfst_MutableFst *__pyx_f_3ops_align(struct __pyx_o
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_3ops_3align(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_3ops_3align(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
+static PyObject *__pyx_pw_6fstlib_4cext_3ops_3align(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_6fstlib_4cext_3ops_3align(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -2719,10 +2719,10 @@ static PyObject *__pyx_pw_3ops_3align(PyObject *__pyx_self, PyObject *__pyx_args
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
-  __pyx_r = __pyx_pf_3ops_2align(__pyx_self, __pyx_v_model, __pyx_v_ifst1, __pyx_v_ifst2);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
+  __pyx_r = __pyx_pf_6fstlib_4cext_3ops_2align(__pyx_self, __pyx_v_model, __pyx_v_ifst1, __pyx_v_ifst2);
 
   /* function exit code */
   goto __pyx_L0;
@@ -2733,7 +2733,7 @@ static PyObject *__pyx_pw_3ops_3align(PyObject *__pyx_self, PyObject *__pyx_args
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_3ops_2align(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2) {
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_2align(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -2767,8 +2767,8 @@ static PyObject *__pyx_pf_3ops_2align(CYTHON_UNUSED PyObject *__pyx_self, struct
  *   retval = Weight(model._fst.get().WeightType(), distance.ToString())
  */
 
-static PyObject *__pyx_pw_3ops_5score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_3ops_score_std(struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_6fstlib_4cext_3ops_5score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_std(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
   fst::script::WeightClass __pyx_v_distance;
   struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_v_retval = NULL;
   struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_r = NULL;
@@ -2866,11 +2866,11 @@ static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_3ops_score_std(struct __pyx_o
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_3ops_5score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_3ops_5score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
+static PyObject *__pyx_pw_6fstlib_4cext_3ops_5score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_6fstlib_4cext_3ops_5score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -2933,10 +2933,10 @@ static PyObject *__pyx_pw_3ops_5score_std(PyObject *__pyx_self, PyObject *__pyx_
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
-  __pyx_r = __pyx_pf_3ops_4score_std(__pyx_self, __pyx_v_model, __pyx_v_ifst1, __pyx_v_ifst2);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
+  __pyx_r = __pyx_pf_6fstlib_4cext_3ops_4score_std(__pyx_self, __pyx_v_model, __pyx_v_ifst1, __pyx_v_ifst2);
 
   /* function exit code */
   goto __pyx_L0;
@@ -2947,7 +2947,7 @@ static PyObject *__pyx_pw_3ops_5score_std(PyObject *__pyx_self, PyObject *__pyx_
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_3ops_4score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2) {
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_4score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -2981,8 +2981,8 @@ static PyObject *__pyx_pf_3ops_4score_std(CYTHON_UNUSED PyObject *__pyx_self, st
  *   retval = Weight(model._fst.get().WeightType(), distance.ToString())
  */
 
-static PyObject *__pyx_pw_3ops_7score_log(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_3ops_score_log(struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_6fstlib_4cext_3ops_7score_log(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_score_log(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
   fst::script::WeightClass __pyx_v_distance;
   struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_v_retval = NULL;
   struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_r = NULL;
@@ -3080,11 +3080,11 @@ static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_3ops_score_log(struct __pyx_o
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_3ops_7score_log(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_3ops_7score_log(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
+static PyObject *__pyx_pw_6fstlib_4cext_3ops_7score_log(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_6fstlib_4cext_3ops_7score_log(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -3147,10 +3147,10 @@ static PyObject *__pyx_pw_3ops_7score_log(PyObject *__pyx_self, PyObject *__pyx_
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 36, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 36, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 36, __pyx_L1_error)
-  __pyx_r = __pyx_pf_3ops_6score_log(__pyx_self, __pyx_v_model, __pyx_v_ifst1, __pyx_v_ifst2);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 36, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 36, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_r = __pyx_pf_6fstlib_4cext_3ops_6score_log(__pyx_self, __pyx_v_model, __pyx_v_ifst1, __pyx_v_ifst2);
 
   /* function exit code */
   goto __pyx_L0;
@@ -3161,7 +3161,7 @@ static PyObject *__pyx_pw_3ops_7score_log(PyObject *__pyx_self, PyObject *__pyx_
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_3ops_6score_log(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2) {
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_6score_log(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3195,8 +3195,8 @@ static PyObject *__pyx_pf_3ops_6score_log(CYTHON_UNUSED PyObject *__pyx_self, st
  *   retval = Weight(model._fst.get().WeightType(), distance.ToString())
  */
 
-static PyObject *__pyx_pw_3ops_9kernel_score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_3ops_kernel_score_std(struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_6fstlib_4cext_3ops_9kernel_score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_f_6fstlib_4cext_3ops_kernel_score_std(struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2, CYTHON_UNUSED int __pyx_skip_dispatch) {
   fst::script::WeightClass __pyx_v_distance;
   struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_v_retval = NULL;
   struct __pyx_obj_6fstlib_4cext_9pywrapfst_Weight *__pyx_r = NULL;
@@ -3294,11 +3294,11 @@ static struct __pyx_obj_9pywrapfst_Weight *__pyx_f_3ops_kernel_score_std(struct 
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_3ops_9kernel_score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_3ops_9kernel_score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
-  struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
+static PyObject *__pyx_pw_6fstlib_4cext_3ops_9kernel_score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_6fstlib_4cext_3ops_9kernel_score_std(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1 = 0;
+  struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2 = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -3361,10 +3361,10 @@ static PyObject *__pyx_pw_3ops_9kernel_score_std(PyObject *__pyx_self, PyObject 
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 41, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 41, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 41, __pyx_L1_error)
-  __pyx_r = __pyx_pf_3ops_8kernel_score_std(__pyx_self, __pyx_v_model, __pyx_v_ifst1, __pyx_v_ifst2);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "model", 0))) __PYX_ERR(0, 41, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst1), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst1", 0))) __PYX_ERR(0, 41, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ifst2), __pyx_ptype_6fstlib_4cext_9pywrapfst_Fst, 1, "ifst2", 0))) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_r = __pyx_pf_6fstlib_4cext_3ops_8kernel_score_std(__pyx_self, __pyx_v_model, __pyx_v_ifst1, __pyx_v_ifst2);
 
   /* function exit code */
   goto __pyx_L0;
@@ -3375,7 +3375,7 @@ static PyObject *__pyx_pw_3ops_9kernel_score_std(PyObject *__pyx_self, PyObject 
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_3ops_8kernel_score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_9pywrapfst_Fst *__pyx_v_ifst2) {
+static PyObject *__pyx_pf_6fstlib_4cext_3ops_8kernel_score_std(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_model, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst1, struct __pyx_obj_6fstlib_4cext_9pywrapfst_Fst *__pyx_v_ifst2) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4107,9 +4107,9 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "ops.pyx":15
- * from pywrapfst cimport *
- * from cops cimport *
+  /* "fstlib/cext/ops.pyx":15
+ * from .pywrapfst cimport *
+ * from .cops cimport *
  * import numpy as np             # <<<<<<<<<<<<<<
  * 
  * def runme():
