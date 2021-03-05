@@ -44,13 +44,15 @@ def _run_pair_test(pair_test: PairTest, is_wgd: bool) -> bool:
 
 
 @pytest.mark.parametrize("pair", PAIR_TESTS)
-def test_pairs_with_wgd(pair: PairTest):
+def test_fstlib_with_wgd(pair: PairTest):
 
     test_score, expected_score = _run_pair_test(pair, is_wgd=True)
     assert test_score == expected_score
 
 @pytest.mark.parametrize("pair", PAIR_TESTS)
-def test_pairs_without_wgd(pair: PairTest):
+def test_fstlib_without_wgd(pair: PairTest):
 
     test_score, expected_score = _run_pair_test(pair, is_wgd=False)
     assert test_score == expected_score
+
+
