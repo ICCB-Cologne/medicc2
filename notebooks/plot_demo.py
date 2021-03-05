@@ -1,20 +1,19 @@
 #%% import and load data
 import imp
-import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import pandas as pd
-import numpy as np
+import sys
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 %matplotlib inline
-from plotnine import *
 import Bio
-
 import fstlib
 import medicc
+from plotnine import *
 
 #%%
 wgd_example_df = medicc.io.read_tsv_as_dataframe('../examples/output/WGD Example_final_cn_profiles.tsv')
@@ -25,8 +24,8 @@ evo001_df = medicc.io.read_tsv_as_dataframe('../examples/output/EVO001_EP_final_
 evo001_tree = medicc.io.import_tree('../examples/output/EVO001_EP_final_tree.new', 'diploid')
 ptx011_df = medicc.io.read_tsv_as_dataframe('../examples/output/PTX011_final_cn_profiles.tsv')
 ptx011_tree = medicc.io.import_tree('../examples/output/PTX011_final_tree.new', 'diploid')
-ptx011_nowgd_df = medicc.io.read_tsv_as_dataframe('../examples/output/PTX011-nowgd_final_cn_profiles.tsv')
-ptx011_nowgd_tree = medicc.io.import_tree('../examples/output/PTX011-nowgd_final_tree.new', 'diploid')
+ptx011_nowgd_df = medicc.io.read_tsv_as_dataframe('../examples/output/PTX011-noWGD_final_cn_profiles.tsv')
+ptx011_nowgd_tree = medicc.io.import_tree('../examples/output/PTX011-noWGD_final_tree.new', 'diploid')
 
 # %%
 imp.reload(medicc.plot) 
