@@ -1,11 +1,11 @@
-import logging
 from dataclasses import dataclass
 
 import fstlib
 import numpy as np
+import pytest
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+import medicc
+
 
 @dataclass
 class PairTest:
@@ -14,10 +14,11 @@ class PairTest:
     expected_score_wgd: float
     expected_score_no_wgd: float
 
+
 PAIR_TESTS = [
     PairTest('11111X1111', '22022X1111', 2, 2),
     PairTest('11111X1111', '22022X2222', 2, 3),
-    PairTest('11101X1111', '10111X1111', 2, 2),
+    PairTest('11101X1111', '10111X1111', np.inf, np.inf),
     PairTest('33233X1111', '00000X1111', 3, 3),
     PairTest('1111111111X1111111111', '2212222222X2222222222', 2, 3),
     PairTest('2222222222X2222222222', '3323333333X3333323333', 3, 4),
@@ -25,13 +26,13 @@ PAIR_TESTS = [
     PairTest('1111111111X111X111', '3332222221X333X333', 4, 6),
 ]
 
-def run_pair_tests(fst: fstlib.Fst, is_wgd: bool):
-    """ Runs all pair tests and reports the output. """
-    test_results = np.array([_run_pair_test(test, fst, is_wgd) for test in PAIR_TESTS])
-    return test_results
+def _run_pair_test(pair_test: PairTest, is_wgd: bool) -> bool:
+    """Runs individual pair test"""
+    maxcn = 8  # alphabet = 012345678; maxcn losses, maxcn-1 gains
+    sep = "X"
+    symbol_table = medicc.create_symbol_table(maxcn, sep)
+    fst = medicc.create_copynumber_fst(symbol_table, sep, enable_wgd=is_wgd)
 
-def _run_pair_test(pair_test: PairTest, fst: fstlib.Fst, is_wgd: bool) -> bool:
-    """ Runs individual pair test and returns if passed. """
     td = fstlib.factory.from_string(pair_test.seq_in, isymbols=fst.input_symbols(), osymbols=fst.output_symbols(), arc_type=fst.arc_type())
     tg = fstlib.factory.from_string(pair_test.seq_out, isymbols=fst.input_symbols(), osymbols=fst.output_symbols(), arc_type=fst.arc_type())
     test_score = float(fstlib.score(fst, td, tg))
@@ -39,19 +40,17 @@ def _run_pair_test(pair_test: PairTest, fst: fstlib.Fst, is_wgd: bool) -> bool:
         expected_score = pair_test.expected_score_wgd
     else:
         expected_score = pair_test.expected_score_no_wgd
-    passed = False
-    if test_score == expected_score:
-        passed = True
-    if passed:
-        logfun = logger.info
-    else:
-        logfun = logger.warn
-    logfun("Testing MED between %s and %s. Expected distance: %f (%s), returned distance: %f. Test %s!", 
-        pair_test.seq_in, 
-        pair_test.seq_out, 
-        expected_score, 
-        'WGD' if is_wgd else 'no WGD', 
-        test_score, 
-        'passed' if passed else 'failed')
-    return passed
+    return test_score, expected_score
 
+
+@pytest.mark.parametrize("pair", PAIR_TESTS)
+def test_pairs_with_wgd(pair: PairTest):
+
+    test_score, expected_score = _run_pair_test(pair, is_wgd=True)
+    assert test_score == expected_score
+
+@pytest.mark.parametrize("pair", PAIR_TESTS)
+def test_pairs_without_wgd(pair: PairTest):
+
+    test_score, expected_score = _run_pair_test(pair, is_wgd=False)
+    assert test_score == expected_score
