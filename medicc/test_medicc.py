@@ -30,8 +30,7 @@ def test_medicc_with_example():
         # Process hasn't exited yet, let's wait some
         time.sleep(0.5)
 
+    # TODO: Check which files are created
     subprocess.Popen(["rm", "examples/test_output", "-rf"])
 
     assert process.returncode == 0
-
-
