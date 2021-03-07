@@ -2,9 +2,9 @@
 import os
 import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 import matplotlib.pyplot as plt
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import medicc
 
 # %%
@@ -28,7 +28,7 @@ for patient in patients:
         cur_tree,
         title=patient,
         normal_name='diploid',
-        hide_normal_chromosomes=True,
+        hide_normal_chromosomes=False,
         ignore_segment_lengths=False,
         label_func=lambda label: labels.get(label, label))
 
