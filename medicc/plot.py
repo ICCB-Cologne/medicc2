@@ -506,9 +506,12 @@ def _draw_tree(
 
     # Options for displaying branch labels / confidence
     def conf2str(conf):
-        if int(conf) == conf:
+        if conf is None or conf==0:
+            return None
+        elif int(conf) == conf:
             return str(int(conf))
-        return str(conf)
+        else:
+            return str(conf)
 
     if not branch_labels:
         if show_confidence:
@@ -540,7 +543,8 @@ def _draw_tree(
             raise TypeError(
                 "branch_labels must be either a dict or a callable (function)"
             )
-        format_branch_label = branch_labels
+        def format_branch_label(clade):
+            return conf2str(branch_labels(clade))
 
     # options for displaying label colors.
     if label_colors:
