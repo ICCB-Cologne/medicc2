@@ -18,7 +18,7 @@ class PairTest:
 PAIR_TESTS = [
     PairTest('11111X1111', '22022X1111', 2, 2),
     PairTest('11111X1111', '22022X2222', 2, 3),
-    PairTest('11101X1111', '10111X1111', np.inf, np.inf),
+    PairTest('11101X1111', '10111X1111', np.inf, np.inf), # expected distance 2 for symmetric metric
     PairTest('33233X1111', '00000X1111', 3, 3),
     PairTest('1111111111X1111111111', '2212222222X2222222222', 2, 3),
     PairTest('2222222222X2222222222', '3323333333X3333323333', 3, 4),
@@ -54,5 +54,3 @@ def test_fstlib_without_wgd(pair: PairTest):
 
     test_score, expected_score = _run_pair_test(pair, is_wgd=False)
     assert test_score == expected_score
-
-
