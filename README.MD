@@ -23,7 +23,7 @@ MEDICC2 contains modified code of the *pywrapfst* Python module from [OpenFST](h
 Dependencies: 
 
 * Python 3.9
-* Mandatory: OpenFST 1.8.0, Biopython 1.78, Numpy 1.20.1, SciPy 1.6.0, Pandas 1.2.2, Matplotlib 3.3.4, Seaborn 0.11.1, Cython 0.29.21
+* Mandatory: OpenFST 1.8.1, Biopython 1.78, Numpy 1.20.1, SciPy 1.6.0, Pandas 1.2.2, Matplotlib 3.3.4, Seaborn 0.11.1, Cython 0.29.21
 * Optional: Scikit-learn 0.24.1
 
 ## Running & Testing: ##

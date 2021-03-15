@@ -89,7 +89,7 @@ dependencies:
   - numexpr=2.7.2=py39hde0f152_0
   - numpy=1.20.1=py39hdbf815f_0
   - olefile=0.46=pyh9f0ad1d_1
-  - openfst=1.8.0=h0efe328_0
+  - openfst=1.8.1=h4bd325d_0
   - openpyxl=3.0.6=pyhd8ed1ab_0
   - openssl=1.1.1i=h7f98852_0
   - palettable=3.3.0=py_0
