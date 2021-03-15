@@ -2,16 +2,9 @@
 import imp
 import os
 import sys
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 
 %matplotlib inline
-import Bio
-import fstlib
 import medicc
 from plotnine import *
 

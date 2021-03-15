@@ -494,7 +494,7 @@ def _draw_tree(
         try:
             import pylab as plt
         except ImportError:
-            raise Bio.MissingPythonDependencyError(
+            raise MEDICCPlotError(
                 "Install matplotlib or pylab if you want to use draw."
             ) from None
 
@@ -715,3 +715,6 @@ def _draw_tree(
         elif isinstance(value[0], tuple):
             getattr(plt, str(key))(*value[0], **dict(value[1]))
 
+
+class MEDICCPlotError(Exception):
+    pass
