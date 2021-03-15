@@ -69,16 +69,15 @@ def plot_cn_profiles(
 
     samples = df.index.get_level_values('sample_id').unique()
     nsamp = len(samples)
-    chroms = df.index.get_level_values('chrom').unique()
-    nchr = len(chroms)
     nsegs = df.loc[samples[0],:].groupby('chrom').size()
-    allele_columns = df.columns
 
     df.reset_index(['start','end'], inplace=True)
+
     offset = df.loc[samples[0],:].reset_index().groupby('chrom', sort=False).max()['end']
+    offset.dropna(inplace=True)
     offset[:] = np.append(0, offset.cumsum().values[:-1])
     offset.name='offset'
-    df = df.join(offset)
+    df = df.join(offset, on='chrom')
     df['start_pos'] = df['start'] + df['offset']
     df['end_pos'] = df['end'] + df['offset'] + 1
 
@@ -209,14 +208,14 @@ def _preprocess_input_df(input_df, input_tree, normal_name=None, remove_normal_c
 
     ## now work around pandas bug of dropping categoricals
     df.reset_index(inplace=True)
-    df['chrom'] = pd.Categorical(df['chrom'], categories=cats)
+    df.loc[:, 'chrom'] = pd.Categorical(df['chrom'], categories=cats)
     df.set_index(input_df.index.names, inplace=True)
     df.sort_index(inplace=True)
 
     if input_tree is not None:
         dfderiv = core.compute_change_events(df[input_df.columns], input_tree)
-        df['is_gain'] = dfderiv.apply(lambda x:(x>0).any(), axis=1)
-        df['is_loss'] = dfderiv.apply(lambda x:(x<0).any(), axis=1)
+        df.loc[:, 'is_gain'] = dfderiv.apply(lambda x:(x>0).any(), axis=1)
+        df.loc[:, 'is_loss'] = dfderiv.apply(lambda x:(x<0).any(), axis=1)
     else:
         df['is_gain'] = False
         df['is_loss'] = False
@@ -273,9 +272,9 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles, 
     linex = chr_ends.values[:-1] ## don't plot last
     ax.vlines(linex, ymin=mincn, ymax=maxcn, color=COL_VLINES, linewidth=1)
     ## draw chromosome labels
+    chr_starts.dropna(inplace=True)
     chr_label_pos = chr_starts
     for chrom, pos in chr_label_pos.iteritems():
-        span = chr_ends[chrom] - chr_starts[chrom]
         ax.text(pos + 0.5, maxcn-0.3, chrom, va='top', color=COL_CHR_LABEL, fontweight='medium', fontsize=CHR_LABEL_SIZE)
     ## draw sample labels
     if plot_yaxis_labels:
@@ -305,7 +304,6 @@ def _plot_aggregated_events(agg_events, input_tree, alleles, ax):
     agg_events['end_pos'] = agg_events['end'] + agg_events['offset'] + 1
 
     # draw ractangles
-    
     event_patches = []
     bkg_patches = []
     rect_colors = []
@@ -508,9 +506,12 @@ def _draw_tree(
 
     # Options for displaying branch labels / confidence
     def conf2str(conf):
-        if int(conf) == conf:
+        if conf is None or conf==0:
+            return None
+        elif int(conf) == conf:
             return str(int(conf))
-        return str(conf)
+        else:
+            return str(conf)
 
     if not branch_labels:
         if show_confidence:
@@ -542,7 +543,8 @@ def _draw_tree(
             raise TypeError(
                 "branch_labels must be either a dict or a callable (function)"
             )
-        format_branch_label = branch_labels
+        def format_branch_label(clade):
+            return conf2str(branch_labels(clade))
 
     # options for displaying label colors.
     if label_colors:
@@ -630,7 +632,7 @@ def _draw_tree(
         label = label_func(clade)
         if label not in (None, clade.__class__.__name__):
             axes.text(
-                x_here,
+                x_here + 1,
                 y_here,
                 " %s" % label,
                 verticalalignment="center",

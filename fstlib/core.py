@@ -1,13 +1,15 @@
 """ Python class for finite-state transducers over the real or log semiring"""
 
-import os
-import tempfile
-import sys
-import math
 import logging
+import math
+import os
+import sys
+import tempfile
 from io import StringIO
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+
 import fstlib
 import fstlib.algos
 from fstlib.cext import pywrapfst
