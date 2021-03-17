@@ -267,15 +267,16 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles, 
     seg_bounds = group['end_pos'].values
     ax.vlines(np.append(seg_bound_first, seg_bounds), ymin=mincn, ymax=maxcn, ls='--', alpha=0.25, color=COL_VLINES, linewidth=0.5)
     ## draw chromosome boundaries
-    chr_starts = group.reset_index().groupby('chrom', sort=False).min()['start_pos']
     chr_ends = group.reset_index().groupby('chrom', sort=False).max()['end_pos']
     linex = chr_ends.values[:-1] ## don't plot last
     ax.vlines(linex, ymin=mincn, ymax=maxcn, color=COL_VLINES, linewidth=1)
     ## draw chromosome labels
-    chr_starts.dropna(inplace=True)
-    chr_label_pos = chr_starts
+    chr_label_pos = chr_ends
+    chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
+    chr_label_pos.iloc[0] = 0
     for chrom, pos in chr_label_pos.iteritems():
-        ax.text(pos + 0.5, maxcn-0.3, chrom, va='top', color=COL_CHR_LABEL, fontweight='medium', fontsize=CHR_LABEL_SIZE)
+        ax.text(pos + 5e5, maxcn-0.35, chrom, va='top', color=COL_CHR_LABEL,
+                fontweight='medium', fontsize=CHR_LABEL_SIZE)
     ## draw sample labels
     if plot_yaxis_labels:
         ax.set_ylabel(sample_label, fontsize=YLABEL_FONT_SIZE)
@@ -352,7 +353,6 @@ def _plot_aggregated_events(agg_events, input_tree, alleles, ax):
               linewidth = 0.5)
     
     ## draw chromosome boundaries
-    chr_starts = agg_events.groupby('chrom').min()['start_pos']
     chr_ends = agg_events.groupby('chrom').max()['end_pos']
     linex = chr_ends.values[:-1] ## don't plot last
     ax.vlines(linex, 
@@ -362,11 +362,13 @@ def _plot_aggregated_events(agg_events, input_tree, alleles, ax):
               linewidth = 1)
     
     ## draw chromosome labels
-    chr_label_pos = chr_starts
+    chr_label_pos = chr_ends
+    chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
+    chr_label_pos.iloc[0] = 0
     for chrom, pos in chr_label_pos.iteritems():
-        span = chr_ends[chrom] - chr_starts[chrom]
-        ax.text(pos + 0.3, maxcn-0.3, chrom, va='top', color =COL_CHR_LABEL, fontweight='medium', fontsize=CHR_LABEL_SIZE)
-    
+        ax.text(pos + 5e5, maxcn-0.35, chrom, va='top', color=COL_CHR_LABEL,
+                fontweight='medium', fontsize=CHR_LABEL_SIZE)
+
     ## axis and axis labels
     ax.set_ylabel("summary", fontsize=YLABEL_FONT_SIZE)
     ax.yaxis.label.set_color(COL_SUMMARY_LABEL)
