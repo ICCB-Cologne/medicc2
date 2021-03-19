@@ -16,8 +16,20 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-def main(input_df, asymm_fst, normal_name='diploid', input_tree=None, ancestral_reconstruction=True, chr_separator='X'):
+
+def main(input_df,
+         asymm_fst,
+         normal_name='diploid',
+         input_tree=None,
+         ancestral_reconstruction=True,
+         chr_separator='X',
+         logging_level=None):
     """ MEDICC Main Method """
+
+    if logging_level is not None:
+        for logger_name in ['medicc.core', 'medicc.io', 'medicc.nj']:
+            logger = logging.getLogger(logger_name)
+            logger.setLevel(getattr(logging, logging_level, 20)) # defaults to INFO
     
     symbol_table = asymm_fst.input_symbols()
 
