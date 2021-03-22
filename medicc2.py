@@ -7,9 +7,7 @@ import numpy as np
 import fstlib
 import medicc
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger()
-
+logger = logging.getLogger('main')
 objects_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "objects")
 
 parser = argparse.ArgumentParser()

@@ -1,14 +1,14 @@
-import sys
 import os
+import sys
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import logging
 import argparse
+import logging
+
 import medicc
 
 # prepare logger and parse command line arguments
-logging.basicConfig()
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger = logging.getLogger('tools')
 
 parser = argparse.ArgumentParser()
 parser.add_argument("output_folder", type=str, help="output folder")

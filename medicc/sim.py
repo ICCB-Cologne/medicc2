@@ -9,7 +9,6 @@ import scipy as sp
 from medicc import tools
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 def evolve(cnstr, mu=5, plen=0.2, pwgd=0.05, pgain=0.5, maxcn=8, mincn=0, verbose=True):
     """ Evolves a copy-number string, e.g. 11111X11111 with the given parameters. """

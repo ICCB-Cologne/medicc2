@@ -30,6 +30,8 @@ Dependencies:
 
 Use **python medicc2.py --help** for general usage and info.
 
+Logging settings can be changed using the `logging_conf.yaml` file
+
 ## Contact: ##
 Email questions, feature requests and bug reports to **Roland Schwarz, roland.schwarz@mdc-berlin.de**.
 

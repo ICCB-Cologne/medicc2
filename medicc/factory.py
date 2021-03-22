@@ -7,9 +7,7 @@ from medicc import tools
 SYMBOL_GAP = 'gap'
 
 # prepare logger 
-logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 def create_symbol_table(max_cn=8, separator='X'):
     alphabet = [tools.int2hex(x) for x in range(max_cn+1)]

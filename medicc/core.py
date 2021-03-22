@@ -12,9 +12,7 @@ import medicc
 from medicc import io, nj, stats, tools
 
 # prepare logger 
-logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 def main(input_df,
@@ -26,11 +24,6 @@ def main(input_df,
          logging_level=None):
     """ MEDICC Main Method """
 
-    if logging_level is not None:
-        for logger_name in ['medicc.core', 'medicc.io', 'medicc.nj']:
-            logger = logging.getLogger(logger_name)
-            logger.setLevel(getattr(logging, logging_level, 20)) # defaults to INFO
-    
     symbol_table = asymm_fst.input_symbols()
 
     ## Validate input
@@ -197,8 +190,6 @@ def infer_tree_topology(pdm, labels, diploid):
     if len(root_path)>1:
         new_root = root_path[1]
         input_tree.root_with_outgroup(new_root)
-    else:
-        pass
 
     ## from mythic: nj.tree.root_with_outgroup([{'name':s} for s in normal_samples], outgroup_branch_length=0)
     return input_tree

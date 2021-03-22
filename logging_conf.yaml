@@ -1,0 +1,31 @@
+version: 1
+
+formatters:
+    simple:
+        format: "%(levelname)s %(name)s:\t%(message)s"
+
+    simple_w_time:
+        format: "%(asctime)s - %(levelname)s %(name)s:\t%(message)s"
+
+
+handlers:
+    console:
+        class: logging.StreamHandler
+        formatter: simple
+    # TODO: Write to file
+
+
+loggers:
+    main:
+        level: INFO
+        handlers: [console]
+    
+    medicc:
+        level: CRITICAL
+        handlers: [console]
+        propagate: yes
+    
+    # Loggers in submodules inheret their behavior from the 'medicc' logger but can be individually overwritten
+    # medicc.io:
+    #     level: INFO
+    #     handlers: [console]
