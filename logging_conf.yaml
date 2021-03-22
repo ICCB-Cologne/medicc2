@@ -16,7 +16,7 @@ handlers:
 
 
 loggers:
-    main:
+    medicc-main:
         level: INFO
         handlers: [console]
     

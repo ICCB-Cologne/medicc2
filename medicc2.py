@@ -7,7 +7,7 @@ import numpy as np
 import fstlib
 import medicc
 
-logger = logging.getLogger('main')
+logger = logging.getLogger('medicc-main')
 objects_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "objects")
 
 parser = argparse.ArgumentParser()
