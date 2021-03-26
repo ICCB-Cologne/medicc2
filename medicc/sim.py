@@ -80,11 +80,11 @@ def rcoal(n, tips = None):
         edge = pd.DataFrame()
         edge['a'] = [3,4,4,3]
         edge['b'] = [4,0,1,2]
-        edge['name_a'] = pd.Series(['root','in_1','in_1','root'])
+        edge['name_a'] = pd.Series(['root','internal_1','internal_1','root'])
         if tips and len(tips)==n:
-            edge['name_b'] = pd.Series(['in_1',tips[0],tips[1],tips[2]])
+            edge['name_b'] = pd.Series(['internal_1',tips[0],tips[1],tips[2]])
         else:
-            edge['name_b'] = pd.Series(['in_1','sp_0001','sp_0002','sp_0003'])
+            edge['name_b'] = pd.Series(['internal_1','sp_0001','sp_0002','sp_0003'])
         edge['edge_length'] = np.array([x[1],x[0],x[0],sum(x)])
         reordered = edge.copy()
     else:
@@ -144,7 +144,7 @@ def rcoal(n, tips = None):
             reordered['name_b'] = [tips[reordered.b[i]] if (reordered.b[i] < n)  else '' for i in reordered.index]
         else:
             reordered['name_b'] = ["sp_{0:04d}".format(reordered.b[i] +1) if (reordered.b[i] < n)  else '' for i in reordered.index]
-        reordered.at[reordered.name_b=='', 'name_b'] = ["in_{0:d}".format(i +1) for i in range(len(reordered[reordered.name_b=='']))]
+        reordered.at[reordered.name_b=='', 'name_b'] = ["internal_{0:d}".format(i +1) for i in range(len(reordered[reordered.name_b=='']))]
         internal_names =  reordered[reordered.b>n][['b','name_b']].copy()
         internal_names.set_index(['b'], inplace = True)
         internal_names = internal_names.append(pd.DataFrame(data = ['root'], index= [n], columns = ['name_b']))
@@ -156,7 +156,7 @@ def rcoal(n, tips = None):
 def _edgelist_to_tree(el, add_normal=True, normal_name='diploid'):
     clades = {name:Bio.Phylo.PhyloXML.Clade(name=name) for name in el[['name_a','name_b']].stack().unique()} 
     if add_normal:
-        clades[normal_name] = Bio.Phylo.PhyloXML.Clade(name=normal_name, branch_length=0)
+        clades[normal_name] = Bio.Phylo.PhyloXML.Clade(name=normal_name, branch_length=1)
         clades['root'].clades.append(clades[normal_name])
 
     for _, row in el.iterrows():

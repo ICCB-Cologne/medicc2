@@ -26,6 +26,7 @@ PAIR_TESTS = [
     PairTest('1111111111X111X111', '3332222221X333X333', 4, 6),
 ]
 
+# TODO: symmetric, i.e. fstlib.kernel_score
 def _run_pair_test(pair_test: PairTest, is_wgd: bool) -> bool:
     """Runs individual pair test"""
     maxcn = 8  # alphabet = 012345678; maxcn losses, maxcn-1 gains
