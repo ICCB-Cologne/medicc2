@@ -71,8 +71,13 @@ parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', d
                     help = 'Expert option: character used to separate chromosomes in the FST (default: \"X\").')
 parser.add_argument("--maxcn", type=int, dest='maxcn', default=8,
                     help='Expert option: maximum CN supported by the supplied FST.')
+parser.add_argument("-v", "--verbose", action='store_true', default=False,
+                    help='Enable versbose output (default: false).', required=False)
 
 args = parser.parse_args()
+
+if args.verbose:
+    logging.getLogger('medicc').setLevel(logging.INFO)
 
 output_dir = args.output_dir
 normal_name = args.normal_name 
