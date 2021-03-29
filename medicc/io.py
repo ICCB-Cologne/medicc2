@@ -180,7 +180,7 @@ def write_tree_files(tree, out_name: str, plot_tree=True, draw_ascii=True):
         plot.plot_tree(tree,
                        output_name=out_name,
                        label_func=lambda x: x if 'internal' not in x else '',
-                       plot_branch_lengths=True)
+                       show_branch_lengths=True)
 
 def write_pdms(sample_labels, pdms, filename_prefix):
     """ Writes all PDMs in the pdms dictionary. """
