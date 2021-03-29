@@ -119,25 +119,14 @@ def plot_cn_profiles(
         nrows = nsamp + 1 if plot_summary else nsamp
         gs = fig.add_gridspec(nrows, 2, width_ratios=[tree_width_ratio, 1-tree_width_ratio])
         tree_ax = fig.add_subplot(gs[0:nsamp, 0])
-        tree_ax.axes.get_yaxis().set_visible(False)
-        tree_ax.spines["right"].set_visible(False)
-        tree_ax.spines["left"].set_visible(False)
-        tree_ax.spines["top"].set_visible(False)
-        tree_ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(integer=True, prune=None))
-        tree_ax.xaxis.set_tick_params(labelsize=XLABEL_TICK_SIZE)
-        tree_ax.xaxis.label.set_size(XLABEL_FONT_SIZE)
-        tree_ax.set_title(title, x=0.01, y=0.99, ha='left', va='top', fontweight='bold', fontsize=16)
         cn_axes = [fig.add_subplot(gs[i]) for i in range(1,(2*(nrows))+1,2)]
-        x_posns = _get_x_positions(input_tree)
         y_posns = _get_y_positions(input_tree, adjust=True)
-        _draw_tree(input_tree, 
-            x_posns, 
-            y_posns, 
-            label_func = lambda x:None,
-            branch_labels=lambda x:x.branch_length if x.name!='root' and x.name is not None else None, 
-            marker_func = lambda x:(TREE_MARKER_SIZE, clade_colors[x.name]) if x.name is not None else None,
-            axes=tree_ax)
         y_order = [x.name for x in y_posns if x.name is not None and x.name!='root'] ## as in tree
+        plot_tree(input_tree, 
+                  ax=tree_ax,
+                  title=title,
+                  label_func=None,
+                  branch_labels=lambda x: x.branch_length if x.name != 'root' and x.name is not None else None)
     
     gs.update(wspace=0, hspace=0.1) ## doesn't work with constrained layout
     fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.1, wspace=0)
@@ -228,22 +217,24 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles, 
     bkg_patches = []
     lines_a = []
     lines_b = []
+    alpha = []
     for idx, r in group.iterrows():
         lines_a.append([(r['start_pos'], r[alleles[0]]),(r['end_pos'], r[alleles[0]])])
         lines_b.append([(r['start_pos'], r[alleles[1]]),(r['end_pos'], r[alleles[1]])])
         rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_PATCH_BACKGROUND, alpha=1)
+        alpha.append(0.4 if r['is_clonal'] else 1.0)
         bkg_patches.append(rect)
         if r['is_clonal']:
             rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_CLONAL, alpha=0.1)
             event_patches.append(rect)
         if r['is_normal']:
-            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_NORMAL, alpha=0.1)
+            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_NORMAL, alpha=0.15)
             event_patches.append(rect)
         if r['is_gain']:
-            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_GAIN, alpha=0.1)
+            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_GAIN, alpha=0.15)
             event_patches.append(rect)
         if r['is_loss']:
-            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_LOSS, alpha=0.1)
+            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_LOSS, alpha=0.15)
             event_patches.append(rect)
 
     #rc = mpl.collections.PatchCollection(rectangles, facecolors=rect_colors, alpha=0.1)
@@ -255,6 +246,10 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles, 
     ax.add_patch(plot_bkg)
     colors_a = np.array([COL_ALLELE_A] * len(lines_a))
     colors_b = np.array([COL_ALLELE_B] * len(lines_b))
+    # clonal mutations
+    colors_a[:, 3] = np.array(alpha)
+    colors_b[:, 3] = np.array(alpha)
+    # a and b are overlapping
     colors_a[group[alleles[0]]==group[alleles[1]], 3] = 0.5
     colors_b[group[alleles[0]]==group[alleles[1]], 3] = 0.5
     colors = np.row_stack([colors_a, colors_b])
@@ -631,7 +626,7 @@ def _draw_tree(
                 marker_size, marker_col = marker_func(clade)
                 axes.scatter(x_here, y_here, s=marker_size, c=marker_col, zorder=3)
         # Add node/taxon labels
-        label = label_func(clade)
+        label = label_func(str(clade))
         if label not in (None, clade.__class__.__name__):
             axes.text(
                 x_here + 1,
@@ -716,6 +711,61 @@ def _draw_tree(
             getattr(plt, str(key))(*value)
         elif isinstance(value[0], tuple):
             getattr(plt, str(key))(*value[0], **dict(value[1]))
+
+
+def plot_tree(input_tree,
+              label_func=None,
+              title='',
+              ax=None,
+              output_name=None,
+              normal_name='diploid',
+              plot_branch_lengths=False,
+              branch_labels=None):
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(7, 7))
+
+    if branch_labels is None:
+        if plot_branch_lengths:
+            def branch_labels(x): return np.round(
+                x.branch_length, 1) if x.name != 'root' and x.name is not None else None
+
+    clade_colors = {}
+    for sample in [x.name for x in list(input_tree.find_clades(''))]:
+        ## determine if sample is terminal
+        is_terminal = True
+        matches = list(input_tree.find_clades(sample))
+        if len(matches) > 0:
+            clade = matches[0]
+            is_terminal = clade.is_terminal()
+        ## determine if sample is normal
+        is_normal = sample == normal_name
+        clade_colors[sample] = COL_MARKER_TERMINAL
+        if not is_terminal:
+            clade_colors[sample] = COL_MARKER_INTERNAL
+        if is_normal:
+            clade_colors[sample] = COL_MARKER_NORMAL
+
+    ax.axes.get_yaxis().set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(integer=True, prune=None))
+    ax.xaxis.set_tick_params(labelsize=XLABEL_TICK_SIZE)
+    ax.xaxis.label.set_size(XLABEL_FONT_SIZE)
+    ax.set_title(title, x=0.01, y=0.99, ha='left', va='top', fontweight='bold', fontsize=16)
+    x_posns = _get_x_positions(input_tree)
+    y_posns = _get_y_positions(input_tree, adjust=True)
+    _draw_tree(input_tree,
+               x_posns,
+               y_posns,
+               label_func=label_func if label_func is not None else lambda x: x,
+               branch_labels=branch_labels,
+               marker_func=lambda x: (
+                   TREE_MARKER_SIZE, clade_colors[x.name]) if x.name is not None else None,
+               axes=ax)
+    if output_name is not None:
+        plt.savefig(output_name + ".png")
 
 
 class MEDICCPlotError(Exception):
