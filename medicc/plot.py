@@ -434,7 +434,7 @@ def plot_tree(input_tree,
               normal_name='diploid',
               show_branch_lengths=False,
               branch_labels=None,
-              show_confidence=False,
+              show_support=False,
               label_colors=None,
               **kwargs):
     """Plot the given tree using matplotlib (or pylab).
@@ -466,7 +466,7 @@ def plot_tree(input_tree,
             no label will be shown for that node.
         do_show : bool
             Whether to show() the plot automatically.
-        show_confidence : bool
+        show_support : bool
             Whether to display confidence values, if present on the tree.
         ax : matplotlib/pylab axes
             If a valid matplotlib.axes.Axes instance, the phylogram is plotted
@@ -475,7 +475,7 @@ def plot_tree(input_tree,
             A mapping of each clade to the label that will be shown along the
             branch leading to it. By default this is the confidence value(s) of
             the clade, taken from the ``confidence`` attribute, and can be
-            easily toggled off with this function's ``show_confidence`` option.
+            easily toggled off with this function's ``show_support`` option.
             But if you would like to alter the formatting of confidence values,
             or label the branches with something other than confidence, then use
             this option.
@@ -561,7 +561,7 @@ def plot_tree(input_tree,
         if show_branch_lengths:
             def format_branch_label(x): 
                 return np.round(x.branch_length, 1) if x.name != 'root' and x.name is not None else None
-        elif show_confidence:
+        elif show_support:
             def format_branch_label(clade):
                 try:
                     confidences = clade.confidences
@@ -668,7 +668,7 @@ def plot_tree(input_tree,
         if conf_label:
             ax.text(
                 0.5 * (x_start + x_here),
-                y_here - 0.03,
+                y_here - 0.15,
                 conf_label,
                 fontsize="small",
                 horizontalalignment="center",
