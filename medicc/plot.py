@@ -540,7 +540,8 @@ def plot_tree(input_tree,
     ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(integer=True, prune=None))
     ax.xaxis.set_tick_params(labelsize=XLABEL_TICK_SIZE)
     ax.xaxis.label.set_size(XLABEL_FONT_SIZE)
-    ax.set_title(title, x=0.01, y=0.99, ha='left', va='top', fontweight='bold', fontsize=16)
+    ax.set_title(title, x=0.01, y=1.0, ha='left', va='bottom',
+                fontweight='bold', fontsize=16, zorder=10)
     x_posns = _get_x_positions(input_tree)
     y_posns = _get_y_positions(input_tree, adjust=True)
 
