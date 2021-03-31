@@ -20,6 +20,8 @@ COL_SUMMARY_LABEL = 'grey'
 COL_BACKGROUND = 'white'
 COL_BACKGROUND_HATCH = 'lightgray'
 COL_PATCH_BACKGROUND = 'white'
+ALPHA_PATCHES = 0.15
+ALPHA_CLONAL = 0.3
 BACKGROUND_HATCH_MARKER = '/////'
 TREE_MARKER_SIZE = 40
 YLABEL_FONT_SIZE = 8
@@ -223,19 +225,20 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles, 
         lines_a.append([(r['start_pos'], r[alleles[0]]),(r['end_pos'], r[alleles[0]])])
         lines_b.append([(r['start_pos'], r[alleles[1]]),(r['end_pos'], r[alleles[1]])])
         rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_PATCH_BACKGROUND, alpha=1)
-        alpha.append(0.3 if r['is_clonal'] else 1.0)
+        alpha.append(ALPHA_CLONAL if r['is_clonal'] else 1.0)
         bkg_patches.append(rect)
-        if r['is_clonal']:
-            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_CLONAL, alpha=0.1)
-            event_patches.append(rect)
+        # Not used because clonal tracks are made transparent below
+        # if r['is_clonal']:
+        #     rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_CLONAL, alpha=0.1)
+        #     event_patches.append(rect)
         if r['is_normal']:
-            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_NORMAL, alpha=0.15)
+            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_NORMAL, alpha=ALPHA_PATCHES)
             event_patches.append(rect)
         if r['is_gain']:
-            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_GAIN, alpha=0.15)
+            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_GAIN, alpha=ALPHA_PATCHES)
             event_patches.append(rect)
         if r['is_loss']:
-            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_LOSS, alpha=0.15)
+            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_LOSS, alpha=ALPHA_PATCHES)
             event_patches.append(rect)
 
     #rc = mpl.collections.PatchCollection(rectangles, facecolors=rect_colors, alpha=0.1)
