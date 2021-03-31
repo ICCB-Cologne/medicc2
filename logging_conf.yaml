@@ -29,3 +29,9 @@ loggers:
     # medicc.io:
     #     level: INFO
     #     handlers: [console]
+
+    # Overwrite fstlib logging settings
+    fstlib:
+        level: CRITICAL
+        handlers: [console]
+        propagate: yes
