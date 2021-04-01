@@ -1,3 +1,3 @@
 [submodule "fstlib"]
 	path = submodule-fstlib
-	url = git@bitbucket.org:schwarzlab/fstlib.git
+	url = https://bitbucket.org/schwarzlab/fstlib.git
