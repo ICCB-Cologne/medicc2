@@ -7,7 +7,7 @@ MEDICC2 is available under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 ## Download: ##
 
-* Clone the MEDICC2 repository and its submodules using "git clone --recursive https://bitbucket.org/schwarzlab/medicc2.git"
+* Clone the MEDICC2 repository and its submodules using **git clone --recursive https://bitbucket.org/schwarzlab/medicc2.git**
 
 ## Installation: ##
 
@@ -29,6 +29,8 @@ Dependencies:
 ## Running & Testing: ##
 
 Use **python medicc2.py --help** for general usage and info.
+
+Logging settings can be changed using the `logging_conf.yaml` file
 
 ## Contact: ##
 Email questions, feature requests and bug reports to **Roland Schwarz, roland.schwarz@mdc-berlin.de**.

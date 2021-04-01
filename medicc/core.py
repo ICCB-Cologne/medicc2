@@ -12,13 +12,17 @@ import medicc
 from medicc import io, nj, stats, tools
 
 # prepare logger 
-logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
-def main(input_df, asymm_fst, normal_name='diploid', input_tree=None, ancestral_reconstruction=True, chr_separator='X'):
+
+def main(input_df,
+         asymm_fst,
+         normal_name='diploid',
+         input_tree=None,
+         ancestral_reconstruction=True,
+         chr_separator='X'):
     """ MEDICC Main Method """
-    
+
     symbol_table = asymm_fst.input_symbols()
 
     ## Validate input
@@ -31,14 +35,14 @@ def main(input_df, asymm_fst, normal_name='diploid', input_tree=None, ancestral_
 
     ## Calculate pairwise distances
     logger.info("Calculating pairwise distance matrices.")
-    labels = input_df.index.get_level_values('sample_id').unique()
+    sample_labels = input_df.index.get_level_values('sample_id').unique()
     pdms = {allele:calc_pairwise_distance_matrix(asymm_fst, fsa_dict) for allele, fsa_dict in zip(input_df.columns, FSA_dicts)}
     pdms['total'] = sum(pdms.values())
 
     ## Reconstruct a tree
     if input_tree is None:
         logger.info("Inferring tree topology.")
-        nj_tree = infer_tree_topology(pdms['total'], labels, diploid = normal_name)
+        nj_tree = infer_tree_topology(pdms['total'], sample_labels, diploid = normal_name)
     else:
         logger.info("Tree provided, using it.")
         nj_tree = input_tree
@@ -68,7 +72,7 @@ def main(input_df, asymm_fst, normal_name='diploid', input_tree=None, ancestral_
 
     nj_tree.root_with_outgroup(normal_name)
     final_tree.root_with_outgroup(normal_name)
-    return labels, pdms, nj_tree, final_tree, output_df
+    return sample_labels, pdms, nj_tree, final_tree, output_df
 
 def create_standard_fsa_dict_from_allele_column(input_column: pd.Series, symbol_table: fstlib.SymbolTable, separator: str = "X") -> dict:
     """ Creates a dictionary of FSAs from a single column/allele (Pandas Series) of the input data frame.
@@ -185,8 +189,6 @@ def infer_tree_topology(pdm, labels, diploid):
     if len(root_path)>1:
         new_root = root_path[1]
         input_tree.root_with_outgroup(new_root)
-    else:
-        pass
 
     ## from mythic: nj.tree.root_with_outgroup([{'name':s} for s in normal_samples], outgroup_branch_length=0)
     return input_tree

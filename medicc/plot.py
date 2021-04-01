@@ -20,6 +20,8 @@ COL_SUMMARY_LABEL = 'grey'
 COL_BACKGROUND = 'white'
 COL_BACKGROUND_HATCH = 'lightgray'
 COL_PATCH_BACKGROUND = 'white'
+ALPHA_PATCHES = 0.15
+ALPHA_CLONAL = 0.3
 BACKGROUND_HATCH_MARKER = '/////'
 TREE_MARKER_SIZE = 40
 YLABEL_FONT_SIZE = 8
@@ -119,25 +121,15 @@ def plot_cn_profiles(
         nrows = nsamp + 1 if plot_summary else nsamp
         gs = fig.add_gridspec(nrows, 2, width_ratios=[tree_width_ratio, 1-tree_width_ratio])
         tree_ax = fig.add_subplot(gs[0:nsamp, 0])
-        tree_ax.axes.get_yaxis().set_visible(False)
-        tree_ax.spines["right"].set_visible(False)
-        tree_ax.spines["left"].set_visible(False)
-        tree_ax.spines["top"].set_visible(False)
-        tree_ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(integer=True, prune=None))
-        tree_ax.xaxis.set_tick_params(labelsize=XLABEL_TICK_SIZE)
-        tree_ax.xaxis.label.set_size(XLABEL_FONT_SIZE)
-        tree_ax.set_title(title, x=0.01, y=0.99, ha='left', va='top', fontweight='bold', fontsize=16)
         cn_axes = [fig.add_subplot(gs[i]) for i in range(1,(2*(nrows))+1,2)]
-        x_posns = _get_x_positions(input_tree)
         y_posns = _get_y_positions(input_tree, adjust=True)
-        _draw_tree(input_tree, 
-            x_posns, 
-            y_posns, 
-            label_func = lambda x:None,
-            branch_labels=lambda x:x.branch_length if x.name!='root' and x.name is not None else None, 
-            marker_func = lambda x:(TREE_MARKER_SIZE, clade_colors[x.name]) if x.name is not None else None,
-            axes=tree_ax)
         y_order = [x.name for x in y_posns if x.name is not None and x.name!='root'] ## as in tree
+        plot_tree(input_tree, 
+                  ax=tree_ax,
+                  title=title,
+                  label_func=lambda x: '',
+                  label_colors=clade_colors,
+                  branch_labels=lambda x: x.branch_length if x.name != 'root' and x.name is not None else None)
     
     gs.update(wspace=0, hspace=0.1) ## doesn't work with constrained layout
     fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.1, wspace=0)
@@ -228,22 +220,25 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles, 
     bkg_patches = []
     lines_a = []
     lines_b = []
+    alpha = []
     for idx, r in group.iterrows():
         lines_a.append([(r['start_pos'], r[alleles[0]]),(r['end_pos'], r[alleles[0]])])
         lines_b.append([(r['start_pos'], r[alleles[1]]),(r['end_pos'], r[alleles[1]])])
         rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_PATCH_BACKGROUND, alpha=1)
+        alpha.append(ALPHA_CLONAL if r['is_clonal'] else 1.0)
         bkg_patches.append(rect)
-        if r['is_clonal']:
-            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_CLONAL, alpha=0.1)
-            event_patches.append(rect)
+        # Not used because clonal tracks are made transparent below
+        # if r['is_clonal']:
+        #     rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_CLONAL, alpha=0.1)
+        #     event_patches.append(rect)
         if r['is_normal']:
-            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_NORMAL, alpha=0.1)
+            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_NORMAL, alpha=ALPHA_PATCHES)
             event_patches.append(rect)
         if r['is_gain']:
-            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_GAIN, alpha=0.1)
+            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_GAIN, alpha=ALPHA_PATCHES)
             event_patches.append(rect)
         if r['is_loss']:
-            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_LOSS, alpha=0.1)
+            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_LOSS, alpha=ALPHA_PATCHES)
             event_patches.append(rect)
 
     #rc = mpl.collections.PatchCollection(rectangles, facecolors=rect_colors, alpha=0.1)
@@ -255,6 +250,10 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles, 
     ax.add_patch(plot_bkg)
     colors_a = np.array([COL_ALLELE_A] * len(lines_a))
     colors_b = np.array([COL_ALLELE_B] * len(lines_b))
+    # clonal mutations
+    colors_a[:, 3] = np.array(alpha)
+    colors_b[:, 3] = np.array(alpha)
+    # a and b are overlapping
     colors_a[group[alleles[0]]==group[alleles[1]], 3] = 0.5
     colors_b[group[alleles[0]]==group[alleles[1]], 3] = 0.5
     colors = np.row_stack([colors_a, colors_b])
@@ -267,15 +266,16 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles, 
     seg_bounds = group['end_pos'].values
     ax.vlines(np.append(seg_bound_first, seg_bounds), ymin=mincn, ymax=maxcn, ls='--', alpha=0.25, color=COL_VLINES, linewidth=0.5)
     ## draw chromosome boundaries
-    chr_starts = group.reset_index().groupby('chrom', sort=False).min()['start_pos']
     chr_ends = group.reset_index().groupby('chrom', sort=False).max()['end_pos']
     linex = chr_ends.values[:-1] ## don't plot last
     ax.vlines(linex, ymin=mincn, ymax=maxcn, color=COL_VLINES, linewidth=1)
     ## draw chromosome labels
-    chr_starts.dropna(inplace=True)
-    chr_label_pos = chr_starts
+    chr_label_pos = chr_ends
+    chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
+    chr_label_pos.iloc[0] = 0
     for chrom, pos in chr_label_pos.iteritems():
-        ax.text(pos + 0.5, maxcn-0.3, chrom, va='top', color=COL_CHR_LABEL, fontweight='medium', fontsize=CHR_LABEL_SIZE)
+        ax.text(pos + 5e5, maxcn-0.35, chrom, va='top', color=COL_CHR_LABEL,
+                fontweight='medium', fontsize=CHR_LABEL_SIZE)
     ## draw sample labels
     if plot_yaxis_labels:
         ax.set_ylabel(sample_label, fontsize=YLABEL_FONT_SIZE)
@@ -352,7 +352,6 @@ def _plot_aggregated_events(agg_events, input_tree, alleles, ax):
               linewidth = 0.5)
     
     ## draw chromosome boundaries
-    chr_starts = agg_events.groupby('chrom').min()['start_pos']
     chr_ends = agg_events.groupby('chrom').max()['end_pos']
     linex = chr_ends.values[:-1] ## don't plot last
     ax.vlines(linex, 
@@ -362,11 +361,13 @@ def _plot_aggregated_events(agg_events, input_tree, alleles, ax):
               linewidth = 1)
     
     ## draw chromosome labels
-    chr_label_pos = chr_starts
+    chr_label_pos = chr_ends
+    chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
+    chr_label_pos.iloc[0] = 0
     for chrom, pos in chr_label_pos.iteritems():
-        span = chr_ends[chrom] - chr_starts[chrom]
-        ax.text(pos + 0.3, maxcn-0.3, chrom, va='top', color =COL_CHR_LABEL, fontweight='medium', fontsize=CHR_LABEL_SIZE)
-    
+        ax.text(pos + 5e5, maxcn-0.35, chrom, va='top', color=COL_CHR_LABEL,
+                fontweight='medium', fontsize=CHR_LABEL_SIZE)
+
     ## axis and axis labels
     ax.set_ylabel("summary", fontsize=YLABEL_FONT_SIZE)
     ax.yaxis.label.set_color(COL_SUMMARY_LABEL)
@@ -427,20 +428,18 @@ def _get_y_positions(tree, adjust=False):
 
     return heights
 
-def _draw_tree(
-    tree,
-    x_posns,
-    y_posns,
-    label_func=str,
-    show_confidence=True,
-    marker_func = None,
-    # For power users
-    axes=None,
-    branch_labels=None,
-    label_colors=None,
-    *args,
-    **kwargs
-):
+
+def plot_tree(input_tree,
+              label_func=None,
+              title='',
+              ax=None,
+              output_name=None,
+              normal_name='diploid',
+              show_branch_lengths=False,
+              branch_labels=None,
+              show_support=False,
+              label_colors=None,
+              **kwargs):
     """Plot the given tree using matplotlib (or pylab).
     The graphic is a rooted tree, drawn with roughly the same algorithm as
     draw_ascii.
@@ -470,16 +469,16 @@ def _draw_tree(
             no label will be shown for that node.
         do_show : bool
             Whether to show() the plot automatically.
-        show_confidence : bool
+        show_support : bool
             Whether to display confidence values, if present on the tree.
-        axes : matplotlib/pylab axes
+        ax : matplotlib/pylab axes
             If a valid matplotlib.axes.Axes instance, the phylogram is plotted
             in that Axes. By default (None), a new figure is created.
         branch_labels : dict or callable
             A mapping of each clade to the label that will be shown along the
             branch leading to it. By default this is the confidence value(s) of
             the clade, taken from the ``confidence`` attribute, and can be
-            easily toggled off with this function's ``show_confidence`` option.
+            easily toggled off with this function's ``show_support`` option.
             But if you would like to alter the formatting of confidence values,
             or label the branches with something other than confidence, then use
             this option.
@@ -488,6 +487,7 @@ def _draw_tree(
             If the tip label can't be found in the dict or label_colors is
             None, the label will be shown in black.
     """
+
     try:
         import matplotlib.pyplot as plt
     except ImportError:
@@ -500,13 +500,61 @@ def _draw_tree(
 
     import matplotlib.collections as mpcollections
 
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(7, 7))
+
+    label_func=label_func if label_func is not None else lambda x: x
+
+    # options for displaying label colors.
+    if label_colors is not None:
+        if callable(label_colors):
+            def get_label_color(label):
+                return label_colors(label)
+        else:
+            # label_colors is presumed to be a dict
+            def get_label_color(label):
+                return label_colors.get(label, "black")
+    else:
+        clade_colors = {}
+        for sample in [x.name for x in list(input_tree.find_clades(''))]:
+            ## determine if sample is terminal
+            is_terminal = True
+            matches = list(input_tree.find_clades(sample))
+            if len(matches) > 0:
+                clade = matches[0]
+                is_terminal = clade.is_terminal()
+            ## determine if sample is normal
+            is_normal = sample == normal_name
+            clade_colors[sample] = COL_MARKER_TERMINAL
+            if not is_terminal:
+                clade_colors[sample] = COL_MARKER_INTERNAL
+            if is_normal:
+                clade_colors[sample] = COL_MARKER_NORMAL
+        
+        def get_label_color(label):
+            return clade_colors.get(label, "black")
+
+    marker_func=lambda x: (TREE_MARKER_SIZE, get_label_color(x.name)) if x.name is not None else None
+
+    ax.axes.get_yaxis().set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(integer=True, prune=None))
+    ax.xaxis.set_tick_params(labelsize=XLABEL_TICK_SIZE)
+    ax.xaxis.label.set_size(XLABEL_FONT_SIZE)
+    ax.set_title(title, x=0.01, y=1.0, ha='left', va='bottom',
+                fontweight='bold', fontsize=16, zorder=10)
+    x_posns = _get_x_positions(input_tree)
+    y_posns = _get_y_positions(input_tree, adjust=True)
+
     # Arrays that store lines for the plot of clades
     horizontal_linecollections = []
     vertical_linecollections = []
 
     # Options for displaying branch labels / confidence
     def conf2str(conf):
-        if conf is None or conf==0:
+        if conf is None or conf == 0:
             return None
         elif int(conf) == conf:
             return str(int(conf))
@@ -514,8 +562,10 @@ def _draw_tree(
             return str(conf)
 
     if not branch_labels:
-        if show_confidence:
-
+        if show_branch_lengths:
+            def format_branch_label(x): 
+                return np.round(x.branch_length, 1) if x.name != 'root' and x.name is not None else None
+        elif show_support:
             def format_branch_label(clade):
                 try:
                     confidences = clade.confidences
@@ -529,15 +579,12 @@ def _draw_tree(
                 return None
 
         else:
-
             def format_branch_label(clade):
                 return None
 
     elif isinstance(branch_labels, dict):
-
         def format_branch_label(clade):
             return branch_labels.get(clade)
-
     else:
         if not callable(branch_labels):
             raise TypeError(
@@ -546,30 +593,12 @@ def _draw_tree(
         def format_branch_label(clade):
             return conf2str(branch_labels(clade))
 
-    # options for displaying label colors.
-    if label_colors:
-        if callable(label_colors):
-
-            def get_label_color(label):
-                return label_colors(label)
-
-        else:
-            # label_colors is presumed to be a dict
-            def get_label_color(label):
-                return label_colors.get(label, "black")
-
-    else:
-
-        def get_label_color(label):
-            # if label_colors is not specified, use black
-            return "black"
-
     # The function draw_clade closes over the axes object
-    if axes is None:
+    if ax is None:
         fig = plt.figure()
-        axes = fig.add_subplot(1, 1, 1)
-    elif not isinstance(axes, plt.matplotlib.axes.Axes):
-        raise ValueError("Invalid argument for axes: %s" % axes)
+        ax = fig.add_subplot(1, 1, 1)
+    elif not isinstance(ax, plt.matplotlib.axes.Axes):
+        raise ValueError("Invalid argument for ax: %s" % ax)
 
     def draw_clade_lines(
         use_linecollection=False,
@@ -587,7 +616,7 @@ def _draw_tree(
         customized by altering this function.
         """
         if not use_linecollection and orientation == "horizontal":
-            axes.hlines(y_here, x_start, x_here, color=color, lw=lw)
+            ax.hlines(y_here, x_start, x_here, color=color, lw=lw)
         elif use_linecollection and orientation == "horizontal":
             horizontal_linecollections.append(
                 mpcollections.LineCollection(
@@ -595,7 +624,7 @@ def _draw_tree(
                 )
             )
         elif not use_linecollection and orientation == "vertical":
-            axes.vlines(x_here, y_bot, y_top, color=color)
+            ax.vlines(x_here, y_bot, y_top, color=color)
         elif use_linecollection and orientation == "vertical":
             vertical_linecollections.append(
                 mpcollections.LineCollection(
@@ -627,11 +656,11 @@ def _draw_tree(
             marker = marker_func(clade)
             if marker is not None:
                 marker_size, marker_col = marker_func(clade)
-                axes.scatter(x_here, y_here, s=marker_size, c=marker_col, zorder=3)
+                ax.scatter(x_here, y_here, s=marker_size, c=marker_col, zorder=3)
         # Add node/taxon labels
-        label = label_func(clade)
+        label = label_func(str(clade))
         if label not in (None, clade.__class__.__name__):
-            axes.text(
+            ax.text(
                 x_here + 1,
                 y_here,
                 " %s" % label,
@@ -641,9 +670,9 @@ def _draw_tree(
         # Add label above the branch (optional)
         conf_label = format_branch_label(clade)
         if conf_label:
-            axes.text(
+            ax.text(
                 0.5 * (x_start + x_here),
-                y_here - 0.03,
+                y_here - 0.15,
                 conf_label,
                 fontsize="small",
                 horizontalalignment="center",
@@ -666,36 +695,25 @@ def _draw_tree(
             for child in clade:
                 draw_clade(child, x_here, color, lw)
 
-
-    draw_clade(tree.root, 0, "k", plt.rcParams["lines.linewidth"])
+    draw_clade(input_tree.root, 0, "k", plt.rcParams["lines.linewidth"])
 
     # If line collections were used to create clade lines, here they are added
     # to the pyplot plot.
     for i in horizontal_linecollections:
-        axes.add_collection(i)
+        ax.add_collection(i)
     for i in vertical_linecollections:
-        axes.add_collection(i)
+        ax.add_collection(i)
 
-    # Aesthetics
+    ax.set_xlabel("branch length")
+    ax.set_ylabel("taxa")
 
-    try:
-        name = tree.name
-    except AttributeError:
-        pass
-    else:
-        if name:
-            axes.set_title(name)
-    axes.set_xlabel("branch length")
-    axes.set_ylabel("taxa")
-    
-    # Add margins around the tree to prevent overlapping the axes
+    # Add margins around the `tree` to prevent overlapping the ax
     xmax = max(x_posns.values())
-    #axes.set_xlim(-0.05 * xmax, 1.25 * xmax)
-    axes.set_xlim(-0.05 * xmax, 1.05 * xmax)
+    #ax.set_xlim(-0.05 * xmax, 1.25 * xmax)
+    ax.set_xlim(-0.05 * xmax, 1.05 * xmax)
     # Also invert the y-axis (origin at the top)
     # Add a small vertical margin, but avoid including 0 and N+1 on the y axis
-    #axes.set_ylim(max(y_posns.values()) + 0.8, 0.2)
-    axes.set_ylim(max(y_posns.values()) + 0.5, 0.5)
+    ax.set_ylim(max(y_posns.values()) + 0.5, 0.5)
 
     # Parse and process key word arguments as pyplot options
     for key, value in kwargs.items():
@@ -714,6 +732,9 @@ def _draw_tree(
             getattr(plt, str(key))(*value)
         elif isinstance(value[0], tuple):
             getattr(plt, str(key))(*value[0], **dict(value[1]))
+
+    if output_name is not None:
+        plt.savefig(output_name + ".png")
 
 
 class MEDICCPlotError(Exception):

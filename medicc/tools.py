@@ -1,4 +1,3 @@
-import logging
 import re
 
 import Bio
@@ -6,7 +5,6 @@ import fstlib
 import numpy as np
 import pandas as pd
 
-logging.basicConfig(level=logging.DEBUG)
 
 def set_sequences_on_tree(tree, fsa_dicts, allele_labels, clear_before=True): 
     for clade in tree.find_clades():

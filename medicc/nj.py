@@ -9,12 +9,11 @@ import logging
 import Bio
 import Bio.Nexus
 import Bio.Phylo
-import numpy
+import numpy as np
 
 SS_TAXON_SEPERATOR = ","
 CHR_SEPARATOR = "X"
 
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class NeighbourJoining(object):
@@ -104,7 +103,7 @@ class NeighbourJoining(object):
     
     def _nj_create_q_matrix(self, D):
         """ computes the values of a neighbour-joining Q matrix out of the distance matrix D """
-        Q = numpy.zeros(D.shape)
+        Q = np.zeros(D.shape)
         r = D.shape[0]
         
         for i in range(0, r):
@@ -115,25 +114,15 @@ class NeighbourJoining(object):
     
     def _nj_nearest_neighbours(self, D):
         """ returns the nearest neighbours from the distance matrix D """
-        r = D.shape[0]
-        the_min = D[0,1]
-        min_i = 0
-        min_j = 1
-        for i in range(0, r):
-            for j in range(i+1, r):
-                if D[i,j] < the_min:
-                    the_min = D[i,j]
-                    min_i = i
-                    min_j = j
-        
-        ##indices = numpy.unravel_index(numpy.argmin(D), D.shape)
+        np.fill_diagonal(D, np.inf)
+        (min_i, min_j) = np.unravel_index(np.argmin(D), D.shape)
     
         return (min_i, min_j)
     
     def _nj_get_distances_to_new_node(self, left_right_tuple, D):
         (left, right) = left_right_tuple
         r = D.shape[0]
-        distances = numpy.zeros((r))
+        distances = np.zeros((r))
         
         ## first the dist from the joined nodes to the new node
         distances[left] = 0.5 * D[left, right] + 1.0 / (2 * (r - 2)) * ( sum(D[left,]) - sum(D[right,]) )
@@ -149,14 +138,14 @@ class NeighbourJoining(object):
     def _nj_forge_new_distance_matrix(self, left_right_tuple, D, new_distances):
         (left, right) = left_right_tuple 
         r = D.shape[0]
-        idx = numpy.repeat(True, r)
+        idx = np.repeat(True, r)
         idx[left] = False
         idx[right] = False
         
         E = D[idx][...,idx].copy()
     
-        F = numpy.append(E, [new_distances[idx]], 0)
-        G = numpy.append(F.transpose(), [numpy.append(new_distances[idx], [0])], 0).transpose()
+        F = np.append(E, [new_distances[idx]], 0)
+        G = np.append(F.transpose(), [np.append(new_distances[idx], [0])], 0).transpose()
         
         return G
 

@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from medicc import core, io, tools
+from medicc import io, plot, tools
 
 matplotlib.use("Agg")
 logger = logging.getLogger(__name__)
@@ -167,18 +167,20 @@ def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b']):
     return tmp
 
 
-def write_tree_files(tree, out_name: str):
+def write_tree_files(tree, out_name: str, plot_tree=True, draw_ascii=True):
     """ Writes a Newick, PhyloXML, Ascii graphic and PNG grahic file of the tree. """
     Bio.Phylo.write(tree, out_name + ".new", "newick")
-    Bio.Phylo.write(tree, out_name + ".xml", "phyloxml") 
+    Bio.Phylo.write(tree, out_name + ".xml", "phyloxml")
 
-    with open(out_name + ".txt", "w") as f: 
-        Bio.Phylo.draw_ascii(tree, file = f)
+    if draw_ascii:
+        with open(out_name + ".txt", "w") as f:
+            Bio.Phylo.draw_ascii(tree, file = f)
 
-    fig = plt.figure(figsize = (7, 7)) 
-    axes = fig.add_subplot(1, 1, 1) 
-    Bio.Phylo.draw(tree, axes = axes, do_show = False)
-    plt.savefig(out_name + ".png")
+    if plot_tree:
+        plot.plot_tree(tree,
+                       output_name=out_name,
+                       label_func=lambda x: x if 'internal' not in x else '',
+                       show_branch_lengths=True)
 
 def write_pdms(sample_labels, pdms, filename_prefix):
     """ Writes all PDMs in the pdms dictionary. """

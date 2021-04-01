@@ -1,11 +1,11 @@
-import os
 import argparse
 import logging
-import medicc
-import fstlib
+import os
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger()
+import fstlib
+import medicc
+
+logger = logging.getLogger('tools')
 
 objects_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "objects")
 
