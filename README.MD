@@ -7,7 +7,7 @@ MEDICC2 is available under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 ## Download: ##
 
-* Clone the MEDICC2 repository and its submodules using "git clone --recursive https://bitbucket.org/rfs/medicc2.git"
+* Clone the MEDICC2 repository and its submodules using "git clone --recursive https://bitbucket.org/schwarzlab/medicc2.git"
 
 ## Installation: ##
 
