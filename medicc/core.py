@@ -20,8 +20,7 @@ def main(input_df,
          normal_name='diploid',
          input_tree=None,
          ancestral_reconstruction=True,
-         chr_separator='X',
-         logging_level=None):
+         chr_separator='X'):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
