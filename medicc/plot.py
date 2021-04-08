@@ -46,6 +46,7 @@ def plot_cn_profiles(
         tree_width_scale=1,
         track_width_scale=1, 
         height_scale=1,
+        close_gaps=False,
         label_func = None):
 
     alleles = input_df.columns
@@ -83,13 +84,25 @@ def plot_cn_profiles(
 
     df.reset_index(['start','end'], inplace=True)
 
-    offset = df.loc[samples[0],:].reset_index().groupby('chrom', sort=False).max()['end']
-    offset.dropna(inplace=True)
-    offset[:] = np.append(0, offset.cumsum().values[:-1])
-    offset.name='offset'
-    df = df.join(offset, on='chrom')
-    df['start_pos'] = df['start'] + df['offset']
-    df['end_pos'] = df['end'] + df['offset'] + 1
+    if close_gaps:
+        cur_df = df.loc[samples[0], :].reset_index()[['chrom', 'start', 'end']]
+        segment_lengths = cur_df['end'] - cur_df['start']
+        cur_df['start_pos'] = np.cumsum(np.append([0], segment_lengths))[:-1]
+        cur_df['end_pos'] = cur_df['start_pos'] + segment_lengths
+
+        cur_df.set_index(['chrom', 'start'], inplace=True)
+        cur_df.drop('end', axis=1, inplace=True)
+
+        df = df.join(cur_df, on=['chrom', 'start'])
+
+    else:
+        chrom_offset = df.loc[samples[0],:].reset_index().groupby('chrom', sort=False).max()['end']
+        chrom_offset.dropna(inplace=True)
+        chrom_offset[:] = np.append(0, chrom_offset.cumsum().values[:-1])
+        chrom_offset.name='offset'
+        df = df.join(chrom_offset, on='chrom')
+        df['start_pos'] = df['start'] + df['offset']
+        df['end_pos'] = df['end'] + df['offset'] + 1
 
     ## determine clade colors
     clade_colors = {}
@@ -160,15 +173,18 @@ def plot_cn_profiles(
         mrca = [x for x in input_tree.root.clades if x.name != normal_name][0].name    
         mrca_df = df.loc[df.index.get_level_values('sample_id') == mrca] - 1
         _plot_aggregated_events(mrca_df,
-                                alleles, cn_axes[nsamp])
+                                alleles, cn_axes[nsamp], 
+                                close_gaps=close_gaps)
         cn_axes[nsamp].get_xaxis().set_visible(not (plot_summary or plot_subclonal_summary))
         cn_axes[nsamp].set_ylabel('MRCA')
     if plot_summary:
-        _plot_aggregated_events(agg_events, alleles, cn_axes[-1])
+        _plot_aggregated_events(agg_events, alleles, cn_axes[-1], 
+                                close_gaps=close_gaps)
 
     if plot_subclonal_summary:
         agg_events.loc[df.loc[df.index.get_level_values('sample_id') == 'diploid', 'is_clonal'].values] = 0
-        _plot_aggregated_events(agg_events, alleles, cn_axes[-1 - int(plot_summary)])
+        _plot_aggregated_events(agg_events, alleles, cn_axes[-1 - int(plot_summary)], 
+                                close_gaps=close_gaps)
         cn_axes[-1 - int(plot_summary)].get_xaxis().set_visible(not plot_summary)
         cn_axes[-1 - int(plot_summary)].set_ylabel('subclonal\nsummary')
 
@@ -258,7 +274,7 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     ax.set_xlim(1, group['end_pos'].max())
 
 
-def _plot_aggregated_events(agg_events_input, alleles, ax):
+def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False):
 
     agg_events = agg_events_input.copy()
     
@@ -266,13 +282,26 @@ def _plot_aggregated_events(agg_events_input, alleles, ax):
     mincn = agg_events[[alleles[0], alleles[1]]].min().min()-1
     
     if 'start_pos' not in agg_events.columns or 'end_pos' not in agg_events.columns:
-        agg_events.reset_index(['start','end'], inplace=True)
-        offset = agg_events.end.groupby('chrom').max()
-        offset[:] = np.append(0, offset.cumsum().values[:-1])
-        offset.name = 'offset'
-        agg_events = agg_events.join(offset)
-        agg_events['start_pos'] = agg_events['start'] + agg_events['offset']
-        agg_events['end_pos'] = agg_events['end'] + agg_events['offset'] + 1
+
+        if close_gaps:
+            cur_df = agg_events.reset_index()[['chrom', 'start', 'end']]
+            segment_lengths = cur_df['end'] - cur_df['start']
+            cur_df['start_pos'] = np.cumsum(np.append([0], segment_lengths))[:-1]
+            cur_df['end_pos'] = cur_df['start_pos'] + segment_lengths
+
+            cur_df.set_index(['chrom', 'start'], inplace=True)
+            cur_df.drop('end', axis=1, inplace=True)
+
+            agg_events = agg_events.join(cur_df, on=['chrom', 'start'])
+        
+        else:
+            agg_events.reset_index(['start','end'], inplace=True)
+            offset = agg_events.end.groupby('chrom').max()
+            offset[:] = np.append(0, offset.cumsum().values[:-1])
+            offset.name = 'offset'
+            agg_events = agg_events.join(offset)
+            agg_events['start_pos'] = agg_events['start'] + agg_events['offset']
+            agg_events['end_pos'] = agg_events['end'] + agg_events['offset'] + 1
 
     # draw ractangles
     event_patches = []
