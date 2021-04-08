@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from medicc import core, tools
+from medicc import core
 
 COL_ALLELE_A = mpl.colors.to_rgba('orange')
 COL_ALLELE_B = mpl.colors.to_rgba('teal')
@@ -32,13 +32,14 @@ CHR_LABEL_SIZE = 8
 
 
 def plot_cn_profiles(
-        input_df, 
-        input_tree=None, 
-        title=None, 
-        normal_name=None, 
-        mincn='auto', 
-        maxcn='auto', 
-        plot_summary=True, 
+        input_df,
+        input_tree=None,
+        title=None,
+        normal_name=None,
+        mincn='auto',
+        maxcn='auto',
+        plot_summary=True,
+        plot_subclonal_summary=True,
         hide_normal_chromosomes=False,
         ignore_segment_lengths=False, 
         tree_width_scale=1,
@@ -50,15 +51,21 @@ def plot_cn_profiles(
 
     if input_tree is None or normal_name is None: 
         plot_summary = False
+        plot_subclonal_summary = False
 
-    df = _preprocess_input_df(input_df, 
-        input_tree, 
-        normal_name, 
-        remove_normal_chromosomes=hide_normal_chromosomes,
-        ignore_segment_lengths = ignore_segment_lengths)
+    if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss'], input_df.columns).size > 0:
+        df = core.summarize_changes(input_df,
+                                       input_tree,
+                                       normal_name,
+                                       ignore_segment_lengths=ignore_segment_lengths)
 
-    agg_events = core.compute_change_events(df[alleles], input_tree)    
-    agg_events = agg_events.groupby(["chrom", "start", "end"], observed = True).sum()
+    if hide_normal_chromosomes:
+        df = df.join(df.groupby('chrom')['is_normal'].all().to_frame('hide'))
+        df = df.query("~hide").drop('hide', axis=1)
+
+    if plot_summary or plot_subclonal_summary:
+        agg_events = core.compute_change_events(df[alleles], input_tree)
+        agg_events = agg_events.groupby(["chrom", "start", "end"], observed=True).sum()
 
     if mincn=='auto':
         mincn = df.min().min()
@@ -118,7 +125,7 @@ def plot_cn_profiles(
         cn_axes = [fig.add_subplot(gs[i]) for i in range(0, nrows)]
         y_order = list(samples) ## as they appear
     else:
-        nrows = nsamp + 1 if plot_summary else nsamp
+        nrows = nsamp + int(plot_summary) + int(plot_subclonal_summary)
         gs = fig.add_gridspec(nrows, 2, width_ratios=[tree_width_ratio, 1-tree_width_ratio])
         tree_ax = fig.add_subplot(gs[0:nsamp, 0])
         cn_axes = [fig.add_subplot(gs[i]) for i in range(1,(2*(nrows))+1,2)]
@@ -131,8 +138,8 @@ def plot_cn_profiles(
                   label_colors=clade_colors,
                   branch_labels=lambda x: x.branch_length if x.name != 'root' and x.name is not None else None)
     
-    gs.update(wspace=0, hspace=0.1) ## doesn't work with constrained layout
-    fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.1, wspace=0)
+    # wspace=-0.03 corresponds ok with "internal_X" labels 
+    fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=-0.03)
     ## iterate over samples and plot the track
     for sample, group in df.groupby('sample_id'):
         index_to_plot = y_order.index(sample)
@@ -143,76 +150,25 @@ def plot_cn_profiles(
             mincn-1, 
             maxcn+1,
             alleles,
-            plot_xaxis_labels = plot_axis_labels if not plot_summary else False,
+            plot_xaxis_labels = plot_axis_labels if not (plot_summary + plot_subclonal_summary) else False,
             plot_yaxis_labels = True,
             yaxis_label_color = clade_colors[sample])
     
     if plot_summary:
-        _plot_aggregated_events(agg_events, input_tree, alleles, cn_axes[-1])
-    cn_axes[nrows-1].set_xlabel('genome position', fontsize=XLABEL_FONT_SIZE)
-    cn_axes[nrows-1].xaxis.set_tick_params(labelsize=XLABEL_TICK_SIZE)
-    cn_axes[nrows-1].xaxis.offsetText.set_fontsize(XLABEL_TICK_SIZE)
+        _plot_aggregated_events(agg_events, alleles, cn_axes[-1])
+
+    if plot_subclonal_summary:
+        agg_events.loc[df.loc[df.index.get_level_values('sample_id') == 'diploid', 'is_clonal'].values] = 0
+        _plot_aggregated_events(agg_events, alleles, cn_axes[-1 - int(plot_summary)])
+        cn_axes[-1 - int(plot_summary)].get_xaxis().set_visible(not plot_summary)
+        cn_axes[-1 - int(plot_summary)].set_ylabel('subclonal\nsummary')
+
+    cn_axes[-1].set_xlabel('genome position', fontsize=XLABEL_FONT_SIZE)
+    cn_axes[-1].xaxis.set_tick_params(labelsize=XLABEL_TICK_SIZE)
+    cn_axes[-1].xaxis.offsetText.set_fontsize(XLABEL_TICK_SIZE)
+
     return fig
 
-def _preprocess_input_df(input_df, input_tree, normal_name=None, remove_normal_chromosomes=False, ignore_segment_lengths=False):
-    df = input_df.copy()
-    
-    ## we're force converting to categoricals to always maintain the order of the chromosomes as given
-    if not pd.api.types.is_categorical_dtype(df.index.get_level_values('chrom')):
-        df.reset_index('chrom', inplace=True)
-        df['chrom'] = pd.Categorical(df['chrom'], categories=df['chrom'].unique())
-        df.set_index('chrom', inplace=True, append=True)
-        df = df.reorder_levels(['sample_id', 'chrom', 'start', 'end'])
-
-    if ignore_segment_lengths:
-        df.reset_index(['start', 'end'], inplace=True)
-        def reset_start_end(x):
-            x['start'] = np.arange(x.shape[0])+1
-            x['end'] = np.arange(x.shape[0])+1
-            return x
-
-        df = df.groupby(['sample_id', 'chrom']).apply(reset_start_end)
-        df.set_index(['start', 'end'], append=True, inplace=True)
-
-    ## test if region is fully conserved
-    df.columns.name='allele'
-    df = df.unstack('sample_id').stack('allele')
-    if normal_name is not None:
-        is_normal = df.apply(lambda x:(x.loc[normal_name]==x).all(), axis=1).unstack('allele').apply(lambda x:x[0] and x[1], axis=1)
-    else:
-        is_normal = df.apply(lambda x:(1==x).all(), axis=1).unstack('allele').apply(lambda x:x[0] and x[1], axis=1)
-    is_clonal = df.drop(normal_name, axis=1).apply(lambda x:(x.iloc[0]==x).all(), axis=1).unstack('allele').apply(lambda x:x[0] and x[1], axis=1)
-
-    for a in df:
-        df[a] = df[a].astype(int)
-    df = df.unstack('allele').stack('sample_id')
-    df = df.reorder_levels(['sample_id', 'chrom', 'start', 'end'])
-    df.sort_index(inplace=True)
-    cats = df.index.get_level_values('chrom').categories
-    df = df.join(is_clonal.to_frame('is_clonal').join(is_normal.to_frame('is_normal')))
-
-
-    if remove_normal_chromosomes:
-        df = df.join(df.groupby('chrom')['is_normal'].all().to_frame('hide'))
-    else:
-        df['hide'] = False
-    df = df.query("~hide")
-
-    ## now work around pandas bug of dropping categoricals
-    df.reset_index(inplace=True)
-    df.loc[:, 'chrom'] = pd.Categorical(df['chrom'], categories=cats)
-    df.set_index(input_df.index.names, inplace=True)
-    df.sort_index(inplace=True)
-
-    if input_tree is not None:
-        dfderiv = core.compute_change_events(df[input_df.columns], input_tree)
-        df.loc[:, 'is_gain'] = dfderiv.apply(lambda x:(x>0).any(), axis=1)
-        df.loc[:, 'is_loss'] = dfderiv.apply(lambda x:(x<0).any(), axis=1)
-    else:
-        df['is_gain'] = False
-        df['is_loss'] = False
-
-    return df
 
 def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles, plot_xaxis_labels=True, plot_yaxis_labels=True, yaxis_label_color='black'):
     ## collect line segments and background patches
@@ -278,7 +234,7 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles, 
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)
     ## draw sample labels
     if plot_yaxis_labels:
-        ax.set_ylabel(sample_label, fontsize=YLABEL_FONT_SIZE)
+        ax.set_ylabel(sample_label, fontsize=YLABEL_FONT_SIZE, rotation=0, ha='right', va='center')
         ax.yaxis.label.set_color(yaxis_label_color)
 
     ## axis modifications
@@ -290,7 +246,10 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles, 
     ax.set_ylim(mincn, maxcn)
     ax.set_xlim(1, group['end_pos'].max())
 
-def _plot_aggregated_events(agg_events, input_tree, alleles, ax):
+
+def _plot_aggregated_events(agg_events_input, alleles, ax):
+
+    agg_events = agg_events_input.copy()
     
     maxcn = agg_events[[alleles[0], alleles[1]]].max().max()+1
     mincn = agg_events[[alleles[0], alleles[1]]].min().min()-1
@@ -369,7 +328,7 @@ def _plot_aggregated_events(agg_events, input_tree, alleles, ax):
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)
 
     ## axis and axis labels
-    ax.set_ylabel("summary", fontsize=YLABEL_FONT_SIZE)
+    ax.set_ylabel("summary", fontsize=YLABEL_FONT_SIZE, rotation=0, ha='right', va='center')
     ax.yaxis.label.set_color(COL_SUMMARY_LABEL)
     
     #nbins = (agg_events[alleles].max().max()-agg_events[alleles].min().min()) / 2 + 1
