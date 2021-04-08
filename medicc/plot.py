@@ -176,7 +176,7 @@ def plot_cn_profiles(
                                 alleles, cn_axes[nsamp], 
                                 close_gaps=close_gaps)
         cn_axes[nsamp].get_xaxis().set_visible(not (plot_summary or plot_subclonal_summary))
-        cn_axes[nsamp].set_ylabel('MRCA')
+        cn_axes[nsamp].set_ylabel('clonal\nchanges')
     if plot_summary:
         _plot_aggregated_events(agg_events, alleles, cn_axes[-1], 
                                 close_gaps=close_gaps)
@@ -186,7 +186,7 @@ def plot_cn_profiles(
         _plot_aggregated_events(agg_events, alleles, cn_axes[-1 - int(plot_summary)], 
                                 close_gaps=close_gaps)
         cn_axes[-1 - int(plot_summary)].get_xaxis().set_visible(not plot_summary)
-        cn_axes[-1 - int(plot_summary)].set_ylabel('subclonal\nsummary')
+        cn_axes[-1 - int(plot_summary)].set_ylabel('subclonal\nchanges')
 
     cn_axes[-1].set_xlabel('genome position', fontsize=XLABEL_FONT_SIZE)
     cn_axes[-1].xaxis.set_tick_params(labelsize=XLABEL_TICK_SIZE)
@@ -369,7 +369,7 @@ def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False):
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)
 
     ## axis and axis labels
-    ax.set_ylabel("total\nsummary", fontsize=YLABEL_FONT_SIZE, rotation=0, ha='right', va='center')
+    ax.set_ylabel("all\nchanges", fontsize=YLABEL_FONT_SIZE, rotation=0, ha='right', va='center')
     ax.yaxis.label.set_color(COL_SUMMARY_LABEL)
     
     #nbins = (agg_events[alleles].max().max()-agg_events[alleles].min().min()) / 2 + 1
