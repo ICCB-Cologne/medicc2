@@ -40,6 +40,7 @@ def plot_cn_profiles(
         maxcn='auto',
         plot_summary=True,
         plot_subclonal_summary=True,
+        plot_mrca_summary=True,
         hide_normal_chromosomes=False,
         ignore_segment_lengths=False, 
         tree_width_scale=1,
@@ -125,7 +126,7 @@ def plot_cn_profiles(
         cn_axes = [fig.add_subplot(gs[i]) for i in range(0, nrows)]
         y_order = list(samples) ## as they appear
     else:
-        nrows = nsamp + int(plot_summary) + int(plot_subclonal_summary)
+        nrows = nsamp + int(plot_summary) + int(plot_subclonal_summary) + int(plot_mrca_summary)
         gs = fig.add_gridspec(nrows, 2, width_ratios=[tree_width_ratio, 1-tree_width_ratio])
         tree_ax = fig.add_subplot(gs[0:nsamp, 0])
         cn_axes = [fig.add_subplot(gs[i]) for i in range(1,(2*(nrows))+1,2)]
@@ -150,10 +151,18 @@ def plot_cn_profiles(
             mincn-1, 
             maxcn+1,
             alleles,
-            plot_xaxis_labels = plot_axis_labels if not (plot_summary + plot_subclonal_summary) else False,
-            plot_yaxis_labels = True,
-            yaxis_label_color = clade_colors[sample])
+            plot_xaxis_labels=plot_axis_labels if not (
+                plot_summary + plot_subclonal_summary + plot_mrca_summary) else False,
+            plot_yaxis_labels=True,
+            yaxis_label_color=clade_colors[sample])
     
+    if plot_mrca_summary:
+        mrca = [x for x in input_tree.root.clades if x.name != normal_name][0].name    
+        mrca_df = df.loc[df.index.get_level_values('sample_id') == mrca] - 1
+        _plot_aggregated_events(mrca_df,
+                                alleles, cn_axes[nsamp])
+        cn_axes[nsamp].get_xaxis().set_visible(not (plot_summary or plot_subclonal_summary))
+        cn_axes[nsamp].set_ylabel('MRCA')
     if plot_summary:
         _plot_aggregated_events(agg_events, alleles, cn_axes[-1])
 
@@ -170,7 +179,9 @@ def plot_cn_profiles(
     return fig
 
 
-def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles, plot_xaxis_labels=True, plot_yaxis_labels=True, yaxis_label_color='black'):
+def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
+                                plot_xaxis_labels=True, plot_yaxis_labels=True, 
+                                yaxis_label_color='black'):
     ## collect line segments and background patches
     event_patches = []
     bkg_patches = []
@@ -254,13 +265,14 @@ def _plot_aggregated_events(agg_events_input, alleles, ax):
     maxcn = agg_events[[alleles[0], alleles[1]]].max().max()+1
     mincn = agg_events[[alleles[0], alleles[1]]].min().min()-1
     
-    agg_events.reset_index(['start','end'], inplace=True)
-    offset = agg_events.end.groupby('chrom').max()
-    offset[:] = np.append(0, offset.cumsum().values[:-1])
-    offset.name = 'offset'
-    agg_events = agg_events.join(offset)
-    agg_events['start_pos'] = agg_events['start'] + agg_events['offset']
-    agg_events['end_pos'] = agg_events['end'] + agg_events['offset'] + 1
+    if 'start_pos' not in agg_events.columns or 'end_pos' not in agg_events.columns:
+        agg_events.reset_index(['start','end'], inplace=True)
+        offset = agg_events.end.groupby('chrom').max()
+        offset[:] = np.append(0, offset.cumsum().values[:-1])
+        offset.name = 'offset'
+        agg_events = agg_events.join(offset)
+        agg_events['start_pos'] = agg_events['start'] + agg_events['offset']
+        agg_events['end_pos'] = agg_events['end'] + agg_events['offset'] + 1
 
     # draw ractangles
     event_patches = []
@@ -328,7 +340,7 @@ def _plot_aggregated_events(agg_events_input, alleles, ax):
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)
 
     ## axis and axis labels
-    ax.set_ylabel("summary", fontsize=YLABEL_FONT_SIZE, rotation=0, ha='right', va='center')
+    ax.set_ylabel("total\nsummary", fontsize=YLABEL_FONT_SIZE, rotation=0, ha='right', va='center')
     ax.yaxis.label.set_color(COL_SUMMARY_LABEL)
     
     #nbins = (agg_events[alleles].max().max()-agg_events[alleles].min().min()) / 2 + 1
