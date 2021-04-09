@@ -40,7 +40,7 @@ def plot_cn_profiles(
         maxcn='auto',
         plot_summary=True,
         plot_subclonal_summary=True,
-        plot_mrca_summary=True,
+        plot_clonal_summary=False,
         hide_normal_chromosomes=False,
         ignore_segment_lengths=False, 
         tree_width_scale=1,
@@ -49,17 +49,18 @@ def plot_cn_profiles(
         close_gaps=False,
         label_func = None):
 
-    alleles = input_df.columns
+    df = input_df.copy()
+    alleles = df.columns
 
     if input_tree is None or normal_name is None: 
         plot_summary = False
         plot_subclonal_summary = False
 
-    if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss'], input_df.columns).size > 0:
-        df = core.summarize_changes(input_df,
-                                       input_tree,
-                                       normal_name,
-                                       ignore_segment_lengths=ignore_segment_lengths)
+    if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss'], df.columns).size > 0:
+        df = core.summarize_changes(df,
+                                    input_tree,
+                                    normal_name,
+                                    ignore_segment_lengths=ignore_segment_lengths)
 
     if hide_normal_chromosomes:
         df = df.join(df.groupby('chrom')['is_normal'].all().to_frame('hide'))
@@ -84,7 +85,7 @@ def plot_cn_profiles(
 
     df.reset_index(['start','end'], inplace=True)
 
-    if close_gaps:
+    if close_gaps and not ignore_segment_lengths:
         cur_df = df.loc[samples[0], :].reset_index()[['chrom', 'start', 'end']]
         segment_lengths = cur_df['end'] - cur_df['start']
         cur_df['start_pos'] = np.cumsum(np.append([0], segment_lengths))[:-1]
@@ -139,7 +140,7 @@ def plot_cn_profiles(
         cn_axes = [fig.add_subplot(gs[i]) for i in range(0, nrows)]
         y_order = list(samples) ## as they appear
     else:
-        nrows = nsamp + int(plot_summary) + int(plot_subclonal_summary) + int(plot_mrca_summary)
+        nrows = nsamp + int(plot_summary) + int(plot_subclonal_summary) + int(plot_clonal_summary)
         gs = fig.add_gridspec(nrows, 2, width_ratios=[tree_width_ratio, 1-tree_width_ratio])
         tree_ax = fig.add_subplot(gs[0:nsamp, 0])
         cn_axes = [fig.add_subplot(gs[i]) for i in range(1,(2*(nrows))+1,2)]
@@ -165,11 +166,11 @@ def plot_cn_profiles(
             maxcn+1,
             alleles,
             plot_xaxis_labels=plot_axis_labels if not (
-                plot_summary + plot_subclonal_summary + plot_mrca_summary) else False,
+                plot_summary + plot_subclonal_summary + plot_clonal_summary) else False,
             plot_yaxis_labels=True,
             yaxis_label_color=clade_colors[sample])
-    
-    if plot_mrca_summary:
+
+    if plot_clonal_summary:
         mrca = [x for x in input_tree.root.clades if x.name != normal_name][0].name    
         mrca_df = df.loc[df.index.get_level_values('sample_id') == mrca] - 1
         _plot_aggregated_events(mrca_df,
@@ -255,9 +256,9 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     ## draw chromosome labels
     chr_label_pos = chr_ends
     chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
-    chr_label_pos.iloc[0] = 0
+    chr_label_pos.iloc[0] = seg_bound_first
     for chrom, pos in chr_label_pos.iteritems():
-        ax.text(pos + 5e5, maxcn-0.35, chrom, va='top', color=COL_CHR_LABEL,
+        ax.text(pos, maxcn-0.35, chrom, ha='left', va='top', color=COL_CHR_LABEL,
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)
     ## draw sample labels
     if plot_yaxis_labels:
@@ -365,7 +366,7 @@ def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False):
     chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
     chr_label_pos.iloc[0] = 0
     for chrom, pos in chr_label_pos.iteritems():
-        ax.text(pos + 5e5, maxcn-0.35, chrom, va='top', color=COL_CHR_LABEL,
+        ax.text(pos, maxcn-0.35, chrom, ha='left', va='top', color=COL_CHR_LABEL,
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)
 
     ## axis and axis labels

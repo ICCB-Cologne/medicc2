@@ -1,12 +1,11 @@
 #%% import and load data
-import imp
 import os
 import sys
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-%matplotlib inline
+# %matplotlib inline
 import medicc
-from plotnine import *
 
 #%%
 wgd_example_df = medicc.io.read_tsv_as_dataframe('../examples/output/WGD Example_final_cn_profiles.tsv')
@@ -21,7 +20,6 @@ ptx011_nowgd_df = medicc.io.read_tsv_as_dataframe('../examples/output/PTX011-noW
 ptx011_nowgd_tree = medicc.io.import_tree('../examples/output/PTX011-noWGD_final_tree.new', 'diploid')
 
 # %%
-imp.reload(medicc.plot) 
 def plot_ptx011(df, tree, title='PTX011'):
 	plotdat = df.reset_index()
 	plotdat['chrom'] = plotdat.chrom.str.replace('chr','')
@@ -46,6 +44,7 @@ def plot_ptx011(df, tree, title='PTX011'):
 		track_width_scale=0.6, 
 		height_scale=1, 
 		hide_normal_chromosomes=True,
+		plot_clonal_summary=True,
 		ignore_segment_lengths=False,
 		label_func = lambda x:labels[x])
 	return fig
@@ -55,7 +54,6 @@ fig = plot_ptx011(ptx011_nowgd_df, ptx011_nowgd_tree, title='PTX011 w/o WGD')
 fig.savefig('../examples/output/PTX011-noWGD.pdf', bbox_inches='tight')
 
 # %%
-imp.reload(medicc.plot) 
 fig = medicc.plot.plot_cn_profiles(
 	evo001_df, 
 	evo001_tree, 
@@ -69,7 +67,6 @@ fig = medicc.plot.plot_cn_profiles(
 fig.savefig('../examples/output/EVO001.pdf', bbox_inches='tight')
 
 # %%
-imp.reload(medicc.plot) 
 fig = medicc.plot.plot_cn_profiles(
 	tx_df, 
 	tx_tree, 
@@ -83,7 +80,6 @@ fig = medicc.plot.plot_cn_profiles(
 fig.savefig('../examples/output/LTX-WGD.pdf', bbox_inches='tight')
 
 #%%
-imp.reload(medicc.plot)
 fig = medicc.plot.plot_cn_profiles(
 	wgd_example_df, 
 	wgd_example_tree, 
@@ -95,6 +91,3 @@ fig = medicc.plot.plot_cn_profiles(
 	hide_normal_chromosomes=False,
 	label_func = lambda x:x.replace('_',' ').replace('taxon', 'sample '))
 fig.savefig('../examples/output/WGD Example.pdf', bbox_inches='tight')
-
-
- # %%
