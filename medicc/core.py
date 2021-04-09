@@ -73,7 +73,8 @@ def main(input_df,
     nj_tree.root_with_outgroup(normal_name)
     final_tree.root_with_outgroup(normal_name)
 
-    output_df = summarize_changes(output_df, final_tree, normal_name=normal_name)
+    if ancestral_reconstruction:
+        output_df = summarize_changes(output_df, final_tree, normal_name=normal_name)
 
     return sample_labels, pdms, nj_tree, final_tree, output_df
 
