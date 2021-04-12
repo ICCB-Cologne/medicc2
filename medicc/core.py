@@ -34,7 +34,7 @@ def main(input_df,
     FSA_dicts = [create_standard_fsa_dict_from_allele_column(input_df[c], symbol_table, chr_separator) for c in input_df]
 
     ## Calculate pairwise distances
-    logger.info("Calculating pairwise distance matrices.")
+    logger.info("Calculating pairwise distance matrices for both alleles")
     sample_labels = input_df.index.get_level_values('sample_id').unique()
     pdms = {allele:calc_pairwise_distance_matrix(asymm_fst, fsa_dict) for allele, fsa_dict in zip(input_df.columns, FSA_dicts)}
     pdms['total'] = sum(pdms.values())
