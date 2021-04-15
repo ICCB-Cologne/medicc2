@@ -103,12 +103,7 @@ class NeighbourJoining(object):
     
     def _nj_create_q_matrix(self, D):
         """ computes the values of a neighbour-joining Q matrix out of the distance matrix D """
-        Q = np.zeros(D.shape)
-        r = D.shape[0]
-        
-        for i in range(0, r):
-            for j in range(0, r):
-                Q[i, j] =  (r - 2) * D[i, j] - sum(D[i,]) - sum(D[j, ])
+        Q = (D.shape[0]-2) * D - np.sum(D, axis=0, keepdims=True) - np.sum(D, axis=1, keepdims=True)
         
         return Q
     
@@ -125,14 +120,15 @@ class NeighbourJoining(object):
         distances = np.zeros((r))
         
         ## first the dist from the joined nodes to the new node
-        distances[left] = 0.5 * D[left, right] + 1.0 / (2 * (r - 2)) * ( sum(D[left,]) - sum(D[right,]) )
-        distances[right] = 0.5 * D[left, right] + 1.0 / (2 * (r - 2)) * ( sum(D[right,]) - sum(D[left,]) )
-    
+        d_left = 0.5 * D[left, right] + 1.0 / (2 * (r - 2)) * (np.sum(D[left, ]) - np.sum(D[right, ]))
+        d_right = 0.5 * D[left, right] + 1.0 / (2 * (r - 2)) * (np.sum(D[right, ]) - np.sum(D[left, ]))
+
         ## now the dist from all other nodes to the new node
-        for k in range(0, r):
-            if k != left and k != right:
-                distances[k] = 0.5 * ( D[left, k] - distances[left] ) + 0.5 * ( D[right, k] - distances[right] )
-        
+        distances = 0.5 * (D[left, :] - d_left) + 0.5 * (D[right, :] - d_right)
+
+        distances[left] = d_left
+        distances[right] = d_right
+
         return distances 
     
     def _nj_forge_new_distance_matrix(self, left_right_tuple, D, new_distances):
