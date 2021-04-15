@@ -37,7 +37,7 @@ def main(input_df,
     logger.info("Calculating pairwise distance matrices.")
     sample_labels = input_df.index.get_level_values('sample_id').unique()
     pdms = {allele:calc_pairwise_distance_matrix(asymm_fst, fsa_dict) for allele, fsa_dict in zip(input_df.columns, FSA_dicts)}
-    pdms['total'] = sum(pdms.values())
+    pdms['total'] = np.sum(pdms.values())
 
     ## Reconstruct a tree
     if input_tree is None:
