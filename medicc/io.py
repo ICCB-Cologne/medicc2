@@ -1,11 +1,9 @@
 import logging
 import os
-from typing import List
 
 import Bio
 import fstlib
 import matplotlib
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -60,6 +58,10 @@ def validate_input(input_df, symbol_table):
         raise MEDICCIOError("Payload columns must be of type: string.")
 
     logger.info('Ok!')
+
+def filter_by_segment_length(input_df, filter_size):
+    segment_length = input_df.eval('end-start')
+    return input_df.loc[segment_length > float(filter_size)]
 
 def read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
     logger.info("Reading TSV file %s", path)

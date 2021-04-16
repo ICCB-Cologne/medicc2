@@ -54,6 +54,12 @@ parser.add_argument("--exclude-samples", "-x",
                     type = str,
                     help = "Comma separated list of sample IDs to exclude.",
                     required=False)
+parser.add_argument("--filter-segment-length",
+                    type=str,
+                    dest='filter_segment_length',
+                    default=None,
+                    required=False,
+                    help="""Removes segments that are smaller than specified length.""")
 parser.add_argument("--prefix", '-p', type=str, dest='prefix', default=None, 
                     help='Output prefix to be used (default: input filename).', required=False)
 parser.add_argument("--no-wgd", action='store_true', default=False, 
@@ -117,6 +123,14 @@ input_df = medicc.io.read_and_parse_input_data(
     args.input_type.strip(),
     args.input_chr_separator.strip(),
     allele_columns)
+
+if args.filter_segment_length is not None:
+    old_size = len(input_df)
+    input_df = medicc.io.filter_by_segment_length(input_df, args.filter_segment_length)
+    logger.info("Removed input segments smaller than {}bp. Old size: {} -> new size:{}".format(
+        int(float(args.filter_segment_length)),
+        old_size, 
+        len(input_df)))
 
 if args.exclude_samples is not None:
     exclude_samples = np.array([x.strip() for x in args.exclude_samples.split(',')])

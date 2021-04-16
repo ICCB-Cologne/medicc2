@@ -34,7 +34,7 @@ def main(input_df,
     FSA_dicts = [create_standard_fsa_dict_from_allele_column(input_df[c], symbol_table, chr_separator) for c in input_df]
 
     ## Calculate pairwise distances
-    logger.info("Calculating pairwise distance matrices.")
+    logger.info("Calculating pairwise distance matrices for both alleles")
     sample_labels = input_df.index.get_level_values('sample_id').unique()
     pdms = {allele:calc_pairwise_distance_matrix(asymm_fst, fsa_dict) for allele, fsa_dict in zip(input_df.columns, FSA_dicts)}
     pdms['total'] = sum(pdms.values())
@@ -53,10 +53,10 @@ def main(input_df,
 
     if ancestral_reconstruction:
         logger.info("Reconstructing ancestors.")
-        ancestors = [medicc.reconstruct_ancestors(tree = final_tree, 
-                                                    samples_dict = fsa_dict, 
-                                                    model = asymm_fst, 
-                                                    normal_name = normal_name)
+        ancestors = [medicc.reconstruct_ancestors(tree=final_tree,
+                                                    samples_dict=fsa_dict,
+                                                    model=asymm_fst,
+                                                    normal_name=normal_name)
                     for fsa_dict in FSA_dicts] 
 
         ## Update branch lengths with ancestors
@@ -72,7 +72,71 @@ def main(input_df,
 
     nj_tree.root_with_outgroup(normal_name)
     final_tree.root_with_outgroup(normal_name)
+
+    if ancestral_reconstruction:
+        output_df = summarize_changes(output_df, final_tree, normal_name=normal_name)
+
     return sample_labels, pdms, nj_tree, final_tree, output_df
+
+
+def summarize_changes(input_df, input_tree, normal_name=None,
+                         ignore_segment_lengths=False):
+    df = input_df.copy()
+
+    ## we're force converting to categoricals to always maintain the order of the chromosomes as given
+    if not pd.api.types.is_categorical_dtype(df.index.get_level_values('chrom')):
+        df.reset_index('chrom', inplace=True)
+        df['chrom'] = pd.Categorical(df['chrom'], categories=df['chrom'].unique())
+        df.set_index('chrom', inplace=True, append=True)
+        df = df.reorder_levels(['sample_id', 'chrom', 'start', 'end'])
+
+    if ignore_segment_lengths:
+        df.reset_index(['start', 'end'], inplace=True)
+
+        def reset_start_end(x):
+            x['start'] = np.arange(x.shape[0])+1
+            x['end'] = np.arange(x.shape[0])+1
+            return x
+
+        df = df.groupby(['sample_id', 'chrom']).apply(reset_start_end)
+        df.set_index(['start', 'end'], append=True, inplace=True)
+
+    ## test if region is fully conserved
+    df.columns.name = 'allele'
+    df = df.unstack('sample_id').stack('allele')
+    if normal_name is not None:
+        is_normal = df.apply(lambda x: (x.loc[normal_name] == x).all(), axis=1).unstack(
+            'allele').apply(lambda x: x[0] and x[1], axis=1)
+    else:
+        is_normal = df.apply(lambda x: (1 == x).all(), axis=1).unstack(
+            'allele').apply(lambda x: x[0] and x[1], axis=1)
+    is_clonal = df.drop(normal_name, axis=1).apply(lambda x: (x.iloc[0] == x).all(), axis=1).unstack(
+        'allele').apply(lambda x: x[0] and x[1], axis=1)
+
+    for a in df:
+        df[a] = df[a].astype(int)
+    df = df.unstack('allele').stack('sample_id')
+    df = df.reorder_levels(['sample_id', 'chrom', 'start', 'end'])
+    df.sort_index(inplace=True)
+    cats = df.index.get_level_values('chrom').categories
+    df = df.join(is_clonal.to_frame('is_clonal').join(is_normal.to_frame('is_normal')))
+
+    ## now work around pandas bug of dropping categoricals
+    df.reset_index(inplace=True)
+    df.loc[:, 'chrom'] = pd.Categorical(df['chrom'], categories=cats)
+    df.set_index(input_df.index.names, inplace=True)
+    df.sort_index(inplace=True)
+
+    if input_tree is not None:
+        dfderiv = compute_change_events(df[input_df.columns], input_tree)
+        df.loc[:, 'is_gain'] = dfderiv.apply(lambda x: (x > 0).any(), axis=1)
+        df.loc[:, 'is_loss'] = dfderiv.apply(lambda x: (x < 0).any(), axis=1)
+    else:
+        df['is_gain'] = False
+        df['is_loss'] = False
+
+    return df
+
 
 def create_standard_fsa_dict_from_allele_column(input_column: pd.Series, symbol_table: fstlib.SymbolTable, separator: str = "X") -> dict:
     """ Creates a dictionary of FSAs from a single column/allele (Pandas Series) of the input data frame.
