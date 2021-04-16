@@ -707,9 +707,11 @@ def plot_tree(input_tree,
                 ax.scatter(x_here, y_here, s=marker_size, c=marker_col, zorder=3)
         # Add node/taxon labels
         label = label_func(str(clade))
+        ax_scale = ax.get_xlim()[1] - ax.get_xlim()[0]
+
         if label not in (None, clade.__class__.__name__):
             ax.text(
-                x_here + 1,
+                x_here + min(0.02*ax_scale, 1),
                 y_here,
                 " %s" % label,
                 verticalalignment="center",
