@@ -47,6 +47,7 @@ def plot_cn_profiles(
         tree_width_scale=1,
         track_width_scale=1, 
         height_scale=1,
+        horizontal_margin_adjustment=-0.03,
         close_gaps=False,
         show_small_segments=False,
         label_func = None):
@@ -157,8 +158,8 @@ def plot_cn_profiles(
                   label_colors=clade_colors,
                   branch_labels=lambda x: x.branch_length if x.name != 'root' and x.name is not None else None)
     
-    # wspace=-0.03 corresponds ok with "internal_X" labels 
-    fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=-0.03)
+    # Adjust the margin between the tree and cn tracks. Default is -0.03
+    fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=horizontal_margin_adjustment)
     ## iterate over samples and plot the track
     for sample, group in df.groupby('sample_id'):
         index_to_plot = y_order.index(sample)
