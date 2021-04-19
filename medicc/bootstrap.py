@@ -9,6 +9,12 @@ from Bio.Phylo.Consensus import _BitString, get_support
 
 import medicc
 
+# tqdm can be used for progress bars
+try: 
+    from tqdm.auto import tqdm
+except ImportError:
+    tqdm = lambda x: x
+
 logger = logging.getLogger(__name__)
 
 def chr_wise_bootstrap_df(input_df):
@@ -122,7 +128,12 @@ def compare_trees(tree1, tree2, fail_on_different_terminals=True):
         return False
 
 
-def run_bootstrap(input_df, original_tree=None, N_bootstrap=50, method='chr-wise', wgd=True):
+def run_bootstrap(input_df,
+                  original_tree=None,
+                  N_bootstrap=50,
+                  method='chr-wise',
+                  wgd=True,
+                  show_progress=True):
     """Run a given number of bootstrapping steps on the original data. 
 
     From the original data either a set of chromosome-wise bootstrap or segment-wise jackknife datasets
@@ -151,7 +162,7 @@ def run_bootstrap(input_df, original_tree=None, N_bootstrap=50, method='chr-wise
         trees = dict()
 
     # Run the actual bootstrapping steps
-    for i in range(N_bootstrap):
+    for i in tqdm(range(N_bootstrap), disable=not show_progress):
         cur_df = bootstrap_method(input_df)
         _, _, _, cur_final_tree, _ = medicc.main(
             cur_df,
