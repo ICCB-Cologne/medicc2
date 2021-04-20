@@ -6,7 +6,6 @@ import numpy as np
 
 import fstlib
 import medicc
-import medicc.bootstrap
 
 logger = logging.getLogger('medicc-main')
 objects_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "objects")
@@ -66,7 +65,7 @@ parser.add_argument("--bootstrap-method",
                     dest='bootstrap_method',
                     default='chr-wise',
                     required=False,
-                    help="""Bootstrapping method. Has to be either 'chr-wise' or 'segment'wise'""")
+                    help="""Bootstrap method. Has to be either 'chr-wise' or 'segment-wise'""")
 parser.add_argument("--bootstrap-nr",
                     type=int,
                     dest='bootstrap_nr',
@@ -162,7 +161,6 @@ sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main(
     chr_separator=args.fst_chr_separator.strip())
 
 if args.bootstrap_nr is not None:
-    bootstrap_nr = args.bootstrap_nr
     logger.info("Performing {} bootstrap runs (method: {})".format(args.bootstrap_nr, 
                                                                    args.bootstrap_method))
     bootstrap_trees_df, support_tree = medicc.bootstrap.run_bootstrap(input_df, 
@@ -178,7 +176,7 @@ if args.bootstrap_nr is not None:
     fig = medicc.plot.plot_tree(support_tree,
                                 title='support tree',
                                 show_branch_lengths=True,
-                                show_tree_support=True)
+                                show_branch_support=True)
     fig.savefig(os.path.join(output_dir, output_prefix + '_support_tree.pdf'), bbox_inches='tight')
 else:
     support_tree = None
@@ -212,7 +210,7 @@ if not args.no_plot:
         title=output_prefix, 
         normal_name=normal_name, 
         plot_summary = plot_summary,
-        show_tree_support=support_tree is not None,
+        show_branch_support=support_tree is not None,
         label_func = None)
     p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'))
     

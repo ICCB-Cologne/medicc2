@@ -61,7 +61,7 @@ for patient in patients:
     fig = medicc.plot.plot_tree(support_tree,
                                 title='support tree for {}'.format(patient),
                                 label_func=lambda label: labels.get(label, label),
-                                show_tree_support=True,
+                                show_branch_support=True,
                                 show_branch_lengths=True,
                                 ax=ax)
     fig.savefig(os.path.join(data_folder, 'support_tree_{}.pdf'.format(patient)), bbox_inches='tight')

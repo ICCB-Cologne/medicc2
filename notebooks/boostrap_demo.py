@@ -58,7 +58,7 @@ fig = medicc.plot.plot_tree(support_tree,
                             title='support tree',
                             label_func=lambda label: labels.get(label, label),
                             show_branch_lengths=True,
-                            show_tree_support=True,
+                            show_branch_support=True,
                             ax=ax)
 plt.show()
 

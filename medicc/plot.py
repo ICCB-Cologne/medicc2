@@ -50,7 +50,7 @@ def plot_cn_profiles(
         horizontal_margin_adjustment=-0.03,
         close_gaps=False,
         show_small_segments=False,
-        show_tree_support=False,
+        show_branch_support=False,
         label_func = None):
 
     df = input_df.copy()
@@ -157,7 +157,7 @@ def plot_cn_profiles(
                   title=title,
                   label_func=lambda x: '',
                   label_colors=clade_colors,
-                  show_tree_support=show_tree_support,
+                  show_branch_support=show_branch_support,
                   branch_labels=lambda x: x.branch_length if x.name != 'root' and x.name is not None else None)
     
     # Adjust the margin between the tree and cn tracks. Default is -0.03
@@ -488,7 +488,7 @@ def plot_tree(input_tree,
               normal_name='diploid',
               show_branch_lengths=True,
               branch_labels=None,
-              show_tree_support=False,
+              show_branch_support=False,
               label_colors=None,
               **kwargs):
     """Plot the given tree using matplotlib (or pylab).
@@ -630,7 +630,7 @@ def plot_tree(input_tree,
         def format_branch_label(clade):
             return value_to_str(branch_labels(clade))
 
-    if show_tree_support:
+    if show_branch_support:
         def format_support_value(clade):
             if clade.name == 'root' or clade.name is None:
                 return None
@@ -726,7 +726,7 @@ def plot_tree(input_tree,
                 horizontalalignment="center",
             )
         # Add support below the branch
-        if show_tree_support:
+        if show_branch_support:
             support_value = format_support_value(clade)
             if support_value:
                 ax.text(
