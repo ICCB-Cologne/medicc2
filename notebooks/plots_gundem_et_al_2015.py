@@ -42,10 +42,12 @@ for patient in patients:
 N_bootstrap = 100
 for patient in patients:
 
-    cur_df = medicc.io.read_tsv_as_dataframe(
-        os.path.join(data_folder, "20210303_G_{}_gundem_phased_data_intersection_1mb_homdel_correct_df_final_cn_profiles.tsv".format(patient)))
     cur_tree = medicc.io.import_tree(
         os.path.join(data_folder, "20210303_G_{}_gundem_phased_data_intersection_1mb_homdel_correct_df_final_tree.new".format(patient)), 'diploid')
+    cur_df = medicc.io.read_tsv_as_dataframe(
+        os.path.join(data_folder, "20210303_G_{}_gundem_phased_data_intersection_1mb_homdel_correct_df_final_cn_profiles.tsv".format(patient)))
+    # remove internal nodes from df
+    cur_df = cur_df.loc[cur_df.index.get_level_values('sample_id').map(lambda x: 'internal' not in x)]
 
     labels = {'diploid': 'Diploid'}
     for label in cur_df.reset_index()['sample_id']:
@@ -59,7 +61,7 @@ for patient in patients:
     fig = medicc.plot.plot_tree(support_tree,
                                 title='support tree for {}'.format(patient),
                                 label_func=lambda label: labels.get(label, label),
-                                show_support=True,
+                                show_tree_support=True,
                                 show_branch_lengths=True,
                                 ax=ax)
     fig.savefig(os.path.join(data_folder, 'support_tree_{}.pdf'.format(patient)), bbox_inches='tight')
