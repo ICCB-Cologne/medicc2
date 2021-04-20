@@ -50,6 +50,7 @@ def plot_cn_profiles(
         horizontal_margin_adjustment=-0.03,
         close_gaps=False,
         show_small_segments=False,
+        show_branch_support=False,
         label_func = None):
 
     df = input_df.copy()
@@ -156,6 +157,7 @@ def plot_cn_profiles(
                   title=title,
                   label_func=lambda x: '',
                   label_colors=clade_colors,
+                  show_branch_support=show_branch_support,
                   branch_labels=lambda x: x.branch_length if x.name != 'root' and x.name is not None else None)
     
     # Adjust the margin between the tree and cn tracks. Default is -0.03
@@ -484,9 +486,9 @@ def plot_tree(input_tree,
               ax=None,
               output_name=None,
               normal_name='diploid',
-              show_branch_lengths=False,
+              show_branch_lengths=True,
               branch_labels=None,
-              show_support=False,
+              show_branch_support=False,
               label_colors=None,
               **kwargs):
     """Plot the given tree using matplotlib (or pylab).
@@ -601,31 +603,18 @@ def plot_tree(input_tree,
     vertical_linecollections = []
 
     # Options for displaying branch labels / confidence
-    def conf2str(conf):
-        if conf is None or conf == 0:
+    def value_to_str(value):
+        if value is None or value == 0:
             return None
-        elif int(conf) == conf:
-            return str(int(conf))
+        elif int(value) == value:
+            return str(int(value))
         else:
-            return str(conf)
+            return str(value)
 
     if not branch_labels:
         if show_branch_lengths:
             def format_branch_label(x): 
-                return np.round(x.branch_length, 1) if x.name != 'root' and x.name is not None else None
-        elif show_support:
-            def format_branch_label(clade):
-                try:
-                    confidences = clade.confidences
-                    # phyloXML supports multiple confidences
-                except AttributeError:
-                    pass
-                else:
-                    return "/".join(conf2str(cnf.value) for cnf in confidences)
-                if clade.confidence is not None:
-                    return conf2str(clade.confidence)
-                return None
-
+                return value_to_str(np.round(x.branch_length, 1)) if x.name != 'root' and x.name is not None else None
         else:
             def format_branch_label(clade):
                 return None
@@ -639,14 +628,23 @@ def plot_tree(input_tree,
                 "branch_labels must be either a dict or a callable (function)"
             )
         def format_branch_label(clade):
-            return conf2str(branch_labels(clade))
+            return value_to_str(branch_labels(clade))
 
-    # The function draw_clade closes over the axes object
-    if ax is None:
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
-    elif not isinstance(ax, plt.matplotlib.axes.Axes):
-        raise ValueError("Invalid argument for ax: %s" % ax)
+    if show_branch_support:
+        def format_support_value(clade):
+            if clade.name == 'root' or clade.name is None:
+                return None
+            try:
+                confidences = clade.confidences
+            # phyloXML supports multiple confidences
+            except AttributeError:
+                pass
+            else:
+                return "/".join(value_to_str(cnf.value) for cnf in confidences)
+            if clade.confidence is not None:
+                return value_to_str(clade.confidence)
+            return None
+
 
     def draw_clade_lines(
         use_linecollection=False,
@@ -707,15 +705,17 @@ def plot_tree(input_tree,
                 ax.scatter(x_here, y_here, s=marker_size, c=marker_col, zorder=3)
         # Add node/taxon labels
         label = label_func(str(clade))
+        ax_scale = ax.get_xlim()[1] - ax.get_xlim()[0]
+
         if label not in (None, clade.__class__.__name__):
             ax.text(
-                x_here + 1,
+                x_here + min(0.02*ax_scale, 1),
                 y_here,
                 " %s" % label,
                 verticalalignment="center",
                 color=get_label_color(label),
             )
-        # Add label above the branch (optional)
+        # Add label above the branch
         conf_label = format_branch_label(clade)
         if conf_label:
             ax.text(
@@ -725,6 +725,18 @@ def plot_tree(input_tree,
                 fontsize="small",
                 horizontalalignment="center",
             )
+        # Add support below the branch
+        if show_branch_support:
+            support_value = format_support_value(clade)
+            if support_value:
+                ax.text(
+                    0.5 * (x_start + x_here),
+                    y_here + 0.25,
+                    support_value + '%',
+                    fontsize="small",
+                    color='grey',
+                    horizontalalignment="center",
+                )
         if clade.clades:
             # Draw a vertical line connecting all children
             y_top = y_posns[clade.clades[0]]
@@ -783,6 +795,8 @@ def plot_tree(input_tree,
 
     if output_name is not None:
         plt.savefig(output_name + ".png")
+
+    return plt.gcf()
 
 
 class MEDICCPlotError(Exception):

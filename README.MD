@@ -1,6 +1,6 @@
 # MEDICC2 - Minimum Event Distance for Intra-tumour Copy number Comparisons#
 
-### Version 0.2 beta (Mar 2021). 
+### Version 0.3 beta (Mar 2021). 
 
 ## License: 
 MEDICC2 is available under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html). 

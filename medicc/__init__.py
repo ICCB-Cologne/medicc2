@@ -3,6 +3,7 @@ import os
 
 import yaml
 
+import medicc.bootstrap
 import medicc.io
 import medicc.nj
 import medicc.plot
