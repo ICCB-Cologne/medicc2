@@ -83,6 +83,11 @@ parser.add_argument("--summary",
 		            action = "store_true", 
                     required = False, 
                     help = "Plot a track with event summary")
+parser.add_argument("--legacy-version",
+                    dest="legacy_version",
+		            action = "store_true", 
+                    required = False, 
+                    help = "Use legacy version in which alleles are treated separately")
 parser.add_argument("--fst", type=str, dest='fst', default=None,
                     help='Expert option: path to an alternative FST.')
 parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', default='X',
@@ -152,13 +157,23 @@ if args.exclude_samples is not None:
 
 ## Run main method
 logger.info("Running main reconstruction routine.")
-sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main(
-    input_df, 
-    fst, 
-    normal_name, 
-    input_tree=input_tree, 
-    ancestral_reconstruction=not args.topology_only,
-    chr_separator=args.fst_chr_separator.strip())
+logger.info("Using legacy version in which alleles are treated separately")
+if args.legacy_version:
+    sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main_legacy(
+        input_df, 
+        fst, 
+        normal_name, 
+        input_tree=input_tree, 
+        ancestral_reconstruction=not args.topology_only,
+        chr_separator=args.fst_chr_separator.strip())
+else:
+    sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main(
+        input_df, 
+        fst, 
+        normal_name, 
+        input_tree=input_tree, 
+        ancestral_reconstruction=not args.topology_only,
+        chr_separator=args.fst_chr_separator.strip())
 
 if args.bootstrap_nr is not None:
     logger.info("Performing {} bootstrap runs (method: {})".format(args.bootstrap_nr, 
@@ -166,7 +181,8 @@ if args.bootstrap_nr is not None:
     bootstrap_trees_df, support_tree = medicc.bootstrap.run_bootstrap(input_df, 
                                                                       final_tree,
                                                                       N_bootstrap=args.bootstrap_nr, 
-                                                                      method=args.bootstrap_method)
+                                                                      method=args.bootstrap_method,
+                                                                      legacy_version=args.legacy_version)
 
     logger.info('Writing bootstrap output')
     bootstrap_trees_df.to_csv(os.path.join(output_dir, output_prefix +

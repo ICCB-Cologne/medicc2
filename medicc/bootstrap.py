@@ -133,7 +133,8 @@ def run_bootstrap(input_df,
                   N_bootstrap=50,
                   method='chr-wise',
                   wgd=True,
-                  show_progress=True):
+                  show_progress=True,
+                  legacy_version=False):
     """Run a given number of bootstrapping steps on the original data. 
 
     From the original data either a set of chromosome-wise bootstrap or segment-wise jackknife datasets
@@ -166,13 +167,22 @@ def run_bootstrap(input_df,
     # Run the actual bootstrapping steps
     for i in tqdm(range(N_bootstrap), disable=not show_progress):
         cur_df = bootstrap_method(input_df)
-        _, _, _, cur_final_tree, _ = medicc.main(
-            cur_df,
-            asymm_fst,
-            'diploid',
-            input_tree=None,
-            ancestral_reconstruction=False,
-            chr_separator='X')
+        if legacy_version:
+            _, _, _, cur_final_tree, _ = medicc.main_legacy(
+                cur_df,
+                asymm_fst,
+                'diploid',
+                input_tree=None,
+                ancestral_reconstruction=False,
+                chr_separator='X')
+        else:
+            _, _, _, cur_final_tree, _ = medicc.main(
+                cur_df,
+                asymm_fst,
+                'diploid',
+                input_tree=None,
+                ancestral_reconstruction=False,
+                chr_separator='X')
 
         for t in trees.keys():
             if compare_trees(cur_final_tree, t):

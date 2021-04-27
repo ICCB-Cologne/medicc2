@@ -1,21 +1,19 @@
 #%% imports
-import os
 import glob
+import os
 import sys
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import imp
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy as sp
-import sklearn as skl
-import sklearn.metrics
-import matplotlib as mpl
-import matplotlib.pyplot as plt
+
 %matplotlib inline
-import seaborn as sns
 import fstlib
 import medicc
-
+import seaborn as sns
 
 ## REQUIRED FILES TO RUN THIS:
 ## https://dcc.icgc.org/releases/PCAWG/consensus_cnv/consensus.20170119.somatic.cna.annotated.tar.gz
