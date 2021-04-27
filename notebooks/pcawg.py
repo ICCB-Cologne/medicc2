@@ -141,7 +141,9 @@ else:
     for f in files:
         pid = os.path.basename(f).split('.')[0]
         try:
-            df = pd.read_csv(f, sep='\t', index_col=['chromosome', 'start', 'end'])
+            df = pd.read_csv(f, sep='\t')
+            df['end'] = df['end'].astype('int64') ## some pcawg 'end' values are floating point
+            df.set_index(['chromosome', 'start', 'end'], inplace=True)
             index.append(pid)
             data.append(df)
         except ValueError:

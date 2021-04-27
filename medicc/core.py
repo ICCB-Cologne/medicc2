@@ -202,15 +202,17 @@ def create_df_from_fsa_dicts(input_df: pd.DataFrame, fsa_dicts: List[dict], sepa
     The allele names are taken from the input_df columns and the retured data frame has the same 
     number of rows and row index as the input_df. """
     alleles = input_df.columns
+    output_index = input_df.reset_index('sample_id').index
 
-    columns = {}
+    result = {}
     for allele, fsa_dict in zip(alleles, fsa_dicts):
-        cn = []
         for sample in fsa_dict:
-            cn += list(tools.fsa_to_string(fsa_dict[sample]).replace(separator, ''))
-        columns[allele] = cn
+            cn = list(tools.fsa_to_string(fsa_dict[sample]).replace(separator, ''))
+            result[(allele, sample)] = cn
 
-    output_df = pd.DataFrame(columns, index=input_df.index, columns=alleles)
+    output_df = pd.DataFrame(result, index=output_index)
+    output_df.columns.names = ['allele', 'sample_id']
+    output_df = output_df.stack('sample_id').reorder_levels(['sample_id', 'chrom', 'start', 'end'])
 
     return output_df
 
