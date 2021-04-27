@@ -202,7 +202,7 @@ def create_df_from_fsa_dicts(input_df: pd.DataFrame, fsa_dicts: List[dict], sepa
     The allele names are taken from the input_df columns and the retured data frame has the same 
     number of rows and row index as the input_df. """
     alleles = input_df.columns
-    output_index = input_df.reset_index('sample_id').index
+    output_index = input_df.reset_index('sample_id').index.unique()
 
     result = {}
     for allele, fsa_dict in zip(alleles, fsa_dicts):
