@@ -16,13 +16,15 @@ def set_sequences_on_tree_from_df(tree, df, clear_before=True):
             try:
                 clade.sequences.append(
                     Bio.Phylo.PhyloXML.Sequence(
-                        name='X'.join(data.groupby('chrom').apply(lambda x: ''.join(x))),
+                        name='X'.join(data.loc[clade.name].groupby('chrom').apply(lambda x: ''.join(x))),
                         symbol=label.upper())) 
             except KeyError:
                 pass
 
 def set_sequences_on_tree(tree, fsa_dicts, allele_labels, clear_before=True): 
     """LEGCAY - treats alleles separately"""
+    if not hasattr(tree.root, 'sequences'):
+        tree = tree.as_phyloxml()
     for clade in tree.find_clades():
         if clear_before:
             clade.sequences.clear()
