@@ -31,4 +31,4 @@ fig = medicc.plot.plot_cn_profiles(
 	height_scale=1,
 	hide_normal_chromosomes=False,
 	label_func=lambda x: x.replace('_', ' ').replace('taxon', 'sample '))
-fig.savefig('../examples/output/WGD Example.pdf', bbox_inches='tight')
+fig.savefig('../examples/output/WGD_Example.pdf', bbox_inches='tight')
