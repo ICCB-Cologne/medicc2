@@ -24,7 +24,7 @@ import medicc
 ## Meta data from: https://dcc.icgc.org/releases/PCAWG/clinical_and_histology
 
 #%%
-LOAD = True
+LOAD = False
 
 #%% FSTs
 T_wgd_asymm = fstlib.Fst.read('../objects/wgd_asymm.fst')
@@ -130,7 +130,7 @@ else:
 
     hdfstore.put('wgd', wgd, format='table')
 
-# %% CNPs
+# %% Load and phase CNPs
 if LOAD:
     dat = hdfstore['scna']
 else:
@@ -141,7 +141,9 @@ else:
     for f in files:
         pid = os.path.basename(f).split('.')[0]
         try:
-            df = pd.read_csv(f, sep='\t', index_col=['chromosome', 'start', 'end'])
+            df = pd.read_csv(f, sep='\t')
+            df['end'] = df['end'].astype('int64') ## some pcawg 'end' values are floating point
+            df.set_index(['chromosome', 'start', 'end'], inplace=True)
             index.append(pid)
             data.append(df)
         except ValueError:
@@ -189,6 +191,8 @@ else:
 if LOAD:
     distances = hdfstore['distances']
 else:
+    fsa_dict_a = medicc.create_standard_fsa_dict_from_allele_column(dat['cn_a'], T_wgd_asymm.input_symbols(), 'X')
+    fsa_dict_b = medicc.create_standard_fsa_dict_from_allele_column(dat['cn_b'], T_wgd_asymm.input_symbols(), 'X')
     dist_no_wgd_a = pd.Series({aliquot_id:float(fstlib.score(T_no_wgd_asymm, diploid, fsa)) for aliquot_id, fsa in fsa_dict_a.items()}, name='dist_no_wgd_a')
     dist_no_wgd_b = pd.Series({aliquot_id:float(fstlib.score(T_no_wgd_asymm, diploid, fsa)) for aliquot_id, fsa in fsa_dict_b.items()}, name='dist_no_wgd_b')
     dist_no_wgd_total = dist_no_wgd_a + dist_no_wgd_b
@@ -211,7 +215,7 @@ else:
 hdfstore.close()
 result = meta.join(distances, how='inner').join(wgd[['ploidy_haase','hom']])
 result['wgd_status'] = result['wgd_status'].map({'wgd':'WGD', 'no_wgd':'No WGD'})
-result['wgd_status_medicc'] = (result['dist_total_diff']>=2).map({True:'WGD', False:'No WGD'})
+result['wgd_status_medicc'] = (result['dist_total_diff']>=4).map({True:'WGD', False:'No WGD'})
 linex = np.linspace(0, result.hom.max())
 linea = -2
 lineb = -1
@@ -250,22 +254,22 @@ fig.savefig('figures/pcawg_supp_MEDICC2_WGD_score_per_cancer_type.pdf', bbox_inc
 
 # %% PCAWG Figure
 fig, ax = plt.subplots(figsize=(8 * scale,6 * scale))
-sns.scatterplot('hom', 'ploidy_haase', data=result, hue='wgd_status', ax=ax)
+sns.scatterplot(x='hom', y='ploidy_haase', data=result, hue='wgd_status', ax=ax)
 ax.get_legend().set_title('WGD status')
 ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
 ax.plot(linex, liney, '--', color='grey')
-fig.show()
+#fig.show()
 fig.savefig('figures/pcawg_supp_ploidy_vs_loh_wgd.pdf', bbox_inches='tight')
 
 # %% PCAWG Figure with our score
 fig, ax = plt.subplots(figsize=(8 * scale, 6 * scale))
-sns.scatterplot('hom', 'ploidy_haase', data=result, hue='dist_total_diff', palette="viridis", ax=ax)
+sns.scatterplot(x='hom', y='ploidy_haase', data=result, hue='dist_total_diff', palette="viridis", ax=ax)
 ax.get_legend().set_title('MEDICC2\nWGD score')
 ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
 ax.plot(linex, liney, '--', color='grey')
-fig.show()
+#fig.show()
 fig.savefig('figures/pcawg_ploidy_vs_loh_our_score.pdf', bbox_inches='tight')
 
 #%% distance from line:
@@ -283,11 +287,13 @@ axhist.get_legend().set_title('WGD status')
 
 ax = fig.add_subplot(gs[1])
 ax.spines['top'].set_visible(False)
-sns.scatterplot('dist_total_diff', 'linedist', data=plotdat, hue='wgd_status', ax=ax, legend=False)
+sns.scatterplot(x='dist_total_diff', y='linedist', data=plotdat, hue='wgd_status', ax=ax, legend=False)
 ax.set_xlabel('MEDICC2 WGD score')
 ax.set_ylabel('PCAWG WGD score')
 r = sp.stats.pearsonr(plotdat['dist_total_diff'], plotdat['linedist'])[0]**2
 ax.text(0.98, 0.02, r"$r^2 = %.2f$" % r, transform=ax.transAxes, ha='right', va='bottom')
-fig.show()
+#fig.show()
 fig.savefig('figures/pcawg_our_score_vs_linedist.pdf', bbox_inches='tight')
 
+
+# %%

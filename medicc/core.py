@@ -162,8 +162,8 @@ def create_phasing_fsa_dict_from_df(input_df: pd.DataFrame, symbol_table: fstlib
     for taxon, cnp in input_df.groupby('sample_id'):
         allele_a = cnp[allele_columns[0]]
         allele_b = cnp[allele_columns[1]]
-        cn_str_a = separator.join(["".join(x) for _,x in allele_a.groupby('chrom')])
-        cn_str_b = separator.join(["".join(x) for _,x in allele_b.groupby('chrom')])
+        cn_str_a = separator.join(["".join(x) for _,x in allele_a.groupby(level='chrom', sort=False)])
+        cn_str_b = separator.join(["".join(x) for _,x in allele_b.groupby(level='chrom', sort=False)])
         encoded = np.array([list(zip(cn_str_a, cn_str_b)), list(zip(cn_str_b, cn_str_a))])
         fsa_dict[taxon] = fstlib.factory.from_array(encoded, symbols=symbol_table, arc_type='standard')
         fsa_dict[taxon] = fstlib.determinize(fsa_dict[taxon]).minimize()
@@ -202,15 +202,17 @@ def create_df_from_fsa_dicts(input_df: pd.DataFrame, fsa_dicts: List[dict], sepa
     The allele names are taken from the input_df columns and the retured data frame has the same 
     number of rows and row index as the input_df. """
     alleles = input_df.columns
-    output_df = input_df.unstack('sample_id')
+    output_index = input_df.reset_index('sample_id').index.unique()
 
+    result = {}
     for allele, fsa_dict in zip(alleles, fsa_dicts):
         for sample in fsa_dict:
             cn = list(tools.fsa_to_string(fsa_dict[sample]).replace(separator, ''))
-            output_df.loc[:,(allele, sample)] = cn
-    
-    output_df = output_df.stack('sample_id')
-    output_df = output_df.reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
+            result[(allele, sample)] = cn
+
+    output_df = pd.DataFrame(result, index=output_index)
+    output_df.columns.names = ['allele', 'sample_id']
+    output_df = output_df.stack('sample_id').reorder_levels(['sample_id', 'chrom', 'start', 'end'])
 
     return output_df
 
