@@ -157,8 +157,8 @@ if args.exclude_samples is not None:
 
 ## Run main method
 logger.info("Running main reconstruction routine.")
-logger.info("Using legacy version in which alleles are treated separately")
 if args.legacy_version:
+    logger.info("Using legacy version in which alleles are treated separately")
     sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main_legacy(
         input_df, 
         fst, 

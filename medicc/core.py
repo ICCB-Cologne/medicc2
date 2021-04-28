@@ -31,12 +31,12 @@ def main(input_df,
 
     ## Compile input data into FSAs stored in dictionaries
     logger.info("Compiling input sequences into FSAs.")
-    FSA_dict_combined = create_standard_fsa_dict_from_dataframe(input_df, symbol_table, chr_separator)
+    FSA_dict = create_standard_fsa_dict_from_dataframe(input_df, symbol_table, chr_separator)
 
     ## Calculate pairwise distances
     logger.info("Calculating pairwise distance matrices for both alleles")
     sample_labels = input_df.index.get_level_values('sample_id').unique()
-    pdms = {'total': calc_pairwise_distance_matrix(asymm_fst, FSA_dict_combined)}
+    pdms = {'total': calc_pairwise_distance_matrix(asymm_fst, FSA_dict)}
 
     ## Reconstruct a tree
     if input_tree is None:
@@ -53,7 +53,7 @@ def main(input_df,
     if ancestral_reconstruction:
         logger.info("Reconstructing ancestors.")
         ancestors = medicc.reconstruct_ancestors(tree=final_tree,
-                                                 samples_dict=FSA_dict_combined,
+                                                 samples_dict=FSA_dict,
                                                  model=asymm_fst,
                                                  normal_name=normal_name)
 
@@ -85,7 +85,7 @@ def main_legacy(input_df,
                 ancestral_reconstruction=True,
                 chr_separator='X'):
     """ MEDICC Main Method 
-    LEGCAY VERSION: The alleles are treated separately in the WGD step!"""
+    LEGCAY VERSION: The alleles are treated separately in the WGD step"""
 
     symbol_table = asymm_fst.input_symbols()
 
@@ -292,8 +292,9 @@ def create_df_from_fsa_dict(input_df: pd.DataFrame,
                             fsa_dict: dict,
                             separator: str = 'X'):
     """ Takes a FSA dicts where each entry corresponds to one combined CN profile and extracts the CNPs. 
-    The allele names are taken from the input_df columns and the retured data frame has the same 
-    number of rows and row index as the input_df. """
+    The allele names are taken from the input_df columns and the retured data frame includes the samples
+    from the input_df as well as the internal nodes from the fsa_dict. The segments are the same as
+    in the input_df. """
     alleles = input_df.columns
     nr_alleles = len(alleles)
     output_df = input_df.unstack('sample_id')
