@@ -390,31 +390,30 @@ def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, sho
                 'o', ms=3, color=COL_ALLELE_B, alpha=0.5, zorder=6)
 
     ax.autoscale()
-    
     ## draw segment boundaries
     seg_bound_first = agg_events['start_pos'].values[0]
     seg_bounds = agg_events['end_pos'].values
-    ax.vlines(np.append(seg_bound_first, seg_bounds), 
-              ymin = mincn, 
-              ymax = maxcn, 
-              ls = '--', 
-              alpha = 0.25, 
-              color = COL_VLINES, 
-              linewidth = 0.5)
-    
+    ax.vlines(np.append(seg_bound_first, seg_bounds),
+              ymin=mincn,
+              ymax=maxcn,
+              ls='--',
+              alpha=0.25,
+              color=COL_VLINES,
+              linewidth=0.5)
+
     ## draw chromosome boundaries
     chr_ends = agg_events.groupby('chrom').max()['end_pos']
-    linex = chr_ends.values[:-1] ## don't plot last
-    ax.vlines(linex, 
-              ymin = mincn, 
-              ymax = maxcn,
-              color = COL_VLINES,
-              linewidth = 1)
-    
+    linex = chr_ends.values[:-1]  # don't plot last
+    ax.vlines(linex,
+              ymin=mincn,
+              ymax=maxcn,
+              color=COL_VLINES,
+              linewidth=1)
+
     ## draw chromosome labels
     chr_label_pos = chr_ends
     chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
-    chr_label_pos.iloc[0] = 0
+    chr_label_pos.iloc[0] = seg_bound_first
     for chrom, pos in chr_label_pos.iteritems():
         ax.text(pos, maxcn-0.35, chrom, ha='left', va='top', color=COL_CHR_LABEL,
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)

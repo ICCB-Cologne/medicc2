@@ -7,44 +7,44 @@
         <branch_length>1.0</branch_length>
         <sequence>
           <symbol>CN_A</symbol>
-          <name>11111110112202222022220221101122022220222202222022X11111111112232222222222221111122221223222242211122</name>
+          <name>11011X11111</name>
         </sequence>
         <sequence>
           <symbol>CN_B</symbol>
-          <name>11111111111111111112111111111111112111111111111112X22222222222222222222222222222222222222222222222222</name>
+          <name>11111X22222</name>
         </sequence>
         <clade>
           <name>internal_4</name>
           <branch_length>2.0</branch_length>
           <sequence>
             <symbol>CN_A</symbol>
-            <name>11111110112202222022220221101122022220222202222022X11111111112232222222222221111122221223222242211122</name>
+            <name>22022X22222</name>
           </sequence>
           <sequence>
             <symbol>CN_B</symbol>
-            <name>11111111111111111112111111111111112111111111111112X22222222222222222222222222222222222222222222222222</name>
+            <name>11111X22222</name>
           </sequence>
           <clade>
             <name>internal_2</name>
             <branch_length>1.0</branch_length>
             <sequence>
               <symbol>CN_A</symbol>
-              <name>11111110112202222022220221101122022220222202222022X11111111112232222222222221111122221223222242211122</name>
+              <name>22022X22322</name>
             </sequence>
             <sequence>
               <symbol>CN_B</symbol>
-              <name>11111111111111111112111111111111112111111111111112X22222222222222222222222222222222222222222222222222</name>
+              <name>11111X22222</name>
             </sequence>
             <clade>
               <name>taxon3</name>
               <branch_length>0.0</branch_length>
               <sequence>
                 <symbol>CN_A</symbol>
-                <name>11111110112202222022220221101122022220222202222022X11111111112232222222222221111122221223222242211122</name>
+                <name>22022X22322</name>
               </sequence>
               <sequence>
                 <symbol>CN_B</symbol>
-                <name>11111111111111111112111111111111112111111111111112X22222222222222222222222222222222222222222222222222</name>
+                <name>11111X22222</name>
               </sequence>
             </clade>
             <clade>
@@ -52,11 +52,11 @@
               <branch_length>1.0</branch_length>
               <sequence>
                 <symbol>CN_A</symbol>
-                <name>11111110112202222022220221101122022220222202222022X11111111112232222222222221111122221223222242211122</name>
+                <name>22022X22422</name>
               </sequence>
               <sequence>
                 <symbol>CN_B</symbol>
-                <name>11111111111111111112111111111111112111111111111112X22222222222222222222222222222222222222222222222222</name>
+                <name>11111X22222</name>
               </sequence>
             </clade>
           </clade>
@@ -65,22 +65,22 @@
             <branch_length>1.0</branch_length>
             <sequence>
               <symbol>CN_A</symbol>
-              <name>11111110112202222022220221101122022220222202222022X11111111112232222222222221111122221223222242211122</name>
+              <name>22022X22222</name>
             </sequence>
             <sequence>
               <symbol>CN_B</symbol>
-              <name>11111111111111111112111111111111112111111111111112X22222222222222222222222222222222222222222222222222</name>
+              <name>11112X22222</name>
             </sequence>
             <clade>
               <name>taxon2</name>
               <branch_length>1.0</branch_length>
               <sequence>
                 <symbol>CN_A</symbol>
-                <name>11111110112202222022220221101122022220222202222022X11111111112232222222222221111122221223222242211122</name>
+                <name>22022X22221</name>
               </sequence>
               <sequence>
                 <symbol>CN_B</symbol>
-                <name>11111111111111111112111111111111112111111111111112X22222222222222222222222222222222222222222222222222</name>
+                <name>11112X22222</name>
               </sequence>
             </clade>
             <clade>
@@ -88,11 +88,11 @@
               <branch_length>1.0</branch_length>
               <sequence>
                 <symbol>CN_A</symbol>
-                <name>11111110112202222022220221101122022220222202222022X11111111112232222222222221111122221223222242211122</name>
+                <name>22022X11122</name>
               </sequence>
               <sequence>
                 <symbol>CN_B</symbol>
-                <name>11111111111111111112111111111111112111111111111112X22222222222222222222222222222222222222222222222222</name>
+                <name>11112X22222</name>
               </sequence>
             </clade>
           </clade>
@@ -102,11 +102,11 @@
           <branch_length>0.0</branch_length>
           <sequence>
             <symbol>CN_A</symbol>
-            <name>11111110112202222022220221101122022220222202222022X11111111112232222222222221111122221223222242211122</name>
+            <name>11011X11111</name>
           </sequence>
           <sequence>
             <symbol>CN_B</symbol>
-            <name>11111111111111111112111111111111112111111111111112X22222222222222222222222222222222222222222222222222</name>
+            <name>11111X22222</name>
           </sequence>
         </clade>
       </clade>
@@ -115,11 +115,11 @@
         <branch_length>0.0</branch_length>
         <sequence>
           <symbol>CN_A</symbol>
-          <name>11111110112202222022220221101122022220222202222022X11111111112232222222222221111122221223222242211122</name>
+          <name>11111X11111</name>
         </sequence>
         <sequence>
           <symbol>CN_B</symbol>
-          <name>11111111111111111112111111111111112111111111111112X22222222222222222222222222222222222222222222222222</name>
+          <name>11111X22222</name>
         </sequence>
       </clade>
     </clade>
