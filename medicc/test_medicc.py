@@ -22,8 +22,8 @@ def test_medicc_help_box():
 
 
 def test_medicc_with_example():
-    "Just testing that medicc can be started"
-    process = subprocess.Popen(['python', "medicc2.py", "examples/example1/example1.tsv", "examples/test_output"],
+    "Testing small example"
+    process = subprocess.Popen(['python', "medicc2.py", "examples/simple_example/simple_example.tsv", "examples/test_output"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -38,9 +38,9 @@ def test_medicc_with_example():
 
 
 def test_medicc_with_bootstrap():
-    "Just testing that medicc can be started"
+    "Testing bootstrap workflow"
     process = subprocess.Popen(['python', "medicc2.py",
-                                "examples/example1/example1.tsv", "examples/test_output",
+                                "examples/simple_example/simple_example.tsv", "examples/test_output",
                                 "--bootstrap-nr", "5"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
@@ -49,7 +49,7 @@ def test_medicc_with_bootstrap():
         # Process hasn't exited yet, let's wait some
         time.sleep(0.5)
 
-    support_tree_exists = os.path.isfile('examples/test_output/example1_support_tree.new')
+    support_tree_exists = os.path.isfile('examples/test_output/simple_example_support_tree.new')
 
     subprocess.Popen(["rm", "examples/test_output", "-rf"])
 

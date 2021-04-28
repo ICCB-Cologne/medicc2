@@ -186,7 +186,7 @@ if args.bootstrap_nr is not None:
 
     logger.info('Writing bootstrap output')
     bootstrap_trees_df.to_csv(os.path.join(output_dir, output_prefix +
-                                           "boostrap_trees_df.tsv"), sep='\t')
+                                           "_bootstrap_trees_df.tsv"), sep='\t')
     medicc.io.write_tree_files(tree=support_tree, out_name=os.path.join(
         output_dir, output_prefix + "_support_tree"), plot_tree=False, draw_ascii=False)
     fig = medicc.plot.plot_tree(support_tree,
