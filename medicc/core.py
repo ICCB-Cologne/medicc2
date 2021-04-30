@@ -85,7 +85,7 @@ def main_legacy(input_df,
                 ancestral_reconstruction=True,
                 chr_separator='X'):
     """ MEDICC Main Method 
-    LEGCAY VERSION: The alleles are treated separately in the WGD step"""
+    LEGACY VERSION: The alleles are treated separately in the WGD step"""
 
     symbol_table = asymm_fst.input_symbols()
 
@@ -317,7 +317,9 @@ def create_df_from_fsa_dict(input_df: pd.DataFrame,
     return output_df
 
 
-def create_df_from_fsa_dicts(input_df: pd.DataFrame, fsa_dicts: List[dict], separator: str = 'X'):
+def create_df_from_fsa_dicts(input_df: pd.DataFrame,
+                             fsa_dicts: List[dict],
+                             separator: str = 'X'):
     """ 
     LEGACY - treats alleles separately
     Takes a list of FSA dicts where each entry corresponds to one allele and extracts the CNPs. 
