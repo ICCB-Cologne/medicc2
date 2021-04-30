@@ -5,21 +5,30 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+# %matplotlib inline
+import fstlib
 import matplotlib.pyplot as plt
+import medicc
 import numpy as np
 import pandas as pd
 import scipy as sp
-
-%matplotlib inline
-import fstlib
-import medicc
 import seaborn as sns
 
-## REQUIRED FILES TO RUN THIS:
-## https://dcc.icgc.org/releases/PCAWG/consensus_cnv/consensus.20170119.somatic.cna.annotated.tar.gz
-## https://dcc.icgc.org/releases/PCAWG/consensus_cnv/consensus.20170217.purity.ploidy.txt.gz
-## https://dcc.icgc.org/releases/PCAWG/data_releases/latest/pcawg_sample_shee.tsv
-## Meta data from: https://dcc.icgc.org/releases/PCAWG/clinical_and_histology
+# REQUIRED FILES TO RUN THIS:
+
+# Save and unpack as data_folder
+# From https://dcc.icgc.org/releases/PCAWG/consensus_cnv/
+# * consensus.20170119.somatic.cna.annotated.tar.gz
+
+# Place in metadata_folder:
+# From https://dcc.icgc.org/releases/PCAWG/clinical_and_histology/
+# * pcawg_specimen_histology_August2016_v9.xlsx
+# * pcawg_donor_clinical_August2016_v9.xlsx
+# From https://dcc.icgc.org/releases/PCAWG/terminology_and_standard_colours
+# * pcawg-glossary-colour-references.xlsx
+# From https://dcc.icgc.org/releases/PCAWG/data_releases/latest/
+# * pcawg_sample_sheet.tsv
+# https://github.com/PCAWG-11/Heterogeneity/raw/master/code_figures_paper/figure_1b/wgd.status.txt.gz
 
 #%%
 LOAD = False
@@ -118,12 +127,15 @@ else:
     hdfstore.put('metadata/tumour_types', tumour_types, format='table')
     hdfstore.put('metadata/simple', meta, format='table')
 
-#%% WGD (Haase)
+#%% WGD (PCAWG)
+# Ploidy data from the PCAWG publication
+# Characterizing genetic intra-tumor heterogeneity across 2,658 human cancer genomes
+# https://doi.org/10.1016/j.cell.2021.03.009
 if LOAD:
     wgd = hdfstore['wgd']
 else:
-    wgd = pd.read_csv(os.path.join(pcawg_folder, 'wgd.status.txt'), sep='\t')
-    wgd.rename({'samplename':'sample_id', 'ploidy':'ploidy_haase'}, inplace=True, axis=1)
+    wgd = pd.read_csv(os.path.join(metadata_folder, 'wgd.status.txt'), sep='\t')
+    wgd.rename({'samplename':'sample_id', 'ploidy':'ploidy_pcawg'}, inplace=True, axis=1)
     wgd.set_index('sample_id', inplace=True)
 
     hdfstore.put('wgd', wgd, format='table')
@@ -211,7 +223,7 @@ else:
 
 # %%
 hdfstore.close()
-result = meta.join(distances, how='inner').join(wgd[['ploidy_haase','hom']])
+result = meta.join(distances, how='inner').join(wgd[['ploidy_pcawg','hom']])
 result['wgd_status'] = result['wgd_status'].map({'wgd':'WGD', 'no_wgd':'No WGD'})
 result['wgd_status_medicc'] = (result['dist_total_diff']>=4).map({True:'WGD', False:'No WGD'})
 linex = np.linspace(0, result.hom.max())
@@ -220,8 +232,8 @@ lineb = -1
 linec = 2.9
 liney = linea * linex + linec
 ## distance from line:
-#linedist = np.abs(linea * result.hom + lineb * result.ploidy_haase + linec) / np.sqrt(linea**2 + lineb**2)
-linedist = -(linea * result.hom + lineb * result.ploidy_haase + linec) / np.sqrt(linea**2 + lineb**2)
+#linedist = np.abs(linea * result.hom + lineb * result.ploidy_pcawg + linec) / np.sqrt(linea**2 + lineb**2)
+linedist = -(linea * result.hom + lineb * result.ploidy_pcawg + linec) / np.sqrt(linea**2 + lineb**2)
 result['linedist'] = linedist
 scale = 0.8
 
@@ -252,7 +264,7 @@ fig.savefig('figures/pcawg_supp_MEDICC2_WGD_score_per_cancer_type.pdf', bbox_inc
 
 # %% PCAWG Figure
 fig, ax = plt.subplots(figsize=(8 * scale,6 * scale))
-sns.scatterplot(x='hom', y='ploidy_haase', data=result, hue='wgd_status', ax=ax)
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=result, hue='wgd_status', ax=ax)
 ax.get_legend().set_title('WGD status')
 ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
@@ -262,7 +274,7 @@ fig.savefig('figures/pcawg_supp_ploidy_vs_loh_wgd.pdf', bbox_inches='tight')
 
 # %% PCAWG Figure with our score
 fig, ax = plt.subplots(figsize=(8 * scale, 6 * scale))
-sns.scatterplot(x='hom', y='ploidy_haase', data=result, hue='dist_total_diff', palette="viridis", ax=ax)
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=result, hue='dist_total_diff', palette="viridis", ax=ax)
 ax.get_legend().set_title('MEDICC2\nWGD score')
 ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
