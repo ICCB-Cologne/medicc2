@@ -279,10 +279,12 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     seg_bound_first = group['start_pos'].values[0]
     seg_bounds = group['end_pos'].values
     ax.vlines(np.append(seg_bound_first, seg_bounds), ymin=mincn, ymax=maxcn, ls='--', alpha=0.25, color=COL_VLINES, linewidth=0.5)
+
     ## draw chromosome boundaries
-    chr_ends = group.reset_index().groupby('chrom', sort=False).max()['end_pos']
+    chr_ends = group.reset_index().groupby('chrom').max()['end_pos']
     linex = chr_ends.values[:-1] ## don't plot last
     ax.vlines(linex, ymin=mincn, ymax=maxcn, color=COL_VLINES, linewidth=1)
+
     ## draw chromosome labels
     chr_label_pos = chr_ends
     chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
@@ -290,6 +292,7 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     for chrom, pos in chr_label_pos.iteritems():
         ax.text(pos, maxcn-0.35, chrom, ha='left', va='top', color=COL_CHR_LABEL,
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)
+
     ## draw sample labels
     if plot_yaxis_labels:
         ax.set_ylabel(sample_label, fontsize=YLABEL_FONT_SIZE, rotation=0, ha='right', va='center')
