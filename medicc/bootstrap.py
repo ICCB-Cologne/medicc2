@@ -32,7 +32,9 @@ def chr_wise_bootstrap_df(input_df):
         cur_data['chrom'] = 'chr{}'.format(i+1)
         bootstrap_df = bootstrap_df.append(cur_data)
 
+    bootstrap_df['chrom'] = medicc.tools.format_chromosomes(bootstrap_df['chrom'])
     bootstrap_df.set_index(['sample_id', 'chrom', 'start', 'end'], inplace=True)
+    bootstrap_df.sort_index(inplace=True)
 
     logger.debug("Created chr-wise bootstrap dataframe")
 

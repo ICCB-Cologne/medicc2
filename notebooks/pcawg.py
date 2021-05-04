@@ -250,18 +250,18 @@ else:
         bootstrap_distances[:, 0, i] = dist_wgd
         bootstrap_distances[:, 1, i] = dist_no_wgd
 
-    bootstrap_distances = pd.dataFrame(index=samples, columns=['wgd_status', 'mean_wgd', 'mean_no_wgd', 'diff_mean',
+    boostrap_results = pd.DataFrame(index=samples, columns=['wgd_status', 'mean_wgd', 'mean_no_wgd', 'diff_mean',
                                                                'diff_std', 'diff_frac_zero'])
 
-    bootstrap_distances['pcawg_wgd'] = meta.loc[samples, 'pcawg_wgd']
+    boostrap_results['pcawg_wgd'] = meta.loc[samples, 'wgd_status']
 
-    bootstrap_distances['mean_wgd'] = np.mean(bootstrap_distances[:, 0, :], axis=1)
-    bootstrap_distances['mean_no_wgd'] = np.mean(bootstrap_distances[:, 1, :], axis=1)
+    boostrap_results['mean_wgd'] = np.mean(bootstrap_distances[:, 0, :], axis=1)
+    boostrap_results['mean_no_wgd'] = np.mean(bootstrap_distances[:, 1, :], axis=1)
 
-    bootstrap_distances['diff_mean'] = np.mean(
+    boostrap_results['diff_mean'] = np.mean(
         bootstrap_distances[:, 1, :] - bootstrap_distances[:, 0, :], axis=1)
 
-    hdfstore.put('bootstrap_distances', bootstrap_distances, format='table')
+    hdfstore.put('bootstrap_distances', boostrap_results, format='table')
 # %%
 hdfstore.close()
 
@@ -290,11 +290,17 @@ print('{:.1f}% correct classification'.format(
 
 #%% Overlap with PCAWG labels from Bootstrap
 confusion_matrix_bootstrap = pd.crosstab(
-    bootstrap_distances['pcawg_wgd'], bootstrap_distances['diff_mean'] != 0.0)
+    boostrap_results['pcawg_wgd'], boostrap_results['diff_mean'] != 0.0)
 print(confusion_matrix_bootstrap)
 confusion_matrix_bootstrap = confusion_matrix_bootstrap.astype(int)
 print('{:.1f}% correct classification'.format(
     100*(confusion_matrix_bootstrap.iloc[0, 0] + confusion_matrix_bootstrap.iloc[1, 1]) / confusion_matrix_bootstrap.sum().sum()))
+
+#%% test for association with uncertainty
+confusion = pd.crosstab(result['wgd_status'], result['wgd_status_medicc'])
+sp.stats.chi2_contingency(pd.crosstab(result.eval(
+    "wgd_status != wgd_status_medicc"), result['wgd_uncertain']))
+
 # %% plot PCAWG MED distributions
 palette = dict(zip(tumour_types.index, tumour_types.Hexadecimal))
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,10))

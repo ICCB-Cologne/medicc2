@@ -147,7 +147,7 @@ def main_legacy(input_df,
 
 
 def summarize_changes(input_df, input_tree, normal_name=None,
-                         ignore_segment_lengths=False):
+                      ignore_segment_lengths=False):
     df = input_df.copy()
 
     ## we're force converting to categoricals to always maintain the order of the chromosomes as given
