@@ -59,7 +59,7 @@ def main(input_df,
 
         ## Create and write output data frame with ancestors
         logger.info("Creating output table.")
-        output_df = create_df_from_concatenated_fsa_dict(input_df, ancestors)
+        output_df = create_df_from_fsa(input_df, ancestors)
 
         ## Update branch lengths with ancestors
         logger.info("Updating branch lengths of final tree using ancestors.")
@@ -127,12 +127,12 @@ def main_legacy(input_df,
 
         ## Create and write output data frame with ancestors
         logger.info("Creating output table.")
-        output_df = create_df_from_fsa_dicts(input_df, ancestors)
+        output_df = create_df_from_fsa(input_df, ancestors)
 
         ## Update branch lengths with ancestors
         logger.info("Updating branch lengths of final tree using ancestors.")
         tools.set_sequences_on_tree(final_tree, ancestors, input_df.columns)
-        update_branch_lengths_legacy(final_tree, asymm_fst, ancestors, normal_name)
+        update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
         
     else:
         output_df = input_df
@@ -209,7 +209,8 @@ def create_standard_fsa_dict_from_data(input_data,
                                        symbol_table: fstlib.SymbolTable,
                                        separator: str = "X") -> dict:
     """ Creates a dictionary of FSAs from input DataFrame or Series.
-    The keys of the dictionary are the sample/taxon names. """
+    The keys of the dictionary are the sample/taxon names. 
+    If the input is a DataFrame, the FSA will be the concatenated copy number profiles of all allele columns"""
 
     fsa_dict = {}
     if isinstance(input_data, pd.DataFrame):
@@ -263,7 +264,7 @@ def phase(input_df: pd.DataFrame, model_fst: fstlib.Fst, reference_sample='diplo
     
     phasing_dict = medicc.create_phasing_fsa_dict_from_df(input_df, model_fst.input_symbols(), separator)
     fsa_dict_a, fsa_dict_b, _ = phase_dict(phasing_dict, model_fst, phasing_dict[reference_sample])
-    output_df = medicc.create_df_from_fsa_dicts(input_df, [fsa_dict_a, fsa_dict_b], separator)
+    output_df = medicc.create_df_from_fsa(input_df, [fsa_dict_a, fsa_dict_b], separator)
 
     return output_df
 
@@ -285,56 +286,50 @@ def phase_dict(phasing_dict, model_fst, reference_fst):
     return fsa_dict_a, fsa_dict_b, scores
 
 
-def create_df_from_concatenated_fsa_dict(input_df: pd.DataFrame,
-                            fsa_dict: dict,
-                            separator: str = 'X'):
-    """ Takes a FSA dicts where each entry corresponds to one combined CN profile and extracts the CNPs. 
-    The allele names are taken from the input_df columns and the retured data frame includes the samples
-    from the input_df as well as the internal nodes from the fsa_dict. The segments are the same as
-    in the input_df. """
-    alleles = input_df.columns
-    nr_alleles = len(alleles)
-    output_df = input_df.unstack('sample_id')
-
-    for sample in fsa_dict:
-        cns = tools.fsa_to_string(fsa_dict[sample]).split(separator)
-        if len(cns) % nr_alleles != 0:
-            raise MEDICCError('For sample {} we have {} combined chromosomes for {} alleles'
-                              '\n Nr chromosomes has to be divisible by nr of allels'.format(sample,
-                                                                                             len(cns),
-                                                                                             nr_alleles))
-        nr_chroms = int(len(cns) // nr_alleles)
-        for i, allele in enumerate(alleles):
-            cn = list(''.join(cns[(i*nr_chroms):((i+1)*nr_chroms)]))
-            output_df.loc[:,(allele, sample)] = cn
-    
-    output_df = output_df.stack('sample_id')
-    output_df = output_df.reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
-
-    return output_df
-
-
-def create_df_from_fsa_dicts(input_df: pd.DataFrame,
-                             fsa_dicts: List[dict],
-                             separator: str = 'X'):
+def create_df_from_fsa(input_df: pd.DataFrame,
+                       fsa,
+                       separator: str = 'X'):
     """ 
-    LEGACY - treats alleles separately
-    Takes a list of FSA dicts where each entry corresponds to one allele and extracts the CNPs. 
+    Takes a single FSA dict or a list of FSA dicts and extracts the copy number profiles.
     The allele names are taken from the input_df columns and the retured data frame has the same 
     number of rows and row index as the input_df. """
+
     alleles = input_df.columns
-    output_index = input_df.reset_index('sample_id').index.unique()
+    if isinstance(fsa, dict):
+        nr_alleles = len(alleles)
+        output_df = input_df.unstack('sample_id')
 
-    result = {}
-    for allele, fsa_dict in zip(alleles, fsa_dicts):
-        for sample in fsa_dict:
-            cn = list(tools.fsa_to_string(fsa_dict[sample]).replace(separator, ''))
-            result[(allele, sample)] = cn
+        for sample in fsa:
+            cns = tools.fsa_to_string(fsa[sample]).split(separator)
+            if len(cns) % nr_alleles != 0:
+                raise MEDICCError('For sample {} we have {} combined chromosomes for {} alleles'
+                                  '\n Nr chromosomes has to be divisible by nr of allels'.format(sample,
+                                                                                                 len(cns),
+                                                                                                 nr_alleles))
+            nr_chroms = int(len(cns) // nr_alleles)
+            for i, allele in enumerate(alleles):
+                cn = list(''.join(cns[(i*nr_chroms):((i+1)*nr_chroms)]))
+                output_df.loc[:, (allele, sample)] = cn
 
-    output_df = pd.DataFrame(result, index=output_index)
-    output_df.columns.names = ['allele', 'sample_id']
-    output_df = output_df.stack('sample_id').reorder_levels(['sample_id', 'chrom', 'start', 'end'])
+    elif isinstance(fsa, list) and np.all([isinstance(fsa_item, dict) for fsa_item in fsa]):
+        output_index = input_df.reset_index('sample_id').index.unique()
 
+        result = {}
+        for allele, fsa_dict in zip(alleles, fsa):
+            for sample in fsa_dict:
+                cn = list(tools.fsa_to_string(fsa_dict[sample]).replace(separator, ''))
+                result[(allele, sample)] = cn
+
+        output_df = pd.DataFrame(result, index=output_index)
+        output_df.columns.names = ['allele', 'sample_id']
+
+    else:
+        raise MEDICCError("fsa input to create_df_from_fsa has to be either dict or list of dicts"
+                          "Input type is {}".format(type(fsa)))
+
+    output_df = output_df.stack('sample_id')
+    output_df = output_df.reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
+    
     return output_df
 
 # Given a symmetric model FST and input FSAs in a form of a dictionary, output pairwise distance matrix
@@ -381,33 +376,31 @@ def infer_tree_topology(pdm, labels, diploid):
     return input_tree
 
 
-def update_branch_lengths(tree, fst, fsa_dict, diploid):
+def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
     """ Updates the branch lengths in the tree using the internal nodes supplied in the FSA dict """
+
+    if isinstance(ancestor_fsa, dict):
+        def distance_to_child(fst, fsa_dict, sample_1, sample_2):
+            return float(fstlib.score(fst, fsa_dict[sample_1], fsa_dict[sample_2]))
+
+    elif isinstance(ancestor_fsa, list) and np.all([isinstance(ancestor_item, dict) for ancestor_item in ancestor_fsa]):
+        def distance_to_child(fst, fsa_dict_list, sample_1, sample_2):
+            return np.sum([float(fstlib.score(fst, cur_fsa_dict[sample_1], cur_fsa_dict[sample_2]))
+                           for cur_fsa_dict in fsa_dict_list])
+
+    else:
+        raise MEDICCError("input ancestor_fsa to function update_branch_lengths has to be either a dict"
+                          "or a list of dicts\nprovided type is {}".format(type(ancestor_fsa)))
+
     for clade in tree.find_clades():
         children = clade.clades
         if len(children) != 0:
             for child in children:
-                if child.name == diploid: ## exception: evolution goes from diploid to internal node
-                    brs = float(fstlib.score(fst, fsa_dict[child.name], fsa_dict[clade.name]))
+                if child.name == normal_name:  # exception: evolution goes from diploid to internal node
+                    brs = distance_to_child(fst, ancestor_fsa, child.name, clade.name)
                 else:
-                    brs = float(fstlib.score(fst, fsa_dict[clade.name], fsa_dict[child.name]))
+                    brs = distance_to_child(fst, ancestor_fsa, clade.name, child.name)
                 child.branch_length = brs
-
-
-def update_branch_lengths_legacy(tree, fst, fsa_dicts, diploid):
-    """LEGACY - treats alleles separately
-    Updates the branch lengths in the tree using the internal nodes supplied in the FSA dicts """
-    for clade in tree.find_clades():
-        children = clade.clades
-        if len(children) != 0:
-            for child in children:
-                if child.name == diploid: ## exception: evolution goes from diploid to internal node
-                    brs = [float(fstlib.score(fst, fsa_dict[child.name], fsa_dict[clade.name]))
-                        for fsa_dict in fsa_dicts]
-                else:
-                    brs = [float(fstlib.score(fst, fsa_dict[clade.name], fsa_dict[child.name]))
-                        for fsa_dict in fsa_dicts]
-                child.branch_length = np.sum(brs)
 
 
 def compute_change_events(df, tree, normal_name='diploid'):
