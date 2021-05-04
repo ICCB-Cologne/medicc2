@@ -31,7 +31,7 @@ def main(input_df,
 
     ## Compile input data into FSAs stored in dictionaries
     logger.info("Compiling input sequences into FSAs.")
-    FSA_dict = create_standard_fsa_dict_from_dataframe(input_df, symbol_table, chr_separator)
+    FSA_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
 
     ## Calculate pairwise distances
     logger.info("Calculating pairwise distance matrices for both alleles")
@@ -59,7 +59,7 @@ def main(input_df,
 
         ## Create and write output data frame with ancestors
         logger.info("Creating output table.")
-        output_df = create_df_from_fsa_dict(input_df, ancestors)
+        output_df = create_df_from_concatenated_fsa_dict(input_df, ancestors)
 
         ## Update branch lengths with ancestors
         logger.info("Updating branch lengths of final tree using ancestors.")
@@ -95,7 +95,7 @@ def main_legacy(input_df,
 
     ## Compile input data into FSAs stored in dictionaries
     logger.info("Compiling input sequences into FSAs.")
-    FSA_dicts = [create_standard_fsa_dict_from_allele_column(input_df[c], symbol_table, chr_separator) 
+    FSA_dicts = [create_standard_fsa_dict_from_data(input_df[c], symbol_table, chr_separator) 
                     for c in input_df]
 
     ## Calculate pairwise distances
@@ -205,38 +205,35 @@ def summarize_changes(input_df, input_tree, normal_name=None,
     return df
 
 
-def create_standard_fsa_dict_from_dataframe(input_df: pd.Series,
-                                            symbol_table: fstlib.SymbolTable,
-                                            separator: str = "X") -> dict:
-    """ Creates a dictionary of FSAs from input DataFrame.
+def create_standard_fsa_dict_from_data(input_data,
+                                       symbol_table: fstlib.SymbolTable,
+                                       separator: str = "X") -> dict:
+    """ Creates a dictionary of FSAs from input DataFrame or Series.
     The keys of the dictionary are the sample/taxon names. """
-    allele_columns = input_df.columns
-    logger.info('Creating FSA for the following data columns:\n{}'.format(allele_columns))
+
     fsa_dict = {}
-    for taxon, cnp in input_df.groupby('sample_id'):
-        cn_str = [separator.join(["".join(x.astype('str'))
-                                  for _, x in cnp[allele].groupby('chrom')]) for allele in allele_columns]
-        cn_str = separator.join(cn_str)
+    if isinstance(input_data, pd.DataFrame):
+        logger.info('Creating FSA for pd.DataFrame with the following data columns:\n{}'.format(
+            input_data.columns))
+        def aggregate_copy_number_profile(copy_number_profile):
+            return separator.join([separator.join(["".join(x.astype('str'))
+                                                   for _, x in cnp[allele].groupby('chrom')]) for allele in copy_number_profile.columns])
+
+    elif isinstance(input_data, pd.Series):
+        logger.info('Creating FSA for pd.Series with the name {}'.format(input_data.name))
+        def aggregate_copy_number_profile(copy_number_profile):
+            return separator.join(["".join(x.astype('str')) for _, x in copy_number_profile.groupby('chrom')])
+
+    else:
+        raise MEDICCError("Input to function create_standard_fsa_dict_from_data has to be either"
+                          "pd.DataFrame or pd.Series. \n input provided was {}".format(type(input_data)))
+    
+    for taxon, cnp in input_data.groupby('sample_id'):
+        cn_str = aggregate_copy_number_profile(cnp)
         fsa_dict[taxon] = fstlib.factory.from_string(cn_str,
-                                                     arc_type="standard",
-                                                     isymbols=symbol_table,
-                                                     osymbols=symbol_table)
-
-    return fsa_dict
-
-
-def create_standard_fsa_dict_from_allele_column(input_column: pd.Series, symbol_table: fstlib.SymbolTable, separator: str = "X") -> dict:
-    """ 
-    LEGACY - treats alleles separately
-    Creates a dictionary of FSAs from a single column/allele (Pandas Series) of the input data frame.
-    The keys of the dictionary are the sample/taxon names. """
-    fsa_dict = {}
-    for taxon, cnp in input_column.groupby('sample_id'):
-        cn_str = separator.join(["".join(x.astype('str')) for _,x in cnp.groupby('chrom')])
-        fsa_dict[taxon] = fstlib.factory.from_string(cn_str, 
-                                arc_type = "standard", 
-                                isymbols = symbol_table, 
-                                osymbols = symbol_table)
+                                                        arc_type="standard",
+                                                        isymbols=symbol_table,
+                                                        osymbols=symbol_table)
 
     return fsa_dict
 
@@ -288,7 +285,7 @@ def phase_dict(phasing_dict, model_fst, reference_fst):
     return fsa_dict_a, fsa_dict_b, scores
 
 
-def create_df_from_fsa_dict(input_df: pd.DataFrame,
+def create_df_from_concatenated_fsa_dict(input_df: pd.DataFrame,
                             fsa_dict: dict,
                             separator: str = 'X'):
     """ Takes a FSA dicts where each entry corresponds to one combined CN profile and extracts the CNPs. 
