@@ -340,6 +340,20 @@ ax.plot(linex, liney, '--', color='grey')
 #fig.show()
 fig.savefig('figures/pcawg_ploidy_vs_loh_our_score.pdf', bbox_inches='tight')
 
+# %% PCAWG Figure pointing out wrong predictions
+fig, ax = plt.subplots(figsize=(8 * scale, 6 * scale))
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=result,
+                hue='pcawg_wgd', palette="viridis", ax=ax)
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=result.loc[result.eval('wgd_status != wgd_status_medicc')],
+                color='black', ax=ax, label='false predictions')
+
+ax.get_legend().set_title('MEDICC2\nWGD score')
+ax.set_xlabel('Fraction of genome with LOH')
+ax.set_ylabel('Ploidy')
+ax.plot(linex, liney, '--', color='grey')
+#fig.show()
+fig.savefig('figures/pcawg_ploidy_vs_loh_wrong predictions.pdf', bbox_inches='tight')
+
 #%% distance from line:
 plotdat = result
 fig = plt.figure(figsize=(8 * scale, 8 * scale))
