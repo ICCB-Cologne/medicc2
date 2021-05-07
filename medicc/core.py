@@ -173,12 +173,12 @@ def summarize_changes(input_df, input_tree, normal_name=None,
     df = df.unstack('sample_id').stack('allele')
     if normal_name is not None:
         is_normal = df.apply(lambda x: (x.loc[normal_name] == x).all(), axis=1).unstack(
-            'allele').apply(lambda x: x[0] and x[1], axis=1)
+            'allele').apply(lambda x: np.all(x), axis=1)
     else:
         is_normal = df.apply(lambda x: (1 == x).all(), axis=1).unstack(
-            'allele').apply(lambda x: x[0] and x[1], axis=1)
+            'allele').apply(lambda x: np.all(x), axis=1)
     is_clonal = df.drop(normal_name, axis=1).apply(lambda x: (x.iloc[0] == x).all(), axis=1).unstack(
-        'allele').apply(lambda x: x[0] and x[1], axis=1)
+        'allele').apply(lambda x: np.all(x), axis=1)
 
     for a in df:
         df[a] = df[a].astype(int)
@@ -291,7 +291,7 @@ def create_df_from_fsa(input_df: pd.DataFrame,
                        separator: str = 'X'):
     """ 
     Takes a single FSA dict or a list of FSA dicts and extracts the copy number profiles.
-    The allele names are taken from the input_df columns and the retured data frame has the same 
+    The allele names are taken from the input_df columns and the returned data frame has the same 
     number of rows and row index as the input_df. """
 
     alleles = input_df.columns
@@ -303,9 +303,9 @@ def create_df_from_fsa(input_df: pd.DataFrame,
             cns = tools.fsa_to_string(fsa[sample]).split(separator)
             if len(cns) % nr_alleles != 0:
                 raise MEDICCError('For sample {} we have {} combined chromosomes for {} alleles'
-                                  '\n Nr chromosomes has to be divisible by nr of allels'.format(sample,
-                                                                                                 len(cns),
-                                                                                                 nr_alleles))
+                                  '\n Nr chromosomes has to be divisible by nr of alleles'.format(sample,
+                                                                                                  len(cns),
+                                                                                                  nr_alleles))
             nr_chroms = int(len(cns) // nr_alleles)
             for i, allele in enumerate(alleles):
                 cn = list(''.join(cns[(i*nr_chroms):((i+1)*nr_chroms)]))
