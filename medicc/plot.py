@@ -20,6 +20,9 @@ COL_SUMMARY_LABEL = 'grey'
 COL_BACKGROUND = 'white'
 COL_BACKGROUND_HATCH = 'lightgray'
 COL_PATCH_BACKGROUND = 'white'
+LINEWIDTH_COPY_NUMBERS = 2
+LINEWIDTH_CHR_BOUNDARY = 1
+LINEWIDTH_SEGMENT_BOUNDARY = 0.5
 ALPHA_PATCHES = 0.15
 ALPHA_CLONAL = 0.3
 BACKGROUND_HATCH_MARKER = '/////'
@@ -55,6 +58,7 @@ def plot_cn_profiles(
 
     df = input_df.copy()
     alleles = df.columns
+    print(alleles)
 
     if input_tree is None or normal_name is None: 
         plot_summary = False
@@ -258,7 +262,7 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     colors_a[group[alleles[0]]==group[alleles[1]], 3] = 0.5
     colors_b[group[alleles[0]]==group[alleles[1]], 3] = 0.5
     colors = np.row_stack([colors_a, colors_b])
-    lc = mpl.collections.LineCollection(lines_a + lines_b, colors=colors, linewidth=2)
+    lc = mpl.collections.LineCollection(lines_a + lines_b, colors=colors, linewidth=LINEWIDTH_COPY_NUMBERS)
     ax.add_collection(lc)
 
     if len(circles_a) > 0:
@@ -278,12 +282,13 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     ## draw segment boundaries
     seg_bound_first = group['start_pos'].values[0]
     seg_bounds = group['end_pos'].values
-    ax.vlines(np.append(seg_bound_first, seg_bounds), ymin=mincn, ymax=maxcn, ls='--', alpha=0.25, color=COL_VLINES, linewidth=0.5)
+    ax.vlines(np.append(seg_bound_first, seg_bounds), ymin=mincn, ymax=maxcn, ls='--', alpha=0.25, 
+              color=COL_VLINES, linewidth=LINEWIDTH_SEGMENT_BOUNDARY)
 
     ## draw chromosome boundaries
     chr_ends = group.reset_index().groupby('chrom').max()['end_pos']
     linex = chr_ends.values[:-1] ## don't plot last
-    ax.vlines(linex, ymin=mincn, ymax=maxcn, color=COL_VLINES, linewidth=1)
+    ax.vlines(linex, ymin=mincn, ymax=maxcn, color=COL_VLINES, linewidth=LINEWIDTH_CHR_BOUNDARY)
 
     ## draw chromosome labels
     chr_label_pos = chr_ends
@@ -377,7 +382,7 @@ def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, sho
     colors_a[agg_events[alleles[0]] == agg_events[alleles[1]], 3] = 0.5
     colors_b[agg_events[alleles[0]] == agg_events[alleles[1]], 3] = 0.5
     colors = np.row_stack([colors_a, colors_b])
-    lc = mpl.collections.LineCollection(lines_a + lines_b, colors=colors)
+    lc = mpl.collections.LineCollection(lines_a + lines_b, colors=colors, linewidth=LINEWIDTH_COPY_NUMBERS)
     ax.add_collection(lc)
 
     if len(circles_a) > 0:
@@ -402,7 +407,7 @@ def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, sho
               ls='--',
               alpha=0.25,
               color=COL_VLINES,
-              linewidth=0.5)
+              linewidth=LINEWIDTH_SEGMENT_BOUNDARY)
 
     ## draw chromosome boundaries
     chr_ends = agg_events.groupby('chrom').max()['end_pos']
@@ -411,7 +416,7 @@ def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, sho
               ymin=mincn,
               ymax=maxcn,
               color=COL_VLINES,
-              linewidth=1)
+              linewidth=LINEWIDTH_CHR_BOUNDARY)
 
     ## draw chromosome labels
     chr_label_pos = chr_ends
