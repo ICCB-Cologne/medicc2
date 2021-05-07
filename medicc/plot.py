@@ -58,7 +58,6 @@ def plot_cn_profiles(
 
     df = input_df.copy()
     alleles = df.columns
-    print(alleles)
 
     if input_tree is None or normal_name is None: 
         plot_summary = False

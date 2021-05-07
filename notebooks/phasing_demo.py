@@ -1,19 +1,12 @@
 #%% imports and configurations
-import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import imp
+import sys
+
 import numpy as np
-import pandas as pd
-import scipy as sp
-import sklearn as skl
-import sklearn.metrics
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-%matplotlib inline
-import seaborn as sns
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# %matplotlib inline
 import fstlib
-import medicc
 
 #%%
 T_wgd_asymm = fstlib.Fst.read('../objects/wgd_asymm.fst')
@@ -31,7 +24,4 @@ left = (td * T_wgd_asymm).project('output')
 right = (~T_wgd_asymm * td).project('input')
 phase = fstlib.shortestpath(left * tg * right)
 phase_str = [''.join(x) for x in zip(*fstlib.tools.paths(phase, 'both')[0][0])]
-phase_str
-
-
-# %%
+print('final phasing: {} - {}'.format(*phase_str))
