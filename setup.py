@@ -7,9 +7,9 @@ sys.path.append('fstlib/cext')
 
 setup(
     name='MEDICC2',
-    version='0.3 beta',
-    author='Roland F Schwarz, Marina Petkovic',
-    author_email='roland.f.schwarz@gmail.com, marina.55kovic@gmail.com',
+    version='0.4b1',
+    author='Tom Kaufmann, Roland F Schwarz, Marina Petkovic',
+    author_email='tkau93@gmail.com, roland.f.schwarz@gmail.com, marina.55kovic@gmail.com',
     description='Minimum Event Distance for Intra-tumour Copy-number Comparisons',
     long_description=open('README.MD').read(),    
     url='https://bitbucket.org/schwarzlab/medicc2',
