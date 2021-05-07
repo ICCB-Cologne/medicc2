@@ -6,7 +6,16 @@ import numpy as np
 import pandas as pd
 
 
-def set_sequences_on_tree_from_df(tree, df, clear_before=True):
+def set_sequences_on_tree_from_df(tree: Bio.Phylo.BaseTree, df: pd.DataFrame, clear_before=True):
+    """Set sequences on tree from dataframe
+
+    Args:
+        tree (Bio.Phylo.BaseTree): Tree to set sequences on
+        df (pd.DataFrame): DataFrame with copy number information
+        clear_before (bool, optional): Clear old sequences. Defaults to True.
+    """
+
+
     if not hasattr(tree.root, 'sequences'):
         tree = tree.as_phyloxml()
     for clade in tree.find_clades():
@@ -22,7 +31,7 @@ def set_sequences_on_tree_from_df(tree, df, clear_before=True):
                 pass
 
 def set_sequences_on_tree(tree, fsa_dicts, allele_labels, clear_before=True): 
-    """LEGCAY - treats alleles separately"""
+    """LEGACY - treats alleles separately"""
     if not hasattr(tree.root, 'sequences'):
         tree = tree.as_phyloxml()
     for clade in tree.find_clades():
