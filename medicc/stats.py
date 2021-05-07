@@ -1,8 +1,6 @@
 import numpy as np
-import scipy as sp
-import scipy.stats
+from scipy import stats
 
-## todo: implement molecular clock test, star topology test, WGD test
 
 def _remove_duplicates(D):
     """ removes duplicates (entries with D=0) starting from the highest index. """
@@ -49,7 +47,7 @@ def star_topology_test(D):
     ## of freedom. The "-|samples|" is because we optimize over the branch lengths (Tim Massingam,
     ## personal communication)
     
-    prob = sp.stats.chi2.cdf(res, len(p)-D.shape[1])
+    prob = stats.chi2.cdf(res, len(p)-D.shape[1])
     retval = 1-prob
     return retval ## the p-value
 
@@ -67,7 +65,7 @@ def molecular_clock_test(D, normal_index=0):
     ## the sum of squared residuals is therefore chisquare distributed with |p| degrees
     ## of freedom. (Tim Massingam, personal communication)
 
-    prob = sp.stats.chi2.cdf(res, len(p))
+    prob = stats.chi2.cdf(res, len(p))
     return 1-prob ## the p-value
 
 def wgd_test(d_wgd, d_no_wgd, nchr, chr_length):

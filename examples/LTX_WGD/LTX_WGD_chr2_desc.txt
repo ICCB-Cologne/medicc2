@@ -1,2 +1,0 @@
-chr1	M_EX2_chr1_A.fasta	M_EX2_chr1_B.fasta
-chr2	M_EX2_chr2_A.fasta	M_EX2_chr2_B.fasta

@@ -20,6 +20,9 @@ COL_SUMMARY_LABEL = 'grey'
 COL_BACKGROUND = 'white'
 COL_BACKGROUND_HATCH = 'lightgray'
 COL_PATCH_BACKGROUND = 'white'
+LINEWIDTH_COPY_NUMBERS = 2
+LINEWIDTH_CHR_BOUNDARY = 1
+LINEWIDTH_SEGMENT_BOUNDARY = 0.5
 ALPHA_PATCHES = 0.15
 ALPHA_CLONAL = 0.3
 BACKGROUND_HATCH_MARKER = '/////'
@@ -258,7 +261,7 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     colors_a[group[alleles[0]]==group[alleles[1]], 3] = 0.5
     colors_b[group[alleles[0]]==group[alleles[1]], 3] = 0.5
     colors = np.row_stack([colors_a, colors_b])
-    lc = mpl.collections.LineCollection(lines_a + lines_b, colors=colors, linewidth=2)
+    lc = mpl.collections.LineCollection(lines_a + lines_b, colors=colors, linewidth=LINEWIDTH_COPY_NUMBERS)
     ax.add_collection(lc)
 
     if len(circles_a) > 0:
@@ -278,11 +281,14 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     ## draw segment boundaries
     seg_bound_first = group['start_pos'].values[0]
     seg_bounds = group['end_pos'].values
-    ax.vlines(np.append(seg_bound_first, seg_bounds), ymin=mincn, ymax=maxcn, ls='--', alpha=0.25, color=COL_VLINES, linewidth=0.5)
+    ax.vlines(np.append(seg_bound_first, seg_bounds), ymin=mincn, ymax=maxcn, ls='--', alpha=0.25, 
+              color=COL_VLINES, linewidth=LINEWIDTH_SEGMENT_BOUNDARY)
+
     ## draw chromosome boundaries
-    chr_ends = group.reset_index().groupby('chrom', sort=False).max()['end_pos']
+    chr_ends = group.reset_index().groupby('chrom').max()['end_pos']
     linex = chr_ends.values[:-1] ## don't plot last
-    ax.vlines(linex, ymin=mincn, ymax=maxcn, color=COL_VLINES, linewidth=1)
+    ax.vlines(linex, ymin=mincn, ymax=maxcn, color=COL_VLINES, linewidth=LINEWIDTH_CHR_BOUNDARY)
+
     ## draw chromosome labels
     chr_label_pos = chr_ends
     chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
@@ -290,6 +296,7 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     for chrom, pos in chr_label_pos.iteritems():
         ax.text(pos, maxcn-0.35, chrom, ha='left', va='top', color=COL_CHR_LABEL,
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)
+
     ## draw sample labels
     if plot_yaxis_labels:
         ax.set_ylabel(sample_label, fontsize=YLABEL_FONT_SIZE, rotation=0, ha='right', va='center')
@@ -374,7 +381,7 @@ def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, sho
     colors_a[agg_events[alleles[0]] == agg_events[alleles[1]], 3] = 0.5
     colors_b[agg_events[alleles[0]] == agg_events[alleles[1]], 3] = 0.5
     colors = np.row_stack([colors_a, colors_b])
-    lc = mpl.collections.LineCollection(lines_a + lines_b, colors=colors)
+    lc = mpl.collections.LineCollection(lines_a + lines_b, colors=colors, linewidth=LINEWIDTH_COPY_NUMBERS)
     ax.add_collection(lc)
 
     if len(circles_a) > 0:
@@ -390,31 +397,30 @@ def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, sho
                 'o', ms=3, color=COL_ALLELE_B, alpha=0.5, zorder=6)
 
     ax.autoscale()
-    
     ## draw segment boundaries
     seg_bound_first = agg_events['start_pos'].values[0]
     seg_bounds = agg_events['end_pos'].values
-    ax.vlines(np.append(seg_bound_first, seg_bounds), 
-              ymin = mincn, 
-              ymax = maxcn, 
-              ls = '--', 
-              alpha = 0.25, 
-              color = COL_VLINES, 
-              linewidth = 0.5)
-    
+    ax.vlines(np.append(seg_bound_first, seg_bounds),
+              ymin=mincn,
+              ymax=maxcn,
+              ls='--',
+              alpha=0.25,
+              color=COL_VLINES,
+              linewidth=LINEWIDTH_SEGMENT_BOUNDARY)
+
     ## draw chromosome boundaries
     chr_ends = agg_events.groupby('chrom').max()['end_pos']
-    linex = chr_ends.values[:-1] ## don't plot last
-    ax.vlines(linex, 
-              ymin = mincn, 
-              ymax = maxcn,
-              color = COL_VLINES,
-              linewidth = 1)
-    
+    linex = chr_ends.values[:-1]  # don't plot last
+    ax.vlines(linex,
+              ymin=mincn,
+              ymax=maxcn,
+              color=COL_VLINES,
+              linewidth=LINEWIDTH_CHR_BOUNDARY)
+
     ## draw chromosome labels
     chr_label_pos = chr_ends
     chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
-    chr_label_pos.iloc[0] = 0
+    chr_label_pos.iloc[0] = seg_bound_first
     for chrom, pos in chr_label_pos.iteritems():
         ax.text(pos, maxcn-0.35, chrom, ha='left', va='top', color=COL_CHR_LABEL,
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)

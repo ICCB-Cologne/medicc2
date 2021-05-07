@@ -1,6 +1,6 @@
 # MEDICC2 - Minimum Event Distance for Intra-tumour Copy number Comparisons#
 
-### Version 0.3 beta (Mar 2021). 
+### Version 0.4 beta (May 2021). 
 
 ## License: 
 MEDICC2 is available under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html). 
@@ -33,7 +33,7 @@ Use **python medicc2.py --help** for general usage and info.
 Logging settings can be changed using the `logging_conf.yaml` file
 
 ## Contact: ##
-Email questions, feature requests and bug reports to **Roland Schwarz, roland.schwarz@mdc-berlin.de**.
+Email questions, feature requests and bug reports to **Tom Kaufmann, tom.kaufmann@mdc-berlin.de**.
 
 ## Please cite: ##
 
@@ -44,7 +44,3 @@ bioRxiv 2021 Feb 28; doi: 10.1101/2021.02.28.433227
 Schwarz RF, Trinh A, Sipos B, Brenton JD, Goldman N, Markowetz F.  
 **Phylogenetic quantification of intra-tumour heterogeneity.**  
 PLoS Comput Biol. 2014 Apr 17;10(4):e1003535. doi: 10.1371/journal.pcbi.1003535.
-
-
-
-March 2021, Roland Schwarz

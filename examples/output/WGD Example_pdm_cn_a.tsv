@@ -1,7 +1,0 @@
-sample_id	diploid	taxon1	taxon2	taxon3	taxon4	taxon5
-diploid	0.0	1.0	3.0	3.0	4.0	3.0
-taxon1	1.0	0.0	2.0	2.0	3.0	2.0
-taxon2	3.0	2.0	0.0	2.0	3.0	2.0
-taxon3	3.0	2.0	2.0	0.0	1.0	2.0
-taxon4	4.0	3.0	3.0	1.0	0.0	3.0
-taxon5	3.0	2.0	2.0	2.0	3.0	0.0
