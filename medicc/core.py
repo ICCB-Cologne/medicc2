@@ -54,7 +54,7 @@ def main(input_df,
         logger.info("Reconstructing ancestors.")
         ancestors = medicc.reconstruct_ancestors(tree=final_tree,
                                                  samples_dict=FSA_dict,
-                                                 model=asymm_fst,
+                                                 fst=asymm_fst,
                                                  normal_name=normal_name)
 
         ## Create and write output data frame with ancestors
@@ -121,7 +121,7 @@ def main_legacy(input_df,
         logger.info("Reconstructing ancestors.")
         ancestors = [medicc.reconstruct_ancestors(tree=final_tree,
                                                   samples_dict=fsa_dict,
-                                                  model=asymm_fst,
+                                                  fst=asymm_fst,
                                                   normal_name=normal_name)
                      for fsa_dict in FSA_dicts]
 
@@ -196,8 +196,8 @@ def summarize_changes(input_df, input_tree, normal_name=None,
 
     if input_tree is not None:
         dfderiv = compute_change_events(df[input_df.columns], input_tree)
-        df.loc[:, 'is_gain'] = dfderiv.apply(lambda x: (x > 0).any(), axis=1)
-        df.loc[:, 'is_loss'] = dfderiv.apply(lambda x: (x < 0).any(), axis=1)
+        df.loc[:, 'is_gain'] = np.any(dfderiv.values > 0, axis=1)
+        df.loc[:, 'is_loss'] = np.any(dfderiv.values < 0, axis=1)
     else:
         df['is_gain'] = False
         df['is_loss'] = False
