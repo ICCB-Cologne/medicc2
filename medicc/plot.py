@@ -1,3 +1,5 @@
+import warnings
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -55,14 +57,18 @@ def plot_cn_profiles(
         show_small_segments=False,
         show_branch_support=False,
         label_func = None):
-
-    df = input_df.copy()
-    alleles = df.columns
-
+    
     if input_tree is None or normal_name is None: 
         plot_summary = False
         plot_subclonal_summary = False
         plot_clonal_summary = False
+
+    if normal_name is None:
+        warnings.warn('normal_name is not set!\nnormal_name will be set to "diploid"')
+        normal_name = 'diploid'
+
+    df = input_df.copy()
+    alleles = df.columns
 
     if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss'], df.columns).size > 0:
         df = core.summarize_changes(df,
@@ -90,6 +96,10 @@ def plot_cn_profiles(
     samples = df.index.get_level_values('sample_id').unique()
     nsamp = len(samples)
     nsegs = df.loc[samples[0],:].groupby('chrom').size()
+
+    if len(samples) > 20:
+        warnings.warn('More than 20 samples were provided. Creating the copy number tracks will take '
+                      'a long time to process and might crash.\nBest to use plot_tree instead.')
 
     df.reset_index(['start','end'], inplace=True)
 
