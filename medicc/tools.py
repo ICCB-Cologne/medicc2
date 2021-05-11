@@ -1,4 +1,5 @@
 import re
+import warnings
 
 import Bio
 import fstlib
@@ -71,13 +72,16 @@ def format_chromosomes(ds):
         newchr = matches.apply(lambda x:"chr%s" % x[2].upper())
         numchr = matches.apply(lambda x:int(x[3]) if x[3] is not None else -1)
         chrlevels = np.sort(numchr.unique())
+        chrlevels = np.setdiff1d(chrlevels, [-1])
         chrcats = ["chr%d" % i for i in chrlevels]
-        if 'chrX' in newchr:
+        if 'chrX' in list(newchr):
             chrcats += ['chrX',]
-        if 'chrY' in newchr:
+        if 'chrY' in list(newchr):
             chrcats += ['chrY',]
         newchr = pd.Categorical(newchr, categories=chrcats)
     else:
+        warnings.warn("Could not match the chromosome labels. Rename the chromosomes according chr1, "
+                      "chr2, ... to avoid potential errors.")
         newchr = pd.Categorical(ds, categories=ds.unique())
     return newchr
 
