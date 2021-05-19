@@ -16,7 +16,8 @@ parser.add_argument("input_file",
                     help = "a path to the input file")
 parser.add_argument("output_dir", 
                     help ="a path to the output folder")
-parser.add_argument("--input-type", "-i", type = str, dest = "input_type", default = "t", choices = ["f", "t"], required = False, 
+parser.add_argument("--input-type", "-i", type = str, dest = "input_type", default = "t", 
+                    choices=["f", "t", "fasta", "tsv"], required=False,
                     help = "Choose the type of input: f for FASTA, t for TSV (default: TSV)")
 parser.add_argument("--input-allele-columns", "-a",
                     type=str,
