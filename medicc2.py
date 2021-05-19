@@ -90,6 +90,12 @@ parser.add_argument("--legacy-version",
 		            action = "store_true", 
                     required = False, 
                     help = "Use legacy version in which alleles are treated separately")
+parser.add_argument("--total-copy-numbers",
+                    dest="total_copy_numbers",
+                    action='store_true',
+                    default=False,
+                    required=False,
+                    help='Run in total copy number mode (default: false).')
 parser.add_argument("--fst", type=str, dest='fst', default=None,
                     help='Expert option: path to an alternative FST.')
 parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', default='X',
@@ -97,7 +103,7 @@ parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', d
 parser.add_argument("--maxcn", type=int, dest='maxcn', default=8,
                     help='Expert option: maximum CN supported by the supplied FST.')
 parser.add_argument("-v", "--verbose", action='store_true', default=False,
-                    help='Enable versbose output (default: false).', required=False)
+                    help='Enable verbose output (default: false).', required=False)
 
 args = parser.parse_args()
 
@@ -137,11 +143,12 @@ else:
 ## Load data
 logger.info("Reading and parsing input data.")
 input_df = medicc.io.read_and_parse_input_data(
-    args.input_file,
-    normal_name,
-    args.input_type.strip(),
-    args.input_chr_separator.strip(),
-    allele_columns)
+    filename=args.input_file,
+    normal_name=normal_name,
+    input_type=args.input_type.strip(),
+    separator=args.input_chr_separator.strip(),
+    allele_columns=allele_columns,
+    total_copy_numbers=args.total_copy_numbers)
 
 if args.filter_segment_length is not None:
     old_size = len(input_df)
@@ -228,8 +235,8 @@ if not args.no_plot:
         input_tree=support_tree if support_tree is not None else final_tree,
         title=output_prefix, 
         normal_name=normal_name, 
-        plot_summary = plot_summary,
+        plot_summary=plot_summary,
         show_branch_support=support_tree is not None,
-        label_func = None)
+        label_func=None)
     p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'))
     
