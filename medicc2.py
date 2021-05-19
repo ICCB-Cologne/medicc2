@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import pickle
 
 import numpy as np
 
@@ -15,7 +16,8 @@ parser.add_argument("input_file",
                     help = "a path to the input file")
 parser.add_argument("output_dir", 
                     help ="a path to the output folder")
-parser.add_argument("--input-type", "-i", type = str, dest = "input_type", default = "t", choices = ["f", "t"], required = False, 
+parser.add_argument("--input-type", "-i", type = str, dest = "input_type", default = "t", 
+                    choices=["f", "t", "fasta", "tsv"], required=False,
                     help = "Choose the type of input: f for FASTA, t for TSV (default: TSV)")
 parser.add_argument("--input-allele-columns", "-a",
                     type=str,
@@ -185,8 +187,9 @@ if args.bootstrap_nr is not None:
                                                                       legacy_version=args.legacy_version)
 
     logger.info('Writing bootstrap output')
-    bootstrap_trees_df.to_csv(os.path.join(output_dir, output_prefix +
-                                           "_bootstrap_trees_df.tsv"), sep='\t')
+    with open(os.path.join(output_dir, output_prefix + "_bootstrap_trees_df.pickle"), 'wb') as f:
+        pickle.dump(bootstrap_trees_df, f)
+
     medicc.io.write_tree_files(tree=support_tree, out_name=os.path.join(
         output_dir, output_prefix + "_support_tree"), plot_tree=False, draw_ascii=False)
     fig = medicc.plot.plot_tree(support_tree,

@@ -32,10 +32,13 @@ def main(input_df,
     ## Compile input data into FSAs stored in dictionaries
     logger.info("Compiling input sequences into FSAs.")
     FSA_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
+    
+    # sort the input labels
+    sample_labels = np.sort(input_df.index.get_level_values('sample_id').unique())
+    input_df = input_df.loc[sample_labels]
 
     ## Calculate pairwise distances
     logger.info("Calculating pairwise distance matrices for both alleles")
-    sample_labels = input_df.index.get_level_values('sample_id').unique()
     pdms = {'total': calc_pairwise_distance_matrix(asymm_fst, FSA_dict)}
 
     ## Reconstruct a tree

@@ -258,8 +258,7 @@ else:
     boostrap_results['mean_wgd'] = np.mean(bootstrap_distances[:, 0, :], axis=1)
     boostrap_results['mean_no_wgd'] = np.mean(bootstrap_distances[:, 1, :], axis=1)
 
-    boostrap_results['diff_mean'] = np.mean(
-        bootstrap_distances[:, 1, :] - bootstrap_distances[:, 0, :], axis=1)
+    boostrap_results['diff_number_nonzero'] = N_bootstrap - np.sum((bootstrap_distances[:, 1, :] - bootstrap_distances[:, 0, :])==0, axis=1)
 
     hdfstore.put('bootstrap_distances', boostrap_results, format='table')
 # %%
@@ -290,7 +289,7 @@ print('{:.1f}% correct classification'.format(
 
 #%% Overlap with PCAWG labels from Bootstrap
 confusion_matrix_bootstrap = pd.crosstab(
-    boostrap_results['pcawg_wgd'], boostrap_results['diff_mean'] != 0.0)
+    boostrap_results['pcawg_wgd'], boostrap_results['diff_number_nonzero'] >= 5)
 print(confusion_matrix_bootstrap)
 confusion_matrix_bootstrap = confusion_matrix_bootstrap.astype(int)
 print('{:.1f}% correct classification'.format(
@@ -329,6 +328,19 @@ ax.set_ylabel('Ploidy')
 ax.plot(linex, liney, '--', color='grey')
 #fig.show()
 fig.savefig('figures/pcawg_supp_ploidy_vs_loh_wgd.pdf', bbox_inches='tight')
+
+# %% PCAWG Figure
+fig, ax = plt.subplots(figsize=(8 * scale,6 * scale))
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=result, hue='wgd_status', ax=ax)
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=result.loc[result.eval('wgd_status != wgd_status_medicc')],
+                    color='black')
+ax.get_legend().set_title('WGD status')
+ax.set_title('False Predictions')
+ax.set_xlabel('Fraction of genome with LOH')
+ax.set_ylabel('Ploidy')
+ax.plot(linex, liney, '--', color='grey')
+#fig.show()
+fig.savefig('figures/pcawg_supp_ploidy_vs_loh_wgd_highlight_false_predictions.pdf', bbox_inches='tight')
 
 # %% PCAWG Figure with our score
 fig, ax = plt.subplots(figsize=(8 * scale, 6 * scale))
