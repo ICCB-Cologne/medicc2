@@ -1,14 +1,4 @@
 sample_id	chrom	start	end	cn_a	cn_b
-diploid	chrom1	1	1	1	1
-diploid	chrom1	2	2	1	1
-diploid	chrom1	3	3	1	1
-diploid	chrom1	4	4	1	1
-diploid	chrom1	5	5	1	1
-diploid	chrom2	1	1	1	1
-diploid	chrom2	2	2	1	1
-diploid	chrom2	3	3	1	1
-diploid	chrom2	4	4	1	1
-diploid	chrom2	5	5	1	1
 taxon_1	chrom1	1	1	1	1
 taxon_1	chrom1	2	2	1	0
 taxon_1	chrom1	3	3	1	0

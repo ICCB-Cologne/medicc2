@@ -12,7 +12,8 @@ from medicc import io, plot, tools
 matplotlib.use("Agg")
 logger = logging.getLogger(__name__)
 
-def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv', separator='X', allele_columns=['cn_a','cn_b'], maxcn=8):
+def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv', separator='X', 
+                              allele_columns=['cn_a', 'cn_b'], maxcn=8, total_copy_numbers=False):
     ## Read in input data
     if input_type.lower() == "fasta" or input_type.lower() == 'f':
         logger.info("Reading FASTA input.")
@@ -24,7 +25,8 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
         raise MEDICCIOError("Unknown input type, possible options are FASTA or TSV.")
 
     ## Add normal sample if needed
-    input_df = io.add_normal_sample(input_df, normal_name, allele_columns=allele_columns)
+    input_df = io.add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 
+                                    total_copy_numbers=total_copy_numbers)
     nsamples = input_df.index.get_level_values('sample_id').unique().shape[0]
     nchr = input_df.index.get_level_values('chrom').unique().shape[0]
     nsegs = input_df.loc[normal_name,:].shape[0]
@@ -151,16 +153,21 @@ def read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns = 
 
     return result
 
-def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b']):
+def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_copy_numbers=False):
     """ Adds an artificial normal samples with the supplied name to the data frame.
     The normal sample has CN=1 on all supplied alleles. """
     samples = df.index.get_level_values('sample_id').unique()
+
+    if total_copy_numbers:
+        normal_value = '2'
+    else:
+        normal_value = '1'
 
     if normal_name is not None and normal_name not in samples:
         logger.info("Normal sample '%s' not found, adding artifical normal by the name: '%s'.", normal_name, normal_name)
         tmp=df.unstack('sample_id')
         for col in allele_columns:
-            tmp.loc[:,(col, normal_name)] = '1'
+            tmp.loc[:, (col, normal_name)] = normal_value
         tmp = tmp.stack('sample_id')
         tmp = tmp.reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
     else:
