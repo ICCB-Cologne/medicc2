@@ -17,10 +17,10 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     ## Read in input data
     if input_type.lower() == "fasta" or input_type.lower() == 'f':
         logger.info("Reading FASTA input.")
-        input_df = io.read_fasta_as_dataframe(filename, separator=separator, allele_columns=allele_columns, maxcn=maxcn)
+        input_df = io._read_fasta_as_dataframe(filename, separator=separator, allele_columns=allele_columns, maxcn=maxcn)
     elif input_type.lower() == "tsv" or input_type.lower() == 't':
         logger.info("Reading Refphase TSV input.")
-        input_df = io.read_tsv_as_dataframe(filename, allele_columns=allele_columns, maxcn=maxcn)
+        input_df = io._read_tsv_as_dataframe(filename, allele_columns=allele_columns, maxcn=maxcn)
     else:
         raise MEDICCIOError("Unknown input type, possible options are FASTA or TSV.")
 
@@ -32,6 +32,10 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     nsegs = input_df.loc[normal_name,:].shape[0]
     logger.info("Read %d samples, %d chromosomes, %d segments per sample", nsamples, nchr, nsegs)
     return input_df
+
+def read_fst(filename):
+    """ Simple wrapper for loading the FST using the fstlib read function. """
+    return fstlib.read(filename)
 
 def validate_input(input_df, symbol_table):
     ## Check the number of alleles
@@ -59,13 +63,17 @@ def validate_input(input_df, symbol_table):
     if not np.all([pd.api.types.is_string_dtype(x) for x in input_df.dtypes]): ## this shouldn't happen
         raise MEDICCIOError("Payload columns must be of type: string.")
 
+    ## Check if index of dataframe is sorted
+    if not input_df.index.is_lexsorted():
+        raise MEDICCIOError("DataFrame index must be sorted.")
+
     logger.info('Ok!')
 
 def filter_by_segment_length(input_df, filter_size):
     segment_length = input_df.eval('end-start')
     return input_df.loc[segment_length > float(filter_size)]
 
-def read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
+def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
     logger.info("Reading TSV file %s", path)
     input_file = pd.read_csv(path, sep = "\t")
     nexpected = 4 + len(allele_columns)
@@ -96,7 +104,7 @@ def read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
 
     return input_file
 
-def read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns = ['cn_a','cn_b'], maxcn: int = 8):
+def _read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns = ['cn_a','cn_b'], maxcn: int = 8):
     """ Reads FASTA decriptor file (old MEDICC input format) and reads the corresponding FASTA files to generate
     a data frame with the same format as the refphase input (TSV) format. """
     logger.info("Reading FASTA dataset from description file %s.", infile)

@@ -13,7 +13,8 @@ import medicc
 try: 
     from tqdm.auto import tqdm
 except ImportError:
-    tqdm = lambda x: x
+    def tqdm(x, disable=True):
+        return x
 
 logger = logging.getLogger(__name__)
 
