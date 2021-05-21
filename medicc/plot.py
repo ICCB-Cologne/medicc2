@@ -529,6 +529,9 @@ def plot_tree(input_tree,
               branch_labels=None,
               show_branch_support=False,
               label_colors=None,
+              hide_internal_node_labels=False,
+              hide_internal_node_markers=False,
+              adjust_y_position_for_internal_nodes=True,
               **kwargs):
     """Plot the given tree using matplotlib (or pylab).
     The graphic is a rooted tree, drawn with roughly the same algorithm as
@@ -635,7 +638,7 @@ def plot_tree(input_tree,
     ax.set_title(title, x=0.01, y=1.0, ha='left', va='bottom',
                 fontweight='bold', fontsize=16, zorder=10)
     x_posns = _get_x_positions(input_tree)
-    y_posns = _get_y_positions(input_tree, adjust=True)
+    y_posns = _get_y_positions(input_tree, adjust=adjust_y_position_for_internal_nodes)
 
     # Arrays that store lines for the plot of clades
     horizontal_linecollections = []
@@ -739,21 +742,23 @@ def plot_tree(input_tree,
         # Add node marker
         if marker_func is not None:
             marker = marker_func(clade)
-            if marker is not None:
+            if marker is not None and clade is not None and not(hide_internal_node_markers and not clade.is_terminal()):
                 marker_size, marker_col = marker_func(clade)
                 ax.scatter(x_here, y_here, s=marker_size, c=marker_col, zorder=3)
+
         # Add node/taxon labels
         label = label_func(str(clade))
         ax_scale = ax.get_xlim()[1] - ax.get_xlim()[0]
 
         if label not in (None, clade.__class__.__name__):
-            ax.text(
-                x_here + min(0.02*ax_scale, 1),
-                y_here,
-                " %s" % label,
-                verticalalignment="center",
-                color=get_label_color(label),
-            )
+            if not (hide_internal_node_labels and not clade.is_terminal()):
+                ax.text(
+                    x_here + min(0.02*ax_scale, 1),
+                    y_here,
+                    " %s" % label,
+                    verticalalignment="center",
+                    color=get_label_color(label),
+                )
         # Add label above the branch
         conf_label = format_branch_label(clade)
         if conf_label:
