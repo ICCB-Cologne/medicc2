@@ -5,7 +5,6 @@ import pickle
 
 import numpy as np
 
-import fstlib
 import medicc
 
 logger = logging.getLogger('medicc-main')
@@ -132,7 +131,7 @@ else:
         fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
     else:
         fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
-fst = fstlib.read(fst_path)
+fst = medicc.io.read_fst(fst_path)
 
 if args.user_tree is not None:
     logger.info("Importing user tree.")

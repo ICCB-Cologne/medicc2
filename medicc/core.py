@@ -34,8 +34,7 @@ def main(input_df,
     FSA_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
     
     # sort the input labels
-    sample_labels = np.sort(input_df.index.get_level_values('sample_id').unique())
-    input_df = input_df.loc[sample_labels]
+    sample_labels = input_df.index.get_level_values('sample_id').unique()
 
     ## Calculate pairwise distances
     logger.info("Calculating pairwise distance matrices for both alleles")
