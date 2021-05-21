@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import pickle
 
 import numpy as np
 
@@ -15,7 +16,8 @@ parser.add_argument("input_file",
                     help = "a path to the input file")
 parser.add_argument("output_dir", 
                     help ="a path to the output folder")
-parser.add_argument("--input-type", "-i", type = str, dest = "input_type", default = "t", choices = ["f", "t"], required = False, 
+parser.add_argument("--input-type", "-i", type = str, dest = "input_type", default = "t", 
+                    choices=["f", "t", "fasta", "tsv"], required=False,
                     help = "Choose the type of input: f for FASTA, t for TSV (default: TSV)")
 parser.add_argument("--input-allele-columns", "-a",
                     type=str,
@@ -83,6 +85,17 @@ parser.add_argument("--summary",
 		            action = "store_true", 
                     required = False, 
                     help = "Plot a track with event summary")
+parser.add_argument("--legacy-version",
+                    dest="legacy_version",
+		            action = "store_true", 
+                    required = False, 
+                    help = "Use legacy version in which alleles are treated separately")
+parser.add_argument("--total-copy-numbers",
+                    dest="total_copy_numbers",
+                    action='store_true',
+                    default=False,
+                    required=False,
+                    help='Run in total copy number mode (default: false).')
 parser.add_argument("--fst", type=str, dest='fst', default=None,
                     help='Expert option: path to an alternative FST.')
 parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', default='X',
@@ -90,7 +103,7 @@ parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', d
 parser.add_argument("--maxcn", type=int, dest='maxcn', default=8,
                     help='Expert option: maximum CN supported by the supplied FST.')
 parser.add_argument("-v", "--verbose", action='store_true', default=False,
-                    help='Enable versbose output (default: false).', required=False)
+                    help='Enable verbose output (default: false).', required=False)
 
 args = parser.parse_args()
 
@@ -130,11 +143,12 @@ else:
 ## Load data
 logger.info("Reading and parsing input data.")
 input_df = medicc.io.read_and_parse_input_data(
-    args.input_file,
-    normal_name,
-    args.input_type.strip(),
-    args.input_chr_separator.strip(),
-    allele_columns)
+    filename=args.input_file,
+    normal_name=normal_name,
+    input_type=args.input_type.strip(),
+    separator=args.input_chr_separator.strip(),
+    allele_columns=allele_columns,
+    total_copy_numbers=args.total_copy_numbers)
 
 if args.filter_segment_length is not None:
     old_size = len(input_df)
@@ -152,13 +166,23 @@ if args.exclude_samples is not None:
 
 ## Run main method
 logger.info("Running main reconstruction routine.")
-sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main(
-    input_df, 
-    fst, 
-    normal_name, 
-    input_tree=input_tree, 
-    ancestral_reconstruction=not args.topology_only,
-    chr_separator=args.fst_chr_separator.strip())
+if args.legacy_version:
+    logger.info("Using legacy version in which alleles are treated separately")
+    sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main_legacy(
+        input_df, 
+        fst, 
+        normal_name, 
+        input_tree=input_tree, 
+        ancestral_reconstruction=not args.topology_only,
+        chr_separator=args.fst_chr_separator.strip())
+else:
+    sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main(
+        input_df, 
+        fst, 
+        normal_name, 
+        input_tree=input_tree, 
+        ancestral_reconstruction=not args.topology_only,
+        chr_separator=args.fst_chr_separator.strip())
 
 if args.bootstrap_nr is not None:
     logger.info("Performing {} bootstrap runs (method: {})".format(args.bootstrap_nr, 
@@ -166,11 +190,13 @@ if args.bootstrap_nr is not None:
     bootstrap_trees_df, support_tree = medicc.bootstrap.run_bootstrap(input_df, 
                                                                       final_tree,
                                                                       N_bootstrap=args.bootstrap_nr, 
-                                                                      method=args.bootstrap_method)
+                                                                      method=args.bootstrap_method,
+                                                                      legacy_version=args.legacy_version)
 
     logger.info('Writing bootstrap output')
-    bootstrap_trees_df.to_csv(os.path.join(output_dir, output_prefix +
-                                           "boostrap_trees_df.tsv"), sep='\t')
+    with open(os.path.join(output_dir, output_prefix + "_bootstrap_trees_df.pickle"), 'wb') as f:
+        pickle.dump(bootstrap_trees_df, f)
+
     medicc.io.write_tree_files(tree=support_tree, out_name=os.path.join(
         output_dir, output_prefix + "_support_tree"), plot_tree=False, draw_ascii=False)
     fig = medicc.plot.plot_tree(support_tree,
@@ -209,8 +235,8 @@ if not args.no_plot:
         input_tree=support_tree if support_tree is not None else final_tree,
         title=output_prefix, 
         normal_name=normal_name, 
-        plot_summary = plot_summary,
+        plot_summary=plot_summary,
         show_branch_support=support_tree is not None,
-        label_func = None)
+        label_func=None)
     p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'))
     

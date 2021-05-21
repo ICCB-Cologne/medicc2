@@ -1,4 +1,5 @@
 import re
+import warnings
 
 import Bio
 import fstlib
@@ -6,7 +7,34 @@ import numpy as np
 import pandas as pd
 
 
+def set_sequences_on_tree_from_df(tree: Bio.Phylo.BaseTree, df: pd.DataFrame, clear_before=True):
+    """Set sequences on tree from dataframe
+
+    Args:
+        tree (Bio.Phylo.BaseTree): Tree to set sequences on
+        df (pd.DataFrame): DataFrame with copy number information
+        clear_before (bool, optional): Clear old sequences. Defaults to True.
+    """
+
+
+    if not hasattr(tree.root, 'sequences'):
+        tree = tree.as_phyloxml()
+    for clade in tree.find_clades():
+        if clear_before:
+            clade.sequences.clear()
+        for label, data in df.iteritems():
+            try:
+                clade.sequences.append(
+                    Bio.Phylo.PhyloXML.Sequence(
+                        name='X'.join(data.loc[clade.name].groupby('chrom').apply(lambda x: ''.join(x))),
+                        symbol=label.upper())) 
+            except KeyError:
+                pass
+
 def set_sequences_on_tree(tree, fsa_dicts, allele_labels, clear_before=True): 
+    """LEGACY - treats alleles separately"""
+    if not hasattr(tree.root, 'sequences'):
+        tree = tree.as_phyloxml()
     for clade in tree.find_clades():
         if clear_before:
             clade.sequences.clear()
@@ -44,13 +72,16 @@ def format_chromosomes(ds):
         newchr = matches.apply(lambda x:"chr%s" % x[2].upper())
         numchr = matches.apply(lambda x:int(x[3]) if x[3] is not None else -1)
         chrlevels = np.sort(numchr.unique())
+        chrlevels = np.setdiff1d(chrlevels, [-1])
         chrcats = ["chr%d" % i for i in chrlevels]
-        if 'chrX' in newchr:
+        if 'chrX' in list(newchr):
             chrcats += ['chrX',]
-        if 'chrY' in newchr:
+        if 'chrY' in list(newchr):
             chrcats += ['chrY',]
         newchr = pd.Categorical(newchr, categories=chrcats)
     else:
+        warnings.warn("Could not match the chromosome labels. Rename the chromosomes according chr1, "
+                      "chr2, ... to avoid potential errors.")
         newchr = pd.Categorical(ds, categories=ds.unique())
     return newchr
 

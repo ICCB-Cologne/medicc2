@@ -1,19 +1,23 @@
 #%% imports and configurations
-import sys
 import os
+import sys
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import imp
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy as sp
 import sklearn as skl
 import sklearn.metrics
-import matplotlib as mpl
-import matplotlib.pyplot as plt
+
 %matplotlib inline
-import seaborn as sns
 import fstlib
 import medicc
+import seaborn as sns
+
 
 def fst_dist(row, fst, seq_in='in', seq_out='out', kernel=False):
     fsa_in = fstlib.factory.from_string(row[seq_in], isymbols=fst.input_symbols(), osymbols=fst.output_symbols(), arc_type=fst.arc_type())
@@ -169,10 +173,6 @@ with plt.rc_context({"legend.labelspacing": 0.5}):
     fig_main = plot_variables(rand, [distnames[-1],])
     fig_main.savefig('figures/distances_main_euclid.pdf', bbox_inches='tight')
 
-
-
-
-
 # %% difference
 diff = ((rand['dist_fst_no_wgd_asymm'] + rand['dist_fst_no_wgd_asymm2']) - (rand['dist_fst_wgd_asymm'] + rand['dist_fst_wgd_asymm2']))
 rand['diff_total'] = diff
@@ -190,4 +190,3 @@ sns.scatterplot(x='dist_fst_wgd_asymm', y='dist_fst_no_wgd_asymm', size="Count",
 ax.set_xlabel("Minimum event distance (with WGD)")
 ax.set_ylabel("Minimum event distance (without WGD)")
 fig.show()
-# %%

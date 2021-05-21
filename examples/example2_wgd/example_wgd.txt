@@ -1,1 +1,0 @@
-chrom ex4_A.fasta ex4_B.fasta

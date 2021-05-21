@@ -1,3 +1,5 @@
+import warnings
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,6 +22,9 @@ COL_SUMMARY_LABEL = 'grey'
 COL_BACKGROUND = 'white'
 COL_BACKGROUND_HATCH = 'lightgray'
 COL_PATCH_BACKGROUND = 'white'
+LINEWIDTH_COPY_NUMBERS = 2
+LINEWIDTH_CHR_BOUNDARY = 1
+LINEWIDTH_SEGMENT_BOUNDARY = 0.5
 ALPHA_PATCHES = 0.15
 ALPHA_CLONAL = 0.3
 BACKGROUND_HATCH_MARKER = '/////'
@@ -51,15 +56,22 @@ def plot_cn_profiles(
         close_gaps=False,
         show_small_segments=False,
         show_branch_support=False,
-        label_func = None):
-
-    df = input_df.copy()
-    alleles = df.columns
-
+        label_func=None):
+    
     if input_tree is None or normal_name is None: 
         plot_summary = False
         plot_subclonal_summary = False
         plot_clonal_summary = False
+
+    if normal_name is None:
+        warnings.warn('normal_name is not set!\nnormal_name will be set to "diploid"')
+        normal_name = 'diploid'
+
+    df = input_df.copy()
+    alleles = np.setdiff1d(df.columns, ['is_clonal', 'is_normal', 'is_gain', 'is_loss'])
+    if len(alleles) > 2:
+        warnings.warn("More than two allels were provided ({})\n"
+                      "Copy number tracks can only be plotted for 1 or 2 alleles".format(alleles))
 
     if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss'], df.columns).size > 0:
         df = core.summarize_changes(df,
@@ -87,6 +99,10 @@ def plot_cn_profiles(
     samples = df.index.get_level_values('sample_id').unique()
     nsamp = len(samples)
     nsegs = df.loc[samples[0],:].groupby('chrom').size()
+
+    if len(samples) > 20:
+        warnings.warn('More than 20 samples were provided. Creating the copy number tracks will take '
+                      'a long time to process and might crash.\nBest to use plot_tree instead.')
 
     df.reset_index(['start','end'], inplace=True)
 
@@ -218,10 +234,13 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     circles_a = []
     circles_b = []
 
+    two_alleles = len(alleles) == 2
+
     alpha = []
     for idx, r in group.iterrows():
         lines_a.append([(r['start_pos'], r[alleles[0]]),(r['end_pos'], r[alleles[0]])])
-        lines_b.append([(r['start_pos'], r[alleles[1]]),(r['end_pos'], r[alleles[1]])])
+        if two_alleles:
+            lines_b.append([(r['start_pos'], r[alleles[1]]),(r['end_pos'], r[alleles[1]])])
         rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_PATCH_BACKGROUND, alpha=1)
         alpha.append(ALPHA_CLONAL if r['is_clonal'] else 1.0)
         bkg_patches.append(rect)
@@ -231,7 +250,8 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
         #     event_patches.append(rect)
         if show_small_segments and r['small_segment']:
             circles_a.append((r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[0]]))
-            circles_b.append((r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[1]]))
+            if two_alleles:
+                circles_b.append((r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[1]]))
 
         if r['is_normal']:
             rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_NORMAL, alpha=ALPHA_PATCHES)
@@ -250,39 +270,49 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     plot_bkg = mpl.patches.Rectangle((0,0), 1, 1, transform=ax.transAxes, facecolor=COL_BACKGROUND, edgecolor=COL_BACKGROUND_HATCH, zorder=0, hatch=BACKGROUND_HATCH_MARKER)
     ax.add_patch(plot_bkg)
     colors_a = np.array([COL_ALLELE_A] * len(lines_a))
-    colors_b = np.array([COL_ALLELE_B] * len(lines_b))
     # clonal mutations
     colors_a[:, 3] = np.array(alpha)
-    colors_b[:, 3] = np.array(alpha)
-    # a and b are overlapping
-    colors_a[group[alleles[0]]==group[alleles[1]], 3] = 0.5
-    colors_b[group[alleles[0]]==group[alleles[1]], 3] = 0.5
-    colors = np.row_stack([colors_a, colors_b])
-    lc = mpl.collections.LineCollection(lines_a + lines_b, colors=colors, linewidth=2)
+    if two_alleles:
+        colors_b = np.array([COL_ALLELE_B] * len(lines_b))
+        colors_b[:, 3] = np.array(alpha)
+        # a and b are overlapping
+        colors_a[group[alleles[0]]==group[alleles[1]], 3] = 0.5
+        colors_b[group[alleles[0]]==group[alleles[1]], 3] = 0.5
+        colors = np.row_stack([colors_a, colors_b])
+    else:
+        colors = colors_a
+    lc = mpl.collections.LineCollection(lines_a + lines_b, colors=colors, linewidth=LINEWIDTH_COPY_NUMBERS)
     ax.add_collection(lc)
 
     if len(circles_a) > 0:
-        a_b_overlap = (group.loc[group['small_segment']][alleles[0]
-                                                        ] == group.loc[group['small_segment']][alleles[1]]).values
+        if two_alleles:
+            a_b_overlap = (group.loc[group['small_segment']][alleles[0]] ==
+                           group.loc[group['small_segment']][alleles[1]]).values
+        else:
+            a_b_overlap = circles_a * [False]
         ax.plot(np.array(circles_a)[~a_b_overlap, 0], np.array(circles_a)[~a_b_overlap, 1],
                 'o', ms=3, color=COL_ALLELE_A, alpha=1., zorder=6)
-        ax.plot(np.array(circles_b)[~a_b_overlap, 0], np.array(circles_b)[~a_b_overlap, 1],
-                'o', ms=3, color=COL_ALLELE_B, alpha=1., zorder=6)
         ax.plot(np.array(circles_a)[a_b_overlap, 0], np.array(circles_a)[a_b_overlap, 1],
                 'o', ms=3, color=COL_ALLELE_A, alpha=0.5, zorder=6)
-        ax.plot(np.array(circles_b)[a_b_overlap, 0], np.array(circles_b)[a_b_overlap, 1],
-                'o', ms=3, color=COL_ALLELE_B, alpha=0.5, zorder=6)
+        if two_alleles:
+            ax.plot(np.array(circles_b)[~a_b_overlap, 0], np.array(circles_b)[~a_b_overlap, 1],
+                    'o', ms=3, color=COL_ALLELE_B, alpha=1., zorder=6)
+            ax.plot(np.array(circles_b)[a_b_overlap, 0], np.array(circles_b)[a_b_overlap, 1],
+                    'o', ms=3, color=COL_ALLELE_B, alpha=0.5, zorder=6)
 
     ax.autoscale()
 
     ## draw segment boundaries
     seg_bound_first = group['start_pos'].values[0]
     seg_bounds = group['end_pos'].values
-    ax.vlines(np.append(seg_bound_first, seg_bounds), ymin=mincn, ymax=maxcn, ls='--', alpha=0.25, color=COL_VLINES, linewidth=0.5)
+    ax.vlines(np.append(seg_bound_first, seg_bounds), ymin=mincn, ymax=maxcn, ls='--', alpha=0.25, 
+              color=COL_VLINES, linewidth=LINEWIDTH_SEGMENT_BOUNDARY)
+
     ## draw chromosome boundaries
-    chr_ends = group.reset_index().groupby('chrom', sort=False).max()['end_pos']
+    chr_ends = group.reset_index().groupby('chrom').max()['end_pos']
     linex = chr_ends.values[:-1] ## don't plot last
-    ax.vlines(linex, ymin=mincn, ymax=maxcn, color=COL_VLINES, linewidth=1)
+    ax.vlines(linex, ymin=mincn, ymax=maxcn, color=COL_VLINES, linewidth=LINEWIDTH_CHR_BOUNDARY)
+
     ## draw chromosome labels
     chr_label_pos = chr_ends
     chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
@@ -290,6 +320,7 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     for chrom, pos in chr_label_pos.iteritems():
         ax.text(pos, maxcn-0.35, chrom, ha='left', va='top', color=COL_CHR_LABEL,
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)
+
     ## draw sample labels
     if plot_yaxis_labels:
         ax.set_ylabel(sample_label, fontsize=YLABEL_FONT_SIZE, rotation=0, ha='right', va='center')
@@ -309,8 +340,10 @@ def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, sho
 
     agg_events = agg_events_input.copy()
     
-    maxcn = agg_events[[alleles[0], alleles[1]]].max().max()+1
-    mincn = agg_events[[alleles[0], alleles[1]]].min().min()-1
+    maxcn = agg_events[alleles].max().max()+1
+    mincn = agg_events[alleles].min().min()-1
+
+    two_alleles = len(alleles) == 2
     
     if 'start_pos' not in agg_events.columns or 'end_pos' not in agg_events.columns:
 
@@ -349,7 +382,8 @@ def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, sho
         rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_PATCH_BACKGROUND, alpha=1)
         bkg_patches.append(rect)
         lines_a.append([(r['start_pos'], r[alleles[0]]),(r['end_pos'], r[alleles[0]])])
-        lines_b.append([(r['start_pos'], r[alleles[1]]),(r['end_pos'], r[alleles[1]])])
+        if two_alleles:
+            lines_b.append([(r['start_pos'], r[alleles[1]]),(r['end_pos'], r[alleles[1]])])
         
         rect = mpl.patches.Rectangle((r['start_pos'], mincn), 
                                      width = r['end_pos']-r['start_pos'], 
@@ -360,7 +394,8 @@ def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, sho
 
         if show_small_segments and r['small_segment']:
             circles_a.append((r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[0]]))
-            circles_b.append((r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[1]]))
+            if two_alleles:
+                circles_b.append((r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[1]]))
 
     events = mpl.collections.PatchCollection(
         event_patches, facecolors=COL_CLONAL, alpha=0.1, zorder=2)
@@ -370,16 +405,23 @@ def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, sho
     plot_bkg = mpl.patches.Rectangle((0,0), 1, 1, transform=ax.transAxes, facecolor=COL_BACKGROUND, edgecolor=COL_BACKGROUND_HATCH, hatch=BACKGROUND_HATCH_MARKER, zorder=0)
     ax.add_patch(plot_bkg)
     colors_a = np.array([COL_ALLELE_A] * len(lines_a))
-    colors_b = np.array([COL_ALLELE_B] * len(lines_b))
-    colors_a[agg_events[alleles[0]] == agg_events[alleles[1]], 3] = 0.5
-    colors_b[agg_events[alleles[0]] == agg_events[alleles[1]], 3] = 0.5
-    colors = np.row_stack([colors_a, colors_b])
-    lc = mpl.collections.LineCollection(lines_a + lines_b, colors=colors)
+    if two_alleles:
+        colors_a[agg_events[alleles[0]] == agg_events[alleles[1]], 3] = 0.5
+        colors_b = np.array([COL_ALLELE_B] * len(lines_b))
+        colors_b[agg_events[alleles[0]] == agg_events[alleles[1]], 3] = 0.5
+        colors = np.row_stack([colors_a, colors_b])
+    else:
+        colors = colors_a
+    lc = mpl.collections.LineCollection(lines_a + lines_b, colors=colors, linewidth=LINEWIDTH_COPY_NUMBERS)
     ax.add_collection(lc)
 
     if len(circles_a) > 0:
-        a_b_overlap = (agg_events.loc[agg_events['small_segment']][alleles[0]
-                                                         ] == agg_events.loc[agg_events['small_segment']][alleles[1]]).values
+        if two_alleles:
+            a_b_overlap = (agg_events.loc[agg_events['small_segment']][alleles[0]]
+                           == agg_events.loc[agg_events['small_segment']][alleles[1]]).values
+        else:
+            a_b_overlap = circles_a * [False]
+        
         ax.plot(np.array(circles_a)[~a_b_overlap, 0], np.array(circles_a)[~a_b_overlap, 1],
                 'o', ms=3, color=COL_ALLELE_A, alpha=1., zorder=6)
         ax.plot(np.array(circles_b)[~a_b_overlap, 0], np.array(circles_b)[~a_b_overlap, 1],
@@ -390,31 +432,30 @@ def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, sho
                 'o', ms=3, color=COL_ALLELE_B, alpha=0.5, zorder=6)
 
     ax.autoscale()
-    
     ## draw segment boundaries
     seg_bound_first = agg_events['start_pos'].values[0]
     seg_bounds = agg_events['end_pos'].values
-    ax.vlines(np.append(seg_bound_first, seg_bounds), 
-              ymin = mincn, 
-              ymax = maxcn, 
-              ls = '--', 
-              alpha = 0.25, 
-              color = COL_VLINES, 
-              linewidth = 0.5)
-    
+    ax.vlines(np.append(seg_bound_first, seg_bounds),
+              ymin=mincn,
+              ymax=maxcn,
+              ls='--',
+              alpha=0.25,
+              color=COL_VLINES,
+              linewidth=LINEWIDTH_SEGMENT_BOUNDARY)
+
     ## draw chromosome boundaries
     chr_ends = agg_events.groupby('chrom').max()['end_pos']
-    linex = chr_ends.values[:-1] ## don't plot last
-    ax.vlines(linex, 
-              ymin = mincn, 
-              ymax = maxcn,
-              color = COL_VLINES,
-              linewidth = 1)
-    
+    linex = chr_ends.values[:-1]  # don't plot last
+    ax.vlines(linex,
+              ymin=mincn,
+              ymax=maxcn,
+              color=COL_VLINES,
+              linewidth=LINEWIDTH_CHR_BOUNDARY)
+
     ## draw chromosome labels
     chr_label_pos = chr_ends
     chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
-    chr_label_pos.iloc[0] = 0
+    chr_label_pos.iloc[0] = seg_bound_first
     for chrom, pos in chr_label_pos.iteritems():
         ax.text(pos, maxcn-0.35, chrom, ha='left', va='top', color=COL_CHR_LABEL,
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)

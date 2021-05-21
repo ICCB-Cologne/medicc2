@@ -8,10 +8,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import medicc
 
 #%%
-wgd_example_df = medicc.io.read_tsv_as_dataframe('../examples/output/WGD Example_final_cn_profiles.tsv')
-wgd_example_tree = medicc.io.import_tree('../examples/output/WGD Example_final_tree.new', 'diploid')
-tx_df = medicc.io.read_tsv_as_dataframe('../examples/output/LTX-WGD_final_cn_profiles.tsv')
-tx_tree = medicc.io.import_tree('../examples/output/LTX-WGD_final_tree.new', 'diploid')
 evo001_df = medicc.io.read_tsv_as_dataframe('../examples/output/EVO001_EP_final_cn_profiles.tsv')
 evo001_tree = medicc.io.import_tree('../examples/output/EVO001_EP_final_tree.new', 'diploid')
 ptx011_df = medicc.io.read_tsv_as_dataframe('../examples/output/PTX011_final_cn_profiles.tsv')
@@ -65,29 +61,3 @@ fig = medicc.plot.plot_cn_profiles(
 	hide_normal_chromosomes=True,
 	label_func = lambda x:x.replace('_',' ').replace('G RLX001', 'G-RLX001\n'))
 fig.savefig('../examples/output/EVO001.pdf', bbox_inches='tight')
-
-# %%
-fig = medicc.plot.plot_cn_profiles(
-	tx_df, 
-	tx_tree, 
-	title="TX", 
-	normal_name='diploid', 
-	tree_width_scale=1,
-	track_width_scale=0.32, 
-	height_scale=1.1, 
-	hide_normal_chromosomes=False,
-	label_func = lambda x:x.replace('M_EX2_', '').replace('_',' '))
-fig.savefig('../examples/output/LTX-WGD.pdf', bbox_inches='tight')
-
-#%%
-fig = medicc.plot.plot_cn_profiles(
-	wgd_example_df, 
-	wgd_example_tree, 
-	title="WGD Example", 
-	normal_name='diploid', 
-	tree_width_scale=1,
-	track_width_scale=0.75, 
-	height_scale=1, 
-	hide_normal_chromosomes=False,
-	label_func = lambda x:x.replace('_',' ').replace('taxon', 'sample '))
-fig.savefig('../examples/output/WGD Example.pdf', bbox_inches='tight')
