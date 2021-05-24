@@ -56,7 +56,8 @@ def plot_cn_profiles(
         close_gaps=False,
         show_small_segments=False,
         show_branch_support=False,
-        label_func=None):
+        label_func=None,
+        chr_label_func=None):
     
     if input_tree is None or normal_name is None: 
         plot_summary = False
@@ -190,7 +191,8 @@ def plot_cn_profiles(
                 plot_summary + plot_subclonal_summary + plot_clonal_summary) else False,
             plot_yaxis_labels=True,
             yaxis_label_color=clade_colors[sample],
-            show_small_segments=show_small_segments)
+            show_small_segments=show_small_segments,
+            chr_label_func=chr_label_func)
 
     if plot_clonal_summary:
         mrca = [x for x in input_tree.root.clades if x.name != normal_name][0].name
@@ -198,19 +200,22 @@ def plot_cn_profiles(
         _plot_aggregated_events(mrca_df,
                                 alleles, cn_axes[nsamp], 
                                 close_gaps=close_gaps,
-                                show_small_segments=show_small_segments)
+                                show_small_segments=show_small_segments,
+                                chr_label_func=chr_label_func)
         cn_axes[nsamp].get_xaxis().set_visible(not (plot_summary or plot_subclonal_summary))
         cn_axes[nsamp].set_ylabel('clonal\nchanges')
     if plot_summary:
         _plot_aggregated_events(agg_events, alleles, cn_axes[-1], 
                                 close_gaps=close_gaps,
-                                show_small_segments=show_small_segments)
+                                show_small_segments=show_small_segments,
+                                chr_label_func=chr_label_func)
 
     if plot_subclonal_summary:
         agg_events.loc[df.loc[df.index.get_level_values('sample_id') == 'diploid', 'is_clonal'].values] = 0
         _plot_aggregated_events(agg_events, alleles, cn_axes[-1 - int(plot_summary)], 
                                 close_gaps=close_gaps,
-                                show_small_segments=show_small_segments)
+                                show_small_segments=show_small_segments,
+                                chr_label_func=chr_label_func)
         cn_axes[-1 - int(plot_summary)].get_xaxis().set_visible(not plot_summary)
         cn_axes[-1 - int(plot_summary)].set_ylabel('subclonal\nchanges')
 
@@ -223,7 +228,7 @@ def plot_cn_profiles(
 
 def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
                                 plot_xaxis_labels=True, plot_yaxis_labels=True, 
-                                yaxis_label_color='black', show_small_segments=False):
+                                yaxis_label_color='black', show_small_segments=False, chr_label_func=None):
     ## collect line segments and background patches
     event_patches = []
     bkg_patches = []
@@ -316,7 +321,10 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
     chr_label_pos.iloc[0] = seg_bound_first
     for chrom, pos in chr_label_pos.iteritems():
-        ax.text(pos, maxcn-0.35, chrom, ha='left', va='top', color=COL_CHR_LABEL,
+        chromtxt = chrom
+        if chr_label_func is not None:
+            chromtxt = chr_label_func(chrom)
+        ax.text(pos, maxcn-0.35, chromtxt, ha='left', va='top', color=COL_CHR_LABEL,
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)
 
     ## draw sample labels
@@ -334,7 +342,7 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     ax.set_xlim(1, group['end_pos'].max())
 
 
-def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, show_small_segments=False):
+def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, show_small_segments=False, chr_label_func=None):
 
     agg_events = agg_events_input.copy()
     
@@ -455,7 +463,10 @@ def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, sho
     chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
     chr_label_pos.iloc[0] = seg_bound_first
     for chrom, pos in chr_label_pos.iteritems():
-        ax.text(pos, maxcn-0.35, chrom, ha='left', va='top', color=COL_CHR_LABEL,
+        chromtxt = chrom
+        if chr_label_func is not None:
+            chromtxt = chr_label_func(chrom)
+        ax.text(pos, maxcn-0.35, chromtxt, ha='left', va='top', color=COL_CHR_LABEL,
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)
 
     ## axis and axis labels
