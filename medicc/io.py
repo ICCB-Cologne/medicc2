@@ -1,5 +1,6 @@
 import logging
 import os
+import warnings
 
 import Bio
 import fstlib
@@ -23,6 +24,9 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
         input_df = io._read_tsv_as_dataframe(filename, allele_columns=allele_columns, maxcn=maxcn)
     else:
         raise MEDICCIOError("Unknown input type, possible options are FASTA or TSV.")
+
+    if len(allele_columns) == 1 and not total_copy_numbers:
+        warnings.warn('You have provided only one allele column but the --total-copy-numbers flag was not set')
 
     ## Add normal sample if needed
     input_df = io.add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 
