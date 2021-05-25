@@ -76,16 +76,17 @@ def plot_cn_profiles(
     if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss'], df.columns).size > 0:
         df = core.summarize_changes(df,
                                     input_tree,
-                                    normal_name,
-                                    ignore_segment_lengths=ignore_segment_lengths)
+                                    normal_name)
 
     if hide_normal_chromosomes:
         df = df.join(df.groupby('chrom')['is_normal'].all().to_frame('hide'))
         df = df.query("~hide").drop('hide', axis=1)
 
+
     if plot_summary or plot_subclonal_summary:
         agg_events = core.compute_change_events(df[alleles], input_tree)
         agg_events = agg_events.groupby(["chrom", "start", "end"], observed=True).sum()
+        agg_events['is_clonal'] = False
 
     if mincn=='auto':
         mincn = df.min().min()
@@ -106,11 +107,16 @@ def plot_cn_profiles(
 
     df.reset_index(['start','end'], inplace=True)
 
-    if close_gaps and not ignore_segment_lengths:
+    segment_lengths = df['end'] - df['start']
+    df['small_segment'] = (segment_lengths) < SMALL_SEGMENTS_LIMIT
+    if ignore_segment_lengths:
+        segment_lengths.loc[:] = 1
+
+    if close_gaps or ignore_segment_lengths:
         cur_df = df.loc[samples[0], :].reset_index()[['chrom', 'start', 'end']]
-        segment_lengths = cur_df['end'] - cur_df['start']
-        cur_df['start_pos'] = np.cumsum(np.append([0], segment_lengths))[:-1]
-        cur_df['end_pos'] = cur_df['start_pos'] + segment_lengths
+
+        cur_df['start_pos'] = np.cumsum(np.append([0], segment_lengths.loc[samples[0]]))[:-1]
+        cur_df['end_pos'] = cur_df['start_pos'] + segment_lengths.loc[samples[0]].values
 
         cur_df.set_index(['chrom', 'start'], inplace=True)
         cur_df.drop('end', axis=1, inplace=True)
@@ -120,13 +126,20 @@ def plot_cn_profiles(
     else:
         chrom_offset = df.loc[samples[0],:].reset_index().groupby('chrom', sort=False).max()['end']
         chrom_offset.dropna(inplace=True)
-        chrom_offset[:] = np.append(0, chrom_offset.cumsum().values[:-1])
+        chrom_offset.loc[:] = np.append(0, chrom_offset.cumsum().values[:-1])
         chrom_offset.name='offset'
         df = df.join(chrom_offset, on='chrom')
         df['start_pos'] = df['start'] + df['offset']
         df['end_pos'] = df['end'] + df['offset'] + 1
 
-    df['small_segment'] = (df['end_pos'] - df['start_pos']) < SMALL_SEGMENTS_LIMIT
+    df = df.reset_index().set_index(['sample_id', 'chrom', 'start', 'end'])
+
+    if plot_summary or plot_subclonal_summary:
+        agg_events['start_pos'] = df.loc[samples[0], 'start_pos']
+        agg_events['end_pos'] = df.loc[samples[0], 'end_pos']
+        mrca = [x for x in input_tree.root.clades if x.name != normal_name][0].name
+        mrca_df = df.loc[mrca].copy()
+        mrca_df.loc[:, alleles] = mrca_df.loc[:, alleles] - df.loc[normal_name, alleles]
 
     ## determine clade colors
     clade_colors = {}
@@ -182,39 +195,51 @@ def plot_cn_profiles(
     for sample, group in df.groupby('sample_id'):
         index_to_plot = y_order.index(sample)
         plot_axis_labels = (index_to_plot == (nsamp-1))
-        _plot_cn_profile_for_sample(cn_axes[index_to_plot], 
-            label_func(sample) if label_func is not None else sample, 
-            group, 
-            mincn-1, 
-            maxcn+1,
-            alleles,
-            plot_xaxis_labels=plot_axis_labels if not (
-                plot_summary + plot_subclonal_summary + plot_clonal_summary) else False,
-            plot_yaxis_labels=True,
-            yaxis_label_color=clade_colors[sample],
-            show_small_segments=show_small_segments)
+        _plot_cn_profile(ax=cn_axes[index_to_plot],
+                         label=label_func(sample) if label_func is not None else sample,
+                         data=group,
+                         mincn=mincn-1,
+                         maxcn=maxcn+1,
+                         alleles=alleles,
+                         type='sample',
+                         plot_xaxis_labels=plot_axis_labels if not (
+                            plot_summary + plot_subclonal_summary + plot_clonal_summary) else False,
+                         plot_yaxis_labels=True,
+                         yaxis_label_color=clade_colors[sample],
+                         show_small_segments=show_small_segments)
 
     if plot_clonal_summary:
-        mrca = [x for x in input_tree.root.clades if x.name != normal_name][0].name
-        mrca_df = df.loc[df.index.get_level_values('sample_id') == mrca] - 1
-        _plot_aggregated_events(mrca_df,
-                                alleles, cn_axes[nsamp], 
-                                close_gaps=close_gaps,
-                                show_small_segments=show_small_segments)
+        _plot_cn_profile(ax=cn_axes[nsamp],
+                         label='clonal\nchanges',
+                         data=mrca_df.copy(),
+                         mincn=mrca_df[alleles].min().min()-1,
+                         maxcn=mrca_df[alleles].max().max()+1,
+                         alleles=alleles,
+                         type='summary',
+                         show_small_segments=show_small_segments)
         cn_axes[nsamp].get_xaxis().set_visible(not (plot_summary or plot_subclonal_summary))
-        cn_axes[nsamp].set_ylabel('clonal\nchanges')
+
     if plot_summary:
-        _plot_aggregated_events(agg_events, alleles, cn_axes[-1], 
-                                close_gaps=close_gaps,
-                                show_small_segments=show_small_segments)
+        _plot_cn_profile(ax=cn_axes[-1],
+                         label='all\nchanges',
+                         data=agg_events.copy(),
+                         mincn=agg_events[alleles].min().min()-1,
+                         maxcn=agg_events[alleles].max().max()+1,
+                         alleles=alleles,
+                         type='summary',
+                         show_small_segments=show_small_segments)
 
     if plot_subclonal_summary:
-        agg_events.loc[df.loc[df.index.get_level_values('sample_id') == 'diploid', 'is_clonal'].values] = 0
-        _plot_aggregated_events(agg_events, alleles, cn_axes[-1 - int(plot_summary)], 
-                                close_gaps=close_gaps,
-                                show_small_segments=show_small_segments)
+        agg_events.loc[:, alleles] = agg_events[alleles] - mrca_df[alleles]
+        _plot_cn_profile(ax=cn_axes[-1 - int(plot_summary)],
+                         label='subclonal\nchanges',
+                         data=agg_events.copy(),
+                         type='summary',
+                         mincn=agg_events[alleles].min().min()-1,
+                         maxcn=agg_events[alleles].max().max()+1,
+                         alleles=alleles,
+                         show_small_segments=show_small_segments)
         cn_axes[-1 - int(plot_summary)].get_xaxis().set_visible(not plot_summary)
-        cn_axes[-1 - int(plot_summary)].set_ylabel('subclonal\nchanges')
 
     cn_axes[-1].set_xlabel('genome position', fontsize=XLABEL_FONT_SIZE)
     cn_axes[-1].xaxis.set_tick_params(labelsize=XLABEL_TICK_SIZE)
@@ -223,9 +248,9 @@ def plot_cn_profiles(
     return fig
 
 
-def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
-                                plot_xaxis_labels=True, plot_yaxis_labels=True, 
-                                yaxis_label_color='black', show_small_segments=False):
+def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
+                     plot_xaxis_labels=True, plot_yaxis_labels=True,
+                     yaxis_label_color='black', show_small_segments=False):
     ## collect line segments and background patches
     event_patches = []
     bkg_patches = []
@@ -237,12 +262,14 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     two_alleles = len(alleles) == 2
 
     alpha = []
-    for idx, r in group.iterrows():
-        lines_a.append([(r['start_pos'], r[alleles[0]]),(r['end_pos'], r[alleles[0]])])
+    for idx, r in data.iterrows():
+        lines_a.append([(r['start_pos'], r[alleles[0]]), 
+                        (r['end_pos'], r[alleles[0]])])
         if two_alleles:
-            lines_b.append([(r['start_pos'], r[alleles[1]]),(r['end_pos'], r[alleles[1]])])
-        rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_PATCH_BACKGROUND, alpha=1)
-        alpha.append(ALPHA_CLONAL if r['is_clonal'] else 1.0)
+            lines_b.append([(r['start_pos'], r[alleles[1]]), (r['end_pos'], r[alleles[1]])])
+        rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'],
+                                     maxcn-mincn, edgecolor=None, facecolor=COL_PATCH_BACKGROUND, alpha=1)
+        alpha.append(ALPHA_CLONAL if r['is_clonal'] and type=='sample' else 1.0)
         bkg_patches.append(rect)
         # Not used because clonal tracks are made transparent below
         # if r['is_clonal']:
@@ -251,23 +278,29 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
         if show_small_segments and r['small_segment']:
             circles_a.append((r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[0]]))
             if two_alleles:
-                circles_b.append((r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[1]]))
+                circles_b.append(
+                    (r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[1]]))
 
-        if r['is_normal']:
-            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_NORMAL, alpha=ALPHA_PATCHES)
-            event_patches.append(rect)
-        if r['is_gain']:
-            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_GAIN, alpha=ALPHA_PATCHES)
-            event_patches.append(rect)
-        if r['is_loss']:
-            rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_LOSS, alpha=ALPHA_PATCHES)
-            event_patches.append(rect)
+        if type=='sample':
+            if r['is_normal']:
+                rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'],
+                                            maxcn-mincn, edgecolor=None, facecolor=COL_NORMAL, alpha=ALPHA_PATCHES)
+                event_patches.append(rect)
+            if r['is_gain']:
+                rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'],
+                                            maxcn-mincn, edgecolor=None, facecolor=COL_GAIN, alpha=ALPHA_PATCHES)
+                event_patches.append(rect)
+            if r['is_loss']:
+                rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'],
+                                            maxcn-mincn, edgecolor=None, facecolor=COL_LOSS, alpha=ALPHA_PATCHES)
+                event_patches.append(rect)
 
     events = mpl.collections.PatchCollection(event_patches, match_original=True, zorder=2)
     ax.add_collection(events)
     backgrounds = mpl.collections.PatchCollection(bkg_patches, match_original=True, zorder=1)
     ax.add_collection(backgrounds)
-    plot_bkg = mpl.patches.Rectangle((0,0), 1, 1, transform=ax.transAxes, facecolor=COL_BACKGROUND, edgecolor=COL_BACKGROUND_HATCH, zorder=0, hatch=BACKGROUND_HATCH_MARKER)
+    plot_bkg = mpl.patches.Rectangle((0, 0), 1, 1, transform=ax.transAxes, facecolor=COL_BACKGROUND,
+                                     edgecolor=COL_BACKGROUND_HATCH, zorder=0, hatch=BACKGROUND_HATCH_MARKER)
     ax.add_patch(plot_bkg)
     colors_a = np.array([COL_ALLELE_A] * len(lines_a))
     # clonal mutations
@@ -276,18 +309,23 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
         colors_b = np.array([COL_ALLELE_B] * len(lines_b))
         colors_b[:, 3] = np.array(alpha)
         # a and b are overlapping
-        colors_a[group[alleles[0]]==group[alleles[1]], 3] = 0.5
-        colors_b[group[alleles[0]]==group[alleles[1]], 3] = 0.5
+        colors_a[data[alleles[0]] == data[alleles[1]], 3] = 0.5
+        colors_b[data[alleles[0]] == data[alleles[1]], 3] = 0.5
         colors = np.row_stack([colors_a, colors_b])
     else:
         colors = colors_a
-    lc = mpl.collections.LineCollection(lines_a + lines_b, colors=colors, linewidth=LINEWIDTH_COPY_NUMBERS)
+    lc = mpl.collections.LineCollection(
+        lines_a + lines_b, colors=colors, linewidth=LINEWIDTH_COPY_NUMBERS)
     ax.add_collection(lc)
+
+    if type == 'summary':
+        ax.axhline(0, color='grey', linestyle='--', zorder=1,
+                   linewidth=LINEWIDTH_SEGMENT_BOUNDARY, alpha=0.75,)
 
     if len(circles_a) > 0:
         if two_alleles:
-            a_b_overlap = (group.loc[group['small_segment']][alleles[0]] ==
-                           group.loc[group['small_segment']][alleles[1]]).values
+            a_b_overlap = (data.loc[data['small_segment']][alleles[0]] ==
+                           data.loc[data['small_segment']][alleles[1]]).values
         else:
             a_b_overlap = circles_a * [False]
         ax.plot(np.array(circles_a)[~a_b_overlap, 0], np.array(circles_a)[~a_b_overlap, 1],
@@ -303,14 +341,15 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     ax.autoscale()
 
     ## draw segment boundaries
-    seg_bound_first = group['start_pos'].values[0]
-    seg_bounds = group['end_pos'].values
-    ax.vlines(np.append(seg_bound_first, seg_bounds), ymin=mincn, ymax=maxcn, ls='--', alpha=0.25, 
+    seg_bound_first = data['start_pos'].values[0]
+    seg_bounds = data['end_pos'].values
+    ax.vlines(np.append(seg_bound_first, seg_bounds), ymin=mincn, ymax=maxcn, ls='--', alpha=0.25,
               color=COL_VLINES, linewidth=LINEWIDTH_SEGMENT_BOUNDARY)
 
     ## draw chromosome boundaries
-    chr_ends = group.reset_index().groupby('chrom').max()['end_pos']
-    linex = chr_ends.values[:-1] ## don't plot last
+    chr_ends = data.reset_index().groupby('chrom').max()['end_pos']
+    chr_ends.dropna(inplace=True)
+    linex = chr_ends.values[:-1]  # don't plot last
     ax.vlines(linex, ymin=mincn, ymax=maxcn, color=COL_VLINES, linewidth=LINEWIDTH_CHR_BOUNDARY)
 
     ## draw chromosome labels
@@ -323,7 +362,7 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
 
     ## draw sample labels
     if plot_yaxis_labels:
-        ax.set_ylabel(sample_label, fontsize=YLABEL_FONT_SIZE, rotation=0, ha='right', va='center')
+        ax.set_ylabel(label, fontsize=YLABEL_FONT_SIZE, rotation=0, ha='right', va='center')
         ax.yaxis.label.set_color(yaxis_label_color)
 
     ## axis modifications
@@ -333,144 +372,8 @@ def _plot_cn_profile_for_sample(ax, sample_label, group, mincn, maxcn, alleles,
     ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(integer=True, prune='both', nbins=5))
     ax.yaxis.set_tick_params(labelsize=YLABEL_TICK_SIZE)
     ax.set_ylim(mincn, maxcn)
-    ax.set_xlim(1, group['end_pos'].max())
+    ax.set_xlim(0, data['end_pos'].max())
 
-
-def _plot_aggregated_events(agg_events_input, alleles, ax, close_gaps=False, show_small_segments=False):
-
-    agg_events = agg_events_input.copy()
-    
-    maxcn = agg_events[alleles].max().max()+1
-    mincn = agg_events[alleles].min().min()-1
-
-    two_alleles = len(alleles) == 2
-    
-    if 'start_pos' not in agg_events.columns or 'end_pos' not in agg_events.columns:
-
-        if close_gaps:
-            cur_df = agg_events.reset_index()[['chrom', 'start', 'end']]
-            segment_lengths = cur_df['end'] - cur_df['start']
-            cur_df['start_pos'] = np.cumsum(np.append([0], segment_lengths))[:-1]
-            cur_df['end_pos'] = cur_df['start_pos'] + segment_lengths
-
-            cur_df.set_index(['chrom', 'start'], inplace=True)
-            cur_df.drop('end', axis=1, inplace=True)
-
-            agg_events = agg_events.join(cur_df, on=['chrom', 'start'])
-        
-        else:
-            agg_events.reset_index(['start','end'], inplace=True)
-            offset = agg_events.end.groupby('chrom').max()
-            offset[:] = np.append(0, offset.cumsum().values[:-1])
-            offset.name = 'offset'
-            agg_events = agg_events.join(offset)
-            agg_events['start_pos'] = agg_events['start'] + agg_events['offset']
-            agg_events['end_pos'] = agg_events['end'] + agg_events['offset'] + 1
-
-    agg_events['small_segment'] = (agg_events['end_pos'] -
-                                   agg_events['start_pos']) < SMALL_SEGMENTS_LIMIT
-
-    # draw ractangles
-    event_patches = []
-    bkg_patches = []
-    lines_a = []
-    lines_b = []
-    circles_a = []
-    circles_b = []
-    
-    for idx, r in agg_events.iterrows():
-        rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_PATCH_BACKGROUND, alpha=1)
-        bkg_patches.append(rect)
-        lines_a.append([(r['start_pos'], r[alleles[0]]),(r['end_pos'], r[alleles[0]])])
-        if two_alleles:
-            lines_b.append([(r['start_pos'], r[alleles[1]]),(r['end_pos'], r[alleles[1]])])
-        
-        rect = mpl.patches.Rectangle((r['start_pos'], mincn), 
-                                     width = r['end_pos']-r['start_pos'], 
-                                     height = maxcn - mincn, 
-                                     facecolor ='grey', 
-                                     edgecolor = None)
-        event_patches.append(rect)
-
-        if show_small_segments and r['small_segment']:
-            circles_a.append((r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[0]]))
-            if two_alleles:
-                circles_b.append((r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[1]]))
-
-    events = mpl.collections.PatchCollection(
-        event_patches, facecolors=COL_CLONAL, alpha=0.1, zorder=2)
-    ax.add_collection(events)
-    backgrounds = mpl.collections.PatchCollection(bkg_patches, match_original=True, zorder=1)
-    ax.add_collection(backgrounds)
-    plot_bkg = mpl.patches.Rectangle((0,0), 1, 1, transform=ax.transAxes, facecolor=COL_BACKGROUND, edgecolor=COL_BACKGROUND_HATCH, hatch=BACKGROUND_HATCH_MARKER, zorder=0)
-    ax.add_patch(plot_bkg)
-    colors_a = np.array([COL_ALLELE_A] * len(lines_a))
-    if two_alleles:
-        colors_a[agg_events[alleles[0]] == agg_events[alleles[1]], 3] = 0.5
-        colors_b = np.array([COL_ALLELE_B] * len(lines_b))
-        colors_b[agg_events[alleles[0]] == agg_events[alleles[1]], 3] = 0.5
-        colors = np.row_stack([colors_a, colors_b])
-    else:
-        colors = colors_a
-    lc = mpl.collections.LineCollection(lines_a + lines_b, colors=colors, linewidth=LINEWIDTH_COPY_NUMBERS)
-    ax.add_collection(lc)
-
-    if len(circles_a) > 0:
-        if two_alleles:
-            a_b_overlap = (agg_events.loc[agg_events['small_segment']][alleles[0]]
-                           == agg_events.loc[agg_events['small_segment']][alleles[1]]).values
-        else:
-            a_b_overlap = circles_a * [False]
-        
-        ax.plot(np.array(circles_a)[~a_b_overlap, 0], np.array(circles_a)[~a_b_overlap, 1],
-                'o', ms=3, color=COL_ALLELE_A, alpha=1., zorder=6)
-        ax.plot(np.array(circles_b)[~a_b_overlap, 0], np.array(circles_b)[~a_b_overlap, 1],
-                'o', ms=3, color=COL_ALLELE_B, alpha=1., zorder=6)
-        ax.plot(np.array(circles_a)[a_b_overlap, 0], np.array(circles_a)[a_b_overlap, 1],
-                'o', ms=3, color=COL_ALLELE_A, alpha=0.5, zorder=6)
-        ax.plot(np.array(circles_b)[a_b_overlap, 0], np.array(circles_b)[a_b_overlap, 1],
-                'o', ms=3, color=COL_ALLELE_B, alpha=0.5, zorder=6)
-
-    ax.autoscale()
-    ## draw segment boundaries
-    seg_bound_first = agg_events['start_pos'].values[0]
-    seg_bounds = agg_events['end_pos'].values
-    ax.vlines(np.append(seg_bound_first, seg_bounds),
-              ymin=mincn,
-              ymax=maxcn,
-              ls='--',
-              alpha=0.25,
-              color=COL_VLINES,
-              linewidth=LINEWIDTH_SEGMENT_BOUNDARY)
-
-    ## draw chromosome boundaries
-    chr_ends = agg_events.groupby('chrom').max()['end_pos']
-    linex = chr_ends.values[:-1]  # don't plot last
-    ax.vlines(linex,
-              ymin=mincn,
-              ymax=maxcn,
-              color=COL_VLINES,
-              linewidth=LINEWIDTH_CHR_BOUNDARY)
-
-    ## draw chromosome labels
-    chr_label_pos = chr_ends
-    chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
-    chr_label_pos.iloc[0] = seg_bound_first
-    for chrom, pos in chr_label_pos.iteritems():
-        ax.text(pos, maxcn-0.35, chrom, ha='left', va='top', color=COL_CHR_LABEL,
-                fontweight='medium', fontsize=CHR_LABEL_SIZE)
-
-    ## axis and axis labels
-    ax.set_ylabel("all\nchanges", fontsize=YLABEL_FONT_SIZE, rotation=0, ha='right', va='center')
-    ax.yaxis.label.set_color(COL_SUMMARY_LABEL)
-    
-    #nbins = (agg_events[alleles].max().max()-agg_events[alleles].min().min()) / 2 + 1
-    #ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(integer=True, prune='both', nbins=nbins))
-    ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(integer=True, prune='both', nbins=5))
-    ax.yaxis.set_tick_params(labelsize=YLABEL_TICK_SIZE)
-
-    ax.set_ylim(mincn, maxcn)
-    ax.set_xlim(1, agg_events['end_pos'].max())
 
 def _get_x_positions(tree):
     """Create a mapping of each clade to its horizontal position.
@@ -528,8 +431,9 @@ def plot_tree(input_tree,
               output_name=None,
               normal_name='diploid',
               show_branch_lengths=True,
-              branch_labels=None,
               show_branch_support=False,
+              show_events=False,
+              branch_labels=None,
               label_colors=None,
               **kwargs):
     """Plot the given tree using matplotlib (or pylab).
@@ -778,6 +682,16 @@ def plot_tree(input_tree,
                     color='grey',
                     horizontalalignment="center",
                 )
+        # Add Events list
+        if show_events and clade.events is not None:
+            ax.text(
+                0.5 * (x_start + x_here),
+                y_here - 0.15,
+                clade.events,
+                fontsize="small",
+                color=COL_MARKER_NORMAL,
+                horizontalalignment="center",
+            )
         if clade.clades:
             # Draw a vertical line connecting all children
             y_top = y_posns[clade.clades[0]]
