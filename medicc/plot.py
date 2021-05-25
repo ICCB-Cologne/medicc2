@@ -56,6 +56,8 @@ def plot_cn_profiles(
         close_gaps=False,
         show_small_segments=False,
         show_branch_support=False,
+        hide_internal_nodes=False,
+        chr_label_func=None,
         label_func=None):
     
     if input_tree is None or normal_name is None: 
@@ -98,6 +100,12 @@ def plot_cn_profiles(
         maxcn = int(maxcn)
 
     samples = df.index.get_level_values('sample_id').unique()
+    if hide_internal_nodes:
+        if input_tree is not None:
+            samples = [x for x in df.index.get_level_values('sample_id').unique() if list(
+                input_tree.find_clades(x))[0].is_terminal()]
+        else:
+            samples = [x for x in df.index.get_level_values('sample_id').unique() if 'internal_' not in x]
     nsamp = len(samples)
     nsegs = df.loc[samples[0],:].groupby('chrom').size()
 
@@ -173,27 +181,31 @@ def plot_cn_profiles(
         nrows = nsamp
         gs = fig.add_gridspec(nrows, 1)
         cn_axes = [fig.add_subplot(gs[i]) for i in range(0, nrows)]
-        y_order = list(samples) ## as they appear
+        y_posns = {sample: i for i, sample in enumerate(samples)} # as they appear
     else:
         nrows = nsamp + int(plot_summary) + int(plot_subclonal_summary) + int(plot_clonal_summary)
         gs = fig.add_gridspec(nrows, 2, width_ratios=[tree_width_ratio, 1-tree_width_ratio])
         tree_ax = fig.add_subplot(gs[0:nsamp, 0])
         cn_axes = [fig.add_subplot(gs[i]) for i in range(1,(2*(nrows))+1,2)]
-        y_posns = _get_y_positions(input_tree, adjust=True)
-        y_order = [x.name for x in y_posns if x.name is not None and x.name!='root'] ## as in tree
+        y_posns = _get_y_positions(input_tree, adjust=not hide_internal_nodes)
+        y_posns = {clade.name: y_pos for clade, y_pos in y_posns.items(
+            ) if clade.name is not None and clade.name != 'root'}
         plot_tree(input_tree, 
                   ax=tree_ax,
                   title=title,
                   label_func=lambda x: '',
                   label_colors=clade_colors,
                   show_branch_support=show_branch_support,
+                  hide_internal_nodes=hide_internal_nodes,
                   branch_labels=lambda x: x.branch_length if x.name != 'root' and x.name is not None else None)
     
     # Adjust the margin between the tree and cn tracks. Default is -0.03
     fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=horizontal_margin_adjustment)
     ## iterate over samples and plot the track
     for sample, group in df.groupby('sample_id'):
-        index_to_plot = y_order.index(sample)
+        if sample not in samples:
+            continue
+        index_to_plot = y_posns[sample] - 1
         plot_axis_labels = (index_to_plot == (nsamp-1))
         _plot_cn_profile(ax=cn_axes[index_to_plot],
                          label=label_func(sample) if label_func is not None else sample,
@@ -202,6 +214,7 @@ def plot_cn_profiles(
                          maxcn=maxcn+1,
                          alleles=alleles,
                          type='sample',
+                         chr_label_func=chr_label_func,
                          plot_xaxis_labels=plot_axis_labels if not (
                             plot_summary + plot_subclonal_summary + plot_clonal_summary) else False,
                          plot_yaxis_labels=True,
@@ -215,6 +228,7 @@ def plot_cn_profiles(
                          mincn=mrca_df[alleles].min().min()-1,
                          maxcn=mrca_df[alleles].max().max()+1,
                          alleles=alleles,
+                         chr_label_func=chr_label_func,
                          type='summary',
                          show_small_segments=show_small_segments)
         cn_axes[nsamp].get_xaxis().set_visible(not (plot_summary or plot_subclonal_summary))
@@ -226,6 +240,7 @@ def plot_cn_profiles(
                          mincn=agg_events[alleles].min().min()-1,
                          maxcn=agg_events[alleles].max().max()+1,
                          alleles=alleles,
+                         chr_label_func=chr_label_func,
                          type='summary',
                          show_small_segments=show_small_segments)
 
@@ -238,6 +253,7 @@ def plot_cn_profiles(
                          mincn=agg_events[alleles].min().min()-1,
                          maxcn=agg_events[alleles].max().max()+1,
                          alleles=alleles,
+                         chr_label_func=chr_label_func,
                          show_small_segments=show_small_segments)
         cn_axes[-1 - int(plot_summary)].get_xaxis().set_visible(not plot_summary)
 
@@ -250,7 +266,7 @@ def plot_cn_profiles(
 
 def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
                      plot_xaxis_labels=True, plot_yaxis_labels=True,
-                     yaxis_label_color='black', show_small_segments=False):
+                     chr_label_func=None, yaxis_label_color='black', show_small_segments=False):
     ## collect line segments and background patches
     event_patches = []
     bkg_patches = []
@@ -357,7 +373,12 @@ def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
     chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
     chr_label_pos.iloc[0] = seg_bound_first
     for chrom, pos in chr_label_pos.iteritems():
-        ax.text(pos, maxcn-0.35, chrom, ha='left', va='top', color=COL_CHR_LABEL,
+        if chr_label_func is not None:
+            chromtxt = chr_label_func(chrom)
+        else:
+            chromtxt = chrom
+
+        ax.text(pos, maxcn-0.35, chromtxt, ha='left', va='top', color=COL_CHR_LABEL,
                 fontweight='medium', fontsize=CHR_LABEL_SIZE)
 
     ## draw sample labels
@@ -392,9 +413,7 @@ def _get_y_positions(tree, adjust=False):
     """
     maxheight = tree.count_terminals()
     # Rows are defined by the tips
-    heights = {
-        tip: maxheight - i for i, tip in enumerate(reversed(tree.get_terminals()))
-    }
+    heights = {tip: maxheight - i for i, tip in enumerate(reversed(tree.get_terminals()))}
 
     # Internal nodes: place at midpoint of children
     def calc_row(clade):
@@ -402,9 +421,7 @@ def _get_y_positions(tree, adjust=False):
             if subclade not in heights:
                 calc_row(subclade)
         # Closure over heights
-        heights[clade] = (
-            heights[clade.clades[0]] + heights[clade.clades[-1]]
-        ) / 2.0
+        heights[clade] = (heights[clade.clades[0]] + heights[clade.clades[-1]]) / 2.0
 
     if tree.root.clades:
         calc_row(tree.root)
@@ -435,6 +452,7 @@ def plot_tree(input_tree,
               show_events=False,
               branch_labels=None,
               label_colors=None,
+              hide_internal_nodes=False,
               **kwargs):
     """Plot the given tree using matplotlib (or pylab).
     The graphic is a rooted tree, drawn with roughly the same algorithm as
@@ -541,7 +559,7 @@ def plot_tree(input_tree,
     ax.set_title(title, x=0.01, y=1.0, ha='left', va='bottom',
                 fontweight='bold', fontsize=16, zorder=10)
     x_posns = _get_x_positions(input_tree)
-    y_posns = _get_y_positions(input_tree, adjust=True)
+    y_posns = _get_y_positions(input_tree, adjust=not hide_internal_nodes)
 
     # Arrays that store lines for the plot of clades
     horizontal_linecollections = []
@@ -645,14 +663,15 @@ def plot_tree(input_tree,
         # Add node marker
         if marker_func is not None:
             marker = marker_func(clade)
-            if marker is not None:
+            if marker is not None and clade is not None and not(hide_internal_nodes and not clade.is_terminal()):
                 marker_size, marker_col = marker_func(clade)
                 ax.scatter(x_here, y_here, s=marker_size, c=marker_col, zorder=3)
         # Add node/taxon labels
         label = label_func(str(clade))
         ax_scale = ax.get_xlim()[1] - ax.get_xlim()[0]
 
-        if label not in (None, clade.__class__.__name__):
+        if label not in (None, clade.__class__.__name__) and \
+                not (hide_internal_nodes and not clade.is_terminal()):
             ax.text(
                 x_here + min(0.02*ax_scale, 1),
                 y_here,
