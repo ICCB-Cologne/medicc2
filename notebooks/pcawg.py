@@ -31,7 +31,7 @@ import seaborn as sns
 # https://github.com/PCAWG-11/Heterogeneity/raw/master/code_figures_paper/figure_1b/wgd.status.txt.gz
 
 #%%
-LOAD = False
+LOAD = True
 
 #%% FSTs
 T_wgd_asymm = fstlib.Fst.read('../objects/wgd_asymm.fst')
@@ -296,9 +296,8 @@ print('{:.1f}% correct classification'.format(
     100*(confusion_matrix_bootstrap.iloc[0, 0] + confusion_matrix_bootstrap.iloc[1, 1]) / confusion_matrix_bootstrap.sum().sum()))
 
 #%% test for association with uncertainty
-confusion = pd.crosstab(result['wgd_status'], result['wgd_status_medicc'])
-sp.stats.chi2_contingency(pd.crosstab(result.eval(
-    "wgd_status != wgd_status_medicc"), result['wgd_uncertain']))
+uncertain = pd.crosstab(result.eval("wgd_status != wgd_status_medicc"), result['wgd_uncertain'])
+sp.stats.chi2_contingency(uncertain)
 
 # %% plot PCAWG MED distributions
 palette = dict(zip(tumour_types.index, tumour_types.Hexadecimal))

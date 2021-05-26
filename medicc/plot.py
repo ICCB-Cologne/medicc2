@@ -172,18 +172,17 @@ def plot_cn_profiles(
         tree_width = 2.5 * tree_width_scale ## in figsize
     else:
         tree_width = 0
-    #plotheight =  abs(maxcn-mincn) * 0.2 * nsamp * height_scale
-    plotheight =  4 * 0.2 * nsamp * height_scale
+
+    nrows = nsamp + int(plot_summary) + int(plot_subclonal_summary) + int(plot_clonal_summary)
+    plotheight = 4 * 0.2 * nrows * height_scale
     plotwidth = tree_width + track_width
     tree_width_ratio = tree_width / plotwidth
     fig = plt.figure(figsize=(plotwidth, plotheight), constrained_layout=True)
     if input_tree is None:
-        nrows = nsamp
         gs = fig.add_gridspec(nrows, 1)
         cn_axes = [fig.add_subplot(gs[i]) for i in range(0, nrows)]
         y_posns = {sample: i for i, sample in enumerate(samples)} # as they appear
     else:
-        nrows = nsamp + int(plot_summary) + int(plot_subclonal_summary) + int(plot_clonal_summary)
         gs = fig.add_gridspec(nrows, 2, width_ratios=[tree_width_ratio, 1-tree_width_ratio])
         tree_ax = fig.add_subplot(gs[0:nsamp, 0])
         cn_axes = [fig.add_subplot(gs[i]) for i in range(1,(2*(nrows))+1,2)]
