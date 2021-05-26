@@ -5,7 +5,6 @@ import pickle
 
 import numpy as np
 
-import fstlib
 import medicc
 
 logger = logging.getLogger('medicc-main')

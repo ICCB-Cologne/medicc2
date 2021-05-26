@@ -43,6 +43,10 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     logger.info("Read %d samples, %d chromosomes, %d segments per sample", nsamples, nchr, nsegs)
     return input_df
 
+def read_fst(filename):
+    """ Simple wrapper for loading the FST using the fstlib read function. """
+    return fstlib.read(filename)
+
 def validate_input(input_df, symbol_table):
     ## Check the number of alleles
     if len(input_df.columns)>2:
@@ -70,6 +74,10 @@ def validate_input(input_df, symbol_table):
     ## Check data type payload columns - these should all be of type str (object)
     if not np.all([pd.api.types.is_string_dtype(x) for x in input_df.dtypes]): ## this shouldn't happen
         raise MEDICCIOError("Payload columns must be of type: string.")
+
+    ## Check if index of dataframe is sorted
+    if not input_df.index.is_lexsorted():
+        raise MEDICCIOError("DataFrame index must be sorted.")
 
     logger.info('Ok!')
 
