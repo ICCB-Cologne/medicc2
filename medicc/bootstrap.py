@@ -13,7 +13,7 @@ import medicc
 try: 
     from tqdm.auto import tqdm
 except ImportError:
-    def tqdm(x, disable=True):
+    def tqdm(x, disable):
         return x
 
 logger = logging.getLogger(__name__)
@@ -156,10 +156,10 @@ def run_bootstrap(input_df,
         raise ValueError('method has to be either chr-wise or segment-wise')
 
     if wgd:
-        asymm_fst = fstlib.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 
+        asymm_fst = medicc.io.read_fst(os.path.join(os.path.dirname(os.path.realpath(__file__)), 
                                              '..', 'objects', 'wgd_asymm.fst'))
     else:
-        asymm_fst = fstlib.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 
+        asymm_fst = medicc.io.read_fst(os.path.join(os.path.dirname(os.path.realpath(__file__)), 
                                              '..', 'objects', 'no_wgd_asymm.fst'))
 
     if original_tree is not None:

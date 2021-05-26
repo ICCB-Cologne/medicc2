@@ -32,8 +32,6 @@ def main(input_df,
     ## Compile input data into FSAs stored in dictionaries
     logger.info("Compiling input sequences into FSAs.")
     FSA_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
-    
-    # sort the input labels
     sample_labels = input_df.index.get_level_values('sample_id').unique()
 
     ## Calculate pairwise distances
@@ -148,8 +146,7 @@ def main_legacy(input_df,
     return sample_labels, pdms, nj_tree, final_tree, output_df
 
 
-def summarize_changes(input_df, input_tree, normal_name=None,
-                      ignore_segment_lengths=False):
+def summarize_changes(input_df, input_tree, normal_name=None):
     df = input_df.copy()
 
     ## we're force converting to categoricals to always maintain the order of the chromosomes as given
@@ -159,26 +156,11 @@ def summarize_changes(input_df, input_tree, normal_name=None,
         df.set_index('chrom', inplace=True, append=True)
         df = df.reorder_levels(['sample_id', 'chrom', 'start', 'end'])
 
-    if ignore_segment_lengths:
-        df.reset_index(['start', 'end'], inplace=True)
-
-        def reset_start_end(x):
-            x['start'] = np.arange(x.shape[0])+1
-            x['end'] = np.arange(x.shape[0])+1
-            return x
-
-        df = df.groupby(['sample_id', 'chrom']).apply(reset_start_end)
-        df.set_index(['start', 'end'], append=True, inplace=True)
-
     ## test if region is fully conserved
     df.columns.name = 'allele'
     df = df.unstack('sample_id').stack('allele')
-    if normal_name is not None:
-        is_normal = df.apply(lambda x: (x.loc[normal_name] == x).all(), axis=1).unstack(
-            'allele').apply(lambda x: np.all(x), axis=1)
-    else:
-        is_normal = df.apply(lambda x: (1 == x).all(), axis=1).unstack(
-            'allele').apply(lambda x: np.all(x), axis=1)
+    is_normal = df.apply(lambda x: (x.loc[normal_name] == x).all(), axis=1).unstack(
+        'allele').apply(lambda x: np.all(x), axis=1)
     is_clonal = df.drop(normal_name, axis=1).apply(lambda x: (x.iloc[0] == x).all(), axis=1).unstack(
         'allele').apply(lambda x: np.all(x), axis=1)
 

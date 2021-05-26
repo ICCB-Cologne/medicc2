@@ -8,11 +8,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import medicc
 
 #%%
-evo001_df = medicc.io.read_tsv_as_dataframe('../examples/output/EVO001_EP_final_cn_profiles.tsv')
+evo001_df = medicc.io.read_and_parse_input_data('../examples/output/EVO001_EP_final_cn_profiles.tsv')
 evo001_tree = medicc.io.import_tree('../examples/output/EVO001_EP_final_tree.new', 'diploid')
-ptx011_df = medicc.io.read_tsv_as_dataframe('../examples/output/PTX011_final_cn_profiles.tsv')
+ptx011_df = medicc.io.read_and_parse_input_data('../examples/output/PTX011_final_cn_profiles.tsv')
 ptx011_tree = medicc.io.import_tree('../examples/output/PTX011_final_tree.new', 'diploid')
-ptx011_nowgd_df = medicc.io.read_tsv_as_dataframe('../examples/output/PTX011-noWGD_final_cn_profiles.tsv')
+ptx011_nowgd_df = medicc.io.read_and_parse_input_data('../examples/output/PTX011-noWGD_final_cn_profiles.tsv')
 ptx011_nowgd_tree = medicc.io.import_tree('../examples/output/PTX011-noWGD_final_tree.new', 'diploid')
 
 # %%
@@ -58,6 +58,8 @@ fig = medicc.plot.plot_cn_profiles(
 	tree_width_scale=1.5,
 	track_width_scale=1, 
 	height_scale=1, 
+	show_small_segments=True,
+    plot_clonal_summary=True,
 	hide_normal_chromosomes=True,
 	label_func = lambda x:x.replace('_',' ').replace('G RLX001', 'G-RLX001\n'))
 fig.savefig('../examples/output/EVO001.pdf', bbox_inches='tight')

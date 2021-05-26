@@ -110,7 +110,12 @@ def create_loh_fst(symbol_table, separator = 'X'):
 
     return myfst
 
-def create_1step_WGD_fst(symbol_table, separator='X', wgd_score=1, minimize=True):
+def create_1step_WGD_fst(symbol_table, separator='X', wgd_score=1, minimize=True, total_copy_numbers=False):
+
+    if total_copy_numbers:
+        diff = 2
+    else:
+        diff = 1
 
     cns = _get_int_cns_from_symbol_table(symbol_table, separator)
 
@@ -122,9 +127,9 @@ def create_1step_WGD_fst(symbol_table, separator='X', wgd_score=1, minimize=True
     W.set_final(0,0)
     W.set_final(1,0)
     W.set_final(2,0)
-    W.add_arcs(0, [(s,t,wgd_score,1) for s in cns.keys() for t in cns.keys() if ((cns[t]-cns[s]) == 1) & (s!='0')])
+    W.add_arcs(0, [(s,t,wgd_score,1) for s in cns.keys() for t in cns.keys() if ((cns[t]-cns[s]) == diff) & (s!='0')])
     W.add_arc(1, ('0','0',0,1))
-    W.add_arcs(1, [(s,t,0,1) for s in cns.keys() for t in cns.keys() if ((cns[t]-cns[s]) == 1) & (s!='0')])
+    W.add_arcs(1, [(s,t,0,1) for s in cns.keys() for t in cns.keys() if ((cns[t]-cns[s]) == diff) & (s!='0')])
     W.add_arc(0, ('0', '0', 0, 0))
     if separator is not None and separator != '':
         W.add_arc(0, (separator, separator, 0, 0))
@@ -167,7 +172,7 @@ def create_nstep_fst(n, one_step_fst, minimize=True):
 
     return nstep_fst
 
-def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_score=1):
+def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_score=1, total_copy_numbers=False):
     """ Creates the tree FST T which computes the asymmetric MED. """
     n = len(_get_int_cns_from_symbol_table(symbol_table, sep))
     X1step = create_1step_del_fst(symbol_table, sep, exclude_zero=True)
@@ -176,7 +181,8 @@ def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_score=1):
     LOH = create_loh_fst(symbol_table, sep)
 
     if enable_wgd:
-        W1step = create_1step_WGD_fst(symbol_table, sep, wgd_score=wgd_score, minimize=False)
+        W1step = create_1step_WGD_fst(symbol_table, sep, wgd_score=wgd_score,
+                                      minimize=False, total_copy_numbers=total_copy_numbers)
         W = create_nstep_fst(n-2, W1step)
         T = LOH * W * XX
     else:
