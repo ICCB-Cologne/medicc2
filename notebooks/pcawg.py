@@ -296,7 +296,6 @@ print('{:.1f}% correct classification'.format(
     100*(confusion_matrix_bootstrap.iloc[0, 0] + confusion_matrix_bootstrap.iloc[1, 1]) / confusion_matrix_bootstrap.sum().sum()))
 
 #%% test for association with uncertainty
-confusion = pd.crosstab(result['wgd_status'], result['wgd_status_medicc'])
 uncertain = pd.crosstab(result.eval("wgd_status != wgd_status_medicc"), result['wgd_uncertain'])
 sp.stats.chi2_contingency(uncertain)
 

@@ -13,6 +13,12 @@ from medicc import io, plot, tools
 matplotlib.use("Agg")
 logger = logging.getLogger(__name__)
 
+
+def read_fst(filename):
+    """ Simple wrapper for loading the FST using the fstlib read function. """
+    return fstlib.read(filename)
+
+
 def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv', separator='X', 
                               allele_columns=['cn_a', 'cn_b'], maxcn=8, total_copy_numbers=False):
     ## Read in input data
@@ -49,7 +55,9 @@ def validate_input(input_df, symbol_table):
     if len(input_df.columns)==0:
         raise MEDICCIOError("No alleles found.")
 
-    ## Check if CN states are within bounds
+    ## Check if index of dataframe is sorted
+    if not input_df.index.is_lexsorted():
+        raise MEDICCIOError("DataFrame index must be sorted.")
 
     ## Check if symbols are in symbol table
     alphabet = {x[1] for x in symbol_table}

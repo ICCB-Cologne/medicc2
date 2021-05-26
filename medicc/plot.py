@@ -84,13 +84,6 @@ def plot_cn_profiles(
         df = df.join(df.groupby('chrom')['is_normal'].all().to_frame('hide'))
         df = df.query("~hide").drop('hide', axis=1)
 
-
-    if plot_summary or plot_subclonal_summary:
-        agg_events = core.compute_change_events(df[alleles], input_tree)
-        agg_events = agg_events.groupby(["chrom", "start", "end"], observed=True).sum()
-        agg_events['is_clonal'] = False
-        agg_events['small_segment'] = agg_events.eval("end-start < %d" % SMALL_SEGMENTS_LIMIT)
-
     if mincn=='auto':
         mincn = df.min().min()
     else:
@@ -144,8 +137,12 @@ def plot_cn_profiles(
     df = df.reset_index().set_index(['sample_id', 'chrom', 'start', 'end'])
 
     if plot_summary or plot_subclonal_summary:
-        agg_events['start_pos'] = df.loc[samples[0], 'start_pos']
-        agg_events['end_pos'] = df.loc[samples[0], 'end_pos']
+        agg_events = core.compute_change_events(df, input_tree)
+        agg_events = agg_events.groupby(["chrom", "start", "end"], observed=True).sum()
+
+        agg_events.loc[:, ['start_pos', 'end_pos', 'small_segment']
+                       ] = df.loc[samples[0], ['start_pos', 'end_pos', 'small_segment']]
+
         mrca = [x for x in input_tree.root.clades if x.name != normal_name][0].name
         mrca_df = df.loc[mrca].copy()
         mrca_df.loc[:, alleles] = mrca_df.loc[:, alleles] - df.loc[normal_name, alleles]
@@ -173,8 +170,9 @@ def plot_cn_profiles(
         tree_width = 2.5 * tree_width_scale ## in figsize
     else:
         tree_width = 0
+
     nrows = nsamp + int(plot_summary) + int(plot_subclonal_summary) + int(plot_clonal_summary)
-    plotheight =  4 * 0.2 * nrows * height_scale
+    plotheight = 4 * 0.2 * nrows * height_scale
     plotwidth = tree_width + track_width
     tree_width_ratio = tree_width / plotwidth
     fig = plt.figure(figsize=(plotwidth, plotheight), constrained_layout=True)

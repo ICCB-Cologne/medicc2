@@ -32,8 +32,6 @@ def main(input_df,
     ## Compile input data into FSAs stored in dictionaries
     logger.info("Compiling input sequences into FSAs.")
     FSA_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
-    
-    # sort the input labels
     sample_labels = input_df.index.get_level_values('sample_id').unique()
 
     ## Calculate pairwise distances

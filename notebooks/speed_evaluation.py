@@ -2,22 +2,23 @@
     import os
     import sys
     import time
+
     import numpy as np
     import pandas as pd
     from plotnine.themes.elements import element_blank
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-    import plotnine as gg
     import matplotlib as mpl
     import matplotlib.pyplot as plt
+    import plotnine as gg
     import seaborn as sns
     %matplotlib inline
     import fstlib
     import medicc
 
     #%% read fsts 
-    T_no_wgd_asymm = fstlib.read('../objects/no_wgd_asymm.fst')
+    T_no_wgd_asymm = medicc.io.read_fst('../objects/no_wgd_asymm.fst')
     T_no_wgd_symm = ~T_no_wgd_asymm * T_no_wgd_asymm
-    T_wgd_asymm = fstlib.read('../objects/wgd_asymm.fst')
+    T_wgd_asymm = medicc.io.read_fst('../objects/wgd_asymm.fst')
     T_wgd_symm = ~T_wgd_asymm * T_wgd_asymm
     symbol_table = T_wgd_asymm.input_symbols()
 
