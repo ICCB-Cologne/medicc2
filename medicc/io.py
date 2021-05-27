@@ -48,38 +48,43 @@ def read_fst(filename):
     return fstlib.read(filename)
 
 def validate_input(input_df, symbol_table):
-    ## Check the number of alleles
+    # Check the number of alleles
     if len(input_df.columns)>2:
         raise MEDICCIOError("More than 2 alleles are currently not supported.")
 
     if len(input_df.columns)==0:
         raise MEDICCIOError("No alleles found.")
 
-    ## Check if index of dataframe is sorted
+    # Check if index of dataframe is sorted
     if not input_df.index.is_lexsorted():
         raise MEDICCIOError("DataFrame index must be sorted.")
 
-    ## Check if symbols are in symbol table
+    # Check if all samples have same number of segments
+    if input_df.unstack('sample_id').isna().sum().sum() != 0:
+        raise MEDICCIOError("The samples have different number of segments!\n"
+                            "Total number of unique segments: {}\n".format(len(input_df.unstack('sample_id'))))
+
+    # Check if symbols are in symbol table
     alphabet = {x[1] for x in symbol_table}
     data_chars = set(input_df.values.flatten())
     if not data_chars.issubset(alphabet):
         not_in_set = data_chars.difference(alphabet)
         raise MEDICCIOError("Not all input symbols are contained in symbol table. Offending symbols: %s" % str(not_in_set))
 
-    ## Check data type start and end columns
+    # Check data type start and end columns
     if (input_df.index.get_level_values('start').dtype != np.int or 
         input_df.index.get_level_values('end').dtype != np.int):
         raise MEDICCIOError("Start and end columns must be of type: integer.")
 
-    ## Check data type payload columns - these should all be of type str (object)
-    if not np.all([pd.api.types.is_string_dtype(x) for x in input_df.dtypes]): ## this shouldn't happen
+    # Check data type payload columns - these should all be of type str (object)
+    if not np.all([pd.api.types.is_string_dtype(x) for x in input_df.dtypes]):
         raise MEDICCIOError("Payload columns must be of type: string.")
 
-    ## Check if index of dataframe is sorted
+    # Check if index of dataframe is sorted
     if not input_df.index.is_lexsorted():
         raise MEDICCIOError("DataFrame index must be sorted.")
 
-    logger.info('Ok!')
+    logger.info('Input data is valid!')
 
 def filter_by_segment_length(input_df, filter_size):
     segment_length = input_df.eval('end-start')
