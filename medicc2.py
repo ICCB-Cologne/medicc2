@@ -130,7 +130,11 @@ else:
     if args.no_wgd:
         fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
     else:
-        fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
+        if args.total_copy_numbers:
+            fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
+        else:
+            fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
+
 fst = medicc.io.read_fst(fst_path)
 
 if args.user_tree is not None:
