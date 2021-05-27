@@ -218,9 +218,10 @@ def write_pdms(sample_labels, pdms, filename_prefix):
 
 def _write_pdm(labels, pdm, filename):
     """ Writes a single PDM to the given filename using the provided labels as row and column names. """
-    pdm_df = pd.DataFrame(pdm, columns = labels, index = labels)
-    pdm_df.to_csv(filename, sep='\t')
-    return pdm_df
+    if not isinstance(pdm, pd.DataFrame):
+        pdm = pd.DataFrame(pdm, columns = labels, index = labels)
+    pdm.to_csv(filename, sep='\t')
+    return pdm
 
 def import_tree(tree_file, normal_name, file_format='newick'):
     """ Loads a phylogenetic tree in the given format and roots it at the normal sample. """

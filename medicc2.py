@@ -95,6 +95,12 @@ parser.add_argument("--total-copy-numbers",
                     default=False,
                     required=False,
                     help='Run in total copy number mode (default: false).')
+parser.add_argument("-j", "--n-cores",
+                    type=int,
+                    dest='n_cores',
+                    default=None,
+                    required=False,
+                    help="""Number of cores to run on""")
 parser.add_argument("--fst", type=str, dest='fst', default=None,
                     help='Expert option: path to an alternative FST.')
 parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', default='X',
@@ -170,7 +176,10 @@ if args.exclude_samples is not None:
 ## Run main method
 logger.info("Running main reconstruction routine.")
 if args.legacy_version:
-    logger.info("Using legacy version in which alleles are treated separately")
+    logger.info("Using legacy version in which alleles are treated separately.")
+    if args.n_cores is not None:
+        logger.info("Multiple cores not implemented in legacy version!")
+    
     sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main_legacy(
         input_df, 
         fst, 
@@ -179,13 +188,16 @@ if args.legacy_version:
         ancestral_reconstruction=not args.topology_only,
         chr_separator=args.fst_chr_separator.strip())
 else:
+    if args.n_cores is not None:
+        logger.info("Running on {} cores.".format(args.n_cores))
     sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main(
         input_df, 
         fst, 
         normal_name, 
         input_tree=input_tree, 
         ancestral_reconstruction=not args.topology_only,
-        chr_separator=args.fst_chr_separator.strip())
+        chr_separator=args.fst_chr_separator.strip(),
+        n_cores=args.n_cores)
 
 if args.bootstrap_nr is not None:
     logger.info("Performing {} bootstrap runs (method: {})".format(args.bootstrap_nr, 
@@ -224,7 +236,7 @@ output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.ts
 
 ## Summarise
 logger.info("Writing patient summary.")
-summary = medicc.summarise_patient(final_tree, pdms['total'], sample_labels, normal_name)
+summary = medicc.summarise_patient(final_tree, pdms['total'].values, sample_labels, normal_name)
 logger.info("Final tree length %d", summary.tree_length)
 summary.to_csv(os.path.join(output_dir, output_prefix + "_summary.tsv"), index=True, header=False, sep='\t')
 
