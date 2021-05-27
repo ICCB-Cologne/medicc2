@@ -136,7 +136,7 @@ if args.fst is not None:
 else:
     if args.maxcn != 8:
         symbol_table = medicc.create_symbol_table(args.maxcn, args.fst_chr_separator)
-        fst = medicc.create_copynumber_fst(symbol_table, args.fst_chr_separator, args.wgd)
+        fst = medicc.create_copynumber_fst(symbol_table, args.fst_chr_separator, not args.no_wgd)
     else:
         if args.no_wgd:
             fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
