@@ -72,7 +72,11 @@ def main(input_df,
         ## Update branch lengths with ancestors
         logger.info("Updating branch lengths of final tree using ancestors.")
         tools.set_sequences_on_tree_from_df(final_tree, output_df)
-        update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
+        if n_cores is not None and n_cores > 1:
+            parallelization_update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name, n_cores)
+        else:
+            update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
+        
         
     else:
         output_df = input_df
@@ -325,6 +329,35 @@ def create_df_from_fsa(input_df: pd.DataFrame,
     return output_df
 
 
+def parallelization_update_branch_lengths(tree, fst, ancestor_fsa, normal_name, n_cores):
+    def _distance_to_child(fst, fsa_dict, sample_1, sample_2):
+        return float(fstlib.score(fst, fsa_dict[sample_1], fsa_dict[sample_2]))
+
+    def _parallelization_update_branch_lengths(clade, fst, ancestor_fsa, normal_name):
+        new_branch_lens = []
+        children = clade.clades
+        if len(children) != 0:
+            for child in children:
+                if child.name is None:
+                    continue
+                elif child.name == normal_name:  # exception: evolution goes from diploid to internal node
+                    brs = _distance_to_child(fst, ancestor_fsa, child.name, clade.name)
+                else:
+                    brs = _distance_to_child(fst, ancestor_fsa, clade.name, child.name)
+                child.branch_length = brs
+                new_branch_lens.append((child, brs))
+
+        return new_branch_lens
+
+    new_branch_lens = Parallel(n_jobs=n_cores)(delayed(_parallelization_update_branch_lengths)(clade, fst, ancestor_fsa, normal_name)
+                                               for clade in tree.find_clades())
+
+    new_branch_lens = [y for x in new_branch_lens for y in x]
+    for clade, new_branch_len in new_branch_lens:
+        if clade.name is not None:
+            list(tree.find_clades(clade.name))[0].branch_length = new_branch_len
+
+
 def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_dict, n_cores):
     parallelization_groups = medicc.tools.create_parallelization_groups(len(sample_labels))
     parallelization_groups = [sample_labels[group] for group in parallelization_groups]
@@ -378,11 +411,11 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
     """ Updates the branch lengths in the tree using the internal nodes supplied in the FSA dict """
 
     if isinstance(ancestor_fsa, dict):
-        def distance_to_child(fst, fsa_dict, sample_1, sample_2):
+        def _distance_to_child(fst, fsa_dict, sample_1, sample_2):
             return float(fstlib.score(fst, fsa_dict[sample_1], fsa_dict[sample_2]))
 
     elif isinstance(ancestor_fsa, list) and np.all([isinstance(ancestor_item, dict) for ancestor_item in ancestor_fsa]):
-        def distance_to_child(fst, fsa_dict_list, sample_1, sample_2):
+        def _distance_to_child(fst, fsa_dict_list, sample_1, sample_2):
             return np.sum([float(fstlib.score(fst, cur_fsa_dict[sample_1], cur_fsa_dict[sample_2]))
                            for cur_fsa_dict in fsa_dict_list])
 
@@ -395,9 +428,9 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
         if len(children) != 0:
             for child in children:
                 if child.name == normal_name:  # exception: evolution goes from diploid to internal node
-                    brs = distance_to_child(fst, ancestor_fsa, child.name, clade.name)
+                    brs = _distance_to_child(fst, ancestor_fsa, child.name, clade.name)
                 else:
-                    brs = distance_to_child(fst, ancestor_fsa, clade.name, child.name)
+                    brs = _distance_to_child(fst, ancestor_fsa, clade.name, child.name)
                 child.branch_length = brs
 
 
