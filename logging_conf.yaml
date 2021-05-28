@@ -21,7 +21,7 @@ loggers:
         handlers: [console]
     
     medicc:
-        level: CRITICAL
+        level: WARNING
         handlers: [console]
         propagate: yes
     
@@ -32,6 +32,6 @@ loggers:
 
     # Overwrite fstlib logging settings
     fstlib:
-        level: CRITICAL
+        level: WARNING
         handlers: [console]
         propagate: yes

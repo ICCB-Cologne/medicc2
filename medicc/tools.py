@@ -1,5 +1,5 @@
+import logging
 import re
-import warnings
 
 import Bio
 import fstlib
@@ -80,8 +80,9 @@ def format_chromosomes(ds):
             chrcats += ['chrY',]
         newchr = pd.Categorical(newchr, categories=chrcats)
     else:
-        warnings.warn("Could not match the chromosome labels. Rename the chromosomes according chr1, "
-                      "chr2, ... to avoid potential errors.")
+        logger = logging.getLogger('medicc.io')
+        logger.warn("Could not match the chromosome labels. Rename the chromosomes according chr1, "
+                    "chr2, ... to avoid potential errors.")
         newchr = pd.Categorical(ds, categories=ds.unique())
     return newchr
 
