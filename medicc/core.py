@@ -49,7 +49,7 @@ def main(input_df,
     if input_tree is None:
         logger.info("Inferring tree topology.")
         nj_tree = infer_tree_topology(
-            pdms['total'].values, pdms['total'].index, diploid=normal_name)
+            pdms['total'].values, pdms['total'].index, normal_name=normal_name)
     else:
         logger.info("Tree provided, using it.")
         nj_tree = input_tree
@@ -116,7 +116,7 @@ def main_legacy(input_df,
     ## Reconstruct a tree
     if input_tree is None:
         logger.info("Inferring tree topology.")
-        nj_tree = infer_tree_topology(pdms['total'].values, sample_labels, diploid = normal_name)
+        nj_tree = infer_tree_topology(pdms['total'].values, sample_labels, normal_name=normal_name)
     else:
         logger.info("Tree provided, using it.")
         nj_tree = input_tree
@@ -187,7 +187,7 @@ def summarize_changes(input_df, input_tree, normal_name=None):
     df.sort_index(inplace=True)
 
     if input_tree is not None:
-        dfderiv = compute_change_events(df[input_df.columns], input_tree)
+        dfderiv = compute_change_events(df[input_df.columns], input_tree, normal_name)
         df.loc[:, 'is_gain'] = np.any(dfderiv.values > 0, axis=1)
         df.loc[:, 'is_loss'] = np.any(dfderiv.values < 0, axis=1)
     else:
@@ -294,10 +294,10 @@ def create_df_from_fsa(input_df: pd.DataFrame,
         for sample in fsa:
             cns = tools.fsa_to_string(fsa[sample]).split(separator)
             if len(cns) % nr_alleles != 0:
-                raise MEDICCError('For sample {} we have {} combined chromosomes for {} alleles'
-                                  '\n Nr chromosomes has to be divisible by nr of alleles'.format(sample,
-                                                                                                  len(cns),
-                                                                                                  nr_alleles))
+                raise MEDICCError('For sample {} we have {} haplotype-specific chromosomes for {} alleles'
+                                  '\nnumber of chromosomes has to be divisible by nr of alleles'.format(sample,
+                                                                                                        len(cns),
+                                                                                                        nr_alleles))
             nr_chroms = int(len(cns) // nr_alleles)
             for i, allele in enumerate(alleles):
                 cn = list(''.join(cns[(i*nr_chroms):((i+1)*nr_chroms)]))
@@ -358,13 +358,13 @@ def calc_pairwise_distance_matrix(model_fst, fsa_dict, parallel_run=True):
     return pdm
 
 
-def infer_tree_topology(pdm, labels, diploid):
+def infer_tree_topology(pdm, labels, normal_name):
     tree = nj.NeighbourJoining(pdm, labels).tree
     
     input_tree = Bio.Phylo.BaseTree.copy.deepcopy(tree)
-    tmpsearch = [c for c in input_tree.find_clades(name = diploid)]
-    diploid = tmpsearch[0]
-    root_path = input_tree.get_path(diploid)[::-1]
+    tmpsearch = [c for c in input_tree.find_clades(name = normal_name)]
+    normal_name = tmpsearch[0]
+    root_path = input_tree.get_path(normal_name)[::-1]
 
     if len(root_path)>1:
         new_root = root_path[1]

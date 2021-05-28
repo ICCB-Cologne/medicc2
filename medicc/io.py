@@ -196,6 +196,10 @@ def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_cop
         tmp = tmp.stack('sample_id')
         tmp = tmp.reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
     else:
+        if np.any(df.loc[normal_name] == '0'):
+            logger.critical("The provided normal sample contains segments with copy number 0. "
+                            "If any other sample has non-zero values in these segments, MEDICC will crash")
+
         tmp = df
 
     return tmp
