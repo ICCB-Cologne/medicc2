@@ -72,10 +72,7 @@ def main(input_df,
         ## Update branch lengths with ancestors
         logger.info("Updating branch lengths of final tree using ancestors.")
         tools.set_sequences_on_tree_from_df(final_tree, output_df)
-        if n_cores is not None and n_cores > 1:
-            parallelization_update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name, n_cores)
-        else:
-            update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
+        update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
         
         
     else:
@@ -327,35 +324,6 @@ def create_df_from_fsa(input_df: pd.DataFrame,
     output_df = output_df.reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
     
     return output_df
-
-
-def parallelization_update_branch_lengths(tree, fst, ancestor_fsa, normal_name, n_cores):
-    def _distance_to_child(fst, fsa_dict, sample_1, sample_2):
-        return float(fstlib.score(fst, fsa_dict[sample_1], fsa_dict[sample_2]))
-
-    def _parallelization_update_branch_lengths(clade, fst, ancestor_fsa, normal_name):
-        new_branch_lens = []
-        children = clade.clades
-        if len(children) != 0:
-            for child in children:
-                if child.name is None:
-                    continue
-                elif child.name == normal_name:  # exception: evolution goes from diploid to internal node
-                    brs = _distance_to_child(fst, ancestor_fsa, child.name, clade.name)
-                else:
-                    brs = _distance_to_child(fst, ancestor_fsa, clade.name, child.name)
-                child.branch_length = brs
-                new_branch_lens.append((child, brs))
-
-        return new_branch_lens
-
-    new_branch_lens = Parallel(n_jobs=n_cores)(delayed(_parallelization_update_branch_lengths)(clade, fst, ancestor_fsa, normal_name)
-                                               for clade in tree.find_clades())
-
-    new_branch_lens = [y for x in new_branch_lens for y in x]
-    for clade, new_branch_len in new_branch_lens:
-        if clade.name is not None:
-            list(tree.find_clades(clade.name))[0].branch_length = new_branch_len
 
 
 def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_dict, n_cores):
