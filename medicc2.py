@@ -197,6 +197,28 @@ else:
         chr_separator=args.fst_chr_separator.strip(),
         n_cores=args.n_cores)
 
+## Output pairwise distance matrices
+logger.info("Writing pairwise distance matrices.")
+medicc.io.write_pdms(sample_labels, pdms, os.path.join(output_dir, output_prefix + "_pdm"))
+
+## Write trees
+logger.info("Writing trees.")
+medicc.io.write_tree_files(tree=nj_tree, out_name=os.path.join(
+    output_dir, output_prefix + "_nj_tree"))
+medicc.io.write_tree_files(tree=final_tree, out_name=os.path.join(
+    output_dir, output_prefix + "_final_tree"))
+
+## Write ouput table
+output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.tsv"), sep='\t')
+
+## Summarise
+logger.info("Writing patient summary.")
+summary = medicc.summarise_patient(final_tree, pdms['total'].values, sample_labels, normal_name)
+logger.info("Final tree length %d", summary.tree_length)
+summary.to_csv(os.path.join(output_dir, output_prefix + "_summary.tsv"),
+               index=True, header=False, sep='\t')
+
+# Bootstrap
 if args.bootstrap_nr is not None:
     logger.info("Performing {} bootstrap runs (method: {})".format(args.bootstrap_nr, 
                                                                    args.bootstrap_method))
@@ -221,29 +243,10 @@ if args.bootstrap_nr is not None:
 else:
     support_tree = None
 
-## Output pairwise distance matrices
-logger.info("Writing pairwise distance matrices.")
-medicc.io.write_pdms(sample_labels, pdms, os.path.join(output_dir, output_prefix + "_pdm"))
-
-## Write trees
-logger.info("Writing trees.")
-medicc.io.write_tree_files(tree = nj_tree, out_name = os.path.join(output_dir, output_prefix + "_nj_tree"))
-medicc.io.write_tree_files(tree = final_tree, out_name = os.path.join(output_dir, output_prefix + "_final_tree"))
-
-## Write ouput table
-output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.tsv"), sep='\t')
-
-## Summarise
-logger.info("Writing patient summary.")
-summary = medicc.summarise_patient(final_tree, pdms['total'].values, sample_labels, normal_name)
-logger.info("Final tree length %d", summary.tree_length)
-summary.to_csv(os.path.join(output_dir, output_prefix + "_summary.tsv"), index=True, header=False, sep='\t')
-
+# Plot CN tracks
 if not args.no_plot:
     logger.info("Plotting CN profiles.")
     plot_summary = args.plot_summary
-    ##p = medicc.plot.plot_cn_profiles(output_df, sample_order=[c.name for c in final_tree.find_clades(order='postorder')])
-    #gg.ggsave(p, filename=os.path.join(output_dir, output_prefix + '_summary.pdf'), limitsize=False)
     p = medicc.plot.plot_cn_profiles(
         output_df, 
         input_tree=support_tree if support_tree is not None else final_tree,
@@ -253,4 +256,3 @@ if not args.no_plot:
         show_branch_support=support_tree is not None,
         label_func=None)
     p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'))
-    

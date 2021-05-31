@@ -2,10 +2,10 @@ import copy
 import logging
 import os
 
-import fstlib
 import numpy as np
 import pandas as pd
 from Bio.Phylo.Consensus import _BitString, get_support
+from joblib.parallel import Parallel, delayed
 
 import medicc
 
@@ -131,13 +131,40 @@ def compare_trees(tree1, tree2, fail_on_different_terminals=True):
         return False
 
 
+def _single_bootstrap_run(input_df, fst, bootstrap_method, i, N_bootstrap, legacy_version=False):
+    cur_df = bootstrap_method(input_df)
+    if legacy_version:
+        _, _, _, cur_final_tree, _ = medicc.main_legacy(
+            cur_df,
+            fst,
+            'diploid',
+            input_tree=None,
+            ancestral_reconstruction=False,
+            chr_separator='X')
+    else:
+        _, _, _, cur_final_tree, _ = medicc.main(
+            cur_df,
+            fst,
+            'diploid',
+            input_tree=None,
+            ancestral_reconstruction=False,
+            chr_separator='X')
+
+    if (i+1) % (N_bootstrap//5) == 0:
+        logger.info('{}/{} ({}%) bootstrap runs completed'.format(i + 1, N_bootstrap, 
+                                                                  int((i+1)/N_bootstrap*100)))
+
+    return cur_final_tree
+
+
 def run_bootstrap(input_df,
                   original_tree=None,
                   N_bootstrap=50,
                   method='chr-wise',
                   wgd=True,
                   show_progress=True,
-                  legacy_version=False):
+                  legacy_version=False,
+                  n_cores=None):
     """Run a given number of bootstrapping steps on the original data. 
 
     From the original data either a set of chromosome-wise bootstrap or segment-wise jackknife datasets
@@ -156,10 +183,10 @@ def run_bootstrap(input_df,
         raise ValueError('method has to be either chr-wise or segment-wise')
 
     if wgd:
-        asymm_fst = medicc.io.read_fst(os.path.join(os.path.dirname(os.path.realpath(__file__)), 
+        fst = medicc.io.read_fst(os.path.join(os.path.dirname(os.path.realpath(__file__)), 
                                              '..', 'objects', 'wgd_asymm.fst'))
     else:
-        asymm_fst = medicc.io.read_fst(os.path.join(os.path.dirname(os.path.realpath(__file__)), 
+        fst = medicc.io.read_fst(os.path.join(os.path.dirname(os.path.realpath(__file__)), 
                                              '..', 'objects', 'no_wgd_asymm.fst'))
 
     if original_tree is not None:
@@ -168,34 +195,25 @@ def run_bootstrap(input_df,
         trees = dict()
 
     # Run the actual bootstrapping steps
-    for i in tqdm(range(N_bootstrap), disable=not show_progress):
-        cur_df = bootstrap_method(input_df)
-        if legacy_version:
-            _, _, _, cur_final_tree, _ = medicc.main_legacy(
-                cur_df,
-                asymm_fst,
-                'diploid',
-                input_tree=None,
-                ancestral_reconstruction=False,
-                chr_separator='X')
-        else:
-            _, _, _, cur_final_tree, _ = medicc.main(
-                cur_df,
-                asymm_fst,
-                'diploid',
-                input_tree=None,
-                ancestral_reconstruction=False,
-                chr_separator='X')
+    if n_cores is not None and n_cores > 1:
+        initial_trees = Parallel(n_jobs=n_cores)(delayed(_single_bootstrap_run)(
+            input_df, fst, bootstrap_method, i, N_bootstrap, legacy_version)
+            for i in range(N_bootstrap))
+    else:
+        initial_trees=[]
+        for i in tqdm(range(N_bootstrap), disable=not show_progress):
+            cur_tree = _single_bootstrap_run(
+                input_df, fst, bootstrap_method, i, N_bootstrap, legacy_version=legacy_version)
+            initial_trees.append(cur_tree)
 
-        for t in trees.keys():
-            if compare_trees(cur_final_tree, t):
-                trees[t][0] += 1
+    # delete duplicate trees
+    for new_tree in initial_trees:
+        for tree in trees.keys():
+            if compare_trees(new_tree, tree):
+                trees[tree][0] += 1
                 break
         else:
-            trees[cur_final_tree] = [1, '']
-
-        if (i+1) % (N_bootstrap//5) == 0:
-            logger.info('{}/{} ({}%) bootstrap runs completed'.format(i+1, N_bootstrap, int((i+1)/N_bootstrap*100)))
+            trees[new_tree] = [1, '']
 
     trees_df = pd.DataFrame(trees).T.reset_index().sort_values(
         0, ascending=False).reset_index(drop=True)
