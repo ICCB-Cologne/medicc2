@@ -105,8 +105,6 @@ parser.add_argument("--fst", type=str, dest='fst', default=None,
                     help='Expert option: path to an alternative FST.')
 parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', default='X',
                     help = 'Expert option: character used to separate chromosomes in the FST (default: \"X\").')
-parser.add_argument("--maxcn", type=int, dest='maxcn', default=8,
-                    help='Expert option: maximum CN supported by the supplied FST.')
 parser.add_argument("-v", "--verbose", action='store_true', default=False,
                     help='Enable verbose output (default: false).', required=False)
 
@@ -134,17 +132,13 @@ if args.fst is not None:
     fst_path = args.fst
     fst = medicc.io.read_fst(fst_path)
 else:
-    if args.maxcn != 8:
-        symbol_table = medicc.create_symbol_table(args.maxcn, args.fst_chr_separator)
-        fst = medicc.create_copynumber_fst(symbol_table, args.fst_chr_separator, not args.no_wgd)
+    if args.no_wgd:
+        fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
     else:
-        if args.no_wgd:
-            fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
+        if args.total_copy_numbers:
+            fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
         else:
-            if args.total_copy_numbers:
-                fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
-            else:
-                fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
+            fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
         fst = medicc.io.read_fst(fst_path)
 
 if args.user_tree is not None:
@@ -210,7 +204,8 @@ if args.bootstrap_nr is not None:
                                                                       final_tree,
                                                                       N_bootstrap=args.bootstrap_nr, 
                                                                       method=args.bootstrap_method,
-                                                                      legacy_version=args.legacy_version)
+                                                                      legacy_version=args.legacy_version,
+                                                                      n_cores=args.n_cores)
 
     logger.info('Writing bootstrap output')
     with open(os.path.join(output_dir, output_prefix + "_bootstrap_trees_df.pickle"), 'wb') as f:
