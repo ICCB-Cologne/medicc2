@@ -228,6 +228,11 @@ def run_bootstrap(input_df,
         for _, row in trees_df.iterrows():
             trees_list += row['count'] * [row['tree']]
         support_tree = get_support(original_tree, trees_list)
+
+        # Remove branch support for first branch because it is meaningless for rooted trees
+        for clade in support_tree.root.clades:
+            clade.confidence = None
+
     else:
         logger.debug('No input tree provided. Support tree is not calculated')
         support_tree = None
