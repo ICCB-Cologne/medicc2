@@ -364,8 +364,8 @@ def infer_tree_topology(pdm, labels, normal_name):
     
     input_tree = Bio.Phylo.BaseTree.copy.deepcopy(tree)
     tmpsearch = [c for c in input_tree.find_clades(name = normal_name)]
-    normal_name = tmpsearch[0]
-    root_path = input_tree.get_path(normal_name)[::-1]
+    normal_node = tmpsearch[0]
+    root_path = input_tree.get_path(normal_node)[::-1]
 
     if len(root_path)>1:
         new_root = root_path[1]
