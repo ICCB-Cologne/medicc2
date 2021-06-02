@@ -11,7 +11,7 @@ formatters:
 handlers:
     console:
         class: logging.StreamHandler
-        formatter: simple
+        formatter: simple_w_time
     # TODO: Write to file
 
 
