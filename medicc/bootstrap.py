@@ -125,10 +125,7 @@ def compare_trees(tree1, tree2, fail_on_different_terminals=True):
         else:
             return False
     # true if _BitStrings are the same
-    if _bitstrs(tree1) == _bitstrs(tree2):
-        return True
-    else:
-        return False
+    return _bitstrs(tree1) == _bitstrs(tree2)
 
 
 def _single_bootstrap_run(input_df, fst, bootstrap_method, i, N_bootstrap, legacy_version=False):

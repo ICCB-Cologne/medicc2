@@ -241,7 +241,6 @@ def import_tree(tree_file, normal_name, file_format='newick'):
 
     if len(root_path) > 1:
         new_root = root_path[1]
-        print("Rooting with " + new_root.name)
         input_tree.root_with_outgroup(new_root)
     else:
         pass
