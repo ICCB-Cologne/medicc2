@@ -95,12 +95,16 @@ parser.add_argument("--total-copy-numbers",
                     default=False,
                     required=False,
                     help='Run in total copy number mode (default: false).')
+parser.add_argument("-j", "--n-cores",
+                    type=int,
+                    dest='n_cores',
+                    default=None,
+                    required=False,
+                    help="""Number of cores to run on""")
 parser.add_argument("--fst", type=str, dest='fst', default=None,
                     help='Expert option: path to an alternative FST.')
 parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', default='X',
                     help = 'Expert option: character used to separate chromosomes in the FST (default: \"X\").')
-parser.add_argument("--maxcn", type=int, dest='maxcn', default=8,
-                    help='Expert option: maximum CN supported by the supplied FST.')
 parser.add_argument("-v", "--verbose", action='store_true', default=False,
                     help='Enable verbose output (default: false).', required=False)
 
@@ -126,12 +130,16 @@ else:
 logger.info("Reading FST.")
 if args.fst is not None:
     fst_path = args.fst
+    fst = medicc.io.read_fst(fst_path)
 else:
     if args.no_wgd:
         fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
     else:
-        fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
-fst = medicc.io.read_fst(fst_path)
+        if args.total_copy_numbers:
+            fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
+        else:
+            fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
+        fst = medicc.io.read_fst(fst_path)
 
 if args.user_tree is not None:
     logger.info("Importing user tree.")
@@ -166,7 +174,10 @@ if args.exclude_samples is not None:
 ## Run main method
 logger.info("Running main reconstruction routine.")
 if args.legacy_version:
-    logger.info("Using legacy version in which alleles are treated separately")
+    logger.info("Using legacy version in which alleles are treated separately.")
+    if args.n_cores is not None:
+        logger.info("Multiple cores not implemented in legacy version!")
+    
     sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main_legacy(
         input_df, 
         fst, 
@@ -175,14 +186,39 @@ if args.legacy_version:
         ancestral_reconstruction=not args.topology_only,
         chr_separator=args.fst_chr_separator.strip())
 else:
+    if args.n_cores is not None:
+        logger.info("Running on {} cores.".format(args.n_cores))
     sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main(
         input_df, 
         fst, 
         normal_name, 
         input_tree=input_tree, 
         ancestral_reconstruction=not args.topology_only,
-        chr_separator=args.fst_chr_separator.strip())
+        chr_separator=args.fst_chr_separator.strip(),
+        n_cores=args.n_cores)
 
+## Output pairwise distance matrices
+logger.info("Writing pairwise distance matrices.")
+medicc.io.write_pdms(sample_labels, pdms, os.path.join(output_dir, output_prefix + "_pdm"))
+
+## Write trees
+logger.info("Writing trees.")
+medicc.io.write_tree_files(tree=nj_tree, out_name=os.path.join(
+    output_dir, output_prefix + "_nj_tree"))
+medicc.io.write_tree_files(tree=final_tree, out_name=os.path.join(
+    output_dir, output_prefix + "_final_tree"))
+
+## Write ouput table
+output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.tsv"), sep='\t')
+
+## Summarise
+logger.info("Writing patient summary.")
+summary = medicc.summarise_patient(final_tree, pdms['total'].values, sample_labels, normal_name)
+logger.info("Final tree length %d", summary.tree_length)
+summary.to_csv(os.path.join(output_dir, output_prefix + "_summary.tsv"),
+               index=True, header=False, sep='\t')
+
+# Bootstrap
 if args.bootstrap_nr is not None:
     logger.info("Performing {} bootstrap runs (method: {})".format(args.bootstrap_nr, 
                                                                    args.bootstrap_method))
@@ -190,7 +226,9 @@ if args.bootstrap_nr is not None:
                                                                       final_tree,
                                                                       N_bootstrap=args.bootstrap_nr, 
                                                                       method=args.bootstrap_method,
-                                                                      legacy_version=args.legacy_version)
+                                                                      normal_name=normal_name,
+                                                                      legacy_version=args.legacy_version,
+                                                                      n_cores=args.n_cores)
 
     logger.info('Writing bootstrap output')
     with open(os.path.join(output_dir, output_prefix + "_bootstrap_trees_df.pickle"), 'wb') as f:
@@ -206,29 +244,10 @@ if args.bootstrap_nr is not None:
 else:
     support_tree = None
 
-## Output pairwise distance matrices
-logger.info("Writing pairwise distance matrices.")
-medicc.io.write_pdms(sample_labels, pdms, os.path.join(output_dir, output_prefix + "_pdm"))
-
-## Write trees
-logger.info("Writing trees.")
-medicc.io.write_tree_files(tree = nj_tree, out_name = os.path.join(output_dir, output_prefix + "_nj_tree"))
-medicc.io.write_tree_files(tree = final_tree, out_name = os.path.join(output_dir, output_prefix + "_final_tree"))
-
-## Write ouput table
-output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.tsv"), sep='\t')
-
-## Summarise
-logger.info("Writing patient summary.")
-summary = medicc.summarise_patient(final_tree, pdms['total'], sample_labels, normal_name)
-logger.info("Final tree length %d", summary.tree_length)
-summary.to_csv(os.path.join(output_dir, output_prefix + "_summary.tsv"), index=True, header=False, sep='\t')
-
+# Plot CN tracks
 if not args.no_plot:
     logger.info("Plotting CN profiles.")
     plot_summary = args.plot_summary
-    ##p = medicc.plot.plot_cn_profiles(output_df, sample_order=[c.name for c in final_tree.find_clades(order='postorder')])
-    #gg.ggsave(p, filename=os.path.join(output_dir, output_prefix + '_summary.pdf'), limitsize=False)
     p = medicc.plot.plot_cn_profiles(
         output_df, 
         input_tree=support_tree if support_tree is not None else final_tree,
@@ -238,4 +257,3 @@ if not args.no_plot:
         show_branch_support=support_tree is not None,
         label_func=None)
     p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'))
-    

@@ -113,9 +113,9 @@ def create_loh_fst(symbol_table, separator = 'X'):
 def create_1step_WGD_fst(symbol_table, separator='X', wgd_score=1, minimize=True, total_copy_numbers=False):
 
     if total_copy_numbers:
-        diff = 2
+        wgd_diff = 2
     else:
-        diff = 1
+        wgd_diff = 1
 
     cns = _get_int_cns_from_symbol_table(symbol_table, separator)
 
@@ -127,9 +127,9 @@ def create_1step_WGD_fst(symbol_table, separator='X', wgd_score=1, minimize=True
     W.set_final(0,0)
     W.set_final(1,0)
     W.set_final(2,0)
-    W.add_arcs(0, [(s,t,wgd_score,1) for s in cns.keys() for t in cns.keys() if ((cns[t]-cns[s]) == diff) & (s!='0')])
+    W.add_arcs(0, [(s,t,wgd_score,1) for s in cns.keys() for t in cns.keys() if ((cns[t]-cns[s]) == wgd_diff) & (s!='0')])
     W.add_arc(1, ('0','0',0,1))
-    W.add_arcs(1, [(s,t,0,1) for s in cns.keys() for t in cns.keys() if ((cns[t]-cns[s]) == diff) & (s!='0')])
+    W.add_arcs(1, [(s,t,0,1) for s in cns.keys() for t in cns.keys() if ((cns[t]-cns[s]) == wgd_diff) & (s!='0')])
     W.add_arc(0, ('0', '0', 0, 0))
     if separator is not None and separator != '':
         W.add_arc(0, (separator, separator, 0, 0))

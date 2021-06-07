@@ -1,6 +1,5 @@
 import logging
 import os
-import warnings
 
 import Bio
 import fstlib
@@ -32,7 +31,7 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
         raise MEDICCIOError("Unknown input type, possible options are FASTA or TSV.")
 
     if len(allele_columns) == 1 and not total_copy_numbers:
-        warnings.warn('You have provided only one allele column but the --total-copy-numbers flag was not set')
+        logger.warn('You have provided only one allele column but the --total-copy-numbers flag was not set')
 
     ## Add normal sample if needed
     input_df = io.add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 
@@ -48,38 +47,43 @@ def read_fst(filename):
     return fstlib.read(filename)
 
 def validate_input(input_df, symbol_table):
-    ## Check the number of alleles
+    # Check the number of alleles
     if len(input_df.columns)>2:
         raise MEDICCIOError("More than 2 alleles are currently not supported.")
 
     if len(input_df.columns)==0:
         raise MEDICCIOError("No alleles found.")
 
-    ## Check if index of dataframe is sorted
+    # Check if index of dataframe is sorted
     if not input_df.index.is_lexsorted():
         raise MEDICCIOError("DataFrame index must be sorted.")
 
-    ## Check if symbols are in symbol table
+    # Check if all samples have same number of segments
+    if input_df.unstack('sample_id').isna().sum().sum() != 0:
+        raise MEDICCIOError("The samples have different number of segments!\n"
+                            "Total number of unique segments: {}\n".format(len(input_df.unstack('sample_id'))))
+
+    # Check if symbols are in symbol table
     alphabet = {x[1] for x in symbol_table}
     data_chars = set(input_df.values.flatten())
     if not data_chars.issubset(alphabet):
         not_in_set = data_chars.difference(alphabet)
         raise MEDICCIOError("Not all input symbols are contained in symbol table. Offending symbols: %s" % str(not_in_set))
 
-    ## Check data type start and end columns
+    # Check data type start and end columns
     if (input_df.index.get_level_values('start').dtype != np.int or 
         input_df.index.get_level_values('end').dtype != np.int):
         raise MEDICCIOError("Start and end columns must be of type: integer.")
 
-    ## Check data type payload columns - these should all be of type str (object)
-    if not np.all([pd.api.types.is_string_dtype(x) for x in input_df.dtypes]): ## this shouldn't happen
+    # Check data type payload columns - these should all be of type str (object)
+    if not np.all([pd.api.types.is_string_dtype(x) for x in input_df.dtypes]):
         raise MEDICCIOError("Payload columns must be of type: string.")
 
-    ## Check if index of dataframe is sorted
+    # Check if index of dataframe is sorted
     if not input_df.index.is_lexsorted():
         raise MEDICCIOError("DataFrame index must be sorted.")
 
-    logger.info('Ok!')
+    logger.info('Input data is valid!')
 
 def filter_by_segment_length(input_df, filter_size):
     segment_length = input_df.eval('end-start')
@@ -191,6 +195,10 @@ def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_cop
         tmp = tmp.stack('sample_id')
         tmp = tmp.reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
     else:
+        if np.any(df.loc[normal_name] == '0'):
+            logger.warn("The provided normal sample contains segments with copy number 0. "
+                        "If any other sample has non-zero values in these segments, MEDICC will crash")
+
         tmp = df
 
     return tmp
@@ -218,9 +226,10 @@ def write_pdms(sample_labels, pdms, filename_prefix):
 
 def _write_pdm(labels, pdm, filename):
     """ Writes a single PDM to the given filename using the provided labels as row and column names. """
-    pdm_df = pd.DataFrame(pdm, columns = labels, index = labels)
-    pdm_df.to_csv(filename, sep='\t')
-    return pdm_df
+    if not isinstance(pdm, pd.DataFrame):
+        pdm = pd.DataFrame(pdm, columns = labels, index = labels)
+    pdm.to_csv(filename, sep='\t')
+    return pdm
 
 def import_tree(tree_file, normal_name, file_format='newick'):
     """ Loads a phylogenetic tree in the given format and roots it at the normal sample. """
@@ -232,7 +241,6 @@ def import_tree(tree_file, normal_name, file_format='newick'):
 
     if len(root_path) > 1:
         new_root = root_path[1]
-        print("Rooting with " + new_root.name)
         input_tree.root_with_outgroup(new_root)
     else:
         pass

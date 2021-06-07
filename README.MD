@@ -7,26 +7,21 @@ For more information see the accompanying  paper [Whole-genome doubling-aware co
 # Setup
 ## Download
 
-Clone the MEDICC2 repository and its submodules using **git clone --recursive https://bitbucket.org/schwarzlab/medicc2.git**
+Clone the MEDICC2 repository and its submodules using `git clone --recursive https://bitbucket.org/schwarzlab/medicc2.git`
 
 **It is important to use the `--recursive` flag to also download the OpenFST submodule**
+
+## Installing dependencies
+All dependencies including OpenFST should be directly installable via conda. A YML file with a suggested MEDICC2 conda environment is provided in 'doc/medicc2.yml'. You can create a new conda environment using `conda env create -f doc/medicc2.yml -n medicc_env`.
+
+
 ## Installation
 
-Run **python setup.py build_ext --inplace** to compile the fstlib C extensions.
-
-## Dependencies
-All dependencies including OpenFST should be directly installable via conda.
-
-**A YML file with a suggested MEDICC2 conda environment is provided in 'doc/medicc2.yml'.**
-
-MEDICC2 contains modified code of the *pywrapfst* Python module from [OpenFST](http://www.openfst.org/) as permitted by the [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) license.
-
-## License
-MEDICC2 is available under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html). 
+Run `python setup.py build_ext --inplace` to compile the fstlib C extension.
 
 # Usage
 
-General usage is `python medicc2.py path/to/input/file path/to/output/folder`. Run `python medicc2.py --help` for information on possible flags
+General usage is `python medicc2.py path/to/input/file path/to/output/folder`. Run `python medicc2.py --help` for information on optional arguments.
 
 Logging settings can be changed using the `logging_conf.yaml` file with the standard python logging syntax.
 
@@ -46,6 +41,9 @@ The notebook `notebooks/bootstrap_demo.py` demonstrates how to use the bootstrap
 # Contact
 Email questions, feature requests and bug reports to **Tom Kaufmann, tom.kaufmann@mdc-berlin.de**.
 
+# License
+MEDICC2 is available under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html). It contains modified code of the *pywrapfst* Python module from [OpenFST](http://www.openfst.org/) as permitted by the [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) license.
+
 # Please cite
 
 Petkovic M, Watkins TBK, Colliver E, Laskina S, Swanton C, Haase K, Schwarz RF.  
@@ -55,3 +53,4 @@ bioRxiv 2021 Feb 28; doi: 10.1101/2021.02.28.433227
 Schwarz RF, Trinh A, Sipos B, Brenton JD, Goldman N, Markowetz F.  
 **Phylogenetic quantification of intra-tumour heterogeneity.**  
 PLoS Comput Biol. 2014 Apr 17;10(4):e1003535. doi: 10.1371/journal.pcbi.1003535.
+

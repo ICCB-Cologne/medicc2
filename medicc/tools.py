@@ -1,5 +1,5 @@
+import logging
 import re
-import warnings
 
 import Bio
 import fstlib
@@ -80,8 +80,9 @@ def format_chromosomes(ds):
             chrcats += ['chrY',]
         newchr = pd.Categorical(newchr, categories=chrcats)
     else:
-        warnings.warn("Could not match the chromosome labels. Rename the chromosomes according chr1, "
-                      "chr2, ... to avoid potential errors.")
+        logger = logging.getLogger('medicc.io')
+        logger.warn("Could not match the chromosome labels. Rename the chromosomes according chr1, "
+                    "chr2, ... to avoid potential errors.")
         newchr = pd.Categorical(ds, categories=ds.unique())
     return newchr
 
@@ -111,3 +112,60 @@ def format_sample_ids(ds, underscore_replacement=None):
         else:
             output = output.str.replace(prefix, prefix + '\n')
     return output
+
+
+def next_prime(N):
+    '''calculate a prime number p with p >= N'''
+    def is_prime(x):
+        return all(x % i for i in range(3, x))
+
+    cur_p = int(np.ceil(np.sqrt(N)))
+    if cur_p % 2 == 0:
+        cur_p += 1
+    while not is_prime(cur_p):
+        cur_p += 2
+    return cur_p
+
+
+def create_parallelization_groups(number_samples):
+    '''Create subgroups of the samples to perform parallel runs of the pairwise distances matrix 
+    calculations. 
+
+    Args:
+        number_samples (int): Total number of samples
+
+    Returns:
+        list of lists: Lists, each one containing up to p indices
+
+
+    Method implemented as proposed in:
+    Emmanuel Sapin, Matthew C Keller, Novel approach for parallelizing pairwise comparison problems as applied to detecting segments identical by decent in whole-genome data, 
+    Bioinformatics, 2021;, btab084, https://doi.org/10.1093/bioinformatics/btab084
+    '''
+    p = next_prime(number_samples)
+    p_matrix = np.arange(p**2).reshape((p, p)).T
+    p_matrix[p_matrix >= number_samples] = -1
+
+    p_matrix_permutations = [p_matrix]
+    for _ in range(p-1):
+        p_matrix_permutations.append(np.array([np.roll(p_matrix_permutations[-1][:, i], -i) for i in range(p)]).T)
+
+    groups = [*p_matrix.T] + [x for cur_p in p_matrix_permutations for x in [*cur_p]]
+    # remove -1 entries (numbers larger than number_samples)
+    groups = [group[group >= 0] for group in groups]
+    groups = [group for group in groups if len(group) > 1]
+
+    return groups
+
+
+def total_pdm_from_parallel_pdms(sample_labels, parallel_pdms):
+    total_pdm = pd.DataFrame(index=sample_labels, columns=sample_labels, dtype=float)
+
+    for cur_pdm in parallel_pdms:
+        total_pdm.loc[cur_pdm.index, cur_pdm.index] = cur_pdm
+
+    if total_pdm.isna().sum().sum() != 0:
+        raise ValueError('Something went wrong with these indices:\n{}'.format(
+            np.where(total_pdm.isna())))
+
+    return total_pdm

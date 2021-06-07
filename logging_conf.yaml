@@ -11,7 +11,7 @@ formatters:
 handlers:
     console:
         class: logging.StreamHandler
-        formatter: simple
+        formatter: simple_w_time
     # TODO: Write to file
 
 
@@ -21,7 +21,7 @@ loggers:
         handlers: [console]
     
     medicc:
-        level: CRITICAL
+        level: WARNING
         handlers: [console]
         propagate: yes
     
@@ -32,6 +32,6 @@ loggers:
 
     # Overwrite fstlib logging settings
     fstlib:
-        level: CRITICAL
+        level: WARNING
         handlers: [console]
         propagate: yes
