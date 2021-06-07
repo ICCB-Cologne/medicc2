@@ -226,6 +226,7 @@ if args.bootstrap_nr is not None:
                                                                       final_tree,
                                                                       N_bootstrap=args.bootstrap_nr, 
                                                                       method=args.bootstrap_method,
+                                                                      normal_name=normal_name,
                                                                       legacy_version=args.legacy_version,
                                                                       n_cores=args.n_cores)
 

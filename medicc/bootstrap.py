@@ -62,7 +62,7 @@ def segment_wise_jacknife_df(input_df):
     return jacknife_df
 
 
-def bootstrap_shuffle_chroms(input_df):
+def bootstrap_shuffle_chroms(input_df, normal_name='diploid'):
     """Creates a bootstrap dataframe based on the original data. The chromosome-wise copy-number data 
     will be shuffled between samples. The corresponding dataframe will be generally similar to the
     original data but have to no the distinct features of the original data.
@@ -70,7 +70,7 @@ def bootstrap_shuffle_chroms(input_df):
     """
 
     chroms = list(input_df.index.get_level_values('chrom').unique())
-    sample_labels = [s for s in input_df.reset_index()['sample_id'].unique() if s != 'diploid']
+    sample_labels = [s for s in input_df.reset_index()['sample_id'].unique() if s != normal_name]
     shuffled_samples = copy.copy(sample_labels)
     cur_df = copy.copy(input_df).reset_index()
 
@@ -78,7 +78,7 @@ def bootstrap_shuffle_chroms(input_df):
         np.random.shuffle(shuffled_samples)
         renaming = {label: shuffled_label for label,
                     shuffled_label in zip(sample_labels, shuffled_samples)}
-        renaming.update({'diploid': 'diploid'})
+        renaming.update({normal_name: normal_name})
         cur_df.loc[cur_df['chrom'] == chrom, 'sample_id'] = cur_df.loc[cur_df['chrom']
                                                                        == chrom, 'sample_id'].map(lambda x: renaming[x])
 
@@ -128,13 +128,13 @@ def compare_trees(tree1, tree2, fail_on_different_terminals=True):
     return _bitstrs(tree1) == _bitstrs(tree2)
 
 
-def _single_bootstrap_run(input_df, fst, bootstrap_method, i, N_bootstrap, legacy_version=False):
+def _single_bootstrap_run(input_df, fst, bootstrap_method, i, N_bootstrap, normal_name='diploid', legacy_version=False):
     cur_df = bootstrap_method(input_df)
     if legacy_version:
         _, _, _, cur_final_tree, _ = medicc.main_legacy(
             cur_df,
             fst,
-            'diploid',
+            normal_name,
             input_tree=None,
             ancestral_reconstruction=False,
             chr_separator='X')
@@ -142,7 +142,7 @@ def _single_bootstrap_run(input_df, fst, bootstrap_method, i, N_bootstrap, legac
         _, _, _, cur_final_tree, _ = medicc.main(
             cur_df,
             fst,
-            'diploid',
+            normal_name,
             input_tree=None,
             ancestral_reconstruction=False,
             chr_separator='X')
@@ -159,6 +159,7 @@ def run_bootstrap(input_df,
                   N_bootstrap=50,
                   method='chr-wise',
                   wgd=True,
+                  normal_name='diploid',
                   show_progress=True,
                   legacy_version=False,
                   n_cores=None):
@@ -194,13 +195,13 @@ def run_bootstrap(input_df,
     # Run the actual bootstrapping steps
     if n_cores is not None and n_cores > 1:
         initial_trees = Parallel(n_jobs=n_cores)(delayed(_single_bootstrap_run)(
-            input_df, fst, bootstrap_method, i, N_bootstrap, legacy_version)
+            input_df, fst, bootstrap_method, i, N_bootstrap, normal_name, legacy_version)
             for i in range(N_bootstrap))
     else:
         initial_trees=[]
         for i in tqdm(range(N_bootstrap), disable=not show_progress):
             cur_tree = _single_bootstrap_run(
-                input_df, fst, bootstrap_method, i, N_bootstrap, legacy_version=legacy_version)
+                input_df, fst, bootstrap_method, i, N_bootstrap, normal_name, legacy_version)
             initial_trees.append(cur_tree)
 
     # delete duplicate trees
