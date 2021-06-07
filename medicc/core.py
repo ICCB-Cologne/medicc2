@@ -179,7 +179,7 @@ def summarize_changes(input_df, input_tree, normal_name=None):
     df.sort_index(inplace=True)
 
     if input_tree is not None:
-        dfderiv = compute_change_events(df[input_df.columns], input_tree)
+        dfderiv = compute_change_events(df[input_df.columns], input_tree, normal_name)
         df.loc[:, 'is_gain'] = np.any(dfderiv.values > 0, axis=1)
         df.loc[:, 'is_loss'] = np.any(dfderiv.values < 0, axis=1)
     else:
