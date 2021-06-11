@@ -101,6 +101,8 @@ parser.add_argument("-j", "--n-cores",
                     default=None,
                     required=False,
                     help="""Number of cores to run on""")
+parser.add_argument("--maxcn", type=int, dest='maxcn', default=8,
+                    help='Expert option: maximum CN at which the input is capped. Does not change FST.')
 parser.add_argument("--fst", type=str, dest='fst', default=None,
                     help='Expert option: path to an alternative FST.')
 parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', default='X',
@@ -155,7 +157,8 @@ input_df = medicc.io.read_and_parse_input_data(
     input_type=args.input_type.strip(),
     separator=args.input_chr_separator.strip(),
     allele_columns=allele_columns,
-    total_copy_numbers=args.total_copy_numbers)
+    total_copy_numbers=args.total_copy_numbers,
+    maxcn=args.maxcn)
 
 if args.filter_segment_length is not None:
     old_size = len(input_df)
