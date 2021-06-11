@@ -4,11 +4,11 @@ diploid	chr1	2	2	1	1
 diploid	chr1	3	3	1	1
 diploid	chr1	4	4	1	1
 diploid	chr1	5	5	1	1
-diploid	chr2	1	1	1	2
-diploid	chr2	2	2	1	2
-diploid	chr2	3	3	1	2
-diploid	chr2	4	4	1	2
-diploid	chr2	5	5	1	2
+diploid	chr2	1	1	1	1
+diploid	chr2	2	2	1	1
+diploid	chr2	3	3	1	1
+diploid	chr2	4	4	1	1
+diploid	chr2	5	5	1	1
 taxon1	chr1	1	1	1	1
 taxon1	chr1	2	2	1	1
 taxon1	chr1	3	3	0	1

@@ -1,4 +1,4 @@
-import warnings
+import logging
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 
 from medicc import core
+
+logger = logging.getLogger(__name__)
 
 COL_ALLELE_A = mpl.colors.to_rgba('orange')
 COL_ALLELE_B = mpl.colors.to_rgba('teal')
@@ -66,14 +68,14 @@ def plot_cn_profiles(
         plot_clonal_summary = False
 
     if normal_name is None:
-        warnings.warn('normal_name is not set!\nnormal_name will be set to "diploid"')
+        logger.warn('normal_name is not set!\nnormal_name will be set to "diploid"')
         normal_name = 'diploid'
 
     df = input_df.copy()
     alleles = np.setdiff1d(df.columns, ['is_clonal', 'is_normal', 'is_gain', 'is_loss'])
     if len(alleles) > 2:
-        warnings.warn("More than two allels were provided ({})\n"
-                      "Copy number tracks can only be plotted for 1 or 2 alleles".format(alleles))
+        logger.warn("More than two allels were provided ({})\n"
+                    "Copy number tracks can only be plotted for 1 or 2 alleles".format(alleles))
 
     if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss'], df.columns).size > 0:
         df = core.summarize_changes(df,
@@ -104,8 +106,8 @@ def plot_cn_profiles(
     nsegs = df.loc[samples[0],:].groupby('chrom').size()
 
     if len(samples) > 20:
-        warnings.warn('More than 20 samples were provided. Creating the copy number tracks will take '
-                      'a long time to process and might crash.\nBest to use plot_tree instead.')
+        logger.warn('More than 20 samples were provided. Creating the copy number tracks will take '
+                    'a long time to process and might crash.\nBest to use plot_tree instead.')
 
     df.reset_index(['start','end'], inplace=True)
 

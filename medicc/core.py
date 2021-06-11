@@ -1,12 +1,12 @@
 import copy
 import logging
 from itertools import combinations
-from typing import Dict, List
 
 import Bio
 import fstlib
 import numpy as np
 import pandas as pd
+from joblib import Parallel, delayed
 
 import medicc
 from medicc import io, nj, stats, tools
@@ -20,7 +20,8 @@ def main(input_df,
          normal_name='diploid',
          input_tree=None,
          ancestral_reconstruction=True,
-         chr_separator='X'):
+         chr_separator='X',
+         n_cores=None):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
@@ -36,12 +37,19 @@ def main(input_df,
 
     ## Calculate pairwise distances
     logger.info("Calculating pairwise distance matrices for both alleles")
-    pdms = {'total': calc_pairwise_distance_matrix(asymm_fst, FSA_dict)}
+    if n_cores is not None and n_cores > 1:
+        pdms = {'total': parallelization_calc_pairwise_distance_matrix(sample_labels, 
+                                                                       asymm_fst,
+                                                                       FSA_dict,
+                                                                       n_cores)}
+    else:
+        pdms = {'total': calc_pairwise_distance_matrix(asymm_fst, FSA_dict)}
 
     ## Reconstruct a tree
     if input_tree is None:
         logger.info("Inferring tree topology.")
-        nj_tree = infer_tree_topology(pdms['total'], sample_labels, diploid = normal_name)
+        nj_tree = infer_tree_topology(
+            pdms['total'].values, pdms['total'].index, normal_name=normal_name)
     else:
         logger.info("Tree provided, using it.")
         nj_tree = input_tree
@@ -66,6 +74,7 @@ def main(input_df,
         tools.set_sequences_on_tree_from_df(final_tree, output_df)
         update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
         
+        
     else:
         output_df = input_df
 
@@ -83,7 +92,8 @@ def main_legacy(input_df,
                 normal_name='diploid',
                 input_tree=None,
                 ancestral_reconstruction=True,
-                chr_separator='X'):
+                chr_separator='X',
+                n_cores=None):
     """ MEDICC Main Method 
     LEGACY VERSION: The alleles are treated separately in the WGD step"""
 
@@ -101,14 +111,18 @@ def main_legacy(input_df,
     ## Calculate pairwise distances
     logger.info("Calculating pairwise distance matrices for both alleles")
     sample_labels = input_df.index.get_level_values('sample_id').unique()
-    pdms = {allele: calc_pairwise_distance_matrix(asymm_fst, fsa_dict) 
-                for allele, fsa_dict in zip(input_df.columns, FSA_dicts)}
+    if n_cores is not None and n_cores > 1:
+        pdms = {allele: parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, fsa_dict, n_cores)
+                    for allele, fsa_dict in zip(input_df.columns, FSA_dicts)}
+    else:
+        pdms = {allele: calc_pairwise_distance_matrix(asymm_fst, fsa_dict) 
+                    for allele, fsa_dict in zip(input_df.columns, FSA_dicts)}
     pdms['total'] = sum(pdms.values())
 
     ## Reconstruct a tree
     if input_tree is None:
         logger.info("Inferring tree topology.")
-        nj_tree = infer_tree_topology(pdms['total'], sample_labels, diploid = normal_name)
+        nj_tree = infer_tree_topology(pdms['total'].values, sample_labels, normal_name=normal_name)
     else:
         logger.info("Tree provided, using it.")
         nj_tree = input_tree
@@ -286,10 +300,10 @@ def create_df_from_fsa(input_df: pd.DataFrame,
         for sample in fsa:
             cns = tools.fsa_to_string(fsa[sample]).split(separator)
             if len(cns) % nr_alleles != 0:
-                raise MEDICCError('For sample {} we have {} combined chromosomes for {} alleles'
-                                  '\n Nr chromosomes has to be divisible by nr of alleles'.format(sample,
-                                                                                                  len(cns),
-                                                                                                  nr_alleles))
+                raise MEDICCError('For sample {} we have {} haplotype-specific chromosomes for {} alleles'
+                                  '\nnumber of chromosomes has to be divisible by nr of alleles'.format(sample,
+                                                                                                        len(cns),
+                                                                                                        nr_alleles))
             nr_chroms = int(len(cns) // nr_alleles)
             for i, allele in enumerate(alleles):
                 cn = list(''.join(cns[(i*nr_chroms):((i+1)*nr_chroms)]))
@@ -316,41 +330,47 @@ def create_df_from_fsa(input_df: pd.DataFrame,
     
     return output_df
 
-# Given a symmetric model FST and input FSAs in a form of a dictionary, output pairwise distance matrix
-def calc_pairwise_distance_matrix(model_fst, fsa_dict):
+
+def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_dict, n_cores):
+    parallelization_groups = medicc.tools.create_parallelization_groups(len(sample_labels))
+    parallelization_groups = [sample_labels[group] for group in parallelization_groups]
+    logger.info("Running {} parallel runs on {} cores".format(len(parallelization_groups), n_cores))
+
+    parallel_pdms = Parallel(n_jobs=n_cores)(delayed(calc_pairwise_distance_matrix)(
+        asymm_fst, {key: val for key, val in FSA_dict.items() if key in cur_group}, True)
+            for cur_group in parallelization_groups)
+
+    pdm = medicc.tools.total_pdm_from_parallel_pdms(sample_labels, parallel_pdms)
+
+    return pdm
+
+
+def calc_pairwise_distance_matrix(model_fst, fsa_dict, parallel_run=True):
+    '''Given a symmetric model FST and input FSAs in a form of a dictionary, output pairwise distance matrix'''
+
     samples = list(fsa_dict.keys())
-    nsamples = len(samples)
-
-    pwd = np.zeros((nsamples, nsamples))
-    combs = list(combinations(list(range(nsamples)),2))
-
+    pdm = pd.DataFrame(0, index=samples, columns=samples, dtype=float)
+    combs = list(combinations(samples, 2))
     ncombs = len(combs)
-    for i, c in enumerate(combs):
-        key1 = samples[c[0]]
-        key2 = samples[c[1]]
-        fsa1 = fsa_dict[key1]
-        fsa2 = fsa_dict[key2]
 
-        d = float(fstlib.kernel_score(model_fst, fsa1, fsa2))
+    for i, (sample_a, sample_b) in enumerate(combs):
+        cur_dist = float(fstlib.kernel_score(model_fst, fsa_dict[sample_a], fsa_dict[sample_b]))
+        pdm[sample_a][sample_b] = cur_dist
+        pdm[sample_b][sample_a] = cur_dist
 
-        # Put into a pairwise distance matrix
-        key1_idx = samples.index(key1)
-        key2_idx = samples.index(key2)
-        pwd[key1_idx][key2_idx] = d
-        pwd[key2_idx][key1_idx] = d
-        progress = (i+1)/ncombs * 100
-        if i % 10 == 0 or i==(len(combs)-1): ## every 10 calculations or at the end
-            logger.info('%.2f%%', progress)        
+        if not parallel_run and (100*(i+1)/ncombs) % 10 == 0:  # log every 10%
+            logger.info('%.2f%%', (i+1)/ncombs * 100)
 
-    return pwd
+    return pdm
 
-def infer_tree_topology(pdm, labels, diploid):
+
+def infer_tree_topology(pdm, labels, normal_name):
     tree = nj.NeighbourJoining(pdm, labels).tree
     
     input_tree = Bio.Phylo.BaseTree.copy.deepcopy(tree)
-    tmpsearch = [c for c in input_tree.find_clades(name = diploid)]
-    diploid = tmpsearch[0]
-    root_path = input_tree.get_path(diploid)[::-1]
+    tmpsearch = [c for c in input_tree.find_clades(name = normal_name)]
+    normal_node = tmpsearch[0]
+    root_path = input_tree.get_path(normal_node)[::-1]
 
     if len(root_path)>1:
         new_root = root_path[1]
@@ -364,11 +384,11 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
     """ Updates the branch lengths in the tree using the internal nodes supplied in the FSA dict """
 
     if isinstance(ancestor_fsa, dict):
-        def distance_to_child(fst, fsa_dict, sample_1, sample_2):
+        def _distance_to_child(fst, fsa_dict, sample_1, sample_2):
             return float(fstlib.score(fst, fsa_dict[sample_1], fsa_dict[sample_2]))
 
     elif isinstance(ancestor_fsa, list) and np.all([isinstance(ancestor_item, dict) for ancestor_item in ancestor_fsa]):
-        def distance_to_child(fst, fsa_dict_list, sample_1, sample_2):
+        def _distance_to_child(fst, fsa_dict_list, sample_1, sample_2):
             return np.sum([float(fstlib.score(fst, cur_fsa_dict[sample_1], cur_fsa_dict[sample_2]))
                            for cur_fsa_dict in fsa_dict_list])
 
@@ -381,9 +401,9 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
         if len(children) != 0:
             for child in children:
                 if child.name == normal_name:  # exception: evolution goes from diploid to internal node
-                    brs = distance_to_child(fst, ancestor_fsa, child.name, clade.name)
+                    brs = _distance_to_child(fst, ancestor_fsa, child.name, clade.name)
                 else:
-                    brs = distance_to_child(fst, ancestor_fsa, clade.name, child.name)
+                    brs = _distance_to_child(fst, ancestor_fsa, clade.name, child.name)
                 child.branch_length = brs
 
 

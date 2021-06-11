@@ -2,7 +2,8 @@ import Bio
 import Bio.Phylo
 import fstlib
 import numpy as np
-import pandas as pd
+
+import medicc
 
 
 def reconstruct_ancestors(tree, samples_dict, fst, normal_name):
@@ -35,7 +36,17 @@ def reconstruct_ancestors(tree, samples_dict, fst, normal_name):
                 sp = fstlib.align(fst, fsa_dict[node.name], fsa_dict[child.name])
                 fsa_dict[child.name] = fstlib.arcmap(sp.copy().project('output'), map_type='rmweight')
 
+    # check if ancestors were correctly reconstructed
+    sample_lengths = {sample: len(medicc.tools.fsa_to_string(fsa_dict[sample])) for sample, fsa in fsa_dict.items()}
+    normal_length = sample_lengths[normal_name]
+
+    if np.any([x != normal_length for x in sample_lengths.values()]):
+        raise MEDICCAncestorReconstructionError("Some ancestors could not be reconstructed. These are:\n"
+                                                "{}".format('\n'.join([sample for sample, length in sample_lengths.items() if length != normal_length])) + \
+                                                "\nCheck whether your normal sample contains segments with copy number zero")
+
     return fsa_dict
+
 
 def intersect_clades_detmin(left, right, fst, prune_weight=None, detmin_before_intersect=True, detmin_after_intersect=True):
     L = fstlib.compose(fst, left.arcsort('ilabel')).project('input')
@@ -52,3 +63,7 @@ def intersect_clades_detmin(left, right, fst, prune_weight=None, detmin_before_i
     if detmin_after_intersect:
         pruned = fstlib.determinize(pruned).minimize()
     return pruned
+
+
+class MEDICCAncestorReconstructionError(Exception):
+    pass

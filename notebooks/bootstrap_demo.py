@@ -33,8 +33,8 @@ for label in main_df.reset_index()['sample_id']:
 #%% Run chromosome-wise bootstrap
 N_bootstrap = 20
 
-bootstrap_trees_df, support_tree = medicc.bootstrap.run_bootstrap(main_df, main_tree,
-                                                                  N_bootstrap=N_bootstrap, method='chr-wise')
+bootstrap_trees_df, support_tree = medicc.bootstrap.run_bootstrap(main_df, main_tree, N_bootstrap=N_bootstrap, 
+                                                                  method='chr-wise', normal_name='diploid',)
 
 print('{} chromosome-wise bootstrap datasets created'.format(N_bootstrap))
 print('{} individual trees'.format(len(bootstrap_trees_df)))
