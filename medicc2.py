@@ -173,24 +173,22 @@ if args.exclude_samples is not None:
     logger.info("Excluding samples {%s}." % ', '.join(exclude_samples))
     input_df = input_df.loc[~np.in1d(input_df.index.get_level_values('sample_id'), exclude_samples), :]
 
+if args.n_cores is not None:
+    logger.info("Running on {} cores.".format(args.n_cores))
 
 ## Run main method
 logger.info("Running main reconstruction routine.")
 if args.legacy_version:
     logger.info("Using legacy version in which alleles are treated separately.")
-    if args.n_cores is not None:
-        logger.info("Multiple cores not implemented in legacy version!")
-    
     sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main_legacy(
         input_df, 
         fst, 
         normal_name, 
         input_tree=input_tree, 
         ancestral_reconstruction=not args.topology_only,
-        chr_separator=args.fst_chr_separator.strip())
+        chr_separator=args.fst_chr_separator.strip(),
+        n_cores=args.n_cores)
 else:
-    if args.n_cores is not None:
-        logger.info("Running on {} cores.".format(args.n_cores))
     sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main(
         input_df, 
         fst, 
