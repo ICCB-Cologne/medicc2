@@ -145,7 +145,7 @@ else:
 
 if args.user_tree is not None:
     logger.info("Importing user tree.")
-    input_tree = medicc.io.import_tree(tree_file = args.user_tree, diploid = normal_name)
+    input_tree = medicc.io.import_tree(tree_file=args.user_tree, normal_name=normal_name)
 else:
     input_tree = None
 
