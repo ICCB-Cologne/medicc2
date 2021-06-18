@@ -101,6 +101,8 @@ parser.add_argument("-j", "--n-cores",
                     default=None,
                     required=False,
                     help="""Number of cores to run on""")
+parser.add_argument("--maxcn", type=int, dest='maxcn', default=8,
+                    help='Expert option: maximum CN at which the input is capped. Does not change FST.')
 parser.add_argument("--fst", type=str, dest='fst', default=None,
                     help='Expert option: path to an alternative FST.')
 parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', default='X',
@@ -155,7 +157,8 @@ input_df = medicc.io.read_and_parse_input_data(
     input_type=args.input_type.strip(),
     separator=args.input_chr_separator.strip(),
     allele_columns=allele_columns,
-    total_copy_numbers=args.total_copy_numbers)
+    total_copy_numbers=args.total_copy_numbers,
+    maxcn=args.maxcn)
 
 if args.filter_segment_length is not None:
     old_size = len(input_df)
@@ -170,24 +173,22 @@ if args.exclude_samples is not None:
     logger.info("Excluding samples {%s}." % ', '.join(exclude_samples))
     input_df = input_df.loc[~np.in1d(input_df.index.get_level_values('sample_id'), exclude_samples), :]
 
+if args.n_cores is not None:
+    logger.info("Running on {} cores.".format(args.n_cores))
 
 ## Run main method
 logger.info("Running main reconstruction routine.")
 if args.legacy_version:
     logger.info("Using legacy version in which alleles are treated separately.")
-    if args.n_cores is not None:
-        logger.info("Multiple cores not implemented in legacy version!")
-    
     sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main_legacy(
         input_df, 
         fst, 
         normal_name, 
         input_tree=input_tree, 
         ancestral_reconstruction=not args.topology_only,
-        chr_separator=args.fst_chr_separator.strip())
+        chr_separator=args.fst_chr_separator.strip(),
+        n_cores=args.n_cores)
 else:
-    if args.n_cores is not None:
-        logger.info("Running on {} cores.".format(args.n_cores))
     sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main(
         input_df, 
         fst, 

@@ -92,7 +92,8 @@ def main_legacy(input_df,
                 normal_name='diploid',
                 input_tree=None,
                 ancestral_reconstruction=True,
-                chr_separator='X'):
+                chr_separator='X',
+                n_cores=None):
     """ MEDICC Main Method 
     LEGACY VERSION: The alleles are treated separately in the WGD step"""
 
@@ -110,8 +111,12 @@ def main_legacy(input_df,
     ## Calculate pairwise distances
     logger.info("Calculating pairwise distance matrices for both alleles")
     sample_labels = input_df.index.get_level_values('sample_id').unique()
-    pdms = {allele: calc_pairwise_distance_matrix(asymm_fst, fsa_dict) 
-                for allele, fsa_dict in zip(input_df.columns, FSA_dicts)}
+    if n_cores is not None and n_cores > 1:
+        pdms = {allele: parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, fsa_dict, n_cores)
+                    for allele, fsa_dict in zip(input_df.columns, FSA_dicts)}
+    else:
+        pdms = {allele: calc_pairwise_distance_matrix(asymm_fst, fsa_dict) 
+                    for allele, fsa_dict in zip(input_df.columns, FSA_dicts)}
     pdms['total'] = sum(pdms.values())
 
     ## Reconstruct a tree

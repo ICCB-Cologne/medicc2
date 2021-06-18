@@ -36,7 +36,7 @@ def reconstruct_ancestors(tree, samples_dict, fst, normal_name):
                 sp = fstlib.align(fst, fsa_dict[node.name], fsa_dict[child.name])
                 fsa_dict[child.name] = fstlib.arcmap(sp.copy().project('output'), map_type='rmweight')
 
-    # check if ancestores were correctly reconstructed
+    # check if ancestors were correctly reconstructed
     sample_lengths = {sample: len(medicc.tools.fsa_to_string(fsa_dict[sample])) for sample, fsa in fsa_dict.items()}
     normal_length = sample_lengths[normal_name]
 
