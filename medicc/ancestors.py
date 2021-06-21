@@ -6,7 +6,7 @@ import numpy as np
 import medicc
 
 
-def reconstruct_ancestors(tree, samples_dict, fst, normal_name):
+def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0):
     fsa_dict = samples_dict.copy()
     tree = Bio.Phylo.BaseTree.copy.deepcopy(tree)
 
@@ -20,7 +20,7 @@ def reconstruct_ancestors(tree, samples_dict, fst, normal_name):
 
             ## project
             intersection = intersect_clades_detmin(fsa_dict[left_name], fsa_dict[right_name], fst, 
-                                                   prune_weight=0, detmin_before_intersect=False, detmin_after_intersect=True)
+                                                   prune_weight=prune_weight, detmin_before_intersect=False, detmin_after_intersect=True)
             fsa_dict[node.name] = intersection
 
     # root node is calculated separately w.r.t. normal node

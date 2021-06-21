@@ -23,7 +23,36 @@ Run `python setup.py build_ext --inplace` to compile the fstlib C extension.
 
 General usage is `python medicc2.py path/to/input/file path/to/output/folder`. Run `python medicc2.py --help` for information on optional arguments.
 
-Logging settings can be changed using the `logging_conf.yaml` file with the standard python logging syntax.
+Logging settings can be changed using the `logging_conf.yaml` file with the standard python logging 
+
+
+## Flags
+
+* `input_file`: path to the input file
+* `output_dir`: path to the output folder
+* `--input-type`, `-i`: Choose the type of input: f for FASTA, t for TSV. Default: 'TSV'
+* `--input-allele-columns`, `-a`: Name of the CN columns (comma separated) if using TSV input format. This also adjusts the number of alleles considered (min. 1, max. 2). Default: 'cn_a, cn_b'
+* `--input-chr-separator`: Character used to separate chromosomes in the input data (condensed FASTA only). Default: 'X'
+* `--tree`: Do not reconstruct tree, use provided tree instead (in newick format) and only perform ancestral reconstruction. Default: None
+* `--topology-only`, `-s`: Output only tree topology, without reconstructing ancestors. Default: False
+* `--normal-name`, `-n`: ID of the sample to be treated as the normal sample. Trees are rooted at this sample for ancestral reconstruction. If the sample ID is not found, an artificial normal sample of the same name is created with CN states = 1 for each allele. Default: 'diploid'
+* `--exclude-samples`, `-x`: Comma separated list of sample IDs to exclude. Default: None
+* `--filter-segment-length`: Removes segments that are smaller than specified length. Default: None
+* `--bootstrap-method`: Bootstrap method. Has to be either 'chr-wise' or 'segment-wise'. Default: 'chr-wise'
+* `--bootstrap-nr`: Number of bootstrap runs to perform. Default: None
+* `--prefix`, '-p': Output prefix to be used. None uses input filename. Default: None
+* `--no-wgd`: Disable whole-genome doubling events. Default: False
+* `--no-plot`: Disable plotting. Default: False
+* `--summary`: Plot a track with event summary. Default: False
+* `--legacy-version`: Use legacy version in which alleles are treated separately. Default: False
+* `--total-copy-numbers`: Run in total copy number mode. Default: False
+* `-j`, `--n-cores`: Number of cores to run on. Default: None
+* `-v`, `--verbose`: Enable verbose output. Default: False
+* `--maxcn`: Expert option: maximum CN at which the input is capped. Does not change FST. Default: 8
+* `--prune-weight`: Expert option: Prune weight in ancestor reconstruction. Values >0 might result in more accurate ancestors but will require more time and memory. Default: 0
+* `--fst`: Expert option: path to an alternative FST. Default: None
+* `--fst-chr-separator`: Expert option: character used to separate chromosomes in the FST. Default: 'X'
+
 
 ## Input files
 Input files can be either in fasta or tsv format:

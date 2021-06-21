@@ -101,14 +101,17 @@ parser.add_argument("-j", "--n-cores",
                     default=None,
                     required=False,
                     help="""Number of cores to run on""")
+parser.add_argument("-v", "--verbose", action='store_true', default=False,
+                    help='Enable verbose output (default: false).', required=False)
 parser.add_argument("--maxcn", type=int, dest='maxcn', default=8,
                     help='Expert option: maximum CN at which the input is capped. Does not change FST.')
+parser.add_argument("--prune-weight", type=int, dest='prune_weight', default=0,
+                    help='''Expert option: Prune weight in ancestor reconstruction. Values >0 might
+                            result in more accurate ancestors but will require more time and memory. Default: 0''')
 parser.add_argument("--fst", type=str, dest='fst', default=None,
                     help='Expert option: path to an alternative FST.')
 parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', default='X',
                     help = 'Expert option: character used to separate chromosomes in the FST (default: \"X\").')
-parser.add_argument("-v", "--verbose", action='store_true', default=False,
-                    help='Enable verbose output (default: false).', required=False)
 
 args = parser.parse_args()
 
@@ -187,6 +190,7 @@ if args.legacy_version:
         input_tree=input_tree, 
         ancestral_reconstruction=not args.topology_only,
         chr_separator=args.fst_chr_separator.strip(),
+        prune_weight=args.prune_weight,
         n_cores=args.n_cores)
 else:
     sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main(
@@ -196,6 +200,7 @@ else:
         input_tree=input_tree, 
         ancestral_reconstruction=not args.topology_only,
         chr_separator=args.fst_chr_separator.strip(),
+        prune_weight=args.prune_weight,
         n_cores=args.n_cores)
 
 ## Output pairwise distance matrices

@@ -60,6 +60,8 @@ def plot_cn_profiles(
         show_branch_support=False,
         hide_internal_nodes=False,
         chr_label_func=None,
+        show_events=False,
+        show_branch_lengths=False,
         label_func=None):
     
     if input_tree is None or normal_name is None: 
@@ -195,8 +197,9 @@ def plot_cn_profiles(
                   label_func=lambda x: '',
                   label_colors=clade_colors,
                   show_branch_support=show_branch_support,
-                  hide_internal_nodes=hide_internal_nodes,
-                  branch_labels=lambda x: x.branch_length if x.name != 'root' and x.name is not None else None)
+                  show_events=show_events,
+                  show_branch_lengths=show_branch_lengths,
+                  hide_internal_nodes=hide_internal_nodes)
     
     # Adjust the margin between the tree and cn tracks. Default is -0.03
     fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=horizontal_margin_adjustment)

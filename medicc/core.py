@@ -21,6 +21,7 @@ def main(input_df,
          input_tree=None,
          ancestral_reconstruction=True,
          chr_separator='X',
+         prune_weight=0,
          n_cores=None):
     """ MEDICC Main Method """
 
@@ -63,7 +64,8 @@ def main(input_df,
         ancestors = medicc.reconstruct_ancestors(tree=final_tree,
                                                  samples_dict=FSA_dict,
                                                  fst=asymm_fst,
-                                                 normal_name=normal_name)
+                                                 normal_name=normal_name,
+                                                 prune_weight=prune_weight)
 
         ## Create and write output data frame with ancestors
         logger.info("Creating output table.")
@@ -93,6 +95,7 @@ def main_legacy(input_df,
                 input_tree=None,
                 ancestral_reconstruction=True,
                 chr_separator='X',
+                prune_weight=0,
                 n_cores=None):
     """ MEDICC Main Method 
     LEGACY VERSION: The alleles are treated separately in the WGD step"""
@@ -136,7 +139,8 @@ def main_legacy(input_df,
         ancestors = [medicc.reconstruct_ancestors(tree=final_tree,
                                                   samples_dict=fsa_dict,
                                                   fst=asymm_fst,
-                                                  normal_name=normal_name)
+                                                  normal_name=normal_name,
+                                                  prune_weight=prune_weight)
                      for fsa_dict in FSA_dicts]
 
         ## Create and write output data frame with ancestors
@@ -160,7 +164,7 @@ def main_legacy(input_df,
     return sample_labels, pdms, nj_tree, final_tree, output_df
 
 
-def summarize_changes(input_df, input_tree, normal_name=None):
+def summarize_changes(input_df, input_tree, normal_name=None, allele_specific=False):
     df = input_df.copy()
 
     ## we're force converting to categoricals to always maintain the order of the chromosomes as given
@@ -196,9 +200,19 @@ def summarize_changes(input_df, input_tree, normal_name=None):
         dfderiv = compute_change_events(df[input_df.columns], input_tree, normal_name)
         df.loc[:, 'is_gain'] = np.any(dfderiv.values > 0, axis=1)
         df.loc[:, 'is_loss'] = np.any(dfderiv.values < 0, axis=1)
+        if allele_specific:
+            df.loc[:, 'is_gain_a'] = dfderiv['cn_a'].values > 0
+            df.loc[:, 'is_loss_a'] = dfderiv['cn_a'].values < 0
+            df.loc[:, 'is_gain_b'] = dfderiv['cn_b'].values > 0
+            df.loc[:, 'is_loss_b'] = dfderiv['cn_b'].values < 0
     else:
         df['is_gain'] = False
         df['is_loss'] = False
+        if allele_specific:
+            df.loc[:, 'is_gain_a'] = False
+            df.loc[:, 'is_loss_a'] = False
+            df.loc[:, 'is_gain_b'] = False
+            df.loc[:, 'is_loss_b'] = False
 
     return df
 
