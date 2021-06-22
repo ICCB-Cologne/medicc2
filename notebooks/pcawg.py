@@ -168,15 +168,15 @@ else:
     dat['major_cn'] = dat['major_cn'].astype('int').astype('str')
     dat['minor_cn'] = dat['minor_cn'].astype('int').astype('str')
 
-    ## phase CNPs
-    diploid = fstlib.Fst()
-    diploid.set_input_symbols(symbol_table)
-    diploid.set_output_symbols(T_wgd_asymm.output_symbols())
-    diploid.add_state()
-    diploid.set_start(0)
-    diploid.set_final(0, 0)
-    diploid.add_arc(0, ('1','1',0,0))
-    diploid.add_arc(0, ('X','X',0,0))
+    # Create diploid FSA
+    diploid_fsa = fstlib.Fst()
+    diploid_fsa.set_input_symbols(symbol_table)
+    diploid_fsa.set_output_symbols(T_wgd_asymm.output_symbols())
+    diploid_fsa.add_state()
+    diploid_fsa.set_start(0)
+    diploid_fsa.set_final(0, 0)
+    diploid_fsa.add_arc(0, ('1','1',0,0))
+    diploid_fsa.add_arc(0, ('X','X',0,0))
 
     dat = dat.query("chrom != 'X' and chrom != 'Y'") ## filter X/Y chromosomes
 
@@ -184,7 +184,7 @@ else:
     phased_dfs = []
     for idx, df in dat.groupby('sample_id'):
         phasing_dict = medicc.create_phasing_fsa_dict_from_df(df, symbol_table, 'X')
-        fsa_dict_a, fsa_dict_b, scores = medicc.phase_dict(phasing_dict, T_wgd_asymm, diploid)
+        fsa_dict_a, fsa_dict_b, scores = medicc.phase_dict(phasing_dict, T_wgd_asymm, diploid_fsa)
         phased = medicc.create_df_from_fsa(df, [fsa_dict_a, fsa_dict_b], 'X')
         phased.columns = ['cn_a', 'cn_b']
         phased_dfs.append(phased)
@@ -202,14 +202,25 @@ else:
 if LOAD:
     distances = hdfstore['distances']
 else:
+
+    # Create diploid FSA
+    diploid_fsa = fstlib.Fst()
+    diploid_fsa.set_input_symbols(symbol_table)
+    diploid_fsa.set_output_symbols(T_wgd_asymm.output_symbols())
+    diploid_fsa.add_state()
+    diploid_fsa.set_start(0)
+    diploid_fsa.set_final(0, 0)
+    diploid_fsa.add_arc(0, ('1', '1', 0, 0))
+    diploid_fsa.add_arc(0, ('X', 'X', 0, 0))
+
     # Calc distance without WGD
     fsa_dict = medicc.create_standard_fsa_dict_from_data(dat[['cn_a', 'cn_b']], symbol_table, 'X')
-    dist_no_wgd = pd.Series({aliquot_id:float(fstlib.score(T_no_wgd_asymm, diploid, fsa)) 
+    dist_no_wgd = pd.Series({aliquot_id:float(fstlib.score(T_no_wgd_asymm, diploid_fsa, fsa)) 
                              for aliquot_id, fsa in fsa_dict.items()}, name='dist_no_wgd_a')
     dist_no_wgd.name = 'dist_no_wgd'
 
     # Calc distance with WGD
-    dist_wgd = pd.Series({aliquot_id: float(fstlib.score(T_wgd_asymm, diploid, fsa))
+    dist_wgd = pd.Series({aliquot_id: float(fstlib.score(T_wgd_asymm, diploid_fsa, fsa))
                              for aliquot_id, fsa in fsa_dict.items()}, name='dist_wgd_a')
     dist_wgd.name = 'dist_wgd'
 
@@ -221,11 +232,12 @@ else:
 #%% Bootstrap for WGD detection
 # This cell will take some time to finish
 if LOAD:
-    bootstrap_distances = hdfstore['bootstrap_distances']
+    bootstrap_results = hdfstore['bootstrap_distances']
 else:
-    N_bootstrap = 50
+    N_bootstrap = 100
     samples = np.unique(dat.index.get_level_values('sample_id'))
 
+    # Create diploid FSA
     diploid_fsa = fstlib.Fst()
     diploid_fsa.set_input_symbols(symbol_table)
     diploid_fsa.set_output_symbols(T_wgd_asymm.output_symbols())
@@ -250,24 +262,24 @@ else:
         bootstrap_distances[:, 0, i] = dist_wgd
         bootstrap_distances[:, 1, i] = dist_no_wgd
 
-    boostrap_results = pd.DataFrame(index=samples, columns=['wgd_status', 'mean_wgd', 'mean_no_wgd', 'diff_mean',
-                                                               'diff_std', 'diff_frac_zero'])
+    bootstrap_results = pd.DataFrame(index=samples)
 
-    boostrap_results['pcawg_wgd'] = meta.loc[samples, 'wgd_status']
+    bootstrap_results['pcawg_wgd'] = meta.loc[samples, 'wgd_status']
+    bootstrap_results['nr_bootstraps_with_wgd'] = N_bootstrap - \
+        np.sum((bootstrap_distances[:, 1, :] - bootstrap_distances[:, 0, :]) == 0, axis=1)
+    bootstrap_results['bootstrap_wgd'] = (bootstrap_results['nr_bootstraps_with_wgd'] / N_bootstrap) > 0.05
 
-    boostrap_results['mean_wgd'] = np.mean(bootstrap_distances[:, 0, :], axis=1)
-    boostrap_results['mean_no_wgd'] = np.mean(bootstrap_distances[:, 1, :], axis=1)
-
-    boostrap_results['diff_number_nonzero'] = N_bootstrap - np.sum((bootstrap_distances[:, 1, :] - bootstrap_distances[:, 0, :])==0, axis=1)
-
-    hdfstore.put('bootstrap_distances', boostrap_results, format='table')
+    hdfstore.put('bootstrap_distances', bootstrap_results, format='table')
 # %%
 hdfstore.close()
 
 #%%
-result = meta.join(distances, how='inner').join(wgd[['ploidy_pcawg','hom']])
-result['wgd_status'] = result['wgd_status'].map({'wgd':'WGD', 'no_wgd':'No WGD'})
+result = meta.join(distances, how='inner').join(
+    wgd[['ploidy_pcawg', 'hom']]).join(bootstrap_results[['bootstrap_wgd']])
+result['pcawg_wgd'] = result['wgd_status'].map({'wgd': 'WGD', 'no_wgd': 'No WGD'})
 result['wgd_status_medicc'] = (result['dist_diff'] >= 1).map({True: 'WGD', False: 'No WGD'})
+result['wgd_status_medicc_bootstrap'] = (result['bootstrap_wgd']).map({
+    True: 'WGD', False: 'No WGD'})
 linex = np.linspace(0, result.hom.max())
 linea = -2
 lineb = -1
@@ -280,24 +292,25 @@ result['linedist'] = linedist
 scale = 0.8
 
 #%% Overlap with PCAWG labels
-confusion_matrix = pd.crosstab(result['wgd_status'], result['wgd_status_medicc'])
+confusion_matrix = pd.crosstab(result['pcawg_wgd'], result['wgd_status_medicc'])
 
 print(confusion_matrix)
 confusion_matrix = confusion_matrix.astype(int)
-print('{:.1f}% correct classification'.format(
+print('Pure MEDICC2 results:\n{:.1f}% correct classification'.format(
     100*(confusion_matrix.iloc[0, 0] + confusion_matrix.iloc[1, 1]) / confusion_matrix.sum().sum()))
 
 #%% Overlap with PCAWG labels from Bootstrap
 confusion_matrix_bootstrap = pd.crosstab(
-    boostrap_results['pcawg_wgd'], boostrap_results['diff_number_nonzero'] >= 5)
+    bootstrap_results['pcawg_wgd'], bootstrap_results['bootstrap_wgd'])
 print(confusion_matrix_bootstrap)
 confusion_matrix_bootstrap = confusion_matrix_bootstrap.astype(int)
-print('{:.1f}% correct classification'.format(
+print('MEDICC2 bootstrap results:\n{:.1f}% correct classification'.format(
     100*(confusion_matrix_bootstrap.iloc[0, 0] + confusion_matrix_bootstrap.iloc[1, 1]) / confusion_matrix_bootstrap.sum().sum()))
 
 #%% test for association with uncertainty
-uncertain = pd.crosstab(result.eval("wgd_status != wgd_status_medicc"), result['wgd_uncertain'])
-sp.stats.chi2_contingency(uncertain)
+uncertain = pd.crosstab(result.eval(
+    "pcawg_wgd != wgd_status_medicc_bootstrap"), result['wgd_uncertain'])
+print("p-value for over-represenation of uncertain samples in false predictions: {:.1e}".format(sp.stats.chi2_contingency(uncertain)[1]))
 
 # %% plot PCAWG MED distributions
 palette = dict(zip(tumour_types.index, tumour_types.Hexadecimal))
@@ -307,7 +320,7 @@ sns.boxplot(x='dist_wgd', y='histology_abbreviation', palette=palette, data=plot
 ax.set_xlabel('MED (WGD) from diploid normal')
 ax.set_ylabel('PCAWG histology')
 fig.show()
-fig.savefig('figures/pcawg_supp_MED_per_cancer_type.pdf', bbox_inches='tight')
+fig.savefig('figures_PCAWG/pcawg_supp_MED_per_cancer_type.pdf', bbox_inches='tight')
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,10))
 plotdat = result.query("histology_useable").sort_values('histology_abbreviation')
@@ -315,55 +328,42 @@ sns.boxplot(x='dist_diff', y='histology_abbreviation', palette=palette, data=plo
 ax.set_xlabel('MEDICC2 WGD score')
 ax.set_ylabel('PCAWG histology')
 fig.show()
-fig.savefig('figures/pcawg_supp_MEDICC2_WGD_score_per_cancer_type.pdf', bbox_inches='tight')
+fig.savefig('figures_PCAWG/pcawg_supp_MEDICC2_WGD_score_per_cancer_type.pdf', bbox_inches='tight')
 
 
 # %% PCAWG Figure
 fig, ax = plt.subplots(figsize=(8 * scale,6 * scale))
-sns.scatterplot(x='hom', y='ploidy_pcawg', data=result, hue='wgd_status', ax=ax)
-ax.get_legend().set_title('WGD status')
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=result, hue='pcawg_wgd', ax=ax)
 ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
 ax.plot(linex, liney, '--', color='grey')
 #fig.show()
-fig.savefig('figures/pcawg_supp_ploidy_vs_loh_wgd.pdf', bbox_inches='tight')
+fig.savefig('figures_PCAWG/pcawg_supp_ploidy_vs_loh_wgd.pdf', bbox_inches='tight')
 
-# %% PCAWG Figure
+# %% PCAWG Figure with false MEDICC predictions
 fig, ax = plt.subplots(figsize=(8 * scale,6 * scale))
-sns.scatterplot(x='hom', y='ploidy_pcawg', data=result, hue='wgd_status', ax=ax)
-sns.scatterplot(x='hom', y='ploidy_pcawg', data=result.loc[result.eval('wgd_status != wgd_status_medicc')],
-                    color='black')
-ax.get_legend().set_title('WGD status')
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=result, hue='pcawg_wgd', ax=ax)
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=result.loc[result.eval('pcawg_wgd != wgd_status_medicc_bootstrap')],
+                    color='black', label='false predictions')
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=result.loc[result.eval('pcawg_wgd != wgd_status_medicc_bootstrap') &
+                                                           result['wgd_uncertain']],
+                    color='grey', label='false predictions (uncertain)')
 ax.set_title('False Predictions')
 ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
 ax.plot(linex, liney, '--', color='grey')
 #fig.show()
-fig.savefig('figures/pcawg_supp_ploidy_vs_loh_wgd_highlight_false_predictions.pdf', bbox_inches='tight')
+fig.savefig('figures_PCAWG/pcawg_supp_ploidy_vs_loh_wgd_highlight_false_predictions.pdf', bbox_inches='tight')
 
 # %% PCAWG Figure with our score
 fig, ax = plt.subplots(figsize=(8 * scale, 6 * scale))
-sns.scatterplot(x='hom', y='ploidy_pcawg', data=result, hue='dist_total_diff', palette="viridis", ax=ax)
-ax.get_legend().set_title('MEDICC2\nWGD score')
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=result, hue='dist_diff', palette="viridis", ax=ax)
 ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
 ax.plot(linex, liney, '--', color='grey')
 #fig.show()
-fig.savefig('figures/pcawg_ploidy_vs_loh_our_score.pdf', bbox_inches='tight')
+fig.savefig('figures_PCAWG/pcawg_ploidy_vs_loh_our_score.pdf', bbox_inches='tight')
 
-# %% PCAWG Figure pointing out wrong predictions
-fig, ax = plt.subplots(figsize=(8 * scale, 6 * scale))
-sns.scatterplot(x='hom', y='ploidy_pcawg', data=result,
-                hue='pcawg_wgd', palette="viridis", ax=ax)
-sns.scatterplot(x='hom', y='ploidy_pcawg', data=result.loc[result.eval('wgd_status != wgd_status_medicc')],
-                color='black', ax=ax, label='false predictions')
-
-ax.get_legend().set_title('MEDICC2\nWGD score')
-ax.set_xlabel('Fraction of genome with LOH')
-ax.set_ylabel('Ploidy')
-ax.plot(linex, liney, '--', color='grey')
-#fig.show()
-fig.savefig('figures/pcawg_ploidy_vs_loh_wrong predictions.pdf', bbox_inches='tight')
 
 #%% distance from line:
 plotdat = result
@@ -386,4 +386,4 @@ ax.set_ylabel('PCAWG WGD score')
 r = sp.stats.pearsonr(plotdat['dist_diff'], plotdat['linedist'])[0]**2
 ax.text(0.98, 0.02, r"$r^2 = %.2f$" % r, transform=ax.transAxes, ha='right', va='bottom')
 #fig.show()
-fig.savefig('figures/pcawg_our_score_vs_linedist.pdf', bbox_inches='tight')
+fig.savefig('figures_PCAWG/pcawg_our_score_vs_linedist.pdf', bbox_inches='tight')
