@@ -61,7 +61,7 @@ def plot_cn_profiles(
         hide_internal_nodes=False,
         chr_label_func=None,
         show_events=False,
-        show_branch_lengths=False,
+        show_branch_lengths=True,
         label_func=None):
     
     if input_tree is None or normal_name is None: 
@@ -136,7 +136,7 @@ def plot_cn_profiles(
         chrom_offset.name='offset'
         df = df.join(chrom_offset, on='chrom')
         df['start_pos'] = df['start'] + df['offset']
-        df['end_pos'] = df['end'] + df['offset'] + 1
+        df['end_pos'] = df['end'] + df['offset']
 
     df = df.reset_index().set_index(['sample_id', 'chrom', 'start', 'end'])
 
