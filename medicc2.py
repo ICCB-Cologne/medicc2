@@ -79,11 +79,6 @@ parser.add_argument("--no-wgd", action='store_true', default=False,
                     help='Enable whole-genome doubling events (default: false).', required=False)
 parser.add_argument("--no-plot", action='store_true', default=False, 
                     help='Disable plotting (default: false).', required=False)
-parser.add_argument("--summary",
-		            dest = "plot_summary",
-		            action = "store_true", 
-                    required = False, 
-                    help = "Plot a track with event summary")
 parser.add_argument("--legacy-version",
                     dest="legacy_version",
 		            action = "store_true", 
@@ -253,13 +248,11 @@ else:
 # Plot CN tracks
 if not args.no_plot:
     logger.info("Plotting CN profiles.")
-    plot_summary = args.plot_summary
     p = medicc.plot.plot_cn_profiles(
         output_df, 
         input_tree=support_tree if support_tree is not None else final_tree,
         title=output_prefix, 
-        normal_name=normal_name, 
-        plot_summary=plot_summary,
+        normal_name=normal_name,
         show_branch_support=support_tree is not None,
         label_func=None)
     p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'))

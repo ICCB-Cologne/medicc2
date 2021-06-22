@@ -43,7 +43,6 @@ Logging settings can be changed using the `logging_conf.yaml` file with the stan
 * `--prefix`, '-p': Output prefix to be used. None uses input filename. Default: None
 * `--no-wgd`: Disable whole-genome doubling events. Default: False
 * `--no-plot`: Disable plotting. Default: False
-* `--summary`: Plot a track with event summary. Default: False
 * `--legacy-version`: Use legacy version in which alleles are treated separately. Default: False
 * `--total-copy-numbers`: Run in total copy number mode. Default: False
 * `-j`, `--n-cores`: Number of cores to run on. Default: None
