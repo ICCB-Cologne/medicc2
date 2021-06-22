@@ -320,7 +320,7 @@ sns.boxplot(x='dist_wgd', y='histology_abbreviation', palette=palette, data=plot
 ax.set_xlabel('MED (WGD) from diploid normal')
 ax.set_ylabel('PCAWG histology')
 fig.show()
-fig.savefig('figures_PCAWG/pcawg_supp_MED_per_cancer_type.pdf', bbox_inches='tight')
+fig.savefig('figures/pcawg_supp_MED_per_cancer_type.pdf', bbox_inches='tight')
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,10))
 plotdat = result.query("histology_useable").sort_values('histology_abbreviation')
@@ -328,7 +328,7 @@ sns.boxplot(x='dist_diff', y='histology_abbreviation', palette=palette, data=plo
 ax.set_xlabel('MEDICC2 WGD score')
 ax.set_ylabel('PCAWG histology')
 fig.show()
-fig.savefig('figures_PCAWG/pcawg_supp_MEDICC2_WGD_score_per_cancer_type.pdf', bbox_inches='tight')
+fig.savefig('figures/pcawg_supp_MEDICC2_WGD_score_per_cancer_type.pdf', bbox_inches='tight')
 
 
 # %% PCAWG Figure
@@ -338,7 +338,7 @@ ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
 ax.plot(linex, liney, '--', color='grey')
 #fig.show()
-fig.savefig('figures_PCAWG/pcawg_supp_ploidy_vs_loh_wgd.pdf', bbox_inches='tight')
+fig.savefig('figures/pcawg_supp_ploidy_vs_loh_wgd.pdf', bbox_inches='tight')
 
 # %% PCAWG Figure with false MEDICC predictions
 fig, ax = plt.subplots(figsize=(8 * scale,6 * scale))
@@ -353,7 +353,7 @@ ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
 ax.plot(linex, liney, '--', color='grey')
 #fig.show()
-fig.savefig('figures_PCAWG/pcawg_supp_ploidy_vs_loh_wgd_highlight_false_predictions.pdf', bbox_inches='tight')
+fig.savefig('figures/pcawg_supp_ploidy_vs_loh_wgd_highlight_false_predictions.pdf', bbox_inches='tight')
 
 # %% PCAWG Figure with our score
 fig, ax = plt.subplots(figsize=(8 * scale, 6 * scale))
@@ -362,7 +362,7 @@ ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
 ax.plot(linex, liney, '--', color='grey')
 #fig.show()
-fig.savefig('figures_PCAWG/pcawg_ploidy_vs_loh_our_score.pdf', bbox_inches='tight')
+fig.savefig('figures/pcawg_ploidy_vs_loh_our_score.pdf', bbox_inches='tight')
 
 
 #%% distance from line:
@@ -386,4 +386,4 @@ ax.set_ylabel('PCAWG WGD score')
 r = sp.stats.pearsonr(plotdat['dist_diff'], plotdat['linedist'])[0]**2
 ax.text(0.98, 0.02, r"$r^2 = %.2f$" % r, transform=ax.transAxes, ha='right', va='bottom')
 #fig.show()
-fig.savefig('figures_PCAWG/pcawg_our_score_vs_linedist.pdf', bbox_inches='tight')
+fig.savefig('figures/pcawg_our_score_vs_linedist.pdf', bbox_inches='tight')
