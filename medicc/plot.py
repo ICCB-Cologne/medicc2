@@ -14,6 +14,7 @@ COL_ALLELE_B = mpl.colors.to_rgba('teal')
 COL_CLONAL = mpl.colors.to_rgba('lightgrey')
 COL_NORMAL = mpl.colors.to_rgba('dimgray')
 COL_GAIN = mpl.colors.to_rgba('red')
+COL_WGD = mpl.colors.to_rgba('green')
 COL_LOSS = mpl.colors.to_rgba('blue')
 COL_CHR_LABEL = mpl.colors.to_rgba('grey')
 COL_VLINES = '#1f77b4'
@@ -28,6 +29,7 @@ LINEWIDTH_COPY_NUMBERS = 2
 LINEWIDTH_CHR_BOUNDARY = 1
 LINEWIDTH_SEGMENT_BOUNDARY = 0.5
 ALPHA_PATCHES = 0.15
+ALPHA_PATCHES_WGD = 0.3
 ALPHA_CLONAL = 0.3
 BACKGROUND_HATCH_MARKER = '/////'
 TREE_MARKER_SIZE = 40
@@ -46,6 +48,7 @@ def plot_cn_profiles(
         normal_name=None,
         mincn='auto',
         maxcn='auto',
+        allele_columns=['cn_a', 'cn_b'],
         plot_summary=True,
         plot_subclonal_summary=True,
         plot_clonal_summary=False,
@@ -74,15 +77,18 @@ def plot_cn_profiles(
         normal_name = 'diploid'
 
     df = input_df.copy()
-    alleles = np.setdiff1d(df.columns, ['is_clonal', 'is_normal', 'is_gain', 'is_loss'])
-    if len(alleles) > 2:
+    if len(allele_columns) > 2:
         logger.warn("More than two allels were provided ({})\n"
-                    "Copy number tracks can only be plotted for 1 or 2 alleles".format(alleles))
+                    "Copy number tracks can only be plotted for 1 or 2 alleles".format(allele_columns))
+    if len(np.setdiff1d(allele_columns, df.columns)):
+        logger.warn("Some provided allele_columns are not in the dataframe"
+                    "These are: {}".format(np.setdiff1d(allele_columns, df.columns)))
 
-    if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss'], df.columns).size > 0:
+    if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd'], df.columns).size > 0:
         df = core.summarize_changes(df,
                                     input_tree,
-                                    normal_name)
+                                    normal_name,
+                                    allele_columns=allele_columns)
 
     if hide_normal_chromosomes:
         df = df.join(df.groupby('chrom')['is_normal'].all().to_frame('hide'))
@@ -149,7 +155,7 @@ def plot_cn_profiles(
 
         mrca = [x for x in input_tree.root.clades if x.name != normal_name][0].name
         mrca_df = df.loc[mrca].copy()
-        mrca_df.loc[:, alleles] = mrca_df.loc[:, alleles] - df.loc[normal_name, alleles]
+        mrca_df.loc[:, allele_columns] = mrca_df.loc[:, allele_columns] - df.loc[normal_name, allele_columns]
 
     ## determine clade colors
     clade_colors = {}
@@ -188,7 +194,8 @@ def plot_cn_profiles(
         gs = fig.add_gridspec(nrows, 2, width_ratios=[tree_width_ratio, 1-tree_width_ratio])
         tree_ax = fig.add_subplot(gs[0:nsamp, 0])
         cn_axes = [fig.add_subplot(gs[i]) for i in range(1,(2*(nrows))+1,2)]
-        y_posns = _get_y_positions(input_tree, adjust=not hide_internal_nodes)
+        y_posns = _get_y_positions(
+            input_tree, adjust=not hide_internal_nodes, normal_name=normal_name)
         y_posns = {clade.name: y_pos for clade, y_pos in y_posns.items(
             ) if clade.name is not None and clade.name != 'root'}
         plot_tree(input_tree, 
@@ -214,7 +221,7 @@ def plot_cn_profiles(
                          data=group,
                          mincn=mincn-1,
                          maxcn=maxcn+1,
-                         alleles=alleles,
+                         alleles=allele_columns,
                          type='sample',
                          chr_label_func=chr_label_func,
                          plot_xaxis_labels=plot_axis_labels if not (
@@ -227,9 +234,9 @@ def plot_cn_profiles(
         _plot_cn_profile(ax=cn_axes[nsamp],
                          label='clonal\nchanges',
                          data=mrca_df.copy(),
-                         mincn=mrca_df[alleles].min().min()-1,
-                         maxcn=mrca_df[alleles].max().max()+1,
-                         alleles=alleles,
+                         mincn=mrca_df[allele_columns].min().min()-1,
+                         maxcn=mrca_df[allele_columns].max().max()+1,
+                         alleles=allele_columns,
                          chr_label_func=chr_label_func,
                          type='summary',
                          show_small_segments=show_small_segments)
@@ -239,22 +246,22 @@ def plot_cn_profiles(
         _plot_cn_profile(ax=cn_axes[-1],
                          label='all\nchanges',
                          data=agg_events.copy(),
-                         mincn=agg_events[alleles].min().min()-1,
-                         maxcn=agg_events[alleles].max().max()+1,
-                         alleles=alleles,
+                         mincn=agg_events[allele_columns].min().min()-1,
+                         maxcn=agg_events[allele_columns].max().max()+1,
+                         alleles=allele_columns,
                          chr_label_func=chr_label_func,
                          type='summary',
                          show_small_segments=show_small_segments)
 
     if plot_subclonal_summary:
-        agg_events.loc[:, alleles] = agg_events[alleles] - mrca_df[alleles]
+        agg_events.loc[:, allele_columns] = agg_events[allele_columns] - mrca_df[allele_columns]
         _plot_cn_profile(ax=cn_axes[-1 - int(plot_summary)],
                          label='subclonal\nchanges',
                          data=agg_events.copy(),
                          type='summary',
-                         mincn=agg_events[alleles].min().min()-1,
-                         maxcn=agg_events[alleles].max().max()+1,
-                         alleles=alleles,
+                         mincn=agg_events[allele_columns].min().min()-1,
+                         maxcn=agg_events[allele_columns].max().max()+1,
+                         alleles=allele_columns,
                          chr_label_func=chr_label_func,
                          show_small_segments=show_small_segments)
         cn_axes[-1 - int(plot_summary)].get_xaxis().set_visible(not plot_summary)
@@ -303,6 +310,10 @@ def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
             if r['is_normal']:
                 rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'],
                                             maxcn-mincn, edgecolor=None, facecolor=COL_NORMAL, alpha=ALPHA_PATCHES)
+                event_patches.append(rect)
+            if r['is_wgd']:
+                rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'],
+                                             maxcn-mincn, edgecolor=None, facecolor=COL_WGD, alpha=ALPHA_PATCHES_WGD)
                 event_patches.append(rect)
             if r['is_gain']:
                 rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'],
@@ -408,14 +419,15 @@ def _get_x_positions(tree):
         depths = tree.depths(unit_branch_lengths=True)
     return depths
 
-def _get_y_positions(tree, adjust=False):
+def _get_y_positions(tree, adjust=False, normal_name='diploid'):
     """Create a mapping of each clade to its vertical position.
     Dict of {clade: y-coord}.
-    Coordinates are negative, and integers for tips.
+Coordinates are negative, and integers for tips.
     """
     maxheight = tree.count_terminals()
-    # Rows are defined by the tips
-    heights = {tip: maxheight - i for i, tip in enumerate(reversed(tree.get_terminals()))}
+    heights = {tip: maxheight -1 -i for i,
+            tip in enumerate(reversed([x for x in tree.get_terminals() if x.name != normal_name]))}
+    heights.update({list(tree.find_clades(normal_name))[0]: maxheight})
 
     # Internal nodes: place at midpoint of children
     def calc_row(clade):
@@ -561,7 +573,7 @@ def plot_tree(input_tree,
     ax.set_title(title, x=0.01, y=1.0, ha='left', va='bottom',
                 fontweight='bold', fontsize=16, zorder=10)
     x_posns = _get_x_positions(input_tree)
-    y_posns = _get_y_positions(input_tree, adjust=not hide_internal_nodes)
+    y_posns = _get_y_positions(input_tree, adjust=not hide_internal_nodes, normal_name=normal_name)
 
     # Arrays that store lines for the plot of clades
     horizontal_linecollections = []

@@ -231,7 +231,7 @@ def _write_pdm(labels, pdm, filename):
     pdm.to_csv(filename, sep='\t')
     return pdm
 
-def import_tree(tree_file, normal_name, file_format='newick'):
+def import_tree(tree_file, normal_name='diploid', file_format='newick'):
     """ Loads a phylogenetic tree in the given format and roots it at the normal sample. """
     tree = Bio.Phylo.read(tree_file, file_format)
     input_tree = Bio.Phylo.BaseTree.copy.deepcopy(tree)
@@ -246,6 +246,19 @@ def import_tree(tree_file, normal_name, file_format='newick'):
         pass
 
     return input_tree
+
+
+def read_bed_file(filename, as_pyranges=False):
+
+    data = pd.read_csv(filename, header=None, comment='#', sep='\t')
+
+    if len(data.columns) != 4:
+        print('WARNING: expected 4 columns')
+        return None
+
+    data.columns = ['Chromosome', 'Start', 'End', 'name']
+    return data
+
 
 class MEDICCIOError(Exception):
     pass

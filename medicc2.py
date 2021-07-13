@@ -39,7 +39,7 @@ parser.add_argument("--tree",
 parser.add_argument("--topology-only", "-s",
                     action = "store_true", 
                     dest = "topology_only", 
-                    help = "Output only tree topology, without reconstructing ancestors (default: false).",
+                    help = "Output only tree topology, without reconstructing ancestors (default: False).",
                     required = False)
 parser.add_argument("--normal-name", "-n",
                     default = "diploid", 
@@ -76,9 +76,9 @@ parser.add_argument("--bootstrap-nr",
 parser.add_argument("--prefix", '-p', type=str, dest='prefix', default=None, 
                     help='Output prefix to be used (default: input filename).', required=False)
 parser.add_argument("--no-wgd", action='store_true', default=False, 
-                    help='Enable whole-genome doubling events (default: false).', required=False)
+                    help='Enable whole-genome doubling events (default: False).', required=False)
 parser.add_argument("--no-plot", action='store_true', default=False, 
-                    help='Disable plotting (default: false).', required=False)
+                    help='Disable plotting (default: False).', required=False)
 parser.add_argument("--legacy-version",
                     dest="legacy_version",
 		            action = "store_true", 
@@ -89,7 +89,7 @@ parser.add_argument("--total-copy-numbers",
                     action='store_true',
                     default=False,
                     required=False,
-                    help='Run in total copy number mode (default: false).')
+                    help='Run for total copy number data instead of allele-specific data (default: False).')
 parser.add_argument("-j", "--n-cores",
                     type=int,
                     dest='n_cores',
@@ -97,7 +97,7 @@ parser.add_argument("-j", "--n-cores",
                     required=False,
                     help="""Number of cores to run on""")
 parser.add_argument("-v", "--verbose", action='store_true', default=False,
-                    help='Enable verbose output (default: false).', required=False)
+                    help='Enable verbose output (default: False).', required=False)
 parser.add_argument("--maxcn", type=int, dest='maxcn', default=8,
                     help='Expert option: maximum CN at which the input is capped. Does not change FST.')
 parser.add_argument("--prune-weight", type=int, dest='prune_weight', default=0,
@@ -186,6 +186,7 @@ if args.legacy_version:
         ancestral_reconstruction=not args.topology_only,
         chr_separator=args.fst_chr_separator.strip(),
         prune_weight=args.prune_weight,
+        allele_columns=allele_columns,
         n_cores=args.n_cores)
 else:
     sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main(
@@ -196,6 +197,7 @@ else:
         ancestral_reconstruction=not args.topology_only,
         chr_separator=args.fst_chr_separator.strip(),
         prune_weight=args.prune_weight,
+        allele_columns=allele_columns,
         n_cores=args.n_cores)
 
 ## Output pairwise distance matrices
@@ -253,6 +255,7 @@ if not args.no_plot:
         input_tree=support_tree if support_tree is not None else final_tree,
         title=output_prefix, 
         normal_name=normal_name,
+        allele_columns=allele_columns,
         show_branch_support=support_tree is not None,
         label_func=None)
     p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'))

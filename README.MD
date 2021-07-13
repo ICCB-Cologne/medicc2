@@ -44,7 +44,7 @@ Logging settings can be changed using the `logging_conf.yaml` file with the stan
 * `--no-wgd`: Disable whole-genome doubling events. Default: False
 * `--no-plot`: Disable plotting. Default: False
 * `--legacy-version`: Use legacy version in which alleles are treated separately. Default: False
-* `--total-copy-numbers`: Run in total copy number mode. Default: False
+* `--total-copy-numbers`: Run for total copy number data instead of allele-specific data. Default: False
 * `-j`, `--n-cores`: Number of cores to run on. Default: None
 * `-v`, `--verbose`: Enable verbose output. Default: False
 * `--maxcn`: Expert option: maximum CN at which the input is capped. Does not change FST. Default: 8
