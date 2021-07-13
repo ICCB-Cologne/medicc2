@@ -62,14 +62,14 @@ def _mutate(cnstr, event, start, end, maxcn, mincn, ignore_chr_boundaries=False,
             newcn = oldcn
         cnstr[i] = tools.int2hex(newcn)
 
-def rcoal(n, tips = None):
+def rcoal(n, tips = None, uniform_branch_length=False):
     """As in rcoal function in R package Ape, function generates a random tree and random branch lengths."""
     x = np.divide(2*np.random.exponential(size = n-1),np.multiply(np.array(list(reversed(range(2,n+1)))), np.array(list(reversed(range(1, n))))))
     if (n == 2):
         edge = pd.DataFrame()
         edge['a'] = [2,2]
         edge['b'] = [0,1]
-        edge['name_a'] = pd.Series(['root','root'])
+        edge['name_a'] = pd.Series(['mrca','mrca'])
         if tips and len(tips)==n:
             edge['name_b'] = pd.Series([tips[0],tips[1]])
         else:
@@ -80,7 +80,7 @@ def rcoal(n, tips = None):
         edge = pd.DataFrame()
         edge['a'] = [3,4,4,3]
         edge['b'] = [4,0,1,2]
-        edge['name_a'] = pd.Series(['root','internal_1','internal_1','root'])
+        edge['name_a'] = pd.Series(['mrca','internal_1','internal_1','mrca'])
         if tips and len(tips)==n:
             edge['name_b'] = pd.Series(['internal_1',tips[0],tips[1],tips[2]])
         else:
@@ -147,17 +147,20 @@ def rcoal(n, tips = None):
         reordered.at[reordered.name_b=='', 'name_b'] = ["internal_{0:d}".format(i +1) for i in range(len(reordered[reordered.name_b=='']))]
         internal_names =  reordered[reordered.b>n][['b','name_b']].copy()
         internal_names.set_index(['b'], inplace = True)
-        internal_names = internal_names.append(pd.DataFrame(data = ['root'], index= [n], columns = ['name_b']))
+        internal_names = internal_names.append(pd.DataFrame(data = ['mrca'], index= [n], columns = ['name_b']))
         reordered['name_a'] = [internal_names.name_b .loc[i]for i in reordered.a]
 
     reordered = reordered[['a','b','name_a', 'name_b', 'edge_length']]
+    if uniform_branch_length:
+        reordered['edge_length'] = 1
     return _edgelist_to_tree(reordered)
+
 
 def _edgelist_to_tree(el, add_normal=True, normal_name='diploid'):
     clades = {name:Bio.Phylo.PhyloXML.Clade(name=name) for name in el[['name_a','name_b']].stack().unique()} 
     if add_normal:
         clades[normal_name] = Bio.Phylo.PhyloXML.Clade(name=normal_name, branch_length=1)
-        clades['root'].clades.append(clades[normal_name])
+        clades['mrca'].clades.append(clades[normal_name])
 
     for _, row in el.iterrows():
         parent = clades[row['name_a']]
@@ -165,5 +168,5 @@ def _edgelist_to_tree(el, add_normal=True, normal_name='diploid'):
         child.branch_length = row['edge_length']
         parent.clades.append(child)
     
-    tree = Bio.Phylo.PhyloXML.Phylogeny(root = clades['root'])
+    tree = Bio.Phylo.PhyloXML.Phylogeny(root = clades['mrca'])
     return tree
