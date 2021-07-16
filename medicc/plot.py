@@ -1,6 +1,7 @@
 import logging
 
 import matplotlib as mpl
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -785,6 +786,61 @@ def plot_tree(input_tree,
         plt.savefig(output_name + ".png")
 
     return plt.gcf()
+
+
+def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, 
+                    allele='total', width_ratios=(1, 1), title=None):
+    
+    cur_sample_labels = np.unique(input_df.index.get_level_values('sample_id'))
+    
+    if final_tree is None:
+        fig, ax = plt.subplots(figsize=(20, 20), ncols=1, sharey=False)
+        
+        if y_posns is None:
+            y_posns = {s: i for i, s in enumerate(np.sort(cur_sample_labels))}
+    else:
+        fig, axs = plt.subplots(figsize=(35, 25), ncols=2, sharey=True, 
+                                gridspec_kw={'width_ratios': width_ratios})
+        ax = axs[1]
+
+        y_posns = {k.name:v for k, v in _get_y_positions(final_tree, adjust=False).items()}
+        
+        fig = plot_tree(final_tree, ax=axs[0], label_func=lambda x: '',
+                        hide_internal_nodes=True, show_branch_lengths=False, show_events=False,
+                        title=title)
+        axs[0].set_axis_off()
+
+    ind = [y_posns.get(x, -1) for x in cur_sample_labels]
+    cur_samples = cur_sample_labels[np.argsort(ind)]
+
+    color_norm = mcolors.TwoSlopeNorm(vmin=0, vcenter=2, vmax=min(cmax, np.max(input_df.values.astype(int))))
+
+    if allele == 'total':
+        if len(np.setdiff1d(['cn_a', 'cn_b'], input_df.columns)):
+            raise MEDICCPlotError("If allele='total', 'cn_a' and 'cn_b' have to be in the columns of input_df")
+        input_df['total'] = input_df['cn_a'].astype(int) + input_df['cn_b'].astype(int)
+
+    x_pos = np.append([0], np.cumsum(input_df.loc[cur_samples].astype(int).unstack('sample_id').loc[:, (allele)].loc[:, cur_samples].eval('end-start').values))
+    y_pos = np.arange(len(cur_samples)+1)+0.5
+    im = ax.pcolormesh(x_pos, y_pos, 
+                       input_df.loc[cur_samples].astype(int).unstack('sample_id').loc[:, (allele)].loc[:, cur_samples].values.T, 
+                       cmap='coolwarm', norm=color_norm)
+    plt.colorbar(im)
+
+    chr_ends = input_df.loc[cur_sample_labels[0]].copy()
+    chr_ends['end_pos'] = np.cumsum([1]*len(chr_ends))
+    chr_ends = chr_ends.reset_index().groupby('chrom').max()['end_pos']
+    chr_ends.dropna(inplace=True)
+    for chrom, line in chr_ends.iteritems():
+        ax.axvline(x_pos[line], color='black', linewidth=2)
+    plt.xticks(np.append([0], x_pos[chr_ends.values][:-1]), chr_ends.index, ha='left')
+    ax.xaxis.set_tick_params(labeltop='on')
+    plt.yticks([])
+
+    plt.tight_layout()
+    # plt.savefig(os.path.join(results_dir, 'figures', 'medicc_{}.pdf'.format(patient)))
+
+    return fig
 
 
 class MEDICCPlotError(Exception):
