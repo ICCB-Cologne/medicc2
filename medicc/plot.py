@@ -468,6 +468,8 @@ def plot_tree(input_tree,
               branch_labels=None,
               label_colors=None,
               hide_internal_nodes=False,
+              marker_size=None,
+              line_width=None,
               **kwargs):
     """Plot the given tree using matplotlib (or pylab).
     The graphic is a rooted tree, drawn with roughly the same algorithm as
@@ -562,7 +564,9 @@ def plot_tree(input_tree,
         def get_label_color(label):
             return clade_colors.get(label, "black")
 
-    marker_func=lambda x: (TREE_MARKER_SIZE, get_label_color(x.name)) if x.name is not None else None
+    if marker_size is None:
+        marker_size = TREE_MARKER_SIZE
+    marker_func=lambda x: (marker_size, get_label_color(x.name)) if x.name is not None else None
 
     ax.axes.get_yaxis().set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -744,7 +748,9 @@ def plot_tree(input_tree,
             for child in clade:
                 draw_clade(child, x_here, color, lw)
 
-    draw_clade(input_tree.root, 0, "k", plt.rcParams["lines.linewidth"])
+    if line_width is None:
+        line_width = plt.rcParams["lines.linewidth"]
+    draw_clade(input_tree.root, 0, "k", line_width)
 
     # If line collections were used to create clade lines, here they are added
     # to the pyplot plot.

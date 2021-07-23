@@ -95,7 +95,8 @@ def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
     nexpected = 4 + len(allele_columns)
     input_columns = list(input_file.columns[0:4]) + allele_columns
     if input_file.shape[1] < nexpected:
-        raise MEDICCIOError("TSV file needs at least %d columns (sample_id, chrom, start, end and the allele columns)!" % nexpected)
+        raise MEDICCIOError("TSV file needs at least {} columns (sample_id, chrom, start, end and the allele columns)"
+                            "\nCurrent columns are: {}".format(nexpected, input_file.columns))
 
     ## check if allele_columns are present
     if not np.all(np.in1d(allele_columns, input_file.columns)):

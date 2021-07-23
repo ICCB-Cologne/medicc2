@@ -170,8 +170,14 @@ def main_legacy(input_df,
     return sample_labels, pdms, nj_tree, final_tree, output_df
 
 
-def summarize_changes(input_df, input_tree, normal_name='diploid', allele_specific=False, 
-                      calc_wgd=True, chr_separator='X', asymm_fst_nowgd=None, allele_columns=['cn_a', 'cn_b']):
+def summarize_changes(input_df,
+                      input_tree,
+                      normal_name='diploid',
+                      allele_specific=False,
+                      calc_wgd=True,
+                      chr_separator='X',
+                      asymm_fst_nowgd=None,
+                      allele_columns=['cn_a', 'cn_b']):
     df = input_df.copy()
 
     ## we're force converting to categoricals to always maintain the order of the chromosomes as given
