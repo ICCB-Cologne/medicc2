@@ -795,56 +795,83 @@ def plot_tree(input_tree,
 
 
 def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, 
-                    allele='total', width_ratios=(1, 1), title=None):
+                    alleles='total', tree_width_ratio=1, cbar_width_ratio=0.02, 
+                    figsize=(20, 10), title=None):
     
     cur_sample_labels = np.unique(input_df.index.get_level_values('sample_id'))
     
+
+    if not isinstance(alleles, list) and not isinstance(alleles, tuple):
+        alleles = [alleles]
+    nr_alleles = len(alleles)
+
     if final_tree is None:
-        fig, ax = plt.subplots(figsize=(20, 20), ncols=1, sharey=False)
-        
+        fig, axs = plt.subplots(figsize=figsize, ncols=1+nr_alleles, sharey=False,
+                                gridspec_kw={'width_ratios': nr_alleles*[1] + [cbar_width_ratio]})
+
         if y_posns is None:
             y_posns = {s: i for i, s in enumerate(np.sort(cur_sample_labels))}
+
+        cn_axes = axs[:-1]
     else:
-        fig, axs = plt.subplots(figsize=(35, 25), ncols=2, sharey=True, 
-                                gridspec_kw={'width_ratios': width_ratios})
-        ax = axs[1]
+        fig, axs = plt.subplots(figsize=figsize, ncols=2+nr_alleles, sharey=False,
+                                gridspec_kw={'width_ratios': [tree_width_ratio] + nr_alleles*[1] + [cbar_width_ratio]})
+        tree_ax = axs[0]
+        cn_axes = axs[1:-1]
 
         y_posns = {k.name:v for k, v in _get_y_positions(final_tree, adjust=False).items()}
         
-        fig = plot_tree(final_tree, ax=axs[0], label_func=lambda x: '',
-                        hide_internal_nodes=True, show_branch_lengths=False, show_events=False,
-                        title=title)
-        axs[0].set_axis_off()
+        _ = plot_tree(final_tree, ax=tree_ax, label_func=lambda x: '',
+                      hide_internal_nodes=True, show_branch_lengths=False, show_events=False,
+                      line_width=0.2, marker_size=0.5,
+                      title='')
+        tree_ax.set_axis_off()
+        tree_ax.set_axis_off()
+        fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=100)
+
+    cax = axs[-1]
 
     ind = [y_posns.get(x, -1) for x in cur_sample_labels]
-    cur_samples = cur_sample_labels[np.argsort(ind)]
-
-    color_norm = mcolors.TwoSlopeNorm(vmin=0, vcenter=2, vmax=min(cmax, np.max(input_df.values.astype(int))))
-
-    if allele == 'total':
-        if len(np.setdiff1d(['cn_a', 'cn_b'], input_df.columns)):
-            raise MEDICCPlotError("If allele='total', 'cn_a' and 'cn_b' have to be in the columns of input_df")
-        input_df['total'] = input_df['cn_a'].astype(int) + input_df['cn_b'].astype(int)
-
-    x_pos = np.append([0], np.cumsum(input_df.loc[cur_samples].astype(int).unstack('sample_id').loc[:, (allele)].loc[:, cur_samples].eval('end-start').values))
-    y_pos = np.arange(len(cur_samples)+1)+0.5
-    im = ax.pcolormesh(x_pos, y_pos, 
-                       input_df.loc[cur_samples].astype(int).unstack('sample_id').loc[:, (allele)].loc[:, cur_samples].values.T, 
-                       cmap='coolwarm', norm=color_norm)
-    plt.colorbar(im)
+    cur_sample_labels = cur_sample_labels[np.argsort(ind)]
+    color_norm = mcolors.TwoSlopeNorm(vmin=0, vcenter=1, vmax=min(
+        cmax, np.max(input_df.values.astype(int))))
 
     chr_ends = input_df.loc[cur_sample_labels[0]].copy()
     chr_ends['end_pos'] = np.cumsum([1]*len(chr_ends))
     chr_ends = chr_ends.reset_index().groupby('chrom').max()['end_pos']
     chr_ends.dropna(inplace=True)
-    for chrom, line in chr_ends.iteritems():
-        ax.axvline(x_pos[line], color='black', linewidth=2)
-    plt.xticks(np.append([0], x_pos[chr_ends.values][:-1]), chr_ends.index, ha='left')
-    ax.xaxis.set_tick_params(labeltop='on')
-    plt.yticks([])
 
-    plt.tight_layout()
-    # plt.savefig(os.path.join(results_dir, 'figures', 'medicc_{}.pdf'.format(patient)))
+    x_pos = np.append([0], np.cumsum(input_df.loc[cur_sample_labels].astype(int).unstack(
+        'sample_id').loc[:, (alleles[0])].loc[:, cur_sample_labels].eval('end-start').values))
+    y_pos = np.arange(len(cur_sample_labels)+1)+0.5
+
+    for ax, allele in zip(cn_axes, alleles):
+        im = ax.pcolormesh(x_pos, y_pos,
+                        input_df.loc[cur_sample_labels].astype(int).unstack(
+                            'sample_id').loc[:, (allele)].loc[:, cur_sample_labels].values.T,
+                        cmap='coolwarm',
+                        norm=color_norm)
+
+        for _, line in chr_ends.iteritems():
+            ax.axvline(x_pos[line], color='black', linewidth=0.75)
+        ax.set_xticks(np.append([0], x_pos[chr_ends.values][:-1]) + 0)
+        ax.set_xticklabels([x[3:] for x in chr_ends.index], ha='left', rotation=90, va='center')
+        ax.tick_params(width=0)
+        ax.xaxis.set_tick_params(labelbottom=False, labeltop=True, bottom=False, pad=15)
+        ax.set_yticks([])
+
+    cax.pcolormesh([0, 1],
+                   np.arange(0, cmax+2),
+                   np.arange(0, cmax+2)[:, np.newaxis],
+                   cmap='coolwarm',
+                   norm=color_norm)
+    cax.set_xticks([])
+    cax.set_yticks(np.arange(0, cmax+1)+0.5)
+    cax.set_yticklabels(np.arange(0, cmax+1), ha='left')
+    cax.yaxis.set_tick_params(left=False, labelleft=False, labelright=True)
+
+    for ax in axs[:-1]:
+        ax.set_ylim(len(cur_sample_labels)+1, 0)
 
     return fig
 
