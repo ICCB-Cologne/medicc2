@@ -796,7 +796,7 @@ def plot_tree(input_tree,
 
 def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, 
                     alleles='total', tree_width_ratio=1, cbar_width_ratio=0.02, 
-                    figsize=(20, 10), title=None):
+                    figsize=(20, 10), title=None, tree_line_width=0.5, tree_marker_size=0.5):
     
     cur_sample_labels = np.unique(input_df.index.get_level_values('sample_id'))
     
@@ -823,7 +823,7 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8,
         
         _ = plot_tree(final_tree, ax=tree_ax, label_func=lambda x: '',
                       hide_internal_nodes=True, show_branch_lengths=False, show_events=False,
-                      line_width=0.2, marker_size=0.5,
+                      line_width=tree_line_width, marker_size=tree_marker_size,
                       title='')
         tree_ax.set_axis_off()
         tree_ax.set_axis_off()
@@ -857,7 +857,7 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8,
         ax.set_xticks(np.append([0], x_pos[chr_ends.values][:-1]) + 0)
         ax.set_xticklabels([x[3:] for x in chr_ends.index], ha='left', rotation=90, va='center')
         ax.tick_params(width=0)
-        ax.xaxis.set_tick_params(labelbottom=False, labeltop=True, bottom=False, pad=15)
+        ax.xaxis.set_tick_params(labelbottom=False, labeltop=True, bottom=False, pad=5)
         ax.set_yticks([])
 
     cax.pcolormesh([0, 1],

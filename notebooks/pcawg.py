@@ -13,7 +13,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import fstlib
 import medicc
 
-# %matplotlib inline
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../Figures_Kaufmann_et_al_2021')))
+from plotting_params import plotting_params, set_plotting_params
+
+set_plotting_params()
+
 
 # REQUIRED FILES TO RUN THIS:
 
@@ -47,7 +51,7 @@ data_folder = os.path.join(pcawg_folder, 'consensus.20170119.somatic.cna.annotat
 metadata_folder = os.path.join(pcawg_folder, 'metadata')
 
 #%% open HDF5 store
-hdfstore = pd.HDFStore(os.path.join(pcawg_folder, 'pcawg_scna_.hdf5'))
+hdfstore = pd.HDFStore(os.path.join(pcawg_folder, 'pcawg_scna.hdf5'))
 
 #%% metadata
 if LOAD:
@@ -300,10 +304,8 @@ result['wgd_status_medicc_bootstrap'] = (result['bootstrap_wgd']).map({
     True: 'WGD', False: 'No WGD'})
 linex = np.linspace(0, result.hom.max())
 linea = -2
-lineb = -1
 linec = 2.9
 liney = linea * linex + linec
-scale = 0.8
 
 #%% Overlap with PCAWG labels
 confusion_matrix = pd.crosstab(result['pcawg_wgd'], result['wgd_status_medicc'])
@@ -328,7 +330,8 @@ print("p-value for over-represenation of uncertain samples in false predictions:
     sp.stats.chi2_contingency(uncertain)[1]))
 
 # %% Figure with false MEDICC predictions
-fig, ax = plt.subplots(figsize=(8 * scale, 6 * scale))
+
+fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=result, hue='pcawg_wgd', ax=ax)
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=result.loc[result.eval('pcawg_wgd != wgd_status_medicc_bootstrap')],
                 color='black', label='false predictions')
@@ -339,24 +342,30 @@ ax.set_title('False Predictions')
 ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
 ax.plot(linex, liney, '--', color='grey')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Fig_2D.pdf', bbox_inches='tight')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Fig_2D.png', bbox_inches='tight', dpi=600)
 
 
 # %% plot PCAWG MED distributions
 palette = dict(zip(tumour_types.index, tumour_types.Hexadecimal))
-fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8, 10))
+fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_FULL']))
 plotdat = result.query("histology_useable").sort_values('histology_abbreviation')
 sns.boxplot(x='dist_wgd', y='histology_abbreviation', palette=palette, data=plotdat, ax=ax)
 ax.set_xlabel('MED (WGD) from diploid normal')
 ax.set_ylabel('PCAWG histology')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_2A.pdf', bbox_inches='tight')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_2A.png', bbox_inches='tight', dpi=600)
 
-fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8, 10))
+#%%
+fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(
+    plotting_params['WIDTH_HALF'], plotting_params['WIDTH_FULL']))
 plotdat = result.query("histology_useable").sort_values('histology_abbreviation')
 sns.boxplot(x='dist_diff', y='histology_abbreviation', palette=palette, data=plotdat, ax=ax)
 ax.set_xlabel('MEDICC2 WGD score')
 ax.set_ylabel('PCAWG histology')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_2B.pdf', bbox_inches='tight')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_2B.png', bbox_inches='tight', dpi=600)
+
+#%% Save data for plotting
+result[['hom', 'ploidy_pcawg', 'pcawg_wgd', 'histology_abbreviation', 'wgd_status_medicc_bootstrap',
+        'histology_useable', 'dist_diff', 'dist_wgd', 'wgd_uncertain']].to_csv(
+            '../Figures_Kaufmann_et_al_2021/data/Fig_2D_and_Supp_2A_and_Supp_2B.tsv',
+    sep='\t', index=False)
+
+tumour_types[['Hexadecimal']].to_csv(
+            '../Figures_Kaufmann_et_al_2021/data/Supp_2A_and_Supp_2B_color_palette.tsv',
+    sep='\t', index=True)
