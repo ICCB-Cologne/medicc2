@@ -17,6 +17,8 @@ import medicc
 SEED = 42
 set_plotting_params()
 
+CALC_NEW = False
+DATA_FILE = 'data/Fig_2A.tsv'
 
 #%% read fsts
 T_no_wgd_asymm = medicc.io.read_fst('../objects/no_wgd_asymm.fst')
@@ -53,38 +55,45 @@ def time_distance(fst, s1, s2, n_samples=10, max_length_factor=10, type='legacy'
     return elapsed, distances
 
 
-#%% Simulate
-sequence_len = 20
-diploid = '1' * sequence_len
-sequence, nloss, ngains, nwgd = medicc.sim.evolve(diploid, mu=20, pgain=0.8, pwgd=0, seed=SEED)
+#%% 
+if CALC_NEW or not os.path.isfile(DATA_FILE):
+    print('Calculating data')
+    # Simulate
+    sequence_len = 20
+    diploid = '1' * sequence_len
+    sequence, nloss, ngains, nwgd = medicc.sim.evolve(diploid, mu=20, pgain=0.8, pwgd=0, seed=SEED)
 
-#%% run timing experiment
-n_samples = 50
-mlf = 10
-elapsed_S_no_wgd_legacy = time_distance(T_no_wgd_symm, diploid, sequence, n_samples, mlf, type='legacy')
-elapsed_T_wgd_kernel = time_distance(T_wgd_asymm, diploid, sequence, n_samples, mlf, type='kernel')
-elapsed_T_no_wgd_kernel = time_distance(T_no_wgd_asymm, diploid, sequence, n_samples, mlf, type='kernel')
+    # run timing experiment
+    n_samples = 50
+    mlf = 10
+    elapsed_S_no_wgd_legacy = time_distance(T_no_wgd_symm, diploid, sequence, n_samples, mlf, type='legacy')
+    elapsed_T_wgd_kernel = time_distance(T_wgd_asymm, diploid, sequence, n_samples, mlf, type='kernel')
+    elapsed_T_no_wgd_kernel = time_distance(T_no_wgd_asymm, diploid, sequence, n_samples, mlf, type='kernel')
 
-df_S_no_wgd_legacy = pd.DataFrame(elapsed_S_no_wgd_legacy[0])
-df_T_wgd_kernel = pd.DataFrame(elapsed_T_wgd_kernel[0])
-df_T_no_wgd_kernel = pd.DataFrame(elapsed_T_no_wgd_kernel[0])
+    df_S_no_wgd_legacy = pd.DataFrame(elapsed_S_no_wgd_legacy[0])
+    df_T_wgd_kernel = pd.DataFrame(elapsed_T_wgd_kernel[0])
+    df_T_no_wgd_kernel = pd.DataFrame(elapsed_T_no_wgd_kernel[0])
 
-#%%
-timing = pd.concat([df_S_no_wgd_legacy, df_T_wgd_kernel, df_T_no_wgd_kernel],
-                   keys=['no_wgd_legacy', 'wgd_kernel', 'no_wgd_kernel'],
-                   names=['tag', 'rep'])
-timing.columns = (timing.columns+1) * sequence_len
-timing.columns.name = 'length'
-timing = timing.stack().to_frame('Time').reset_index('length')
-timing['Algorithm'] = ''
-timing['WGD'] = ''
-timing.loc['no_wgd_legacy', 'Algorithm'] = 'Legacy composition\n(Schwarz et al. 2014)'
-timing.loc['wgd_kernel', 'Algorithm'] = 'Lazy kernel composition'
-timing.loc['no_wgd_kernel', 'Algorithm'] = 'Lazy kernel composition'
-timing.loc['no_wgd_legacy', 'WGD'] = 'No WGD'
-timing.loc['wgd_kernel', 'WGD'] = 'WGD'
-timing.loc['no_wgd_kernel', 'WGD'] = 'No WGD'
+    # Create DF
+    timing = pd.concat([df_S_no_wgd_legacy, df_T_wgd_kernel, df_T_no_wgd_kernel],
+                    keys=['no_wgd_legacy', 'wgd_kernel', 'no_wgd_kernel'],
+                    names=['tag', 'rep'])
+    timing.columns = (timing.columns+1) * sequence_len
+    timing.columns.name = 'length'
+    timing = timing.stack().to_frame('Time').reset_index('length')
+    timing['Algorithm'] = ''
+    timing['WGD'] = ''
+    timing.loc['no_wgd_legacy', 'Algorithm'] = 'Legacy composition\n(Schwarz et al. 2014)'
+    timing.loc['wgd_kernel', 'Algorithm'] = 'Lazy kernel composition'
+    timing.loc['no_wgd_kernel', 'Algorithm'] = 'Lazy kernel composition'
+    timing.loc['no_wgd_legacy', 'WGD'] = 'No WGD'
+    timing.loc['wgd_kernel', 'WGD'] = 'WGD'
+    timing.loc['no_wgd_kernel', 'WGD'] = 'No WGD'
 
+    timing.to_csv(DATA_FILE, sep='\t')
+else:
+    print('Loading data')
+    timing = pd.read_csv(DATA_FILE, sep='\t')
 
 #%% Plot Figure
 fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))

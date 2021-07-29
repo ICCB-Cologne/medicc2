@@ -60,7 +60,7 @@ plt.text(5+0.25, 0, '5', fontsize=plotting_params['FONTSIZE_LARGE'], va='center'
 plt.text(3+0.25, 1, '3', fontsize=plotting_params['FONTSIZE_LARGE'], va='center')
 plt.text(1+0.25, 2, '1', fontsize=plotting_params['FONTSIZE_LARGE'], va='center')
 plt.text(1+0.25, 3, '1', fontsize=plotting_params['FONTSIZE_LARGE'], va='center')
-plt.xlim(0, 5.75)
+plt.xlim(0, 6)
 
 plt.tight_layout()
 plt.savefig('final_figures/Fig_4A.pdf', pad_inches=0)
@@ -83,7 +83,8 @@ for patient in patients:
                                             tree=cur_tree, 
                                             chromosome_bed='../objects/hg19_chromosome_arms.bed',
                                             regions_bed='data/Fig_4C.bed',
-                                            replace_loss_with_loh=True)
+                                            replace_loss_with_loh=True,
+                                            replace_both_arms_with_chrom=False)
 
     all_events[patient] = cur_events
 

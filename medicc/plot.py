@@ -796,7 +796,8 @@ def plot_tree(input_tree,
 
 def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, 
                     alleles='total', tree_width_ratio=1, cbar_width_ratio=0.02, 
-                    figsize=(20, 10), title=None, tree_line_width=0.5, tree_marker_size=0.5):
+                    figsize=(20, 10), tree_line_width=0.5, tree_marker_size=0.5,
+                    tree_label_colors=None, tree_label_func=None):
     
     cur_sample_labels = np.unique(input_df.index.get_level_values('sample_id'))
     
@@ -821,10 +822,11 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8,
 
         y_posns = {k.name:v for k, v in _get_y_positions(final_tree, adjust=False).items()}
         
-        _ = plot_tree(final_tree, ax=tree_ax, label_func=lambda x: '',
+        _ = plot_tree(final_tree, ax=tree_ax,
+                      label_func=tree_label_func if tree_label_func is not None else lambda x: '',
                       hide_internal_nodes=True, show_branch_lengths=False, show_events=False,
                       line_width=tree_line_width, marker_size=tree_marker_size,
-                      title='')
+                      title='', label_colors=tree_label_colors)
         tree_ax.set_axis_off()
         tree_ax.set_axis_off()
         fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=100)
@@ -854,10 +856,14 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8,
 
         for _, line in chr_ends.iteritems():
             ax.axvline(x_pos[line], color='black', linewidth=0.75)
-        ax.set_xticks(np.append([0], x_pos[chr_ends.values][:-1]) + 0)
-        ax.set_xticklabels([x[3:] for x in chr_ends.index], ha='left', rotation=90, va='center')
+        
+        xtick_pos = np.append([0], x_pos[chr_ends.values][:-1])
+        xtick_pos = (xtick_pos + np.roll(xtick_pos, -1))/2
+        xtick_pos[-1] += x_pos[-1]/2
+        ax.set_xticks(xtick_pos)
+        ax.set_xticklabels([x[3:] for x in chr_ends.index], ha='center', rotation=90, va='bottom')
         ax.tick_params(width=0)
-        ax.xaxis.set_tick_params(labelbottom=False, labeltop=True, bottom=False, pad=5)
+        ax.xaxis.set_tick_params(labelbottom=False, labeltop=True, bottom=False)
         ax.set_yticks([])
 
     cax.pcolormesh([0, 1],

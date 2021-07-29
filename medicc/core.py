@@ -530,7 +530,8 @@ def summarise_patient(tree, pdm, sample_labels, normal_name):
 
 def overlap_events(events_df=None, df=None, tree=None, overlap_threshold=0.9,
                    chromosome_bed='../objects/hg19_chromosome_arms.bed', regions_bed=None,
-                   replace_loss_with_loh=True):
+                   replace_loss_with_loh=True, allele_specific=False,
+                   replace_both_arms_with_chrom=True):
 
     # TODO move pyranges to main imports once included in main conda env (and yml file)
     import pyranges as pr
@@ -541,7 +542,7 @@ def overlap_events(events_df=None, df=None, tree=None, overlap_threshold=0.9,
     if events_df is None:
         if df is None or tree is None:
             raise MEDICCError("Either events_df or df and tree has to be specified")
-        events_df = summarize_changes(df, tree)
+        events_df = summarize_changes(df, tree, allele_specific=allele_specific)
 
     # Read chromosome regions and other regions
     if chromosome_bed is None and regions_bed is None:
@@ -583,7 +584,7 @@ def overlap_events(events_df=None, df=None, tree=None, overlap_threshold=0.9,
                 chr_events = overlap_regions(
                     chr_arm_regions, cur_events_ranges, event, branch, overlap_threshold)
                 # remove arms if the whole chromosome is in there
-                if len(chr_events) > 0:
+                if replace_both_arms_with_chrom and len(chr_events) > 0:
                     chr_events = chr_events[~chr_events['name'].isin(np.concatenate(
                         [[name + 'p', name + 'q'] if ('q' not in name and 'p' not in name) else [] for name in chr_events['name']]))]
                 all_events = all_events.append(chr_events)

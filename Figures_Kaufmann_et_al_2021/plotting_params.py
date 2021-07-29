@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 # TODO: Set colors here
 
 plotting_params = {
-    'WIDTH_FULL': 8,
-    'WIDTH_HALF': 4,
+    'WIDTH_FULL': 12,
+    'WIDTH_HALF': 6,
     'FONTSIZE_LARGE': 12,
     'FONTSIZE_MEDIUM': 10,
     'FONTSIZE_SMALL': 8,
-    'FONTSIZE_TINY': 4,
+    'FONTSIZE_TINY': 3.75,
     'LINEWIDTH': 3,
     'MARKERSIZE_SMALL': 3,
     'MARKERSIZE_MEDIUM': 5,
