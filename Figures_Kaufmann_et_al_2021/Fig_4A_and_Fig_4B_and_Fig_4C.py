@@ -84,7 +84,7 @@ for patient in patients:
     cur_events = medicc.core.overlap_events(df=cur_df[['cn_a', 'cn_b']],
                                             tree=cur_tree,
                                             chromosome_bed='../objects/hg19_chromosome_arms.bed',
-                                            regions_bed='../../data/Davoli_2013_gene_set/TSG_OG_genes.bed',
+                                            regions_bed='../objects/Davoli_2013_TSG_OG_genes.bed',
                                             replace_loss_with_loh=True,
                                             allele_specific=True,
                                             replace_both_arms_with_chrom=False)
