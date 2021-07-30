@@ -24,9 +24,9 @@ patient = 'PTX011'
 print('Plotting extended CN track for patient {}'.format(patient))
 
 cur_df = medicc.io.read_and_parse_input_data(
-    os.path.join(data_folder, "20210303_G_{}_gundem_phased_data_intersection_1mb_homdel_correct_df_final_cn_profiles.tsv".format(patient)))
+    os.path.join(data_folder, "{}_final_cn_profiles.tsv".format(patient)))
 cur_tree = medicc.io.import_tree(
-    os.path.join(data_folder, "20210303_G_{}_gundem_phased_data_intersection_1mb_homdel_correct_df_final_tree.new".format(patient)), 'diploid')
+    os.path.join(data_folder, "{}_final_tree.new".format(patient)), 'diploid')
 
 #%% Bootstrapping
 cur_df_bootstrap = cur_df.loc[cur_df.index.get_level_values('sample_id').map(lambda x: 'internal' not in x)]
@@ -89,9 +89,9 @@ fig.savefig(os.path.join(paper_figure_folder, 'Fig_3B.png'), bbox_inches='tight'
 for patient in patients:
     print('Plotting CN track for patient {}'.format(patient))
     cur_df = medicc.io.read_and_parse_input_data(
-        os.path.join(data_folder, "20210303_G_{}_gundem_phased_data_intersection_1mb_homdel_correct_df_final_cn_profiles.tsv".format(patient)))
+        os.path.join(data_folder, "{}_final_cn_profiles.tsv".format(patient)))
     cur_tree = medicc.io.import_tree(
-        os.path.join(data_folder, "20210303_G_{}_gundem_phased_data_intersection_1mb_homdel_correct_df_final_tree.new".format(patient)), 'diploid')
+        os.path.join(data_folder, "{}_final_tree.new".format(patient)), 'diploid')
 
     labels = {'diploid': 'Diploid'}
     for label in cur_df.reset_index()['sample_id']:
