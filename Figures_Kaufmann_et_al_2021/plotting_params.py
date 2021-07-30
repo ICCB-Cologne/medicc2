@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
-
-# TODO: Set colors here
+import seaborn as sns
 
 plotting_params = {
     'WIDTH_FULL': 12,
@@ -25,3 +24,5 @@ def set_plotting_params():
     plt.rc('ytick', labelsize=plotting_params['FONTSIZE_SMALL'])
     plt.rc('legend', fontsize=plotting_params['FONTSIZE_SMALL'])
     plt.rc('figure', titlesize=plotting_params['FONTSIZE_LARGE'])
+
+    sns.set_palette(sns.color_palette("husl"))
