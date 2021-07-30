@@ -168,8 +168,8 @@ def _read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns =
     result = paylong.unstack(['allele'])
     result = result.droplevel(0, axis=1).reset_index()
     result.columns.name = None
-    result['start'] = result['segment']+1
-    result['end'] = result['start']
+    result['start'] = result['segment']
+    result['end'] = result['start']+1
     result = result[['sample_id','chrom','start','end'] + allele_columns]
     result['chrom'] = tools.format_chromosomes(result['chrom'])
     result.sort_values(['sample_id', 'chrom', 'start', 'end'], inplace=True)

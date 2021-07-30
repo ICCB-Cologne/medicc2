@@ -25,3 +25,5 @@ right = (~T_wgd_asymm * td).project('input')
 phase = fstlib.shortestpath(left * tg * right)
 phase_str = [''.join(x) for x in zip(*fstlib.tools.paths(phase, 'both')[0][0])]
 print('final phasing: {} - {}'.format(*phase_str))
+
+# %%

@@ -63,3 +63,5 @@ fig = medicc.plot.plot_cn_profiles(
 	hide_normal_chromosomes=True,
 	label_func = lambda x:x.replace('_',' ').replace('G RLX001', 'G-RLX001\n'))
 fig.savefig('../examples/output/EVO001.pdf', bbox_inches='tight')
+
+# %%

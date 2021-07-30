@@ -19,9 +19,9 @@ np.random.seed(42)
 #%%
 data_folder = "../examples/output_gundem_et_al_2015"
 
-main_tree = medicc.io.import_tree(os.path.join(data_folder, "20210303_G_PTX011_gundem_phased_data_intersection_1mb_homdel_correct_df_final_tree.new"), 'diploid')
-main_df = medicc.io.read_and_parse_input_data(
-    os.path.join(data_folder, "20210303_G_PTX011_gundem_phased_data_intersection_1mb_homdel_correct_df_final_cn_profiles.tsv"))
+main_tree = medicc.io.import_tree(os.path.join(data_folder, "PTX011_final_tree.new"), 'diploid')
+main_df = medicc.io.read_and_parse_input_data(os.path.join(data_folder, "PTX011_final_cn_profiles.tsv"))
+
 # remove internal nodes from df
 main_df = main_df.loc[main_df.index.get_level_values('sample_id').map(lambda x: 'internal' not in x)]
 

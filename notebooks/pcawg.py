@@ -46,7 +46,7 @@ T_no_wgd_asymm = fstlib.Fst.read('../objects/no_wgd_asymm.fst')
 symbol_table = T_wgd_asymm.input_symbols()
 
 #%% folders and HDF5 store
-pcawg_folder = '../../data/PCAWG'
+pcawg_folder = '../../data/PCAWG' ## modify this to point to your local PCAWG folder
 data_folder = os.path.join(pcawg_folder, 'consensus.20170119.somatic.cna.annotated')
 metadata_folder = os.path.join(pcawg_folder, 'metadata')
 
