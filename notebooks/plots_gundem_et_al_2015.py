@@ -16,7 +16,7 @@ SEED = 42
 # %%
 data_folder = "../examples/output_gundem_et_al_2015"
 paper_figure_folder = "../Figures_Kaufmann_et_al_2021/final_figures/"
-patients = [f.split('_')[2] for f in os.listdir(data_folder) if 'final_cn_profiles.tsv' in f]
+patients = [f.split('_')[0] for f in os.listdir(data_folder) if 'final_cn_profiles.tsv' in f]
 patients.sort()
 
 #%% Figure 3B of the paper
@@ -85,7 +85,7 @@ fig.savefig(os.path.join(paper_figure_folder, 'Fig_3B.pdf'), bbox_inches='tight'
 fig.savefig(os.path.join(paper_figure_folder, 'Fig_3B.png'), bbox_inches='tight', dpi=600)
 
 
-##%% Basic CN tracks for all patients
+#%% Basic CN tracks for all patients
 for patient in patients:
     print('Plotting CN track for patient {}'.format(patient))
     cur_df = medicc.io.read_and_parse_input_data(
@@ -112,3 +112,5 @@ for patient in patients:
 
     fig.savefig(os.path.join(paper_figure_folder, 'Supp_Gundem_{}.pdf'.format(patient)), bbox_inches='tight')
     fig.savefig(os.path.join(paper_figure_folder, 'Supp_Gundem_{}.png'.format(patient)), bbox_inches='tight')
+
+# %%
