@@ -51,19 +51,16 @@ for patient in patients:
 WGD_results['type'] = pd.Categorical(WGD_results['type'], ['no WGD','clonal','sub-clonal','terminal'])
 
 plt.figure(figsize=(plotting_params['WIDTH_HALF']/2, plotting_params['WIDTH_HALF']))
-
-sns.histplot(y=WGD_results['type'], color='C0', lw=1)
-plt.ylabel('WGD type', rotation=90, labelpad=0)
+ax = sns.countplot(y='type', data=WGD_results)
+for p in ax.patches:
+    ax.annotate('{:d}'.format(p.get_width()), (p.get_width()-0.5, (p.get_y()+p.get_height()/2)), 
+        va='center', 
+        c='white', 
+        fontsize=plotting_params['FONTSIZE_LARGE'])
+ax.set_ylabel('WGD type', rotation=90, labelpad=0)
+ax.set_xlabel('Frequency')
 # plt.ylabel('WGD type', rotation=0, labelpad=40)
-plt.title('WGDs\n(10 patients)', fontsize=plotting_params['FONTSIZE_LARGE'])
-plt.yticks(rotation=45, va='center')
-plt.xticks(np.arange(0, 6))
-plt.text(5+0.25, 0, '5', fontsize=plotting_params['FONTSIZE_LARGE'], va='center')
-plt.text(3+0.25, 1, '3', fontsize=plotting_params['FONTSIZE_LARGE'], va='center')
-plt.text(1+0.25, 2, '1', fontsize=plotting_params['FONTSIZE_LARGE'], va='center')
-plt.text(1+0.25, 3, '1', fontsize=plotting_params['FONTSIZE_LARGE'], va='center')
-plt.xlim(0, 6)
-
+ax.set_title('WGDs\n(10 patients)', fontsize=plotting_params['FONTSIZE_LARGE'])
 plt.tight_layout()
 plt.savefig('final_figures/Fig_4A.pdf', pad_inches=0)
 plt.savefig('final_figures/Fig_4A.png', pad_inches=0, dpi=600)
