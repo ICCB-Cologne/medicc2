@@ -14,30 +14,32 @@ results_grf = pd.read_csv('data/Fig_2C_grf.tsv', sep='\t', index_col=0)
 results_rf = pd.read_csv('data/Fig_2C_rf.tsv', sep='\t', index_col=0)
 results_quartet = pd.read_csv('data/Fig_2C_quartet.tsv', sep='\t', index_col=0)
 
-results_grf = results_grf.loc[results_grf['Number of Leaves'] > 3]
-results_rf = results_rf.loc[results_rf['Number of Leaves'] > 3]
-results_quartet = results_quartet.loc[results_quartet['Number of Leaves'] > 3]
+for results in [results_grf, results_quartet, results_rf]:
+    # results = results.loc[results['Number of Leaves'] > 3]
+    results = results.loc[~results.isna().any(axis=1)]
+
 
 
 #%% Figure 2C
 print('Fig 2C')
 fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
 
-cur_results = results_rf.loc[results_grf['WGD'] == 'Low WGD']
+cur_results = results_grf.loc[results_grf['WGD'] == 'Low WGD']
 cur_results = cur_results.loc[cur_results['Method'] != 'MEDALT']
 cur_results = cur_results.loc[cur_results['Rate'].isin([0.01, 0.025, 0.05])]
 
-nr = cur_results.groupby('Number of Leaves').count().iloc[0, 0]
 
 for i, method in enumerate(['Euclidean Min. Ev.', 'Euclidean NJ', 'Manhattan Min. Ev.', 'Manhattan NJ', 'MEDICC2']):
     cur_method_results = cur_results.loc[cur_results['Method'] == method]
     n_leaves = np.sort(np.unique(cur_method_results['Number of Leaves']))
+    nr = cur_method_results.groupby('Number of Leaves').count().iloc[0, 0]
+
     ax.plot(n_leaves, cur_method_results.groupby('Number of Leaves')['Distance'].mean().values)
 
     ax.errorbar(x=n_leaves, 
                 y=cur_method_results.groupby('Number of Leaves')['Distance'].mean().values.astype(float),
     #             yerr=cur_method_results.groupby('Number of Leaves')['Distance'].std() / np.sqrt(nr),
-                capsize=5, capthick=2, ms=5, marker='o', label=method, color=sns.color_palette('husl', 6)[i])
+                capsize=5, capthick=2, ms=5, marker='o', label=method, color='C' + str(i))
 ax.set_xlabel('Number of leaves')
 ax.set_ylabel('Generalized RF distance')
 
@@ -59,17 +61,16 @@ for wgd, ax in zip(['No WGD', 'Low WGD', 'High WGD'], axs.T):
     n_leaves = np.sort(np.unique(cur_wgd_results['Number of Leaves']))
     rates = np.sort(np.unique(cur_wgd_results['Rate']))
 
-    nr = cur_wgd_results.groupby('Number of Leaves').count().iloc[0, 0]
-
     for i, method in enumerate(['Euclidean Min. Ev.', 'Euclidean NJ', 'Manhattan Min. Ev.', 'Manhattan NJ', 'MEDICC2']):
         cur_method_results = cur_wgd_results.loc[cur_wgd_results['Method'] == method]
+        nr = cur_method_results.groupby('Number of Leaves').count().iloc[0, 0]
 
         ax[0].errorbar(x=n_leaves, y=cur_method_results.groupby('Number of Leaves')['Distance'].mean(),
                        yerr=cur_method_results.groupby('Number of Leaves')['Distance'].std() / np.sqrt(nr),
-                       capsize=5, capthick=2, ms=5, marker='o', label=method, color=sns.color_palette('husl', 6)[i])
+                       capsize=5, capthick=2, ms=5, marker='o', label=method, color='C' + str(i))
         ax[1].errorbar(x=rates, y=cur_method_results.groupby('Rate')['Distance'].mean(),
                        yerr=cur_method_results.groupby('Rate')['Distance'].std() / np.sqrt(nr),
-                       capsize=5, capthick=2, ms=5, marker='o', label=method, color=sns.color_palette('husl', 6)[i])
+                       capsize=5, capthick=2, ms=5, marker='o', label=method, color='C' + str(i))
 
 axs[0, 0].set_title('No WGD', fontsize=plotting_params['FONTSIZE_MEDIUM'])
 axs[0, 1].set_title('Low WGD', fontsize=plotting_params['FONTSIZE_MEDIUM'])
@@ -91,7 +92,7 @@ fig.savefig('final_figures/Supp_1B.png', bbox_inches='tight', dpi=600)
 print('Supp 1C')
 fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
 
-cur_results = results_rf.loc[results_grf['WGD'] == 'Low WGD']
+cur_results = results_grf.loc[results_grf['WGD'] == 'Low WGD']
 cur_results = cur_results.loc[cur_results['Rate'].isin([0.01, 0.025, 0.05])]
 
 nr = cur_results.groupby('Number of Leaves').count().iloc[0, 0]
@@ -99,12 +100,13 @@ nr = cur_results.groupby('Number of Leaves').count().iloc[0, 0]
 for i, method in enumerate(['Euclidean Min. Ev.', 'Euclidean NJ', 'Manhattan Min. Ev.', 'Manhattan NJ', 'MEDICC2', 'MEDALT']):
     cur_method_results = cur_results.loc[cur_results['Method'] == method]
     n_leaves = np.sort(np.unique(cur_method_results['Number of Leaves']))
+    nr = cur_method_results.groupby('Number of Leaves').count().iloc[0, 0]
     ax.plot(n_leaves, cur_method_results.groupby('Number of Leaves')['Distance'].mean().values)
 
     ax.errorbar(x=n_leaves,
                 y=cur_method_results.groupby('Number of Leaves')['Distance'].mean().values.astype(float),
                 yerr=cur_method_results.groupby('Number of Leaves')['Distance'].std() / np.sqrt(nr),
-                capsize=5, capthick=2, ms=5, marker='o', label=method, color=sns.color_palette('husl', 6)[i])
+                capsize=5, capthick=2, ms=5, marker='o', label=method, color='C' + str(i))
 ax.set_xlabel('Number of leaves')
 ax.set_ylabel('Generalized RF distance')
 
@@ -121,14 +123,15 @@ for ax, results, name in zip(axs, [results_quartet, results_rf], ['Quartet', 'Ro
     cur_results = results.loc[results['WGD'] == 'Low WGD']
     cur_results = cur_results.loc[cur_results['Method'] != 'MEDALT']
     cur_results = cur_results.loc[cur_results['Rate'].isin([0.01, 0.025, 0.05])]
-    nr = cur_results.groupby('Number of Leaves').count().iloc[0, 0]
 
     for i, method in enumerate(['Euclidean Min. Ev.', 'Euclidean NJ', 'Manhattan Min. Ev.', 'Manhattan NJ', 'MEDICC2']):
         cur_method_results = cur_results.loc[cur_results['Method'] == method]
-        
+        nr = cur_method_results.groupby('Number of Leaves').count().iloc[0, 0]
+        n_leaves = np.sort(np.unique(cur_method_results['Number of Leaves']))
+
         ax.errorbar(x=n_leaves, y=cur_method_results.groupby('Number of Leaves')['Distance'].mean(),
                     yerr=cur_method_results.groupby('Number of Leaves')['Distance'].std() / np.sqrt(nr),
-                    capsize=5, capthick=2, ms=5, marker='o', label=method, color=sns.color_palette('husl', 6)[i])
+                    capsize=5, capthick=2, ms=5, marker='o', label=method, color='C' + str(i))
     ax.set_xlabel('Number of leaves')
     ax.set_ylabel('{} distance'.format(name))
 
