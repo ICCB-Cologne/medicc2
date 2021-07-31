@@ -7,16 +7,91 @@ import matplotlib.pyplot as plt
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import medicc
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../Figures_Kaufmann_et_al_2021')))
+from plotting_params import set_plotting_params
+
+set_plotting_params()
+
+SEED = 42
 # %%
 data_folder = "../examples/output_gundem_et_al_2015"
-patients = [f.split('_')[2] for f in os.listdir(data_folder) if 'final_cn_profiles.tsv' in f]
+paper_figure_folder = "../Figures_Kaufmann_et_al_2021/final_figures/"
+patients = [f.split('_')[0] for f in os.listdir(data_folder) if 'final_cn_profiles.tsv' in f]
+patients.sort()
 
+#%% Figure 3B of the paper
+patient = 'PTX011'
+print('Plotting extended CN track for patient {}'.format(patient))
+
+cur_df = medicc.io.read_and_parse_input_data(
+    os.path.join(data_folder, "{}_final_cn_profiles.tsv".format(patient)))
+cur_tree = medicc.io.import_tree(
+    os.path.join(data_folder, "{}_final_tree.new".format(patient)), 'diploid')
+
+#%% Bootstrapping
+cur_df_bootstrap = cur_df.loc[cur_df.index.get_level_values('sample_id').map(lambda x: 'internal' not in x)]
+N_bootstrap = 100
+_, support_tree = medicc.bootstrap.run_bootstrap(cur_df_bootstrap,
+                                                 cur_tree,
+                                                 seed=42,
+                                                 N_bootstrap=N_bootstrap,
+                                                 method='chr-wise',
+                                                 normal_name='diploid')
+
+
+#%% Event detection
+events_df = medicc.core.summarize_changes(cur_df[['cn_a', 'cn_b']],
+                                          cur_tree,
+                                          'diploid',
+                                          allele_specific=False,
+                                          calc_wgd=True)
+all_events = medicc.core.overlap_events(events_df=events_df,
+                                        chromosome_bed='../objects/hg19_chromosome_arms.bed',
+                                        regions_bed=None)
+
+changed_branches = set(all_events.index)
+for clade in cur_tree.find_clades():
+    clade.events = None
+    if clade.name is not None and clade.name in changed_branches:
+        # more than 1 event (otherwise single event is split per character)
+        if len(all_events.loc[clade.name][['final_name']].shape) == 2:
+            clade.events = '\n'.join(all_events.loc[clade.name, 'final_name'].values)
+        else:
+            clade.events = all_events.loc[clade.name][['final_name']].values[0]
+
+#%% Plot Figure for 3B
+labels = {'diploid': 'Diploid'}
+for label in cur_df.reset_index()['sample_id']:
+    if 'diploid' not in label and 'internal' not in label:
+        labels[label] = '_'.join([label.split('_')[1].split('-')[0], label.split('_')[-1]])
+
+fig = medicc.plot.plot_cn_profiles(
+    cur_df,
+    support_tree,
+    title=patient,
+    normal_name='diploid',
+    hide_normal_chromosomes=False,
+    show_branch_support=True,
+    show_branch_lengths=False,
+    show_events=True,
+    ignore_segment_lengths=False,
+    horizontal_margin_adjustment=0.0,
+    label_func=lambda label: labels.get(label, label))
+
+for ax in fig.get_axes():
+    ax.set_ylabel(ax.get_ylabel(), rotation=0, horizontalalignment='right')
+
+fig.savefig(os.path.join(paper_figure_folder, 'Fig_3B.pdf'), bbox_inches='tight')
+fig.savefig(os.path.join(paper_figure_folder, 'Fig_3B.png'), bbox_inches='tight', dpi=600)
+
+
+#%% Basic CN tracks for all patients
 for patient in patients:
-
+    print('Plotting CN track for patient {}'.format(patient))
     cur_df = medicc.io.read_and_parse_input_data(
-        os.path.join(data_folder, "20210303_G_{}_gundem_phased_data_intersection_1mb_homdel_correct_df_final_cn_profiles.tsv".format(patient)))
+        os.path.join(data_folder, "{}_final_cn_profiles.tsv".format(patient)))
     cur_tree = medicc.io.import_tree(
-        os.path.join(data_folder, "20210303_G_{}_gundem_phased_data_intersection_1mb_homdel_correct_df_final_tree.new".format(patient)), 'diploid')
+        os.path.join(data_folder, "{}_final_tree.new".format(patient)), 'diploid')
 
     labels = {'diploid': 'Diploid'}
     for label in cur_df.reset_index()['sample_id']:
@@ -35,33 +110,7 @@ for patient in patients:
     for ax in fig.get_axes():
         ax.set_ylabel(ax.get_ylabel(), rotation=0, horizontalalignment='right')
 
-    fig.savefig(os.path.join(data_folder, '{}.pdf'.format(patient)), bbox_inches='tight')
+    fig.savefig(os.path.join(paper_figure_folder, 'Supp_Gundem_{}.pdf'.format(patient)), bbox_inches='tight')
+    fig.savefig(os.path.join(paper_figure_folder, 'Supp_Gundem_{}.png'.format(patient)), bbox_inches='tight')
 
-#%%
-# Plot the branch-support of the trees. This might take some time
-N_bootstrap = 100
-for patient in patients:
-
-    cur_tree = medicc.io.import_tree(
-        os.path.join(data_folder, "20210303_G_{}_gundem_phased_data_intersection_1mb_homdel_correct_df_final_tree.new".format(patient)), 'diploid')
-    cur_df = medicc.io.read_and_parse_input_data(
-        os.path.join(data_folder, "20210303_G_{}_gundem_phased_data_intersection_1mb_homdel_correct_df_final_cn_profiles.tsv".format(patient)))
-    # remove internal nodes from df
-    cur_df = cur_df.loc[cur_df.index.get_level_values('sample_id').map(lambda x: 'internal' not in x)]
-
-    labels = {'diploid': 'Diploid'}
-    for label in cur_df.reset_index()['sample_id']:
-        if 'diploid' not in label and 'internal' not in label:
-            labels[label] = '_'.join([label.split('_')[1].split('-')[0], label.split('_')[-1]])
-
-    trees_df, support_tree = medicc.bootstrap.run_bootstrap(cur_df, cur_tree, 
-                                                            N_bootstrap=N_bootstrap, method='chr-wise')
-
-    fig, ax = plt.subplots(figsize=(12, 12))
-    fig = medicc.plot.plot_tree(support_tree,
-                                title='support tree for {}'.format(patient),
-                                label_func=lambda label: labels.get(label, label),
-                                show_branch_support=True,
-                                show_branch_lengths=True,
-                                ax=ax)
-    fig.savefig(os.path.join(data_folder, 'support_tree_{}.pdf'.format(patient)), bbox_inches='tight')
+# %%

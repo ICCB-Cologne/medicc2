@@ -5,6 +5,12 @@ build
 test
 *.pdf
 *.so
+*.xml
+*.png
+examples/output_gundem_et_al_2015/*nj*
+examples/output_gundem_et_al_2015/*pdm*
+examples/output_gundem_et_al_2015/*summary*
+examples/output_gundem_et_al_2015/*tree.txt
 *.code-workspace
 *.pyc
 __pycache__
@@ -12,3 +18,4 @@ __pycache__
 */.ipynb_checkpoints/*
 fstlib/cext/ops.cpp
 fstlib/cext/pywrapfst.cpp
+Figures_Kaufmann_et_al_2021/final_figures
