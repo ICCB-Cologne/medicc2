@@ -98,7 +98,7 @@ else:
 #%% Plot Figure
 fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
 sns.lineplot(data=timing, x='length', y='Time', hue='Algorithm', style='WGD',
-             palette=sns.color_palette('Set1', 2), markers=True, legend=True, ci='sd', ax=ax)
+             markers=True, legend=True, ci='sd', ax=ax)
 ax.set_xlabel('CNP length (#segments)')
 ax.set_ylabel('Time (s)')
 

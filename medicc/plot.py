@@ -797,7 +797,7 @@ def plot_tree(input_tree,
 def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, 
                     alleles='total', tree_width_ratio=1, cbar_width_ratio=0.02, 
                     figsize=(20, 10), tree_line_width=0.5, tree_marker_size=0.5,
-                    tree_label_colors=None, tree_label_func=None):
+                    tree_label_colors=None, tree_label_func=None, cmap='coolwarm'):
     
     cur_sample_labels = np.unique(input_df.index.get_level_values('sample_id'))
     
@@ -851,7 +851,7 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8,
         im = ax.pcolormesh(x_pos, y_pos,
                         input_df.loc[cur_sample_labels].astype(int).unstack(
                             'sample_id').loc[:, (allele)].loc[:, cur_sample_labels].values.T,
-                        cmap='coolwarm',
+                        cmap=cmap,
                         norm=color_norm)
 
         for _, line in chr_ends.iteritems():
@@ -869,11 +869,15 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8,
     cax.pcolormesh([0, 1],
                    np.arange(0, cmax+2),
                    np.arange(0, cmax+2)[:, np.newaxis],
-                   cmap='coolwarm',
+                   cmap=cmap,
                    norm=color_norm)
     cax.set_xticks([])
     cax.set_yticks(np.arange(0, cmax+1)+0.5)
-    cax.set_yticklabels(np.arange(0, cmax+1), ha='left')
+    if np.max(input_df.values.astype(int)) > cmax:
+        cax.set_yticklabels([str(x) + '+' if x == cmax else str(x)
+                             for x in np.arange(0, cmax+1)], ha='left')
+    else:
+        cax.set_yticklabels(np.arange(0, cmax+1), ha='left')
     cax.yaxis.set_tick_params(left=False, labelleft=False, labelright=True)
 
     for ax in axs[:-1]:

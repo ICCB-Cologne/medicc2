@@ -25,4 +25,6 @@ def set_plotting_params():
     plt.rc('legend', fontsize=plotting_params['FONTSIZE_SMALL'])
     plt.rc('figure', titlesize=plotting_params['FONTSIZE_LARGE'])
 
-    sns.set_palette(sns.color_palette("husl"))
+    # Seaborn standard palette
+    sns.set_palette(sns.color_palette())
+    # sns.set_palette(sns.color_palette("husl"))

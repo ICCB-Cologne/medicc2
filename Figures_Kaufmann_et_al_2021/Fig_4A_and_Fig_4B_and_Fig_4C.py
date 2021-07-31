@@ -113,10 +113,10 @@ arm_results = arm_results.join(armwise_scores, how='inner')
 
 #%%
 plt.figure(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
-sns.set_palette("tab20", plt.cm.tab20c.N)
 
-for arm, row in arm_results.iterrows():
-    plt.plot(row['score'], row['gain_loss_diff'], 'o', ms=plotting_params['MARKERSIZE_LARGE'])
+for i, (arm, row) in enumerate(arm_results.iterrows()):
+    plt.plot(row['score'], row['gain_loss_diff'], 
+             'o', ms=plotting_params['MARKERSIZE_LARGE'], color=plt.cm.tab20c.colors[i%20])
     plt.text(row['score'], row['gain_loss_diff']-0.2, arm,
              fontsize=plotting_params['FONTSIZE_TINY'])
 plt.title('Aggregated for all 10 patients\nPearson R={:.2f} (p={:.0e})'.format(*pearsonr(arm_results['score'], arm_results['gain_loss_diff'])),
@@ -168,7 +168,6 @@ results_Davoli['gains-losses'] = results_Davoli['gains'] - results_Davoli['losse
 
 #%%
 p_min = 1
-sns.set_palette("tab10",plt.cm.tab10.N)
 fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
 
 x1 = -1*np.log10(results_Davoli.loc[np.logical_and(results_Davoli['p-value'] < p_min, results_Davoli['type']=='OG'), 'p-value'].values.astype(float))

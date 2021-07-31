@@ -20,7 +20,7 @@ plotting_data[['hom', 'ploidy_pcawg', 'pcawg_wgd']].to_csv('../Figures_Kaufmann_
                                                     sep='\t', index=False)
 
 fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
-sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data, hue='pcawg_wgd', ax=ax)
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data, hue='pcawg_wgd', ax=ax, hue_order=['No WGD', 'WGD'])
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data.eval('pcawg_wgd != wgd_status_medicc_bootstrap')],
                 color='black', label='False Predictions')
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data.eval('pcawg_wgd != wgd_status_medicc_bootstrap') &
