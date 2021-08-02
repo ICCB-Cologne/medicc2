@@ -1,4 +1,5 @@
 # %%
+import logging
 import os
 import sys
 
@@ -12,6 +13,7 @@ from plotting_params import set_plotting_params
 
 set_plotting_params()
 
+logging.getLogger('medicc').setLevel(logging.CRITICAL)
 SEED = 42
 # %%
 results_folder = "../examples/output_gundem_et_al_2015"
@@ -38,6 +40,7 @@ _, support_tree = medicc.bootstrap.run_bootstrap(cur_input_df,
                                                  seed=42,
                                                  N_bootstrap=N_bootstrap,
                                                  method='chr-wise',
+                                                 show_progress=False,
                                                  normal_name='diploid')
 
 

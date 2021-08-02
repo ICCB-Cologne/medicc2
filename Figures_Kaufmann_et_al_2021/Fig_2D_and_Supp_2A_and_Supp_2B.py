@@ -9,8 +9,8 @@ from plotting_params import plotting_params, set_plotting_params
 set_plotting_params()
 
 # Run the notebook 'pcawg.py' in the folder 'notebooks' to recreate the data from scratch
-plotting_data = pd.read_csv('data/Fig_2D_and_Supp_2A_and_Supp_2B.tsv', index_col=None, sep='\t')
-pcawg_color_palette = pd.read_csv('data/Supp_2A_and_Supp_2B_color_palette.tsv', index_col=0, sep='\t')
+plotting_data = pd.read_csv('data/Fig_2D_and_Supp_3A_and_Supp_3B.tsv', index_col=None, sep='\t')
+pcawg_color_palette = pd.read_csv('data/Supp_3A_and_Supp_3B_color_palette.tsv', index_col=0, sep='\t')
 linex = np.linspace(0, plotting_data['hom'].max())
 linea = -2
 linec = 2.9
@@ -42,8 +42,8 @@ cur_plotting_data = plotting_data.query("histology_useable").sort_values('histol
 sns.boxplot(x='dist_wgd', y='histology_abbreviation', palette=palette, data=cur_plotting_data, ax=ax)
 ax.set_xlabel('MED (WGD) from diploid normal')
 ax.set_ylabel('PCAWG histology')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_2A.pdf', bbox_inches='tight')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_2A.png',
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3A.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3A.png',
             bbox_inches='tight', dpi=600)
 
 #%%
@@ -53,6 +53,6 @@ cur_plotting_data = plotting_data.query("histology_useable").sort_values('histol
 sns.boxplot(x='dist_diff', y='histology_abbreviation', palette=palette, data=cur_plotting_data, ax=ax)
 ax.set_xlabel('MEDICC2 WGD score')
 ax.set_ylabel('PCAWG histology')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_2B.pdf', bbox_inches='tight')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_2B.png',
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3B.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3B.png',
             bbox_inches='tight', dpi=600)

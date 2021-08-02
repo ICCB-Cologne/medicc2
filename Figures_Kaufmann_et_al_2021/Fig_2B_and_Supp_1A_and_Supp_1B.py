@@ -96,5 +96,5 @@ fig_main.savefig('final_figures/Supp_1A.pdf', bbox_inches='tight')
 fig_main.savefig('final_figures/Supp_1A.png', bbox_inches='tight', dpi=600)
 
 fig_main = plot_variables(results, ('nevents', 'dist_euclidean'))
-fig_main.savefig('final_figures/Supp_1A_euclidean.pdf', bbox_inches='tight')
-fig_main.savefig('final_figures/Supp_1A_euclidean.png', bbox_inches='tight', dpi=600)
+fig_main.savefig('final_figures/Supp_1B.pdf', bbox_inches='tight')
+fig_main.savefig('final_figures/Supp_1B.png', bbox_inches='tight', dpi=600)
