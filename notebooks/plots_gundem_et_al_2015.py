@@ -1,4 +1,5 @@
 # %%
+import logging
 import os
 import sys
 
@@ -12,35 +13,39 @@ from plotting_params import set_plotting_params
 
 set_plotting_params()
 
+logging.getLogger('medicc').setLevel(logging.CRITICAL)
 SEED = 42
 # %%
-data_folder = "../examples/output_gundem_et_al_2015"
+results_folder = "../examples/output_gundem_et_al_2015"
+data_folder = "../examples/gundem_et_al_2015"
 paper_figure_folder = "../Figures_Kaufmann_et_al_2021/final_figures/"
-patients = [f.split('_')[0] for f in os.listdir(data_folder) if 'final_cn_profiles.tsv' in f]
+patients = [f.split('_')[0] for f in os.listdir(results_folder) if 'final_cn_profiles.tsv' in f]
 patients.sort()
 
 #%% Figure 3B of the paper
 patient = 'PTX011'
 print('Plotting extended CN track for patient {}'.format(patient))
 
-cur_df = medicc.io.read_and_parse_input_data(
-    os.path.join(data_folder, "{}_final_cn_profiles.tsv".format(patient)))
+cur_output_df = medicc.io.read_and_parse_input_data(
+    os.path.join(results_folder, "{}_final_cn_profiles.tsv".format(patient)))
+cur_input_df = medicc.io.read_and_parse_input_data(
+    os.path.join(data_folder, "{}_input_df.tsv".format(patient)))
 cur_tree = medicc.io.import_tree(
-    os.path.join(data_folder, "{}_final_tree.new".format(patient)), 'diploid')
+    os.path.join(results_folder, "{}_final_tree.new".format(patient)), 'diploid')
 
 #%% Bootstrapping
-cur_df_bootstrap = cur_df.loc[cur_df.index.get_level_values('sample_id').map(lambda x: 'internal' not in x)]
 N_bootstrap = 100
-_, support_tree = medicc.bootstrap.run_bootstrap(cur_df_bootstrap,
+_, support_tree = medicc.bootstrap.run_bootstrap(cur_input_df,
                                                  cur_tree,
                                                  seed=42,
                                                  N_bootstrap=N_bootstrap,
                                                  method='chr-wise',
+                                                 show_progress=False,
                                                  normal_name='diploid')
 
 
 #%% Event detection
-events_df = medicc.core.summarize_changes(cur_df[['cn_a', 'cn_b']],
+events_df = medicc.core.summarize_changes(cur_output_df[['cn_a', 'cn_b']],
                                           cur_tree,
                                           'diploid',
                                           allele_specific=False,
@@ -61,12 +66,12 @@ for clade in cur_tree.find_clades():
 
 #%% Plot Figure for 3B
 labels = {'diploid': 'Diploid'}
-for label in cur_df.reset_index()['sample_id']:
+for label in cur_output_df.reset_index()['sample_id']:
     if 'diploid' not in label and 'internal' not in label:
         labels[label] = '_'.join([label.split('_')[1].split('-')[0], label.split('_')[-1]])
 
 fig = medicc.plot.plot_cn_profiles(
-    cur_df,
+    cur_output_df,
     support_tree,
     title=patient,
     normal_name='diploid',
@@ -88,18 +93,18 @@ fig.savefig(os.path.join(paper_figure_folder, 'Fig_3B.png'), bbox_inches='tight'
 #%% Basic CN tracks for all patients
 for patient in patients:
     print('Plotting CN track for patient {}'.format(patient))
-    cur_df = medicc.io.read_and_parse_input_data(
-        os.path.join(data_folder, "{}_final_cn_profiles.tsv".format(patient)))
+    cur_output_df = medicc.io.read_and_parse_input_data(
+        os.path.join(results_folder, "{}_final_cn_profiles.tsv".format(patient)))
     cur_tree = medicc.io.import_tree(
-        os.path.join(data_folder, "{}_final_tree.new".format(patient)), 'diploid')
+        os.path.join(results_folder, "{}_final_tree.new".format(patient)), 'diploid')
 
     labels = {'diploid': 'Diploid'}
-    for label in cur_df.reset_index()['sample_id']:
+    for label in cur_output_df.reset_index()['sample_id']:
         if 'diploid' not in label and 'internal' not in label:
             labels[label] = '_'.join([label.split('_')[1].split('-')[0], label.split('_')[-1]])
 
     fig = medicc.plot.plot_cn_profiles(
-        cur_df,
+        cur_output_df,
         cur_tree,
         title=patient,
         normal_name='diploid',
@@ -113,4 +118,3 @@ for patient in patients:
     fig.savefig(os.path.join(paper_figure_folder, 'Supp_Gundem_{}.pdf'.format(patient)), bbox_inches='tight')
     fig.savefig(os.path.join(paper_figure_folder, 'Supp_Gundem_{}.png'.format(patient)), bbox_inches='tight')
 
-# %%

@@ -98,6 +98,8 @@ parser.add_argument("-j", "--n-cores",
                     help="""Number of cores to run on""")
 parser.add_argument("-v", "--verbose", action='store_true', default=False,
                     help='Enable verbose output (default: False).', required=False)
+parser.add_argument("--silent", action='store_true', default=False,
+                    help='Hide all output (default: False).', required=False)
 parser.add_argument("--maxcn", type=int, dest='maxcn', default=8,
                     help='Expert option: maximum CN at which the input is capped. Does not change FST.')
 parser.add_argument("--prune-weight", type=int, dest='prune_weight', default=0,
@@ -112,6 +114,10 @@ args = parser.parse_args()
 
 if args.verbose:
     logging.getLogger('medicc').setLevel(logging.INFO)
+
+if args.silent:
+    logging.getLogger('medicc').setLevel(logging.CRITICAL)
+    logger.setLevel(logging.CRITICAL)
 
 output_dir = args.output_dir
 normal_name = args.normal_name 

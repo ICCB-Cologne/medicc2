@@ -91,6 +91,7 @@ dependencies:
   - pygments=2.8.0
   - pyparsing=2.4.7
   - pyqt=5.9.2
+  - pyranges=0.0.96
   - pytables=3.6.1
   - python=3.9.1
   - python-dateutil=2.8.1

@@ -3,6 +3,7 @@ import os
 import sys
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import scipy as sp
 import seaborn as sns
@@ -29,10 +30,23 @@ def fst_dist(row, fst, seq_in='in', seq_out='out', kernel=False):
     return dist
 
 
+def euclidean_dist(row, seq_in='in', seq_out='out'):
+    chrs_in = row[seq_in].split('X')
+    chrs_out = row[seq_out].split('X')
+    dist = 0
+    for pair in zip(chrs_in, chrs_out):
+        vec1 = np.array(list(pair[0])).astype('int')
+        vec2 = np.array(list(pair[1])).astype('int')
+        dist += np.sum((vec1-vec2)**2)
+    dist = np.sqrt(dist)
+    return dist
+
+
 def plot_variables(df, variables):
 
     descr = {'dist_fst_wgd_asymm': 'MED (with WGD)',
              'dist_fst_no_wgd_asymm': 'MED (without WGD)',
+             'dist_euclidean': 'Euclidean Distance',
              'nevents': 'True distance'}
 
     fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
@@ -68,6 +82,7 @@ results['is_wgd'] = results['nwgd']>0
 #%% annotate
 results['dist_fst_wgd_asymm'] = results.apply(fst_dist, fst=T_wgd_asymm, axis=1)
 results['dist_fst_no_wgd_asymm'] = results.apply(fst_dist, fst=T_no_wgd_asymm, axis=1)
+results['dist_euclidean'] = results.apply(euclidean_dist, axis=1)
 results['Count'] = 1
 
 
@@ -79,3 +94,7 @@ fig_main.savefig('final_figures/Fig_2B.png', bbox_inches='tight', dpi=600)
 fig_main = plot_variables(results, ('nevents', 'dist_fst_no_wgd_asymm'))
 fig_main.savefig('final_figures/Supp_1A.pdf', bbox_inches='tight')
 fig_main.savefig('final_figures/Supp_1A.png', bbox_inches='tight', dpi=600)
+
+fig_main = plot_variables(results, ('nevents', 'dist_euclidean'))
+fig_main.savefig('final_figures/Supp_1B.pdf', bbox_inches='tight')
+fig_main.savefig('final_figures/Supp_1B.png', bbox_inches='tight', dpi=600)

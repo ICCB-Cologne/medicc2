@@ -1,6 +1,6 @@
 # MEDICC2 - Minimum Event Distance for Intra-tumour Copy number Comparisons
 
-**Version 0.4.2 beta (May 2021)**
+**Version 0.5 beta (May 2021)**
 
 For more information see the accompanying  paper [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://www.biorxiv.org/content/10.1101/2021.02.28.433227v1.abstract).
 
