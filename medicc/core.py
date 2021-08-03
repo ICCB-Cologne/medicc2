@@ -1,6 +1,8 @@
 import copy
 import logging
+import os
 from itertools import combinations
+from pathlib import Path
 
 import Bio
 import fstlib
@@ -21,6 +23,8 @@ def main(input_df,
          input_tree=None,
          ancestral_reconstruction=True,
          chr_separator='X',
+         prune_weight=0,
+         allele_columns=['cn_a', 'cn_b'],
          n_cores=None):
     """ MEDICC Main Method """
 
@@ -63,7 +67,8 @@ def main(input_df,
         ancestors = medicc.reconstruct_ancestors(tree=final_tree,
                                                  samples_dict=FSA_dict,
                                                  fst=asymm_fst,
-                                                 normal_name=normal_name)
+                                                 normal_name=normal_name,
+                                                 prune_weight=prune_weight)
 
         ## Create and write output data frame with ancestors
         logger.info("Creating output table.")
@@ -82,7 +87,8 @@ def main(input_df,
     final_tree.root_with_outgroup(normal_name)
 
     if ancestral_reconstruction:
-        output_df = summarize_changes(output_df, final_tree, normal_name=normal_name)
+        output_df = summarize_changes(output_df, final_tree, normal_name=normal_name,
+                                      allele_columns=allele_columns)
 
     return sample_labels, pdms, nj_tree, final_tree, output_df
 
@@ -93,6 +99,8 @@ def main_legacy(input_df,
                 input_tree=None,
                 ancestral_reconstruction=True,
                 chr_separator='X',
+                prune_weight=0,
+                allele_columns=['cn_a', 'cn_b'],
                 n_cores=None):
     """ MEDICC Main Method 
     LEGACY VERSION: The alleles are treated separately in the WGD step"""
@@ -136,7 +144,8 @@ def main_legacy(input_df,
         ancestors = [medicc.reconstruct_ancestors(tree=final_tree,
                                                   samples_dict=fsa_dict,
                                                   fst=asymm_fst,
-                                                  normal_name=normal_name)
+                                                  normal_name=normal_name,
+                                                  prune_weight=prune_weight)
                      for fsa_dict in FSA_dicts]
 
         ## Create and write output data frame with ancestors
@@ -155,12 +164,20 @@ def main_legacy(input_df,
     final_tree.root_with_outgroup(normal_name)
 
     if ancestral_reconstruction:
-        output_df = summarize_changes(output_df, final_tree, normal_name=normal_name)
+        output_df = summarize_changes(
+            output_df, final_tree, normal_name=normal_name, allele_columns=allele_columns)
 
     return sample_labels, pdms, nj_tree, final_tree, output_df
 
 
-def summarize_changes(input_df, input_tree, normal_name=None):
+def summarize_changes(input_df,
+                      input_tree,
+                      normal_name='diploid',
+                      allele_specific=False,
+                      calc_wgd=True,
+                      chr_separator='X',
+                      asymm_fst_nowgd=None,
+                      allele_columns=['cn_a', 'cn_b']):
     df = input_df.copy()
 
     ## we're force converting to categoricals to always maintain the order of the chromosomes as given
@@ -192,14 +209,70 @@ def summarize_changes(input_df, input_tree, normal_name=None):
     df.set_index(input_df.index.names, inplace=True)
     df.sort_index(inplace=True)
 
+    df['is_loh'] = False
+    df['is_wgd'] = False
+
     if input_tree is not None:
-        dfderiv = compute_change_events(df[input_df.columns], input_tree, normal_name)
-        df.loc[:, 'is_gain'] = np.any(dfderiv.values > 0, axis=1)
-        df.loc[:, 'is_loss'] = np.any(dfderiv.values < 0, axis=1)
+        cn_changes = compute_change_events(df[input_df.columns], input_tree, normal_name)
+        df.loc[:, 'is_gain'] = np.any(cn_changes.values > 0, axis=1)
+        df.loc[:, 'is_loss'] = np.any(cn_changes.values < 0, axis=1)
+        df.loc[np.logical_and(cn_changes[['cn_a', 'cn_b']] < 0,
+                              df[['cn_a', 'cn_b']] == 0).any(axis=1), 'is_loh'] = True
+        if allele_specific:
+            df.loc[:, 'is_gain_a'] = cn_changes['cn_a'].values > 0
+            df.loc[:, 'is_loss_a'] = cn_changes['cn_a'].values < 0
+            df.loc[:, 'is_gain_b'] = cn_changes['cn_b'].values > 0
+            df.loc[:, 'is_loss_b'] = cn_changes['cn_b'].values < 0
     else:
         df['is_gain'] = False
         df['is_loss'] = False
+        if allele_specific:
+            df.loc[:, 'is_gain_a'] = False
+            df.loc[:, 'is_loss_a'] = False
+            df.loc[:, 'is_gain_b'] = False
+            df.loc[:, 'is_loss_b'] = False
 
+    if input_tree is not None and calc_wgd:
+
+        if asymm_fst_nowgd is None:
+            asymm_fst_nowgd = medicc.io.read_fst(os.path.join(
+                Path(__file__).parent.absolute(), '../objects/no_wgd_asymm.fst'))
+
+        # To save time only potential candidates are investigated further
+        wgd_candidate_threshold = 0.3
+        df['width'] = df.eval('end-start')
+        fraction_gain = (df['is_gain'].astype(int) * df['width']
+                         ).groupby('sample_id').sum() / df.loc[df.index.get_level_values('sample_id')[0], 'width'].sum()
+        wgd_candidates = list(fraction_gain.index[(fraction_gain > wgd_candidate_threshold)])
+
+        for candidate in wgd_candidates:
+            if len(input_tree.get_path(candidate)) == 1:
+                parent = normal_name
+            else:
+                parent = input_tree.get_path(candidate)[-2].name
+            cur_FSA_dict = create_standard_fsa_dict_from_data(
+                df.loc[[candidate, parent], allele_columns], asymm_fst_nowgd.input_symbols(), chr_separator)
+            if float(fstlib.score(asymm_fst_nowgd, cur_FSA_dict[parent], cur_FSA_dict[candidate])) != list(input_tree.find_clades(candidate))[0].branch_length:
+                df.loc[candidate, 'is_wgd'] = True
+                df.loc[candidate, 'is_gain'] = False
+                df.loc[candidate, 'is_loss'] = False
+                if allele_specific:
+                    df.loc[candidate, 'is_gain_a'] = False
+                    df.loc[candidate, 'is_loss_a'] = False
+                    df.loc[candidate, 'is_gain_b'] = False
+                    df.loc[candidate, 'is_loss_b'] = False
+
+                # calculate subsequent losses and gains
+                cur_change = df.loc[candidate, allele_columns] - \
+                    (df.loc[parent, allele_columns] + 1)
+                df.loc[candidate, 'is_gain'] = np.any(cur_change.values > 0, axis=1)
+                df.loc[candidate, 'is_loss'] = np.any(cur_change.values < 0, axis=1)
+                if allele_specific:
+                    df.loc[candidate, 'is_gain_a'] = cur_change['cn_a'].values > 0
+                    df.loc[candidate, 'is_loss_a'] = cur_change['cn_a'].values < 0
+                    df.loc[candidate, 'is_gain_b'] = cur_change['cn_b'].values > 0
+                    df.loc[candidate, 'is_loss_b'] = cur_change['cn_b'].values < 0
+        df.drop('width', axis=1, inplace=True)
     return df
 
 
@@ -230,9 +303,9 @@ def create_standard_fsa_dict_from_data(input_data,
     for taxon, cnp in input_data.groupby('sample_id'):
         cn_str = aggregate_copy_number_profile(cnp)
         fsa_dict[taxon] = fstlib.factory.from_string(cn_str,
-                                                        arc_type="standard",
-                                                        isymbols=symbol_table,
-                                                        osymbols=symbol_table)
+                                                     arc_type="standard",
+                                                     isymbols=symbol_table,
+                                                     osymbols=symbol_table)
 
     return fsa_dict
 
@@ -397,6 +470,8 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
                           "or a list of dicts\nprovided type is {}".format(type(ancestor_fsa)))
 
     for clade in tree.find_clades():
+        if clade.name is None:
+            continue
         children = clade.clades
         if len(children) != 0:
             for child in children:
@@ -451,6 +526,101 @@ def summarise_patient(tree, pdm, sample_labels, normal_name):
     })
     
     return result
+
+
+def overlap_events(events_df=None, df=None, tree=None, overlap_threshold=0.9,
+                   chromosome_bed='../objects/hg19_chromosome_arms.bed', regions_bed=None,
+                   replace_loss_with_loh=True, allele_specific=False,
+                   replace_both_arms_with_chrom=True):
+
+    # TODO move pyranges to main imports once included in main conda env (and yml file)
+    import pyranges as pr
+
+    all_events = pd.DataFrame(columns=['Chromosome', 'Start', 'End', 'name', 'NumberOverlaps',
+                                       'FractionOverlaps', 'event', 'branch']).set_index(['Chromosome', 'Start', 'End'])
+
+    if events_df is None:
+        if df is None or tree is None:
+            raise MEDICCError("Either events_df or df and tree has to be specified")
+        events_df = summarize_changes(df, tree, allele_specific=allele_specific)
+
+    # Read chromosome regions and other regions
+    if chromosome_bed is None and regions_bed is None:
+        raise MEDICCError("Either chromosome_bed or regions_bed has to be specified")
+
+    chr_arm_regions = None
+    if chromosome_bed is not None:
+        chr_arm_regions = medicc.io.read_bed_file(chromosome_bed)
+        whole_chromosome = chr_arm_regions.groupby('Chromosome').min()
+        whole_chromosome['End'] = chr_arm_regions.groupby('Chromosome')['End'].max()
+        whole_chromosome['name'] = whole_chromosome.index
+        chr_arm_regions = chr_arm_regions.append(whole_chromosome.reset_index()).sort_values('Chromosome')
+        chr_arm_regions = pr.PyRanges(chr_arm_regions)
+
+    regions = None
+    if regions_bed is not None:
+        regions = []
+        if isinstance(regions_bed, list) or isinstance(regions_bed, tuple):
+            for f in regions_bed:
+                regions.append(pr.PyRanges(medicc.io.read_bed_file(f)))
+        else:
+            regions.append(pr.PyRanges(medicc.io.read_bed_file(regions_bed)))
+
+    for branch in events_df.index.get_level_values('sample_id').unique():
+        # add wgd
+        if events_df.loc[branch, 'is_wgd'].any():
+            all_events = all_events.append(pd.DataFrame([['all', '0', '0', 'WGD', len(events_df.loc[events_df.index.get_level_values('sample_id').unique()[0]]), 1.0, 'WGD', branch]],
+                                                        columns=['Chromosome', 'Start', 'End', 'name', 'NumberOverlaps', 'FractionOverlaps', 'event', 'branch']).set_index(['Chromosome', 'Start', 'End']))
+        
+        for event in ['loh', 'gain', 'loss'] if replace_loss_with_loh else ['gain', 'loss']:
+
+            cur_events_ranges = events_df.loc[branch].reset_index().rename(
+                {'chrom': 'Chromosome', 'start': 'Start', 'end': 'End'}, axis=1)
+            cur_events_ranges = cur_events_ranges.loc[cur_events_ranges['is_{}'.format(event)]]
+            cur_events_ranges = pr.PyRanges(cur_events_ranges)
+
+            # Calculate chromosomal events
+            if chr_arm_regions is not None:
+                chr_events = overlap_regions(
+                    chr_arm_regions, cur_events_ranges, event, branch, overlap_threshold)
+                # remove arms if the whole chromosome is in there
+                if replace_both_arms_with_chrom and len(chr_events) > 0:
+                    chr_events = chr_events[~chr_events['name'].isin(np.concatenate(
+                        [[name + 'p', name + 'q'] if ('q' not in name and 'p' not in name) else [] for name in chr_events['name']]))]
+                all_events = all_events.append(chr_events)
+
+            # Calculate other events
+            if regions is not None:
+                for region in regions:
+                    chr_events = overlap_regions(
+                        region, cur_events_ranges, event, branch, overlap_threshold)
+                    all_events = all_events.append(chr_events)
+
+    all_events['final_name'] = all_events['name'].apply(lambda x: x.split(
+        'chr')[-1]) + all_events['event'].apply(lambda x: ' +' if x == 'gain' else (' -' if x == 'loss' else (' loh' if x == 'loh' else '')))
+
+    all_events.set_index(['branch', 'name'], inplace=True)
+
+    if replace_loss_with_loh:
+        all_events = all_events.loc[np.logical_or(all_events['event'] != 'loss',
+                                                  ~all_events.index.isin(np.intersect1d(all_events.loc[all_events['event'] == 'loh'].index,
+                                                                                        all_events.loc[all_events['event'] == 'loss'].index)))]
+
+    all_events = all_events.reset_index().set_index('branch')
+    
+    return all_events
+
+
+def overlap_regions(region, cur_events_ranges, event, branch, overlap_threshold):
+
+    cur_events_overlaps = region.coverage(cur_events_ranges).as_df()
+    cur_events_overlaps = cur_events_overlaps.loc[cur_events_overlaps['FractionOverlaps']
+                                                > overlap_threshold]
+    cur_events_overlaps.set_index(['Chromosome', 'Start', 'End'], inplace=True)
+    cur_events_overlaps['event'] = event
+    cur_events_overlaps['branch'] = branch
+
+    return cur_events_overlaps
 
 class MEDICCError(Exception):
     pass

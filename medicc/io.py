@@ -95,7 +95,8 @@ def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
     nexpected = 4 + len(allele_columns)
     input_columns = list(input_file.columns[0:4]) + allele_columns
     if input_file.shape[1] < nexpected:
-        raise MEDICCIOError("TSV file needs at least %d columns (sample_id, chrom, start, end and the allele columns)!" % nexpected)
+        raise MEDICCIOError("TSV file needs at least {} columns (sample_id, chrom, start, end and the allele columns)"
+                            "\nCurrent columns are: {}".format(nexpected, input_file.columns))
 
     ## check if allele_columns are present
     if not np.all(np.in1d(allele_columns, input_file.columns)):
@@ -167,8 +168,8 @@ def _read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns =
     result = paylong.unstack(['allele'])
     result = result.droplevel(0, axis=1).reset_index()
     result.columns.name = None
-    result['start'] = result['segment']+1
-    result['end'] = result['start']
+    result['start'] = result['segment']
+    result['end'] = result['start']+1
     result = result[['sample_id','chrom','start','end'] + allele_columns]
     result['chrom'] = tools.format_chromosomes(result['chrom'])
     result.sort_values(['sample_id', 'chrom', 'start', 'end'], inplace=True)
@@ -231,7 +232,7 @@ def _write_pdm(labels, pdm, filename):
     pdm.to_csv(filename, sep='\t')
     return pdm
 
-def import_tree(tree_file, normal_name, file_format='newick'):
+def import_tree(tree_file, normal_name='diploid', file_format='newick'):
     """ Loads a phylogenetic tree in the given format and roots it at the normal sample. """
     tree = Bio.Phylo.read(tree_file, file_format)
     input_tree = Bio.Phylo.BaseTree.copy.deepcopy(tree)
@@ -246,6 +247,19 @@ def import_tree(tree_file, normal_name, file_format='newick'):
         pass
 
     return input_tree
+
+
+def read_bed_file(filename, as_pyranges=False):
+
+    data = pd.read_csv(filename, header=None, comment='#', sep='\t')
+
+    if len(data.columns) != 4:
+        print('WARNING: expected 4 columns')
+        return None
+
+    data.columns = ['Chromosome', 'Start', 'End', 'name']
+    return data
+
 
 class MEDICCIOError(Exception):
     pass

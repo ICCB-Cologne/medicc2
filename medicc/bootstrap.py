@@ -159,6 +159,7 @@ def run_bootstrap(input_df,
                   N_bootstrap=50,
                   method='chr-wise',
                   wgd=True,
+                  seed=None,
                   normal_name='diploid',
                   show_progress=True,
                   legacy_version=False,
@@ -171,6 +172,10 @@ def run_bootstrap(input_df,
     are calculated.
     """
 
+    if not show_progress:
+        def tqdm(x, disable):
+            return x
+
     if method == 'chr-wise':
         bootstrap_method = chr_wise_bootstrap_df
         logger.info('Starting {} chr-wise bootstrap runs'.format(N_bootstrap))
@@ -179,6 +184,9 @@ def run_bootstrap(input_df,
         bootstrap_method = segment_wise_jacknife_df
     else:
         raise ValueError('method has to be either chr-wise or segment-wise')
+
+    if seed is not None:
+        np.random.seed(seed)
 
     if wgd:
         fst = medicc.io.read_fst(os.path.join(os.path.dirname(os.path.realpath(__file__)), 
