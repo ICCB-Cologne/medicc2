@@ -999,1003 +999,1003 @@ no_wgd_legacy	49	180	0.9243533611297607	"Legacy composition
 (Schwarz et al. 2014)"	No WGD
 no_wgd_legacy	49	200	1.0759527683258057	"Legacy composition
 (Schwarz et al. 2014)"	No WGD
-wgd_kernel	0	20	0.0017695426940917969	Lazy kernel composition	WGD
-wgd_kernel	0	40	0.007885456085205078	Lazy kernel composition	WGD
-wgd_kernel	0	60	0.016160964965820312	Lazy kernel composition	WGD
-wgd_kernel	0	80	0.023834228515625	Lazy kernel composition	WGD
-wgd_kernel	0	100	0.032892704010009766	Lazy kernel composition	WGD
-wgd_kernel	0	120	0.041674137115478516	Lazy kernel composition	WGD
-wgd_kernel	0	140	0.04828047752380371	Lazy kernel composition	WGD
-wgd_kernel	0	160	0.05248093605041504	Lazy kernel composition	WGD
-wgd_kernel	0	180	0.06098318099975586	Lazy kernel composition	WGD
-wgd_kernel	0	200	0.06608128547668457	Lazy kernel composition	WGD
-wgd_kernel	1	20	0.0015950202941894531	Lazy kernel composition	WGD
-wgd_kernel	1	40	0.006978034973144531	Lazy kernel composition	WGD
-wgd_kernel	1	60	0.015738964080810547	Lazy kernel composition	WGD
-wgd_kernel	1	80	0.041196584701538086	Lazy kernel composition	WGD
-wgd_kernel	1	100	0.04855060577392578	Lazy kernel composition	WGD
-wgd_kernel	1	120	0.038341522216796875	Lazy kernel composition	WGD
-wgd_kernel	1	140	0.047606468200683594	Lazy kernel composition	WGD
-wgd_kernel	1	160	0.06306600570678711	Lazy kernel composition	WGD
-wgd_kernel	1	180	0.0637965202331543	Lazy kernel composition	WGD
-wgd_kernel	1	200	0.06897521018981934	Lazy kernel composition	WGD
-wgd_kernel	2	20	0.0016436576843261719	Lazy kernel composition	WGD
-wgd_kernel	2	40	0.0071582794189453125	Lazy kernel composition	WGD
-wgd_kernel	2	60	0.014693975448608398	Lazy kernel composition	WGD
-wgd_kernel	2	80	0.02199697494506836	Lazy kernel composition	WGD
-wgd_kernel	2	100	0.02972555160522461	Lazy kernel composition	WGD
-wgd_kernel	2	120	0.03669238090515137	Lazy kernel composition	WGD
-wgd_kernel	2	140	0.04391765594482422	Lazy kernel composition	WGD
-wgd_kernel	2	160	0.054819345474243164	Lazy kernel composition	WGD
-wgd_kernel	2	180	0.05971193313598633	Lazy kernel composition	WGD
-wgd_kernel	2	200	0.06807589530944824	Lazy kernel composition	WGD
-wgd_kernel	3	20	0.0016977787017822266	Lazy kernel composition	WGD
-wgd_kernel	3	40	0.007253885269165039	Lazy kernel composition	WGD
-wgd_kernel	3	60	0.014540672302246094	Lazy kernel composition	WGD
-wgd_kernel	3	80	0.022166013717651367	Lazy kernel composition	WGD
-wgd_kernel	3	100	0.031230449676513672	Lazy kernel composition	WGD
-wgd_kernel	3	120	0.03907012939453125	Lazy kernel composition	WGD
-wgd_kernel	3	140	0.046317100524902344	Lazy kernel composition	WGD
-wgd_kernel	3	160	0.06163811683654785	Lazy kernel composition	WGD
-wgd_kernel	3	180	0.06310081481933594	Lazy kernel composition	WGD
-wgd_kernel	3	200	0.07092761993408203	Lazy kernel composition	WGD
-wgd_kernel	4	20	0.0017459392547607422	Lazy kernel composition	WGD
-wgd_kernel	4	40	0.007468461990356445	Lazy kernel composition	WGD
-wgd_kernel	4	60	0.015258073806762695	Lazy kernel composition	WGD
-wgd_kernel	4	80	0.02301168441772461	Lazy kernel composition	WGD
-wgd_kernel	4	100	0.031659841537475586	Lazy kernel composition	WGD
-wgd_kernel	4	120	0.03884243965148926	Lazy kernel composition	WGD
-wgd_kernel	4	140	0.05177593231201172	Lazy kernel composition	WGD
-wgd_kernel	4	160	0.08258795738220215	Lazy kernel composition	WGD
-wgd_kernel	4	180	0.0716712474822998	Lazy kernel composition	WGD
-wgd_kernel	4	200	0.07389521598815918	Lazy kernel composition	WGD
-wgd_kernel	5	20	0.0018405914306640625	Lazy kernel composition	WGD
-wgd_kernel	5	40	0.0074846744537353516	Lazy kernel composition	WGD
-wgd_kernel	5	60	0.015491485595703125	Lazy kernel composition	WGD
-wgd_kernel	5	80	0.023268699645996094	Lazy kernel composition	WGD
-wgd_kernel	5	100	0.03259992599487305	Lazy kernel composition	WGD
-wgd_kernel	5	120	0.04322385787963867	Lazy kernel composition	WGD
-wgd_kernel	5	140	0.0607144832611084	Lazy kernel composition	WGD
-wgd_kernel	5	160	0.060170650482177734	Lazy kernel composition	WGD
-wgd_kernel	5	180	0.06748151779174805	Lazy kernel composition	WGD
-wgd_kernel	5	200	0.07383179664611816	Lazy kernel composition	WGD
-wgd_kernel	6	20	0.001852273941040039	Lazy kernel composition	WGD
-wgd_kernel	6	40	0.007955074310302734	Lazy kernel composition	WGD
-wgd_kernel	6	60	0.020829200744628906	Lazy kernel composition	WGD
-wgd_kernel	6	80	0.030737876892089844	Lazy kernel composition	WGD
-wgd_kernel	6	100	0.03361344337463379	Lazy kernel composition	WGD
-wgd_kernel	6	120	0.04215431213378906	Lazy kernel composition	WGD
-wgd_kernel	6	140	0.060521841049194336	Lazy kernel composition	WGD
-wgd_kernel	6	160	0.07226037979125977	Lazy kernel composition	WGD
-wgd_kernel	6	180	0.06854104995727539	Lazy kernel composition	WGD
-wgd_kernel	6	200	0.07504749298095703	Lazy kernel composition	WGD
-wgd_kernel	7	20	0.001750946044921875	Lazy kernel composition	WGD
-wgd_kernel	7	40	0.007825136184692383	Lazy kernel composition	WGD
-wgd_kernel	7	60	0.018854379653930664	Lazy kernel composition	WGD
-wgd_kernel	7	80	0.03354001045227051	Lazy kernel composition	WGD
-wgd_kernel	7	100	0.038300514221191406	Lazy kernel composition	WGD
-wgd_kernel	7	120	0.043694496154785156	Lazy kernel composition	WGD
-wgd_kernel	7	140	0.057338714599609375	Lazy kernel composition	WGD
-wgd_kernel	7	160	0.06053018569946289	Lazy kernel composition	WGD
-wgd_kernel	7	180	0.06913375854492188	Lazy kernel composition	WGD
-wgd_kernel	7	200	0.07677268981933594	Lazy kernel composition	WGD
-wgd_kernel	8	20	0.0018191337585449219	Lazy kernel composition	WGD
-wgd_kernel	8	40	0.00797724723815918	Lazy kernel composition	WGD
-wgd_kernel	8	60	0.017570972442626953	Lazy kernel composition	WGD
-wgd_kernel	8	80	0.0474700927734375	Lazy kernel composition	WGD
-wgd_kernel	8	100	0.03790903091430664	Lazy kernel composition	WGD
-wgd_kernel	8	120	0.040152549743652344	Lazy kernel composition	WGD
-wgd_kernel	8	140	0.04894757270812988	Lazy kernel composition	WGD
-wgd_kernel	8	160	0.0637354850769043	Lazy kernel composition	WGD
-wgd_kernel	8	180	0.06635069847106934	Lazy kernel composition	WGD
-wgd_kernel	8	200	0.08241629600524902	Lazy kernel composition	WGD
-wgd_kernel	9	20	0.001913309097290039	Lazy kernel composition	WGD
-wgd_kernel	9	40	0.00888514518737793	Lazy kernel composition	WGD
-wgd_kernel	9	60	0.017555952072143555	Lazy kernel composition	WGD
-wgd_kernel	9	80	0.025618553161621094	Lazy kernel composition	WGD
-wgd_kernel	9	100	0.035291433334350586	Lazy kernel composition	WGD
-wgd_kernel	9	120	0.044737815856933594	Lazy kernel composition	WGD
-wgd_kernel	9	140	0.05351567268371582	Lazy kernel composition	WGD
-wgd_kernel	9	160	0.06389403343200684	Lazy kernel composition	WGD
-wgd_kernel	9	180	0.07162928581237793	Lazy kernel composition	WGD
-wgd_kernel	9	200	0.08356666564941406	Lazy kernel composition	WGD
-wgd_kernel	10	20	0.002267122268676758	Lazy kernel composition	WGD
-wgd_kernel	10	40	0.008182287216186523	Lazy kernel composition	WGD
-wgd_kernel	10	60	0.017574071884155273	Lazy kernel composition	WGD
-wgd_kernel	10	80	0.026681900024414062	Lazy kernel composition	WGD
-wgd_kernel	10	100	0.03254818916320801	Lazy kernel composition	WGD
-wgd_kernel	10	120	0.042206525802612305	Lazy kernel composition	WGD
-wgd_kernel	10	140	0.04867672920227051	Lazy kernel composition	WGD
-wgd_kernel	10	160	0.061103105545043945	Lazy kernel composition	WGD
-wgd_kernel	10	180	0.08872318267822266	Lazy kernel composition	WGD
-wgd_kernel	10	200	0.09045600891113281	Lazy kernel composition	WGD
-wgd_kernel	11	20	0.001913309097290039	Lazy kernel composition	WGD
-wgd_kernel	11	40	0.008241415023803711	Lazy kernel composition	WGD
-wgd_kernel	11	60	0.018028736114501953	Lazy kernel composition	WGD
-wgd_kernel	11	80	0.0255587100982666	Lazy kernel composition	WGD
-wgd_kernel	11	100	0.035216569900512695	Lazy kernel composition	WGD
-wgd_kernel	11	120	0.04199099540710449	Lazy kernel composition	WGD
-wgd_kernel	11	140	0.05187559127807617	Lazy kernel composition	WGD
-wgd_kernel	11	160	0.058615684509277344	Lazy kernel composition	WGD
-wgd_kernel	11	180	0.06578230857849121	Lazy kernel composition	WGD
-wgd_kernel	11	200	0.07484865188598633	Lazy kernel composition	WGD
-wgd_kernel	12	20	0.0017979145050048828	Lazy kernel composition	WGD
-wgd_kernel	12	40	0.008921384811401367	Lazy kernel composition	WGD
-wgd_kernel	12	60	0.03681015968322754	Lazy kernel composition	WGD
-wgd_kernel	12	80	0.03569960594177246	Lazy kernel composition	WGD
-wgd_kernel	12	100	0.05700802803039551	Lazy kernel composition	WGD
-wgd_kernel	12	120	0.07082271575927734	Lazy kernel composition	WGD
-wgd_kernel	12	140	0.07689571380615234	Lazy kernel composition	WGD
-wgd_kernel	12	160	0.07012081146240234	Lazy kernel composition	WGD
-wgd_kernel	12	180	0.07517266273498535	Lazy kernel composition	WGD
-wgd_kernel	12	200	0.07797050476074219	Lazy kernel composition	WGD
-wgd_kernel	13	20	0.0018868446350097656	Lazy kernel composition	WGD
-wgd_kernel	13	40	0.008069276809692383	Lazy kernel composition	WGD
-wgd_kernel	13	60	0.016966581344604492	Lazy kernel composition	WGD
-wgd_kernel	13	80	0.025060415267944336	Lazy kernel composition	WGD
-wgd_kernel	13	100	0.05164957046508789	Lazy kernel composition	WGD
-wgd_kernel	13	120	0.0464015007019043	Lazy kernel composition	WGD
-wgd_kernel	13	140	0.05214095115661621	Lazy kernel composition	WGD
-wgd_kernel	13	160	0.06209754943847656	Lazy kernel composition	WGD
-wgd_kernel	13	180	0.06865096092224121	Lazy kernel composition	WGD
-wgd_kernel	13	200	0.07583475112915039	Lazy kernel composition	WGD
-wgd_kernel	14	20	0.001943349838256836	Lazy kernel composition	WGD
-wgd_kernel	14	40	0.007750034332275391	Lazy kernel composition	WGD
-wgd_kernel	14	60	0.015940427780151367	Lazy kernel composition	WGD
-wgd_kernel	14	80	0.023847341537475586	Lazy kernel composition	WGD
-wgd_kernel	14	100	0.03222990036010742	Lazy kernel composition	WGD
-wgd_kernel	14	120	0.04450082778930664	Lazy kernel composition	WGD
-wgd_kernel	14	140	0.04803299903869629	Lazy kernel composition	WGD
-wgd_kernel	14	160	0.05570697784423828	Lazy kernel composition	WGD
-wgd_kernel	14	180	0.0896759033203125	Lazy kernel composition	WGD
-wgd_kernel	14	200	0.1056523323059082	Lazy kernel composition	WGD
-wgd_kernel	15	20	0.0029706954956054688	Lazy kernel composition	WGD
-wgd_kernel	15	40	0.0082855224609375	Lazy kernel composition	WGD
-wgd_kernel	15	60	0.01774764060974121	Lazy kernel composition	WGD
-wgd_kernel	15	80	0.02942037582397461	Lazy kernel composition	WGD
-wgd_kernel	15	100	0.03603172302246094	Lazy kernel composition	WGD
-wgd_kernel	15	120	0.04380512237548828	Lazy kernel composition	WGD
-wgd_kernel	15	140	0.050241947174072266	Lazy kernel composition	WGD
-wgd_kernel	15	160	0.06242656707763672	Lazy kernel composition	WGD
-wgd_kernel	15	180	0.06786847114562988	Lazy kernel composition	WGD
-wgd_kernel	15	200	0.08886480331420898	Lazy kernel composition	WGD
-wgd_kernel	16	20	0.0017511844635009766	Lazy kernel composition	WGD
-wgd_kernel	16	40	0.008179187774658203	Lazy kernel composition	WGD
-wgd_kernel	16	60	0.016401290893554688	Lazy kernel composition	WGD
-wgd_kernel	16	80	0.023797035217285156	Lazy kernel composition	WGD
-wgd_kernel	16	100	0.03265547752380371	Lazy kernel composition	WGD
-wgd_kernel	16	120	0.041054487228393555	Lazy kernel composition	WGD
-wgd_kernel	16	140	0.048412322998046875	Lazy kernel composition	WGD
-wgd_kernel	16	160	0.05746173858642578	Lazy kernel composition	WGD
-wgd_kernel	16	180	0.06688356399536133	Lazy kernel composition	WGD
-wgd_kernel	16	200	0.07027959823608398	Lazy kernel composition	WGD
-wgd_kernel	17	20	0.0025510787963867188	Lazy kernel composition	WGD
-wgd_kernel	17	40	0.011967897415161133	Lazy kernel composition	WGD
-wgd_kernel	17	60	0.01726388931274414	Lazy kernel composition	WGD
-wgd_kernel	17	80	0.02589559555053711	Lazy kernel composition	WGD
-wgd_kernel	17	100	0.03103947639465332	Lazy kernel composition	WGD
-wgd_kernel	17	120	0.03777122497558594	Lazy kernel composition	WGD
-wgd_kernel	17	140	0.045233964920043945	Lazy kernel composition	WGD
-wgd_kernel	17	160	0.05685091018676758	Lazy kernel composition	WGD
-wgd_kernel	17	180	0.08164668083190918	Lazy kernel composition	WGD
-wgd_kernel	17	200	0.1166985034942627	Lazy kernel composition	WGD
-wgd_kernel	18	20	0.002079010009765625	Lazy kernel composition	WGD
-wgd_kernel	18	40	0.009469985961914062	Lazy kernel composition	WGD
-wgd_kernel	18	60	0.01735520362854004	Lazy kernel composition	WGD
-wgd_kernel	18	80	0.026939868927001953	Lazy kernel composition	WGD
-wgd_kernel	18	100	0.038121700286865234	Lazy kernel composition	WGD
-wgd_kernel	18	120	0.04891562461853027	Lazy kernel composition	WGD
-wgd_kernel	18	140	0.05299234390258789	Lazy kernel composition	WGD
-wgd_kernel	18	160	0.06256604194641113	Lazy kernel composition	WGD
-wgd_kernel	18	180	0.06938290596008301	Lazy kernel composition	WGD
-wgd_kernel	18	200	0.07893657684326172	Lazy kernel composition	WGD
-wgd_kernel	19	20	0.0018346309661865234	Lazy kernel composition	WGD
-wgd_kernel	19	40	0.008414983749389648	Lazy kernel composition	WGD
-wgd_kernel	19	60	0.0166628360748291	Lazy kernel composition	WGD
-wgd_kernel	19	80	0.02479720115661621	Lazy kernel composition	WGD
-wgd_kernel	19	100	0.03371572494506836	Lazy kernel composition	WGD
-wgd_kernel	19	120	0.042855024337768555	Lazy kernel composition	WGD
-wgd_kernel	19	140	0.0514216423034668	Lazy kernel composition	WGD
-wgd_kernel	19	160	0.0607142448425293	Lazy kernel composition	WGD
-wgd_kernel	19	180	0.0684654712677002	Lazy kernel composition	WGD
-wgd_kernel	19	200	0.07576251029968262	Lazy kernel composition	WGD
-wgd_kernel	20	20	0.001786947250366211	Lazy kernel composition	WGD
-wgd_kernel	20	40	0.008186101913452148	Lazy kernel composition	WGD
-wgd_kernel	20	60	0.017551183700561523	Lazy kernel composition	WGD
-wgd_kernel	20	80	0.02467632293701172	Lazy kernel composition	WGD
-wgd_kernel	20	100	0.03399205207824707	Lazy kernel composition	WGD
-wgd_kernel	20	120	0.04369044303894043	Lazy kernel composition	WGD
-wgd_kernel	20	140	0.048398733139038086	Lazy kernel composition	WGD
-wgd_kernel	20	160	0.05561470985412598	Lazy kernel composition	WGD
-wgd_kernel	20	180	0.06500816345214844	Lazy kernel composition	WGD
-wgd_kernel	20	200	0.07162809371948242	Lazy kernel composition	WGD
-wgd_kernel	21	20	0.0017633438110351562	Lazy kernel composition	WGD
-wgd_kernel	21	40	0.007568359375	Lazy kernel composition	WGD
-wgd_kernel	21	60	0.015427350997924805	Lazy kernel composition	WGD
-wgd_kernel	21	80	0.0234677791595459	Lazy kernel composition	WGD
-wgd_kernel	21	100	0.03126168251037598	Lazy kernel composition	WGD
-wgd_kernel	21	120	0.043790340423583984	Lazy kernel composition	WGD
-wgd_kernel	21	140	0.04806327819824219	Lazy kernel composition	WGD
-wgd_kernel	21	160	0.05502820014953613	Lazy kernel composition	WGD
-wgd_kernel	21	180	0.06310200691223145	Lazy kernel composition	WGD
-wgd_kernel	21	200	0.07869434356689453	Lazy kernel composition	WGD
-wgd_kernel	22	20	0.0016922950744628906	Lazy kernel composition	WGD
-wgd_kernel	22	40	0.0072782039642333984	Lazy kernel composition	WGD
-wgd_kernel	22	60	0.014883041381835938	Lazy kernel composition	WGD
-wgd_kernel	22	80	0.023144960403442383	Lazy kernel composition	WGD
-wgd_kernel	22	100	0.03219175338745117	Lazy kernel composition	WGD
-wgd_kernel	22	120	0.037821292877197266	Lazy kernel composition	WGD
-wgd_kernel	22	140	0.047953128814697266	Lazy kernel composition	WGD
-wgd_kernel	22	160	0.07906913757324219	Lazy kernel composition	WGD
-wgd_kernel	22	180	0.12967419624328613	Lazy kernel composition	WGD
-wgd_kernel	22	200	0.12529826164245605	Lazy kernel composition	WGD
-wgd_kernel	23	20	0.003148794174194336	Lazy kernel composition	WGD
-wgd_kernel	23	40	0.013082027435302734	Lazy kernel composition	WGD
-wgd_kernel	23	60	0.024811744689941406	Lazy kernel composition	WGD
-wgd_kernel	23	80	0.03540539741516113	Lazy kernel composition	WGD
-wgd_kernel	23	100	0.04272150993347168	Lazy kernel composition	WGD
-wgd_kernel	23	120	0.047499656677246094	Lazy kernel composition	WGD
-wgd_kernel	23	140	0.051009416580200195	Lazy kernel composition	WGD
-wgd_kernel	23	160	0.06898760795593262	Lazy kernel composition	WGD
-wgd_kernel	23	180	0.06918573379516602	Lazy kernel composition	WGD
-wgd_kernel	23	200	0.07768774032592773	Lazy kernel composition	WGD
-wgd_kernel	24	20	0.0017397403717041016	Lazy kernel composition	WGD
-wgd_kernel	24	40	0.0076847076416015625	Lazy kernel composition	WGD
-wgd_kernel	24	60	0.014927864074707031	Lazy kernel composition	WGD
-wgd_kernel	24	80	0.022431135177612305	Lazy kernel composition	WGD
-wgd_kernel	24	100	0.03055596351623535	Lazy kernel composition	WGD
-wgd_kernel	24	120	0.03856539726257324	Lazy kernel composition	WGD
-wgd_kernel	24	140	0.04509925842285156	Lazy kernel composition	WGD
-wgd_kernel	24	160	0.05399131774902344	Lazy kernel composition	WGD
-wgd_kernel	24	180	0.061867713928222656	Lazy kernel composition	WGD
-wgd_kernel	24	200	0.06797122955322266	Lazy kernel composition	WGD
-wgd_kernel	25	20	0.001627206802368164	Lazy kernel composition	WGD
-wgd_kernel	25	40	0.006838560104370117	Lazy kernel composition	WGD
-wgd_kernel	25	60	0.01510310173034668	Lazy kernel composition	WGD
-wgd_kernel	25	80	0.021020889282226562	Lazy kernel composition	WGD
-wgd_kernel	25	100	0.02826213836669922	Lazy kernel composition	WGD
-wgd_kernel	25	120	0.0366518497467041	Lazy kernel composition	WGD
-wgd_kernel	25	140	0.043253183364868164	Lazy kernel composition	WGD
-wgd_kernel	25	160	0.055509090423583984	Lazy kernel composition	WGD
-wgd_kernel	25	180	0.06652998924255371	Lazy kernel composition	WGD
-wgd_kernel	25	200	0.07009339332580566	Lazy kernel composition	WGD
-wgd_kernel	26	20	0.0016317367553710938	Lazy kernel composition	WGD
-wgd_kernel	26	40	0.007138490676879883	Lazy kernel composition	WGD
-wgd_kernel	26	60	0.014606475830078125	Lazy kernel composition	WGD
-wgd_kernel	26	80	0.022423744201660156	Lazy kernel composition	WGD
-wgd_kernel	26	100	0.030076980590820312	Lazy kernel composition	WGD
-wgd_kernel	26	120	0.03714275360107422	Lazy kernel composition	WGD
-wgd_kernel	26	140	0.04659724235534668	Lazy kernel composition	WGD
-wgd_kernel	26	160	0.05435609817504883	Lazy kernel composition	WGD
-wgd_kernel	26	180	0.06047964096069336	Lazy kernel composition	WGD
-wgd_kernel	26	200	0.07380533218383789	Lazy kernel composition	WGD
-wgd_kernel	27	20	0.0018010139465332031	Lazy kernel composition	WGD
-wgd_kernel	27	40	0.0075418949127197266	Lazy kernel composition	WGD
-wgd_kernel	27	60	0.014766693115234375	Lazy kernel composition	WGD
-wgd_kernel	27	80	0.021908044815063477	Lazy kernel composition	WGD
-wgd_kernel	27	100	0.03016829490661621	Lazy kernel composition	WGD
-wgd_kernel	27	120	0.0385591983795166	Lazy kernel composition	WGD
-wgd_kernel	27	140	0.04430985450744629	Lazy kernel composition	WGD
-wgd_kernel	27	160	0.052361249923706055	Lazy kernel composition	WGD
-wgd_kernel	27	180	0.059052228927612305	Lazy kernel composition	WGD
-wgd_kernel	27	200	0.06918454170227051	Lazy kernel composition	WGD
-wgd_kernel	28	20	0.0015995502471923828	Lazy kernel composition	WGD
-wgd_kernel	28	40	0.007024526596069336	Lazy kernel composition	WGD
-wgd_kernel	28	60	0.013825416564941406	Lazy kernel composition	WGD
-wgd_kernel	28	80	0.021731853485107422	Lazy kernel composition	WGD
-wgd_kernel	28	100	0.02927851676940918	Lazy kernel composition	WGD
-wgd_kernel	28	120	0.0366668701171875	Lazy kernel composition	WGD
-wgd_kernel	28	140	0.04940080642700195	Lazy kernel composition	WGD
-wgd_kernel	28	160	0.06015205383300781	Lazy kernel composition	WGD
-wgd_kernel	28	180	0.07445764541625977	Lazy kernel composition	WGD
-wgd_kernel	28	200	0.08535242080688477	Lazy kernel composition	WGD
-wgd_kernel	29	20	0.001867055892944336	Lazy kernel composition	WGD
-wgd_kernel	29	40	0.008878469467163086	Lazy kernel composition	WGD
-wgd_kernel	29	60	0.016345739364624023	Lazy kernel composition	WGD
-wgd_kernel	29	80	0.02490234375	Lazy kernel composition	WGD
-wgd_kernel	29	100	0.033731937408447266	Lazy kernel composition	WGD
-wgd_kernel	29	120	0.043488502502441406	Lazy kernel composition	WGD
-wgd_kernel	29	140	0.0548710823059082	Lazy kernel composition	WGD
-wgd_kernel	29	160	0.05995535850524902	Lazy kernel composition	WGD
-wgd_kernel	29	180	0.06594371795654297	Lazy kernel composition	WGD
-wgd_kernel	29	200	0.07707500457763672	Lazy kernel composition	WGD
-wgd_kernel	30	20	0.0018563270568847656	Lazy kernel composition	WGD
-wgd_kernel	30	40	0.007942438125610352	Lazy kernel composition	WGD
-wgd_kernel	30	60	0.01608586311340332	Lazy kernel composition	WGD
-wgd_kernel	30	80	0.024355173110961914	Lazy kernel composition	WGD
-wgd_kernel	30	100	0.03444933891296387	Lazy kernel composition	WGD
-wgd_kernel	30	120	0.042052507400512695	Lazy kernel composition	WGD
-wgd_kernel	30	140	0.05146598815917969	Lazy kernel composition	WGD
-wgd_kernel	30	160	0.062211036682128906	Lazy kernel composition	WGD
-wgd_kernel	30	180	0.06563782691955566	Lazy kernel composition	WGD
-wgd_kernel	30	200	0.07271599769592285	Lazy kernel composition	WGD
-wgd_kernel	31	20	0.0017573833465576172	Lazy kernel composition	WGD
-wgd_kernel	31	40	0.0076830387115478516	Lazy kernel composition	WGD
-wgd_kernel	31	60	0.01572704315185547	Lazy kernel composition	WGD
-wgd_kernel	31	80	0.025180578231811523	Lazy kernel composition	WGD
-wgd_kernel	31	100	0.03331756591796875	Lazy kernel composition	WGD
-wgd_kernel	31	120	0.041138410568237305	Lazy kernel composition	WGD
-wgd_kernel	31	140	0.049353837966918945	Lazy kernel composition	WGD
-wgd_kernel	31	160	0.05969977378845215	Lazy kernel composition	WGD
-wgd_kernel	31	180	0.06764745712280273	Lazy kernel composition	WGD
-wgd_kernel	31	200	0.07710480690002441	Lazy kernel composition	WGD
-wgd_kernel	32	20	0.0017704963684082031	Lazy kernel composition	WGD
-wgd_kernel	32	40	0.007730960845947266	Lazy kernel composition	WGD
-wgd_kernel	32	60	0.016215801239013672	Lazy kernel composition	WGD
-wgd_kernel	32	80	0.024712085723876953	Lazy kernel composition	WGD
-wgd_kernel	32	100	0.03194570541381836	Lazy kernel composition	WGD
-wgd_kernel	32	120	0.040686607360839844	Lazy kernel composition	WGD
-wgd_kernel	32	140	0.04708409309387207	Lazy kernel composition	WGD
-wgd_kernel	32	160	0.056619882583618164	Lazy kernel composition	WGD
-wgd_kernel	32	180	0.09251022338867188	Lazy kernel composition	WGD
-wgd_kernel	32	200	0.0943148136138916	Lazy kernel composition	WGD
-wgd_kernel	33	20	0.002327442169189453	Lazy kernel composition	WGD
-wgd_kernel	33	40	0.009694337844848633	Lazy kernel composition	WGD
-wgd_kernel	33	60	0.019701004028320312	Lazy kernel composition	WGD
-wgd_kernel	33	80	0.034010887145996094	Lazy kernel composition	WGD
-wgd_kernel	33	100	0.04677748680114746	Lazy kernel composition	WGD
-wgd_kernel	33	120	0.05481433868408203	Lazy kernel composition	WGD
-wgd_kernel	33	140	0.06611251831054688	Lazy kernel composition	WGD
-wgd_kernel	33	160	0.08066248893737793	Lazy kernel composition	WGD
-wgd_kernel	33	180	0.08739805221557617	Lazy kernel composition	WGD
-wgd_kernel	33	200	0.09016251564025879	Lazy kernel composition	WGD
-wgd_kernel	34	20	0.0018849372863769531	Lazy kernel composition	WGD
-wgd_kernel	34	40	0.009213924407958984	Lazy kernel composition	WGD
-wgd_kernel	34	60	0.018314123153686523	Lazy kernel composition	WGD
-wgd_kernel	34	80	0.02955317497253418	Lazy kernel composition	WGD
-wgd_kernel	34	100	0.03863048553466797	Lazy kernel composition	WGD
-wgd_kernel	34	120	0.046889305114746094	Lazy kernel composition	WGD
-wgd_kernel	34	140	0.05405473709106445	Lazy kernel composition	WGD
-wgd_kernel	34	160	0.07584929466247559	Lazy kernel composition	WGD
-wgd_kernel	34	180	0.0763404369354248	Lazy kernel composition	WGD
-wgd_kernel	34	200	0.08359742164611816	Lazy kernel composition	WGD
-wgd_kernel	35	20	0.0018935203552246094	Lazy kernel composition	WGD
-wgd_kernel	35	40	0.00860905647277832	Lazy kernel composition	WGD
-wgd_kernel	35	60	0.01764059066772461	Lazy kernel composition	WGD
-wgd_kernel	35	80	0.027498483657836914	Lazy kernel composition	WGD
-wgd_kernel	35	100	0.03406357765197754	Lazy kernel composition	WGD
-wgd_kernel	35	120	0.041539907455444336	Lazy kernel composition	WGD
-wgd_kernel	35	140	0.049878835678100586	Lazy kernel composition	WGD
-wgd_kernel	35	160	0.06040501594543457	Lazy kernel composition	WGD
-wgd_kernel	35	180	0.0674748420715332	Lazy kernel composition	WGD
-wgd_kernel	35	200	0.08585143089294434	Lazy kernel composition	WGD
-wgd_kernel	36	20	0.0017554759979248047	Lazy kernel composition	WGD
-wgd_kernel	36	40	0.007663249969482422	Lazy kernel composition	WGD
-wgd_kernel	36	60	0.01604318618774414	Lazy kernel composition	WGD
-wgd_kernel	36	80	0.023806095123291016	Lazy kernel composition	WGD
-wgd_kernel	36	100	0.04036688804626465	Lazy kernel composition	WGD
-wgd_kernel	36	120	0.041268348693847656	Lazy kernel composition	WGD
-wgd_kernel	36	140	0.045247554779052734	Lazy kernel composition	WGD
-wgd_kernel	36	160	0.05580639839172363	Lazy kernel composition	WGD
-wgd_kernel	36	180	0.06181001663208008	Lazy kernel composition	WGD
-wgd_kernel	36	200	0.07380199432373047	Lazy kernel composition	WGD
-wgd_kernel	37	20	0.0016179084777832031	Lazy kernel composition	WGD
-wgd_kernel	37	40	0.007511615753173828	Lazy kernel composition	WGD
-wgd_kernel	37	60	0.017027616500854492	Lazy kernel composition	WGD
-wgd_kernel	37	80	0.0560765266418457	Lazy kernel composition	WGD
-wgd_kernel	37	100	0.03037881851196289	Lazy kernel composition	WGD
-wgd_kernel	37	120	0.03779292106628418	Lazy kernel composition	WGD
-wgd_kernel	37	140	0.04545235633850098	Lazy kernel composition	WGD
-wgd_kernel	37	160	0.06739640235900879	Lazy kernel composition	WGD
-wgd_kernel	37	180	0.07143592834472656	Lazy kernel composition	WGD
-wgd_kernel	37	200	0.07086610794067383	Lazy kernel composition	WGD
-wgd_kernel	38	20	0.001613616943359375	Lazy kernel composition	WGD
-wgd_kernel	38	40	0.007025241851806641	Lazy kernel composition	WGD
-wgd_kernel	38	60	0.014299869537353516	Lazy kernel composition	WGD
-wgd_kernel	38	80	0.025780200958251953	Lazy kernel composition	WGD
-wgd_kernel	38	100	0.029417991638183594	Lazy kernel composition	WGD
-wgd_kernel	38	120	0.0363001823425293	Lazy kernel composition	WGD
-wgd_kernel	38	140	0.04312705993652344	Lazy kernel composition	WGD
-wgd_kernel	38	160	0.05167889595031738	Lazy kernel composition	WGD
-wgd_kernel	38	180	0.06065559387207031	Lazy kernel composition	WGD
-wgd_kernel	38	200	0.06582951545715332	Lazy kernel composition	WGD
-wgd_kernel	39	20	0.001600503921508789	Lazy kernel composition	WGD
-wgd_kernel	39	40	0.007021903991699219	Lazy kernel composition	WGD
-wgd_kernel	39	60	0.015041351318359375	Lazy kernel composition	WGD
-wgd_kernel	39	80	0.02414870262145996	Lazy kernel composition	WGD
-wgd_kernel	39	100	0.02917003631591797	Lazy kernel composition	WGD
-wgd_kernel	39	120	0.03671765327453613	Lazy kernel composition	WGD
-wgd_kernel	39	140	0.043059349060058594	Lazy kernel composition	WGD
-wgd_kernel	39	160	0.057387351989746094	Lazy kernel composition	WGD
-wgd_kernel	39	180	0.057674407958984375	Lazy kernel composition	WGD
-wgd_kernel	39	200	0.1275646686553955	Lazy kernel composition	WGD
-wgd_kernel	40	20	0.0015957355499267578	Lazy kernel composition	WGD
-wgd_kernel	40	40	0.009073972702026367	Lazy kernel composition	WGD
-wgd_kernel	40	60	0.01596999168395996	Lazy kernel composition	WGD
-wgd_kernel	40	80	0.02457571029663086	Lazy kernel composition	WGD
-wgd_kernel	40	100	0.03160595893859863	Lazy kernel composition	WGD
-wgd_kernel	40	120	0.04021096229553223	Lazy kernel composition	WGD
-wgd_kernel	40	140	0.04801344871520996	Lazy kernel composition	WGD
-wgd_kernel	40	160	0.07071971893310547	Lazy kernel composition	WGD
-wgd_kernel	40	180	0.07371377944946289	Lazy kernel composition	WGD
-wgd_kernel	40	200	0.07370591163635254	Lazy kernel composition	WGD
-wgd_kernel	41	20	0.0016841888427734375	Lazy kernel composition	WGD
-wgd_kernel	41	40	0.007450580596923828	Lazy kernel composition	WGD
-wgd_kernel	41	60	0.014912843704223633	Lazy kernel composition	WGD
-wgd_kernel	41	80	0.026517868041992188	Lazy kernel composition	WGD
-wgd_kernel	41	100	0.03243589401245117	Lazy kernel composition	WGD
-wgd_kernel	41	120	0.0421299934387207	Lazy kernel composition	WGD
-wgd_kernel	41	140	0.04757428169250488	Lazy kernel composition	WGD
-wgd_kernel	41	160	0.05543041229248047	Lazy kernel composition	WGD
-wgd_kernel	41	180	0.06353497505187988	Lazy kernel composition	WGD
-wgd_kernel	41	200	0.07945108413696289	Lazy kernel composition	WGD
-wgd_kernel	42	20	0.0017914772033691406	Lazy kernel composition	WGD
-wgd_kernel	42	40	0.0108642578125	Lazy kernel composition	WGD
-wgd_kernel	42	60	0.02226996421813965	Lazy kernel composition	WGD
-wgd_kernel	42	80	0.030727386474609375	Lazy kernel composition	WGD
-wgd_kernel	42	100	0.04032611846923828	Lazy kernel composition	WGD
-wgd_kernel	42	120	0.04621601104736328	Lazy kernel composition	WGD
-wgd_kernel	42	140	0.057108163833618164	Lazy kernel composition	WGD
-wgd_kernel	42	160	0.06318998336791992	Lazy kernel composition	WGD
-wgd_kernel	42	180	0.07963776588439941	Lazy kernel composition	WGD
-wgd_kernel	42	200	0.0819239616394043	Lazy kernel composition	WGD
-wgd_kernel	43	20	0.0018889904022216797	Lazy kernel composition	WGD
-wgd_kernel	43	40	0.008750200271606445	Lazy kernel composition	WGD
-wgd_kernel	43	60	0.017153263092041016	Lazy kernel composition	WGD
-wgd_kernel	43	80	0.02559804916381836	Lazy kernel composition	WGD
-wgd_kernel	43	100	0.03382396697998047	Lazy kernel composition	WGD
-wgd_kernel	43	120	0.04385042190551758	Lazy kernel composition	WGD
-wgd_kernel	43	140	0.0522150993347168	Lazy kernel composition	WGD
-wgd_kernel	43	160	0.06659913063049316	Lazy kernel composition	WGD
-wgd_kernel	43	180	0.07011842727661133	Lazy kernel composition	WGD
-wgd_kernel	43	200	0.07787370681762695	Lazy kernel composition	WGD
-wgd_kernel	44	20	0.0017757415771484375	Lazy kernel composition	WGD
-wgd_kernel	44	40	0.007745981216430664	Lazy kernel composition	WGD
-wgd_kernel	44	60	0.01599407196044922	Lazy kernel composition	WGD
-wgd_kernel	44	80	0.024659156799316406	Lazy kernel composition	WGD
-wgd_kernel	44	100	0.03335213661193848	Lazy kernel composition	WGD
-wgd_kernel	44	120	0.0433192253112793	Lazy kernel composition	WGD
-wgd_kernel	44	140	0.052185773849487305	Lazy kernel composition	WGD
-wgd_kernel	44	160	0.06511855125427246	Lazy kernel composition	WGD
-wgd_kernel	44	180	0.07151341438293457	Lazy kernel composition	WGD
-wgd_kernel	44	200	0.08331680297851562	Lazy kernel composition	WGD
-wgd_kernel	45	20	0.001878499984741211	Lazy kernel composition	WGD
-wgd_kernel	45	40	0.007986068725585938	Lazy kernel composition	WGD
-wgd_kernel	45	60	0.016268253326416016	Lazy kernel composition	WGD
-wgd_kernel	45	80	0.024487733840942383	Lazy kernel composition	WGD
-wgd_kernel	45	100	0.03281545639038086	Lazy kernel composition	WGD
-wgd_kernel	45	120	0.042412757873535156	Lazy kernel composition	WGD
-wgd_kernel	45	140	0.05015277862548828	Lazy kernel composition	WGD
-wgd_kernel	45	160	0.05667304992675781	Lazy kernel composition	WGD
-wgd_kernel	45	180	0.06642580032348633	Lazy kernel composition	WGD
-wgd_kernel	45	200	0.07524585723876953	Lazy kernel composition	WGD
-wgd_kernel	46	20	0.0017464160919189453	Lazy kernel composition	WGD
-wgd_kernel	46	40	0.007570028305053711	Lazy kernel composition	WGD
-wgd_kernel	46	60	0.015923738479614258	Lazy kernel composition	WGD
-wgd_kernel	46	80	0.023909568786621094	Lazy kernel composition	WGD
-wgd_kernel	46	100	0.0344846248626709	Lazy kernel composition	WGD
-wgd_kernel	46	120	0.03990530967712402	Lazy kernel composition	WGD
-wgd_kernel	46	140	0.04648709297180176	Lazy kernel composition	WGD
-wgd_kernel	46	160	0.05597805976867676	Lazy kernel composition	WGD
-wgd_kernel	46	180	0.06425714492797852	Lazy kernel composition	WGD
-wgd_kernel	46	200	0.07218432426452637	Lazy kernel composition	WGD
-wgd_kernel	47	20	0.0017461776733398438	Lazy kernel composition	WGD
-wgd_kernel	47	40	0.0074977874755859375	Lazy kernel composition	WGD
-wgd_kernel	47	60	0.015667200088500977	Lazy kernel composition	WGD
-wgd_kernel	47	80	0.024184465408325195	Lazy kernel composition	WGD
-wgd_kernel	47	100	0.03194594383239746	Lazy kernel composition	WGD
-wgd_kernel	47	120	0.03945112228393555	Lazy kernel composition	WGD
-wgd_kernel	47	140	0.04813742637634277	Lazy kernel composition	WGD
-wgd_kernel	47	160	0.06336116790771484	Lazy kernel composition	WGD
-wgd_kernel	47	180	0.0645439624786377	Lazy kernel composition	WGD
-wgd_kernel	47	200	0.07545042037963867	Lazy kernel composition	WGD
-wgd_kernel	48	20	0.0017457008361816406	Lazy kernel composition	WGD
-wgd_kernel	48	40	0.007794618606567383	Lazy kernel composition	WGD
-wgd_kernel	48	60	0.01575636863708496	Lazy kernel composition	WGD
-wgd_kernel	48	80	0.023858070373535156	Lazy kernel composition	WGD
-wgd_kernel	48	100	0.031201839447021484	Lazy kernel composition	WGD
-wgd_kernel	48	120	0.03929924964904785	Lazy kernel composition	WGD
-wgd_kernel	48	140	0.0472564697265625	Lazy kernel composition	WGD
-wgd_kernel	48	160	0.05818748474121094	Lazy kernel composition	WGD
-wgd_kernel	48	180	0.06346416473388672	Lazy kernel composition	WGD
-wgd_kernel	48	200	0.07608246803283691	Lazy kernel composition	WGD
-wgd_kernel	49	20	0.0017483234405517578	Lazy kernel composition	WGD
-wgd_kernel	49	40	0.007666587829589844	Lazy kernel composition	WGD
-wgd_kernel	49	60	0.016232728958129883	Lazy kernel composition	WGD
-wgd_kernel	49	80	0.02497100830078125	Lazy kernel composition	WGD
-wgd_kernel	49	100	0.03452181816101074	Lazy kernel composition	WGD
-wgd_kernel	49	120	0.040874481201171875	Lazy kernel composition	WGD
-wgd_kernel	49	140	0.04934072494506836	Lazy kernel composition	WGD
-wgd_kernel	49	160	0.05636930465698242	Lazy kernel composition	WGD
-wgd_kernel	49	180	0.06606888771057129	Lazy kernel composition	WGD
-wgd_kernel	49	200	0.07835245132446289	Lazy kernel composition	WGD
-no_wgd_kernel	0	20	0.0008816719055175781	Lazy kernel composition	No WGD
-no_wgd_kernel	0	40	0.0014758110046386719	Lazy kernel composition	No WGD
-no_wgd_kernel	0	60	0.0023462772369384766	Lazy kernel composition	No WGD
-no_wgd_kernel	0	80	0.0034601688385009766	Lazy kernel composition	No WGD
-no_wgd_kernel	0	100	0.004297733306884766	Lazy kernel composition	No WGD
-no_wgd_kernel	0	120	0.004849433898925781	Lazy kernel composition	No WGD
-no_wgd_kernel	0	140	0.005639553070068359	Lazy kernel composition	No WGD
-no_wgd_kernel	0	160	0.006718158721923828	Lazy kernel composition	No WGD
-no_wgd_kernel	0	180	0.007339954376220703	Lazy kernel composition	No WGD
-no_wgd_kernel	0	200	0.008145332336425781	Lazy kernel composition	No WGD
-no_wgd_kernel	1	20	0.0005624294281005859	Lazy kernel composition	No WGD
-no_wgd_kernel	1	40	0.001558065414428711	Lazy kernel composition	No WGD
-no_wgd_kernel	1	60	0.0025963783264160156	Lazy kernel composition	No WGD
-no_wgd_kernel	1	80	0.003270387649536133	Lazy kernel composition	No WGD
-no_wgd_kernel	1	100	0.004004240036010742	Lazy kernel composition	No WGD
-no_wgd_kernel	1	120	0.005053997039794922	Lazy kernel composition	No WGD
-no_wgd_kernel	1	140	0.005828380584716797	Lazy kernel composition	No WGD
-no_wgd_kernel	1	160	0.006434202194213867	Lazy kernel composition	No WGD
-no_wgd_kernel	1	180	0.007660388946533203	Lazy kernel composition	No WGD
-no_wgd_kernel	1	200	0.008365869522094727	Lazy kernel composition	No WGD
-no_wgd_kernel	2	20	0.0005614757537841797	Lazy kernel composition	No WGD
-no_wgd_kernel	2	40	0.0014464855194091797	Lazy kernel composition	No WGD
-no_wgd_kernel	2	60	0.0023651123046875	Lazy kernel composition	No WGD
-no_wgd_kernel	2	80	0.0033545494079589844	Lazy kernel composition	No WGD
-no_wgd_kernel	2	100	0.004274129867553711	Lazy kernel composition	No WGD
-no_wgd_kernel	2	120	0.00500941276550293	Lazy kernel composition	No WGD
-no_wgd_kernel	2	140	0.00602269172668457	Lazy kernel composition	No WGD
-no_wgd_kernel	2	160	0.006537199020385742	Lazy kernel composition	No WGD
-no_wgd_kernel	2	180	0.007494449615478516	Lazy kernel composition	No WGD
-no_wgd_kernel	2	200	0.008455514907836914	Lazy kernel composition	No WGD
-no_wgd_kernel	3	20	0.0005762577056884766	Lazy kernel composition	No WGD
-no_wgd_kernel	3	40	0.0014579296112060547	Lazy kernel composition	No WGD
-no_wgd_kernel	3	60	0.0023267269134521484	Lazy kernel composition	No WGD
-no_wgd_kernel	3	80	0.003164529800415039	Lazy kernel composition	No WGD
-no_wgd_kernel	3	100	0.00411677360534668	Lazy kernel composition	No WGD
-no_wgd_kernel	3	120	0.005121469497680664	Lazy kernel composition	No WGD
-no_wgd_kernel	3	140	0.005685091018676758	Lazy kernel composition	No WGD
-no_wgd_kernel	3	160	0.006307840347290039	Lazy kernel composition	No WGD
-no_wgd_kernel	3	180	0.007406473159790039	Lazy kernel composition	No WGD
-no_wgd_kernel	3	200	0.008017539978027344	Lazy kernel composition	No WGD
-no_wgd_kernel	4	20	0.0005464553833007812	Lazy kernel composition	No WGD
-no_wgd_kernel	4	40	0.0013911724090576172	Lazy kernel composition	No WGD
-no_wgd_kernel	4	60	0.0022628307342529297	Lazy kernel composition	No WGD
-no_wgd_kernel	4	80	0.003215312957763672	Lazy kernel composition	No WGD
-no_wgd_kernel	4	100	0.003874540328979492	Lazy kernel composition	No WGD
-no_wgd_kernel	4	120	0.005060911178588867	Lazy kernel composition	No WGD
-no_wgd_kernel	4	140	0.0058345794677734375	Lazy kernel composition	No WGD
-no_wgd_kernel	4	160	0.0065670013427734375	Lazy kernel composition	No WGD
-no_wgd_kernel	4	180	0.007947206497192383	Lazy kernel composition	No WGD
-no_wgd_kernel	4	200	0.008118867874145508	Lazy kernel composition	No WGD
-no_wgd_kernel	5	20	0.0006413459777832031	Lazy kernel composition	No WGD
-no_wgd_kernel	5	40	0.0016715526580810547	Lazy kernel composition	No WGD
-no_wgd_kernel	5	60	0.0022699832916259766	Lazy kernel composition	No WGD
-no_wgd_kernel	5	80	0.0030786991119384766	Lazy kernel composition	No WGD
-no_wgd_kernel	5	100	0.0039060115814208984	Lazy kernel composition	No WGD
-no_wgd_kernel	5	120	0.004754781723022461	Lazy kernel composition	No WGD
-no_wgd_kernel	5	140	0.0058519840240478516	Lazy kernel composition	No WGD
-no_wgd_kernel	5	160	0.006296634674072266	Lazy kernel composition	No WGD
-no_wgd_kernel	5	180	0.0071392059326171875	Lazy kernel composition	No WGD
-no_wgd_kernel	5	200	0.00828862190246582	Lazy kernel composition	No WGD
-no_wgd_kernel	6	20	0.0005450248718261719	Lazy kernel composition	No WGD
-no_wgd_kernel	6	40	0.0014040470123291016	Lazy kernel composition	No WGD
-no_wgd_kernel	6	60	0.002267599105834961	Lazy kernel composition	No WGD
-no_wgd_kernel	6	80	0.0030870437622070312	Lazy kernel composition	No WGD
-no_wgd_kernel	6	100	0.0038747787475585938	Lazy kernel composition	No WGD
-no_wgd_kernel	6	120	0.005193471908569336	Lazy kernel composition	No WGD
-no_wgd_kernel	6	140	0.005591869354248047	Lazy kernel composition	No WGD
-no_wgd_kernel	6	160	0.00631403923034668	Lazy kernel composition	No WGD
-no_wgd_kernel	6	180	0.00854349136352539	Lazy kernel composition	No WGD
-no_wgd_kernel	6	200	0.008285760879516602	Lazy kernel composition	No WGD
-no_wgd_kernel	7	20	0.0005903244018554688	Lazy kernel composition	No WGD
-no_wgd_kernel	7	40	0.0014538764953613281	Lazy kernel composition	No WGD
-no_wgd_kernel	7	60	0.002312898635864258	Lazy kernel composition	No WGD
-no_wgd_kernel	7	80	0.00319671630859375	Lazy kernel composition	No WGD
-no_wgd_kernel	7	100	0.004238128662109375	Lazy kernel composition	No WGD
-no_wgd_kernel	7	120	0.004998683929443359	Lazy kernel composition	No WGD
-no_wgd_kernel	7	140	0.005718708038330078	Lazy kernel composition	No WGD
-no_wgd_kernel	7	160	0.0064465999603271484	Lazy kernel composition	No WGD
-no_wgd_kernel	7	180	0.007471799850463867	Lazy kernel composition	No WGD
-no_wgd_kernel	7	200	0.008415699005126953	Lazy kernel composition	No WGD
-no_wgd_kernel	8	20	0.0005962848663330078	Lazy kernel composition	No WGD
-no_wgd_kernel	8	40	0.001438140869140625	Lazy kernel composition	No WGD
-no_wgd_kernel	8	60	0.002309083938598633	Lazy kernel composition	No WGD
-no_wgd_kernel	8	80	0.0033118724822998047	Lazy kernel composition	No WGD
-no_wgd_kernel	8	100	0.003972053527832031	Lazy kernel composition	No WGD
-no_wgd_kernel	8	120	0.004818916320800781	Lazy kernel composition	No WGD
-no_wgd_kernel	8	140	0.005658626556396484	Lazy kernel composition	No WGD
-no_wgd_kernel	8	160	0.006685972213745117	Lazy kernel composition	No WGD
-no_wgd_kernel	8	180	0.007328510284423828	Lazy kernel composition	No WGD
-no_wgd_kernel	8	200	0.008919000625610352	Lazy kernel composition	No WGD
-no_wgd_kernel	9	20	0.0005805492401123047	Lazy kernel composition	No WGD
-no_wgd_kernel	9	40	0.001428842544555664	Lazy kernel composition	No WGD
-no_wgd_kernel	9	60	0.0022962093353271484	Lazy kernel composition	No WGD
-no_wgd_kernel	9	80	0.0032625198364257812	Lazy kernel composition	No WGD
-no_wgd_kernel	9	100	0.003984212875366211	Lazy kernel composition	No WGD
-no_wgd_kernel	9	120	0.004926204681396484	Lazy kernel composition	No WGD
-no_wgd_kernel	9	140	0.005782127380371094	Lazy kernel composition	No WGD
-no_wgd_kernel	9	160	0.006576061248779297	Lazy kernel composition	No WGD
-no_wgd_kernel	9	180	0.007428169250488281	Lazy kernel composition	No WGD
-no_wgd_kernel	9	200	0.008283853530883789	Lazy kernel composition	No WGD
-no_wgd_kernel	10	20	0.0005686283111572266	Lazy kernel composition	No WGD
-no_wgd_kernel	10	40	0.0014355182647705078	Lazy kernel composition	No WGD
-no_wgd_kernel	10	60	0.0024492740631103516	Lazy kernel composition	No WGD
-no_wgd_kernel	10	80	0.0033922195434570312	Lazy kernel composition	No WGD
-no_wgd_kernel	10	100	0.004215717315673828	Lazy kernel composition	No WGD
-no_wgd_kernel	10	120	0.004832029342651367	Lazy kernel composition	No WGD
-no_wgd_kernel	10	140	0.0055942535400390625	Lazy kernel composition	No WGD
-no_wgd_kernel	10	160	0.00716090202331543	Lazy kernel composition	No WGD
-no_wgd_kernel	10	180	0.0075342655181884766	Lazy kernel composition	No WGD
-no_wgd_kernel	10	200	0.008282184600830078	Lazy kernel composition	No WGD
-no_wgd_kernel	11	20	0.0005664825439453125	Lazy kernel composition	No WGD
-no_wgd_kernel	11	40	0.0014529228210449219	Lazy kernel composition	No WGD
-no_wgd_kernel	11	60	0.002322673797607422	Lazy kernel composition	No WGD
-no_wgd_kernel	11	80	0.003175497055053711	Lazy kernel composition	No WGD
-no_wgd_kernel	11	100	0.003950834274291992	Lazy kernel composition	No WGD
-no_wgd_kernel	11	120	0.004786968231201172	Lazy kernel composition	No WGD
-no_wgd_kernel	11	140	0.005661964416503906	Lazy kernel composition	No WGD
-no_wgd_kernel	11	160	0.006477832794189453	Lazy kernel composition	No WGD
-no_wgd_kernel	11	180	0.007293224334716797	Lazy kernel composition	No WGD
-no_wgd_kernel	11	200	0.008185863494873047	Lazy kernel composition	No WGD
-no_wgd_kernel	12	20	0.0005567073822021484	Lazy kernel composition	No WGD
-no_wgd_kernel	12	40	0.0014295578002929688	Lazy kernel composition	No WGD
-no_wgd_kernel	12	60	0.0023200511932373047	Lazy kernel composition	No WGD
-no_wgd_kernel	12	80	0.0031485557556152344	Lazy kernel composition	No WGD
-no_wgd_kernel	12	100	0.00395655632019043	Lazy kernel composition	No WGD
-no_wgd_kernel	12	120	0.004855155944824219	Lazy kernel composition	No WGD
-no_wgd_kernel	12	140	0.005596637725830078	Lazy kernel composition	No WGD
-no_wgd_kernel	12	160	0.0064127445220947266	Lazy kernel composition	No WGD
-no_wgd_kernel	12	180	0.007333278656005859	Lazy kernel composition	No WGD
-no_wgd_kernel	12	200	0.008728742599487305	Lazy kernel composition	No WGD
-no_wgd_kernel	13	20	0.0006906986236572266	Lazy kernel composition	No WGD
-no_wgd_kernel	13	40	0.0016019344329833984	Lazy kernel composition	No WGD
-no_wgd_kernel	13	60	0.002315521240234375	Lazy kernel composition	No WGD
-no_wgd_kernel	13	80	0.0032052993774414062	Lazy kernel composition	No WGD
-no_wgd_kernel	13	100	0.004005908966064453	Lazy kernel composition	No WGD
-no_wgd_kernel	13	120	0.004857778549194336	Lazy kernel composition	No WGD
-no_wgd_kernel	13	140	0.005759716033935547	Lazy kernel composition	No WGD
-no_wgd_kernel	13	160	0.0065157413482666016	Lazy kernel composition	No WGD
-no_wgd_kernel	13	180	0.007408857345581055	Lazy kernel composition	No WGD
-no_wgd_kernel	13	200	0.008214235305786133	Lazy kernel composition	No WGD
-no_wgd_kernel	14	20	0.0005867481231689453	Lazy kernel composition	No WGD
-no_wgd_kernel	14	40	0.001447916030883789	Lazy kernel composition	No WGD
-no_wgd_kernel	14	60	0.0023505687713623047	Lazy kernel composition	No WGD
-no_wgd_kernel	14	80	0.0031447410583496094	Lazy kernel composition	No WGD
-no_wgd_kernel	14	100	0.0039882659912109375	Lazy kernel composition	No WGD
-no_wgd_kernel	14	120	0.0047986507415771484	Lazy kernel composition	No WGD
-no_wgd_kernel	14	140	0.0055887699127197266	Lazy kernel composition	No WGD
-no_wgd_kernel	14	160	0.006456136703491211	Lazy kernel composition	No WGD
-no_wgd_kernel	14	180	0.007243633270263672	Lazy kernel composition	No WGD
-no_wgd_kernel	14	200	0.008141517639160156	Lazy kernel composition	No WGD
-no_wgd_kernel	15	20	0.0005629062652587891	Lazy kernel composition	No WGD
-no_wgd_kernel	15	40	0.0014336109161376953	Lazy kernel composition	No WGD
-no_wgd_kernel	15	60	0.002293109893798828	Lazy kernel composition	No WGD
-no_wgd_kernel	15	80	0.003143787384033203	Lazy kernel composition	No WGD
-no_wgd_kernel	15	100	0.004003763198852539	Lazy kernel composition	No WGD
-no_wgd_kernel	15	120	0.004803180694580078	Lazy kernel composition	No WGD
-no_wgd_kernel	15	140	0.005615234375	Lazy kernel composition	No WGD
-no_wgd_kernel	15	160	0.006489276885986328	Lazy kernel composition	No WGD
-no_wgd_kernel	15	180	0.007288217544555664	Lazy kernel composition	No WGD
-no_wgd_kernel	15	200	0.008210897445678711	Lazy kernel composition	No WGD
-no_wgd_kernel	16	20	0.0005717277526855469	Lazy kernel composition	No WGD
-no_wgd_kernel	16	40	0.0014624595642089844	Lazy kernel composition	No WGD
-no_wgd_kernel	16	60	0.002302885055541992	Lazy kernel composition	No WGD
-no_wgd_kernel	16	80	0.003144502639770508	Lazy kernel composition	No WGD
-no_wgd_kernel	16	100	0.0040130615234375	Lazy kernel composition	No WGD
-no_wgd_kernel	16	120	0.004809856414794922	Lazy kernel composition	No WGD
-no_wgd_kernel	16	140	0.00560450553894043	Lazy kernel composition	No WGD
-no_wgd_kernel	16	160	0.006476163864135742	Lazy kernel composition	No WGD
-no_wgd_kernel	16	180	0.007317543029785156	Lazy kernel composition	No WGD
-no_wgd_kernel	16	200	0.008219718933105469	Lazy kernel composition	No WGD
-no_wgd_kernel	17	20	0.0005657672882080078	Lazy kernel composition	No WGD
-no_wgd_kernel	17	40	0.0014433860778808594	Lazy kernel composition	No WGD
-no_wgd_kernel	17	60	0.002305269241333008	Lazy kernel composition	No WGD
-no_wgd_kernel	17	80	0.0031859874725341797	Lazy kernel composition	No WGD
-no_wgd_kernel	17	100	0.0039789676666259766	Lazy kernel composition	No WGD
-no_wgd_kernel	17	120	0.004809141159057617	Lazy kernel composition	No WGD
-no_wgd_kernel	17	140	0.0055849552154541016	Lazy kernel composition	No WGD
-no_wgd_kernel	17	160	0.006463050842285156	Lazy kernel composition	No WGD
-no_wgd_kernel	17	180	0.0073854923248291016	Lazy kernel composition	No WGD
-no_wgd_kernel	17	200	0.00827646255493164	Lazy kernel composition	No WGD
-no_wgd_kernel	18	20	0.0005710124969482422	Lazy kernel composition	No WGD
-no_wgd_kernel	18	40	0.0014362335205078125	Lazy kernel composition	No WGD
-no_wgd_kernel	18	60	0.0023055076599121094	Lazy kernel composition	No WGD
-no_wgd_kernel	18	80	0.0031578540802001953	Lazy kernel composition	No WGD
-no_wgd_kernel	18	100	0.003999948501586914	Lazy kernel composition	No WGD
-no_wgd_kernel	18	120	0.0048563480377197266	Lazy kernel composition	No WGD
-no_wgd_kernel	18	140	0.005640745162963867	Lazy kernel composition	No WGD
-no_wgd_kernel	18	160	0.0063250064849853516	Lazy kernel composition	No WGD
-no_wgd_kernel	18	180	0.010378122329711914	Lazy kernel composition	No WGD
-no_wgd_kernel	18	200	0.014159440994262695	Lazy kernel composition	No WGD
-no_wgd_kernel	19	20	0.0009605884552001953	Lazy kernel composition	No WGD
-no_wgd_kernel	19	40	0.0024225711822509766	Lazy kernel composition	No WGD
-no_wgd_kernel	19	60	0.0039179325103759766	Lazy kernel composition	No WGD
-no_wgd_kernel	19	80	0.003438711166381836	Lazy kernel composition	No WGD
-no_wgd_kernel	19	100	0.004775047302246094	Lazy kernel composition	No WGD
-no_wgd_kernel	19	120	0.006354093551635742	Lazy kernel composition	No WGD
-no_wgd_kernel	19	140	0.006664276123046875	Lazy kernel composition	No WGD
-no_wgd_kernel	19	160	0.007169246673583984	Lazy kernel composition	No WGD
-no_wgd_kernel	19	180	0.008855581283569336	Lazy kernel composition	No WGD
-no_wgd_kernel	19	200	0.00865793228149414	Lazy kernel composition	No WGD
-no_wgd_kernel	20	20	0.0005843639373779297	Lazy kernel composition	No WGD
-no_wgd_kernel	20	40	0.002306699752807617	Lazy kernel composition	No WGD
-no_wgd_kernel	20	60	0.0030517578125	Lazy kernel composition	No WGD
-no_wgd_kernel	20	80	0.003608226776123047	Lazy kernel composition	No WGD
-no_wgd_kernel	20	100	0.00408482551574707	Lazy kernel composition	No WGD
-no_wgd_kernel	20	120	0.00510859489440918	Lazy kernel composition	No WGD
-no_wgd_kernel	20	140	0.006604909896850586	Lazy kernel composition	No WGD
-no_wgd_kernel	20	160	0.0066509246826171875	Lazy kernel composition	No WGD
-no_wgd_kernel	20	180	0.0077211856842041016	Lazy kernel composition	No WGD
-no_wgd_kernel	20	200	0.009228229522705078	Lazy kernel composition	No WGD
-no_wgd_kernel	21	20	0.0005927085876464844	Lazy kernel composition	No WGD
-no_wgd_kernel	21	40	0.001478433609008789	Lazy kernel composition	No WGD
-no_wgd_kernel	21	60	0.0023827552795410156	Lazy kernel composition	No WGD
-no_wgd_kernel	21	80	0.0033724308013916016	Lazy kernel composition	No WGD
-no_wgd_kernel	21	100	0.004670619964599609	Lazy kernel composition	No WGD
-no_wgd_kernel	21	120	0.005037069320678711	Lazy kernel composition	No WGD
-no_wgd_kernel	21	140	0.005849123001098633	Lazy kernel composition	No WGD
-no_wgd_kernel	21	160	0.006676912307739258	Lazy kernel composition	No WGD
-no_wgd_kernel	21	180	0.008044719696044922	Lazy kernel composition	No WGD
-no_wgd_kernel	21	200	0.008428335189819336	Lazy kernel composition	No WGD
-no_wgd_kernel	22	20	0.00057220458984375	Lazy kernel composition	No WGD
-no_wgd_kernel	22	40	0.0014715194702148438	Lazy kernel composition	No WGD
-no_wgd_kernel	22	60	0.0029058456420898438	Lazy kernel composition	No WGD
-no_wgd_kernel	22	80	0.0032989978790283203	Lazy kernel composition	No WGD
-no_wgd_kernel	22	100	0.0041027069091796875	Lazy kernel composition	No WGD
-no_wgd_kernel	22	120	0.0050601959228515625	Lazy kernel composition	No WGD
-no_wgd_kernel	22	140	0.00607752799987793	Lazy kernel composition	No WGD
-no_wgd_kernel	22	160	0.007143259048461914	Lazy kernel composition	No WGD
-no_wgd_kernel	22	180	0.007646799087524414	Lazy kernel composition	No WGD
-no_wgd_kernel	22	200	0.008923768997192383	Lazy kernel composition	No WGD
-no_wgd_kernel	23	20	0.0006000995635986328	Lazy kernel composition	No WGD
-no_wgd_kernel	23	40	0.0014767646789550781	Lazy kernel composition	No WGD
-no_wgd_kernel	23	60	0.0024089813232421875	Lazy kernel composition	No WGD
-no_wgd_kernel	23	80	0.0033407211303710938	Lazy kernel composition	No WGD
-no_wgd_kernel	23	100	0.004120826721191406	Lazy kernel composition	No WGD
-no_wgd_kernel	23	120	0.005396366119384766	Lazy kernel composition	No WGD
-no_wgd_kernel	23	140	0.00569605827331543	Lazy kernel composition	No WGD
-no_wgd_kernel	23	160	0.006520986557006836	Lazy kernel composition	No WGD
-no_wgd_kernel	23	180	0.008090734481811523	Lazy kernel composition	No WGD
-no_wgd_kernel	23	200	0.008342266082763672	Lazy kernel composition	No WGD
-no_wgd_kernel	24	20	0.0005612373352050781	Lazy kernel composition	No WGD
-no_wgd_kernel	24	40	0.0014531612396240234	Lazy kernel composition	No WGD
-no_wgd_kernel	24	60	0.002302408218383789	Lazy kernel composition	No WGD
-no_wgd_kernel	24	80	0.0031473636627197266	Lazy kernel composition	No WGD
-no_wgd_kernel	24	100	0.004398345947265625	Lazy kernel composition	No WGD
-no_wgd_kernel	24	120	0.004838705062866211	Lazy kernel composition	No WGD
-no_wgd_kernel	24	140	0.0056951045989990234	Lazy kernel composition	No WGD
-no_wgd_kernel	24	160	0.006698131561279297	Lazy kernel composition	No WGD
-no_wgd_kernel	24	180	0.007791757583618164	Lazy kernel composition	No WGD
-no_wgd_kernel	24	200	0.008147239685058594	Lazy kernel composition	No WGD
-no_wgd_kernel	25	20	0.0005695819854736328	Lazy kernel composition	No WGD
-no_wgd_kernel	25	40	0.0014679431915283203	Lazy kernel composition	No WGD
-no_wgd_kernel	25	60	0.002328634262084961	Lazy kernel composition	No WGD
-no_wgd_kernel	25	80	0.0035598278045654297	Lazy kernel composition	No WGD
-no_wgd_kernel	25	100	0.0045757293701171875	Lazy kernel composition	No WGD
-no_wgd_kernel	25	120	0.005155324935913086	Lazy kernel composition	No WGD
-no_wgd_kernel	25	140	0.006336212158203125	Lazy kernel composition	No WGD
-no_wgd_kernel	25	160	0.007169485092163086	Lazy kernel composition	No WGD
-no_wgd_kernel	25	180	0.007424592971801758	Lazy kernel composition	No WGD
-no_wgd_kernel	25	200	0.00863337516784668	Lazy kernel composition	No WGD
-no_wgd_kernel	26	20	0.0005636215209960938	Lazy kernel composition	No WGD
-no_wgd_kernel	26	40	0.0014476776123046875	Lazy kernel composition	No WGD
-no_wgd_kernel	26	60	0.0023403167724609375	Lazy kernel composition	No WGD
-no_wgd_kernel	26	80	0.003162384033203125	Lazy kernel composition	No WGD
-no_wgd_kernel	26	100	0.004157543182373047	Lazy kernel composition	No WGD
-no_wgd_kernel	26	120	0.004775524139404297	Lazy kernel composition	No WGD
-no_wgd_kernel	26	140	0.00606226921081543	Lazy kernel composition	No WGD
-no_wgd_kernel	26	160	0.0064737796783447266	Lazy kernel composition	No WGD
-no_wgd_kernel	26	180	0.007323026657104492	Lazy kernel composition	No WGD
-no_wgd_kernel	26	200	0.008916378021240234	Lazy kernel composition	No WGD
-no_wgd_kernel	27	20	0.0005922317504882812	Lazy kernel composition	No WGD
-no_wgd_kernel	27	40	0.0014302730560302734	Lazy kernel composition	No WGD
-no_wgd_kernel	27	60	0.0023767948150634766	Lazy kernel composition	No WGD
-no_wgd_kernel	27	80	0.0031845569610595703	Lazy kernel composition	No WGD
-no_wgd_kernel	27	100	0.004326343536376953	Lazy kernel composition	No WGD
-no_wgd_kernel	27	120	0.005228996276855469	Lazy kernel composition	No WGD
-no_wgd_kernel	27	140	0.0057141780853271484	Lazy kernel composition	No WGD
-no_wgd_kernel	27	160	0.0065534114837646484	Lazy kernel composition	No WGD
-no_wgd_kernel	27	180	0.00767064094543457	Lazy kernel composition	No WGD
-no_wgd_kernel	27	200	0.00823974609375	Lazy kernel composition	No WGD
-no_wgd_kernel	28	20	0.0005605220794677734	Lazy kernel composition	No WGD
-no_wgd_kernel	28	40	0.0014262199401855469	Lazy kernel composition	No WGD
-no_wgd_kernel	28	60	0.0023260116577148438	Lazy kernel composition	No WGD
-no_wgd_kernel	28	80	0.0033960342407226562	Lazy kernel composition	No WGD
-no_wgd_kernel	28	100	0.004060029983520508	Lazy kernel composition	No WGD
-no_wgd_kernel	28	120	0.004815101623535156	Lazy kernel composition	No WGD
-no_wgd_kernel	28	140	0.0056116580963134766	Lazy kernel composition	No WGD
-no_wgd_kernel	28	160	0.0069277286529541016	Lazy kernel composition	No WGD
-no_wgd_kernel	28	180	0.0073854923248291016	Lazy kernel composition	No WGD
-no_wgd_kernel	28	200	0.008183717727661133	Lazy kernel composition	No WGD
-no_wgd_kernel	29	20	0.0005645751953125	Lazy kernel composition	No WGD
-no_wgd_kernel	29	40	0.0018699169158935547	Lazy kernel composition	No WGD
-no_wgd_kernel	29	60	0.0023069381713867188	Lazy kernel composition	No WGD
-no_wgd_kernel	29	80	0.003187894821166992	Lazy kernel composition	No WGD
-no_wgd_kernel	29	100	0.004013776779174805	Lazy kernel composition	No WGD
-no_wgd_kernel	29	120	0.004859447479248047	Lazy kernel composition	No WGD
-no_wgd_kernel	29	140	0.006138324737548828	Lazy kernel composition	No WGD
-no_wgd_kernel	29	160	0.00647735595703125	Lazy kernel composition	No WGD
-no_wgd_kernel	29	180	0.007383108139038086	Lazy kernel composition	No WGD
-no_wgd_kernel	29	200	0.00863790512084961	Lazy kernel composition	No WGD
-no_wgd_kernel	30	20	0.0005726814270019531	Lazy kernel composition	No WGD
-no_wgd_kernel	30	40	0.0014338493347167969	Lazy kernel composition	No WGD
-no_wgd_kernel	30	60	0.0023076534271240234	Lazy kernel composition	No WGD
-no_wgd_kernel	30	80	0.0031862258911132812	Lazy kernel composition	No WGD
-no_wgd_kernel	30	100	0.0039670467376708984	Lazy kernel composition	No WGD
-no_wgd_kernel	30	120	0.005253791809082031	Lazy kernel composition	No WGD
-no_wgd_kernel	30	140	0.005654335021972656	Lazy kernel composition	No WGD
-no_wgd_kernel	30	160	0.006531476974487305	Lazy kernel composition	No WGD
-no_wgd_kernel	30	180	0.0076978206634521484	Lazy kernel composition	No WGD
-no_wgd_kernel	30	200	0.00846552848815918	Lazy kernel composition	No WGD
-no_wgd_kernel	31	20	0.0005924701690673828	Lazy kernel composition	No WGD
-no_wgd_kernel	31	40	0.0014579296112060547	Lazy kernel composition	No WGD
-no_wgd_kernel	31	60	0.0023691654205322266	Lazy kernel composition	No WGD
-no_wgd_kernel	31	80	0.0031938552856445312	Lazy kernel composition	No WGD
-no_wgd_kernel	31	100	0.004401445388793945	Lazy kernel composition	No WGD
-no_wgd_kernel	31	120	0.004836320877075195	Lazy kernel composition	No WGD
-no_wgd_kernel	31	140	0.005669116973876953	Lazy kernel composition	No WGD
-no_wgd_kernel	31	160	0.0065555572509765625	Lazy kernel composition	No WGD
-no_wgd_kernel	31	180	0.00783848762512207	Lazy kernel composition	No WGD
-no_wgd_kernel	31	200	0.008328676223754883	Lazy kernel composition	No WGD
-no_wgd_kernel	32	20	0.0005841255187988281	Lazy kernel composition	No WGD
-no_wgd_kernel	32	40	0.0014355182647705078	Lazy kernel composition	No WGD
-no_wgd_kernel	32	60	0.0023109912872314453	Lazy kernel composition	No WGD
-no_wgd_kernel	32	80	0.0035195350646972656	Lazy kernel composition	No WGD
-no_wgd_kernel	32	100	0.003981351852416992	Lazy kernel composition	No WGD
-no_wgd_kernel	32	120	0.0047872066497802734	Lazy kernel composition	No WGD
-no_wgd_kernel	32	140	0.005605220794677734	Lazy kernel composition	No WGD
-no_wgd_kernel	32	160	0.006912708282470703	Lazy kernel composition	No WGD
-no_wgd_kernel	32	180	0.007300615310668945	Lazy kernel composition	No WGD
-no_wgd_kernel	32	200	0.008737802505493164	Lazy kernel composition	No WGD
-no_wgd_kernel	33	20	0.0005714893341064453	Lazy kernel composition	No WGD
-no_wgd_kernel	33	40	0.001443624496459961	Lazy kernel composition	No WGD
-no_wgd_kernel	33	60	0.0022962093353271484	Lazy kernel composition	No WGD
-no_wgd_kernel	33	80	0.0031442642211914062	Lazy kernel composition	No WGD
-no_wgd_kernel	33	100	0.003968477249145508	Lazy kernel composition	No WGD
-no_wgd_kernel	33	120	0.0049343109130859375	Lazy kernel composition	No WGD
-no_wgd_kernel	33	140	0.006027936935424805	Lazy kernel composition	No WGD
-no_wgd_kernel	33	160	0.006475687026977539	Lazy kernel composition	No WGD
-no_wgd_kernel	33	180	0.007344961166381836	Lazy kernel composition	No WGD
-no_wgd_kernel	33	200	0.008563756942749023	Lazy kernel composition	No WGD
-no_wgd_kernel	34	20	0.0005788803100585938	Lazy kernel composition	No WGD
-no_wgd_kernel	34	40	0.001439809799194336	Lazy kernel composition	No WGD
-no_wgd_kernel	34	60	0.0023343563079833984	Lazy kernel composition	No WGD
-no_wgd_kernel	34	80	0.0031664371490478516	Lazy kernel composition	No WGD
-no_wgd_kernel	34	100	0.003981590270996094	Lazy kernel composition	No WGD
-no_wgd_kernel	34	120	0.005141496658325195	Lazy kernel composition	No WGD
-no_wgd_kernel	34	140	0.0056667327880859375	Lazy kernel composition	No WGD
-no_wgd_kernel	34	160	0.006546497344970703	Lazy kernel composition	No WGD
-no_wgd_kernel	34	180	0.008119821548461914	Lazy kernel composition	No WGD
-no_wgd_kernel	34	200	0.008322954177856445	Lazy kernel composition	No WGD
-no_wgd_kernel	35	20	0.0005612373352050781	Lazy kernel composition	No WGD
-no_wgd_kernel	35	40	0.0014331340789794922	Lazy kernel composition	No WGD
-no_wgd_kernel	35	60	0.002296924591064453	Lazy kernel composition	No WGD
-no_wgd_kernel	35	80	0.003165721893310547	Lazy kernel composition	No WGD
-no_wgd_kernel	35	100	0.0043561458587646484	Lazy kernel composition	No WGD
-no_wgd_kernel	35	120	0.004822969436645508	Lazy kernel composition	No WGD
-no_wgd_kernel	35	140	0.0058481693267822266	Lazy kernel composition	No WGD
-no_wgd_kernel	35	160	0.006876230239868164	Lazy kernel composition	No WGD
-no_wgd_kernel	35	180	0.007561445236206055	Lazy kernel composition	No WGD
-no_wgd_kernel	35	200	0.00839376449584961	Lazy kernel composition	No WGD
-no_wgd_kernel	36	20	0.0006051063537597656	Lazy kernel composition	No WGD
-no_wgd_kernel	36	40	0.0017638206481933594	Lazy kernel composition	No WGD
-no_wgd_kernel	36	60	0.0024979114532470703	Lazy kernel composition	No WGD
-no_wgd_kernel	36	80	0.0036585330963134766	Lazy kernel composition	No WGD
-no_wgd_kernel	36	100	0.0041582584381103516	Lazy kernel composition	No WGD
-no_wgd_kernel	36	120	0.004843711853027344	Lazy kernel composition	No WGD
-no_wgd_kernel	36	140	0.006152153015136719	Lazy kernel composition	No WGD
-no_wgd_kernel	36	160	0.006487131118774414	Lazy kernel composition	No WGD
-no_wgd_kernel	36	180	0.007288694381713867	Lazy kernel composition	No WGD
-no_wgd_kernel	36	200	0.00856924057006836	Lazy kernel composition	No WGD
-no_wgd_kernel	37	20	0.0005617141723632812	Lazy kernel composition	No WGD
-no_wgd_kernel	37	40	0.0014302730560302734	Lazy kernel composition	No WGD
-no_wgd_kernel	37	60	0.002316713333129883	Lazy kernel composition	No WGD
-no_wgd_kernel	37	80	0.0031807422637939453	Lazy kernel composition	No WGD
-no_wgd_kernel	37	100	0.004183530807495117	Lazy kernel composition	No WGD
-no_wgd_kernel	37	120	0.005382061004638672	Lazy kernel composition	No WGD
-no_wgd_kernel	37	140	0.0056760311126708984	Lazy kernel composition	No WGD
-no_wgd_kernel	37	160	0.006459951400756836	Lazy kernel composition	No WGD
-no_wgd_kernel	37	180	0.007768154144287109	Lazy kernel composition	No WGD
-no_wgd_kernel	37	200	0.008148908615112305	Lazy kernel composition	No WGD
-no_wgd_kernel	38	20	0.0005621910095214844	Lazy kernel composition	No WGD
-no_wgd_kernel	38	40	0.0014452934265136719	Lazy kernel composition	No WGD
-no_wgd_kernel	38	60	0.002386808395385742	Lazy kernel composition	No WGD
-no_wgd_kernel	38	80	0.0032291412353515625	Lazy kernel composition	No WGD
-no_wgd_kernel	38	100	0.004392147064208984	Lazy kernel composition	No WGD
-no_wgd_kernel	38	120	0.004966259002685547	Lazy kernel composition	No WGD
-no_wgd_kernel	38	140	0.0056400299072265625	Lazy kernel composition	No WGD
-no_wgd_kernel	38	160	0.006534099578857422	Lazy kernel composition	No WGD
-no_wgd_kernel	38	180	0.007921934127807617	Lazy kernel composition	No WGD
-no_wgd_kernel	38	200	0.008192777633666992	Lazy kernel composition	No WGD
-no_wgd_kernel	39	20	0.000568389892578125	Lazy kernel composition	No WGD
-no_wgd_kernel	39	40	0.0014412403106689453	Lazy kernel composition	No WGD
-no_wgd_kernel	39	60	0.002413511276245117	Lazy kernel composition	No WGD
-no_wgd_kernel	39	80	0.0033919811248779297	Lazy kernel composition	No WGD
-no_wgd_kernel	39	100	0.0039980411529541016	Lazy kernel composition	No WGD
-no_wgd_kernel	39	120	0.004816532135009766	Lazy kernel composition	No WGD
-no_wgd_kernel	39	140	0.005616664886474609	Lazy kernel composition	No WGD
-no_wgd_kernel	39	160	0.006840705871582031	Lazy kernel composition	No WGD
-no_wgd_kernel	39	180	0.007288217544555664	Lazy kernel composition	No WGD
-no_wgd_kernel	39	200	0.008715391159057617	Lazy kernel composition	No WGD
-no_wgd_kernel	40	20	0.0005624294281005859	Lazy kernel composition	No WGD
-no_wgd_kernel	40	40	0.0014388561248779297	Lazy kernel composition	No WGD
-no_wgd_kernel	40	60	0.002362966537475586	Lazy kernel composition	No WGD
-no_wgd_kernel	40	80	0.0031409263610839844	Lazy kernel composition	No WGD
-no_wgd_kernel	40	100	0.003960132598876953	Lazy kernel composition	No WGD
-no_wgd_kernel	40	120	0.004893779754638672	Lazy kernel composition	No WGD
-no_wgd_kernel	40	140	0.006239891052246094	Lazy kernel composition	No WGD
-no_wgd_kernel	40	160	0.006877422332763672	Lazy kernel composition	No WGD
-no_wgd_kernel	40	180	0.0074999332427978516	Lazy kernel composition	No WGD
-no_wgd_kernel	40	200	0.009001731872558594	Lazy kernel composition	No WGD
-no_wgd_kernel	41	20	0.0006058216094970703	Lazy kernel composition	No WGD
-no_wgd_kernel	41	40	0.0015125274658203125	Lazy kernel composition	No WGD
-no_wgd_kernel	41	60	0.0023355484008789062	Lazy kernel composition	No WGD
-no_wgd_kernel	41	80	0.003309965133666992	Lazy kernel composition	No WGD
-no_wgd_kernel	41	100	0.0043735504150390625	Lazy kernel composition	No WGD
-no_wgd_kernel	41	120	0.005213022232055664	Lazy kernel composition	No WGD
-no_wgd_kernel	41	140	0.005697488784790039	Lazy kernel composition	No WGD
-no_wgd_kernel	41	160	0.006908893585205078	Lazy kernel composition	No WGD
-no_wgd_kernel	41	180	0.0075190067291259766	Lazy kernel composition	No WGD
-no_wgd_kernel	41	200	0.008249521255493164	Lazy kernel composition	No WGD
-no_wgd_kernel	42	20	0.0005910396575927734	Lazy kernel composition	No WGD
-no_wgd_kernel	42	40	0.0018451213836669922	Lazy kernel composition	No WGD
-no_wgd_kernel	42	60	0.002327442169189453	Lazy kernel composition	No WGD
-no_wgd_kernel	42	80	0.0031528472900390625	Lazy kernel composition	No WGD
-no_wgd_kernel	42	100	0.003969669342041016	Lazy kernel composition	No WGD
-no_wgd_kernel	42	120	0.004832029342651367	Lazy kernel composition	No WGD
-no_wgd_kernel	42	140	0.006107330322265625	Lazy kernel composition	No WGD
-no_wgd_kernel	42	160	0.006618499755859375	Lazy kernel composition	No WGD
-no_wgd_kernel	42	180	0.007477998733520508	Lazy kernel composition	No WGD
-no_wgd_kernel	42	200	0.008828163146972656	Lazy kernel composition	No WGD
-no_wgd_kernel	43	20	0.0005822181701660156	Lazy kernel composition	No WGD
-no_wgd_kernel	43	40	0.0014324188232421875	Lazy kernel composition	No WGD
-no_wgd_kernel	43	60	0.002321958541870117	Lazy kernel composition	No WGD
-no_wgd_kernel	43	80	0.003220081329345703	Lazy kernel composition	No WGD
-no_wgd_kernel	43	100	0.004021406173706055	Lazy kernel composition	No WGD
-no_wgd_kernel	43	120	0.005402326583862305	Lazy kernel composition	No WGD
-no_wgd_kernel	43	140	0.0056955814361572266	Lazy kernel composition	No WGD
-no_wgd_kernel	43	160	0.006521463394165039	Lazy kernel composition	No WGD
-no_wgd_kernel	43	180	0.007609844207763672	Lazy kernel composition	No WGD
-no_wgd_kernel	43	200	0.008162975311279297	Lazy kernel composition	No WGD
-no_wgd_kernel	44	20	0.0005517005920410156	Lazy kernel composition	No WGD
-no_wgd_kernel	44	40	0.0014514923095703125	Lazy kernel composition	No WGD
-no_wgd_kernel	44	60	0.002541065216064453	Lazy kernel composition	No WGD
-no_wgd_kernel	44	80	0.0032303333282470703	Lazy kernel composition	No WGD
-no_wgd_kernel	44	100	0.004499197006225586	Lazy kernel composition	No WGD
-no_wgd_kernel	44	120	0.004901885986328125	Lazy kernel composition	No WGD
-no_wgd_kernel	44	140	0.005641460418701172	Lazy kernel composition	No WGD
-no_wgd_kernel	44	160	0.0065424442291259766	Lazy kernel composition	No WGD
-no_wgd_kernel	44	180	0.007886886596679688	Lazy kernel composition	No WGD
-no_wgd_kernel	44	200	0.00821375846862793	Lazy kernel composition	No WGD
-no_wgd_kernel	45	20	0.0005576610565185547	Lazy kernel composition	No WGD
-no_wgd_kernel	45	40	0.0014300346374511719	Lazy kernel composition	No WGD
-no_wgd_kernel	45	60	0.0023190975189208984	Lazy kernel composition	No WGD
-no_wgd_kernel	45	80	0.0036776065826416016	Lazy kernel composition	No WGD
-no_wgd_kernel	45	100	0.0040836334228515625	Lazy kernel composition	No WGD
-no_wgd_kernel	45	120	0.004785299301147461	Lazy kernel composition	No WGD
-no_wgd_kernel	45	140	0.005629062652587891	Lazy kernel composition	No WGD
-no_wgd_kernel	45	160	0.006985664367675781	Lazy kernel composition	No WGD
-no_wgd_kernel	45	180	0.007287025451660156	Lazy kernel composition	No WGD
-no_wgd_kernel	45	200	0.00932765007019043	Lazy kernel composition	No WGD
-no_wgd_kernel	46	20	0.0005924701690673828	Lazy kernel composition	No WGD
-no_wgd_kernel	46	40	0.0014481544494628906	Lazy kernel composition	No WGD
-no_wgd_kernel	46	60	0.0022966861724853516	Lazy kernel composition	No WGD
-no_wgd_kernel	46	80	0.003191709518432617	Lazy kernel composition	No WGD
-no_wgd_kernel	46	100	0.004045724868774414	Lazy kernel composition	No WGD
-no_wgd_kernel	46	120	0.0048444271087646484	Lazy kernel composition	No WGD
-no_wgd_kernel	46	140	0.006204366683959961	Lazy kernel composition	No WGD
-no_wgd_kernel	46	160	0.0065767765045166016	Lazy kernel composition	No WGD
-no_wgd_kernel	46	180	0.0074045658111572266	Lazy kernel composition	No WGD
-no_wgd_kernel	46	200	0.00853729248046875	Lazy kernel composition	No WGD
-no_wgd_kernel	47	20	0.0005562305450439453	Lazy kernel composition	No WGD
-no_wgd_kernel	47	40	0.0014836788177490234	Lazy kernel composition	No WGD
-no_wgd_kernel	47	60	0.002295970916748047	Lazy kernel composition	No WGD
-no_wgd_kernel	47	80	0.0031723976135253906	Lazy kernel composition	No WGD
-no_wgd_kernel	47	100	0.0040590763092041016	Lazy kernel composition	No WGD
-no_wgd_kernel	47	120	0.005505800247192383	Lazy kernel composition	No WGD
-no_wgd_kernel	47	140	0.0059871673583984375	Lazy kernel composition	No WGD
-no_wgd_kernel	47	160	0.006960868835449219	Lazy kernel composition	No WGD
-no_wgd_kernel	47	180	0.009609699249267578	Lazy kernel composition	No WGD
-no_wgd_kernel	47	200	0.008579015731811523	Lazy kernel composition	No WGD
-no_wgd_kernel	48	20	0.0006024837493896484	Lazy kernel composition	No WGD
-no_wgd_kernel	48	40	0.0015003681182861328	Lazy kernel composition	No WGD
-no_wgd_kernel	48	60	0.0027561187744140625	Lazy kernel composition	No WGD
-no_wgd_kernel	48	80	0.003298044204711914	Lazy kernel composition	No WGD
-no_wgd_kernel	48	100	0.004125118255615234	Lazy kernel composition	No WGD
-no_wgd_kernel	48	120	0.005219697952270508	Lazy kernel composition	No WGD
-no_wgd_kernel	48	140	0.0062084197998046875	Lazy kernel composition	No WGD
-no_wgd_kernel	48	160	0.0072138309478759766	Lazy kernel composition	No WGD
-no_wgd_kernel	48	180	0.007650852203369141	Lazy kernel composition	No WGD
-no_wgd_kernel	48	200	0.008744001388549805	Lazy kernel composition	No WGD
-no_wgd_kernel	49	20	0.0005981922149658203	Lazy kernel composition	No WGD
-no_wgd_kernel	49	40	0.0015022754669189453	Lazy kernel composition	No WGD
-no_wgd_kernel	49	60	0.002428293228149414	Lazy kernel composition	No WGD
-no_wgd_kernel	49	80	0.0032987594604492188	Lazy kernel composition	No WGD
-no_wgd_kernel	49	100	0.004227161407470703	Lazy kernel composition	No WGD
-no_wgd_kernel	49	120	0.0050547122955322266	Lazy kernel composition	No WGD
-no_wgd_kernel	49	140	0.005818605422973633	Lazy kernel composition	No WGD
-no_wgd_kernel	49	160	0.00665736198425293	Lazy kernel composition	No WGD
-no_wgd_kernel	49	180	0.00764155387878418	Lazy kernel composition	No WGD
-no_wgd_kernel	49	200	0.008458375930786133	Lazy kernel composition	No WGD
+wgd_kernel	0	20	0.0017695426940917969	Lazy composition	WGD
+wgd_kernel	0	40	0.007885456085205078	Lazy composition	WGD
+wgd_kernel	0	60	0.016160964965820312	Lazy composition	WGD
+wgd_kernel	0	80	0.023834228515625	Lazy composition	WGD
+wgd_kernel	0	100	0.032892704010009766	Lazy composition	WGD
+wgd_kernel	0	120	0.041674137115478516	Lazy composition	WGD
+wgd_kernel	0	140	0.04828047752380371	Lazy composition	WGD
+wgd_kernel	0	160	0.05248093605041504	Lazy composition	WGD
+wgd_kernel	0	180	0.06098318099975586	Lazy composition	WGD
+wgd_kernel	0	200	0.06608128547668457	Lazy composition	WGD
+wgd_kernel	1	20	0.0015950202941894531	Lazy composition	WGD
+wgd_kernel	1	40	0.006978034973144531	Lazy composition	WGD
+wgd_kernel	1	60	0.015738964080810547	Lazy composition	WGD
+wgd_kernel	1	80	0.041196584701538086	Lazy composition	WGD
+wgd_kernel	1	100	0.04855060577392578	Lazy composition	WGD
+wgd_kernel	1	120	0.038341522216796875	Lazy composition	WGD
+wgd_kernel	1	140	0.047606468200683594	Lazy composition	WGD
+wgd_kernel	1	160	0.06306600570678711	Lazy composition	WGD
+wgd_kernel	1	180	0.0637965202331543	Lazy composition	WGD
+wgd_kernel	1	200	0.06897521018981934	Lazy composition	WGD
+wgd_kernel	2	20	0.0016436576843261719	Lazy composition	WGD
+wgd_kernel	2	40	0.0071582794189453125	Lazy composition	WGD
+wgd_kernel	2	60	0.014693975448608398	Lazy composition	WGD
+wgd_kernel	2	80	0.02199697494506836	Lazy composition	WGD
+wgd_kernel	2	100	0.02972555160522461	Lazy composition	WGD
+wgd_kernel	2	120	0.03669238090515137	Lazy composition	WGD
+wgd_kernel	2	140	0.04391765594482422	Lazy composition	WGD
+wgd_kernel	2	160	0.054819345474243164	Lazy composition	WGD
+wgd_kernel	2	180	0.05971193313598633	Lazy composition	WGD
+wgd_kernel	2	200	0.06807589530944824	Lazy composition	WGD
+wgd_kernel	3	20	0.0016977787017822266	Lazy composition	WGD
+wgd_kernel	3	40	0.007253885269165039	Lazy composition	WGD
+wgd_kernel	3	60	0.014540672302246094	Lazy composition	WGD
+wgd_kernel	3	80	0.022166013717651367	Lazy composition	WGD
+wgd_kernel	3	100	0.031230449676513672	Lazy composition	WGD
+wgd_kernel	3	120	0.03907012939453125	Lazy composition	WGD
+wgd_kernel	3	140	0.046317100524902344	Lazy composition	WGD
+wgd_kernel	3	160	0.06163811683654785	Lazy composition	WGD
+wgd_kernel	3	180	0.06310081481933594	Lazy composition	WGD
+wgd_kernel	3	200	0.07092761993408203	Lazy composition	WGD
+wgd_kernel	4	20	0.0017459392547607422	Lazy composition	WGD
+wgd_kernel	4	40	0.007468461990356445	Lazy composition	WGD
+wgd_kernel	4	60	0.015258073806762695	Lazy composition	WGD
+wgd_kernel	4	80	0.02301168441772461	Lazy composition	WGD
+wgd_kernel	4	100	0.031659841537475586	Lazy composition	WGD
+wgd_kernel	4	120	0.03884243965148926	Lazy composition	WGD
+wgd_kernel	4	140	0.05177593231201172	Lazy composition	WGD
+wgd_kernel	4	160	0.08258795738220215	Lazy composition	WGD
+wgd_kernel	4	180	0.0716712474822998	Lazy composition	WGD
+wgd_kernel	4	200	0.07389521598815918	Lazy composition	WGD
+wgd_kernel	5	20	0.0018405914306640625	Lazy composition	WGD
+wgd_kernel	5	40	0.0074846744537353516	Lazy composition	WGD
+wgd_kernel	5	60	0.015491485595703125	Lazy composition	WGD
+wgd_kernel	5	80	0.023268699645996094	Lazy composition	WGD
+wgd_kernel	5	100	0.03259992599487305	Lazy composition	WGD
+wgd_kernel	5	120	0.04322385787963867	Lazy composition	WGD
+wgd_kernel	5	140	0.0607144832611084	Lazy composition	WGD
+wgd_kernel	5	160	0.060170650482177734	Lazy composition	WGD
+wgd_kernel	5	180	0.06748151779174805	Lazy composition	WGD
+wgd_kernel	5	200	0.07383179664611816	Lazy composition	WGD
+wgd_kernel	6	20	0.001852273941040039	Lazy composition	WGD
+wgd_kernel	6	40	0.007955074310302734	Lazy composition	WGD
+wgd_kernel	6	60	0.020829200744628906	Lazy composition	WGD
+wgd_kernel	6	80	0.030737876892089844	Lazy composition	WGD
+wgd_kernel	6	100	0.03361344337463379	Lazy composition	WGD
+wgd_kernel	6	120	0.04215431213378906	Lazy composition	WGD
+wgd_kernel	6	140	0.060521841049194336	Lazy composition	WGD
+wgd_kernel	6	160	0.07226037979125977	Lazy composition	WGD
+wgd_kernel	6	180	0.06854104995727539	Lazy composition	WGD
+wgd_kernel	6	200	0.07504749298095703	Lazy composition	WGD
+wgd_kernel	7	20	0.001750946044921875	Lazy composition	WGD
+wgd_kernel	7	40	0.007825136184692383	Lazy composition	WGD
+wgd_kernel	7	60	0.018854379653930664	Lazy composition	WGD
+wgd_kernel	7	80	0.03354001045227051	Lazy composition	WGD
+wgd_kernel	7	100	0.038300514221191406	Lazy composition	WGD
+wgd_kernel	7	120	0.043694496154785156	Lazy composition	WGD
+wgd_kernel	7	140	0.057338714599609375	Lazy composition	WGD
+wgd_kernel	7	160	0.06053018569946289	Lazy composition	WGD
+wgd_kernel	7	180	0.06913375854492188	Lazy composition	WGD
+wgd_kernel	7	200	0.07677268981933594	Lazy composition	WGD
+wgd_kernel	8	20	0.0018191337585449219	Lazy composition	WGD
+wgd_kernel	8	40	0.00797724723815918	Lazy composition	WGD
+wgd_kernel	8	60	0.017570972442626953	Lazy composition	WGD
+wgd_kernel	8	80	0.0474700927734375	Lazy composition	WGD
+wgd_kernel	8	100	0.03790903091430664	Lazy composition	WGD
+wgd_kernel	8	120	0.040152549743652344	Lazy composition	WGD
+wgd_kernel	8	140	0.04894757270812988	Lazy composition	WGD
+wgd_kernel	8	160	0.0637354850769043	Lazy composition	WGD
+wgd_kernel	8	180	0.06635069847106934	Lazy composition	WGD
+wgd_kernel	8	200	0.08241629600524902	Lazy composition	WGD
+wgd_kernel	9	20	0.001913309097290039	Lazy composition	WGD
+wgd_kernel	9	40	0.00888514518737793	Lazy composition	WGD
+wgd_kernel	9	60	0.017555952072143555	Lazy composition	WGD
+wgd_kernel	9	80	0.025618553161621094	Lazy composition	WGD
+wgd_kernel	9	100	0.035291433334350586	Lazy composition	WGD
+wgd_kernel	9	120	0.044737815856933594	Lazy composition	WGD
+wgd_kernel	9	140	0.05351567268371582	Lazy composition	WGD
+wgd_kernel	9	160	0.06389403343200684	Lazy composition	WGD
+wgd_kernel	9	180	0.07162928581237793	Lazy composition	WGD
+wgd_kernel	9	200	0.08356666564941406	Lazy composition	WGD
+wgd_kernel	10	20	0.002267122268676758	Lazy composition	WGD
+wgd_kernel	10	40	0.008182287216186523	Lazy composition	WGD
+wgd_kernel	10	60	0.017574071884155273	Lazy composition	WGD
+wgd_kernel	10	80	0.026681900024414062	Lazy composition	WGD
+wgd_kernel	10	100	0.03254818916320801	Lazy composition	WGD
+wgd_kernel	10	120	0.042206525802612305	Lazy composition	WGD
+wgd_kernel	10	140	0.04867672920227051	Lazy composition	WGD
+wgd_kernel	10	160	0.061103105545043945	Lazy composition	WGD
+wgd_kernel	10	180	0.08872318267822266	Lazy composition	WGD
+wgd_kernel	10	200	0.09045600891113281	Lazy composition	WGD
+wgd_kernel	11	20	0.001913309097290039	Lazy composition	WGD
+wgd_kernel	11	40	0.008241415023803711	Lazy composition	WGD
+wgd_kernel	11	60	0.018028736114501953	Lazy composition	WGD
+wgd_kernel	11	80	0.0255587100982666	Lazy composition	WGD
+wgd_kernel	11	100	0.035216569900512695	Lazy composition	WGD
+wgd_kernel	11	120	0.04199099540710449	Lazy composition	WGD
+wgd_kernel	11	140	0.05187559127807617	Lazy composition	WGD
+wgd_kernel	11	160	0.058615684509277344	Lazy composition	WGD
+wgd_kernel	11	180	0.06578230857849121	Lazy composition	WGD
+wgd_kernel	11	200	0.07484865188598633	Lazy composition	WGD
+wgd_kernel	12	20	0.0017979145050048828	Lazy composition	WGD
+wgd_kernel	12	40	0.008921384811401367	Lazy composition	WGD
+wgd_kernel	12	60	0.03681015968322754	Lazy composition	WGD
+wgd_kernel	12	80	0.03569960594177246	Lazy composition	WGD
+wgd_kernel	12	100	0.05700802803039551	Lazy composition	WGD
+wgd_kernel	12	120	0.07082271575927734	Lazy composition	WGD
+wgd_kernel	12	140	0.07689571380615234	Lazy composition	WGD
+wgd_kernel	12	160	0.07012081146240234	Lazy composition	WGD
+wgd_kernel	12	180	0.07517266273498535	Lazy composition	WGD
+wgd_kernel	12	200	0.07797050476074219	Lazy composition	WGD
+wgd_kernel	13	20	0.0018868446350097656	Lazy composition	WGD
+wgd_kernel	13	40	0.008069276809692383	Lazy composition	WGD
+wgd_kernel	13	60	0.016966581344604492	Lazy composition	WGD
+wgd_kernel	13	80	0.025060415267944336	Lazy composition	WGD
+wgd_kernel	13	100	0.05164957046508789	Lazy composition	WGD
+wgd_kernel	13	120	0.0464015007019043	Lazy composition	WGD
+wgd_kernel	13	140	0.05214095115661621	Lazy composition	WGD
+wgd_kernel	13	160	0.06209754943847656	Lazy composition	WGD
+wgd_kernel	13	180	0.06865096092224121	Lazy composition	WGD
+wgd_kernel	13	200	0.07583475112915039	Lazy composition	WGD
+wgd_kernel	14	20	0.001943349838256836	Lazy composition	WGD
+wgd_kernel	14	40	0.007750034332275391	Lazy composition	WGD
+wgd_kernel	14	60	0.015940427780151367	Lazy composition	WGD
+wgd_kernel	14	80	0.023847341537475586	Lazy composition	WGD
+wgd_kernel	14	100	0.03222990036010742	Lazy composition	WGD
+wgd_kernel	14	120	0.04450082778930664	Lazy composition	WGD
+wgd_kernel	14	140	0.04803299903869629	Lazy composition	WGD
+wgd_kernel	14	160	0.05570697784423828	Lazy composition	WGD
+wgd_kernel	14	180	0.0896759033203125	Lazy composition	WGD
+wgd_kernel	14	200	0.1056523323059082	Lazy composition	WGD
+wgd_kernel	15	20	0.0029706954956054688	Lazy composition	WGD
+wgd_kernel	15	40	0.0082855224609375	Lazy composition	WGD
+wgd_kernel	15	60	0.01774764060974121	Lazy composition	WGD
+wgd_kernel	15	80	0.02942037582397461	Lazy composition	WGD
+wgd_kernel	15	100	0.03603172302246094	Lazy composition	WGD
+wgd_kernel	15	120	0.04380512237548828	Lazy composition	WGD
+wgd_kernel	15	140	0.050241947174072266	Lazy composition	WGD
+wgd_kernel	15	160	0.06242656707763672	Lazy composition	WGD
+wgd_kernel	15	180	0.06786847114562988	Lazy composition	WGD
+wgd_kernel	15	200	0.08886480331420898	Lazy composition	WGD
+wgd_kernel	16	20	0.0017511844635009766	Lazy composition	WGD
+wgd_kernel	16	40	0.008179187774658203	Lazy composition	WGD
+wgd_kernel	16	60	0.016401290893554688	Lazy composition	WGD
+wgd_kernel	16	80	0.023797035217285156	Lazy composition	WGD
+wgd_kernel	16	100	0.03265547752380371	Lazy composition	WGD
+wgd_kernel	16	120	0.041054487228393555	Lazy composition	WGD
+wgd_kernel	16	140	0.048412322998046875	Lazy composition	WGD
+wgd_kernel	16	160	0.05746173858642578	Lazy composition	WGD
+wgd_kernel	16	180	0.06688356399536133	Lazy composition	WGD
+wgd_kernel	16	200	0.07027959823608398	Lazy composition	WGD
+wgd_kernel	17	20	0.0025510787963867188	Lazy composition	WGD
+wgd_kernel	17	40	0.011967897415161133	Lazy composition	WGD
+wgd_kernel	17	60	0.01726388931274414	Lazy composition	WGD
+wgd_kernel	17	80	0.02589559555053711	Lazy composition	WGD
+wgd_kernel	17	100	0.03103947639465332	Lazy composition	WGD
+wgd_kernel	17	120	0.03777122497558594	Lazy composition	WGD
+wgd_kernel	17	140	0.045233964920043945	Lazy composition	WGD
+wgd_kernel	17	160	0.05685091018676758	Lazy composition	WGD
+wgd_kernel	17	180	0.08164668083190918	Lazy composition	WGD
+wgd_kernel	17	200	0.1166985034942627	Lazy composition	WGD
+wgd_kernel	18	20	0.002079010009765625	Lazy composition	WGD
+wgd_kernel	18	40	0.009469985961914062	Lazy composition	WGD
+wgd_kernel	18	60	0.01735520362854004	Lazy composition	WGD
+wgd_kernel	18	80	0.026939868927001953	Lazy composition	WGD
+wgd_kernel	18	100	0.038121700286865234	Lazy composition	WGD
+wgd_kernel	18	120	0.04891562461853027	Lazy composition	WGD
+wgd_kernel	18	140	0.05299234390258789	Lazy composition	WGD
+wgd_kernel	18	160	0.06256604194641113	Lazy composition	WGD
+wgd_kernel	18	180	0.06938290596008301	Lazy composition	WGD
+wgd_kernel	18	200	0.07893657684326172	Lazy composition	WGD
+wgd_kernel	19	20	0.0018346309661865234	Lazy composition	WGD
+wgd_kernel	19	40	0.008414983749389648	Lazy composition	WGD
+wgd_kernel	19	60	0.0166628360748291	Lazy composition	WGD
+wgd_kernel	19	80	0.02479720115661621	Lazy composition	WGD
+wgd_kernel	19	100	0.03371572494506836	Lazy composition	WGD
+wgd_kernel	19	120	0.042855024337768555	Lazy composition	WGD
+wgd_kernel	19	140	0.0514216423034668	Lazy composition	WGD
+wgd_kernel	19	160	0.0607142448425293	Lazy composition	WGD
+wgd_kernel	19	180	0.0684654712677002	Lazy composition	WGD
+wgd_kernel	19	200	0.07576251029968262	Lazy composition	WGD
+wgd_kernel	20	20	0.001786947250366211	Lazy composition	WGD
+wgd_kernel	20	40	0.008186101913452148	Lazy composition	WGD
+wgd_kernel	20	60	0.017551183700561523	Lazy composition	WGD
+wgd_kernel	20	80	0.02467632293701172	Lazy composition	WGD
+wgd_kernel	20	100	0.03399205207824707	Lazy composition	WGD
+wgd_kernel	20	120	0.04369044303894043	Lazy composition	WGD
+wgd_kernel	20	140	0.048398733139038086	Lazy composition	WGD
+wgd_kernel	20	160	0.05561470985412598	Lazy composition	WGD
+wgd_kernel	20	180	0.06500816345214844	Lazy composition	WGD
+wgd_kernel	20	200	0.07162809371948242	Lazy composition	WGD
+wgd_kernel	21	20	0.0017633438110351562	Lazy composition	WGD
+wgd_kernel	21	40	0.007568359375	Lazy composition	WGD
+wgd_kernel	21	60	0.015427350997924805	Lazy composition	WGD
+wgd_kernel	21	80	0.0234677791595459	Lazy composition	WGD
+wgd_kernel	21	100	0.03126168251037598	Lazy composition	WGD
+wgd_kernel	21	120	0.043790340423583984	Lazy composition	WGD
+wgd_kernel	21	140	0.04806327819824219	Lazy composition	WGD
+wgd_kernel	21	160	0.05502820014953613	Lazy composition	WGD
+wgd_kernel	21	180	0.06310200691223145	Lazy composition	WGD
+wgd_kernel	21	200	0.07869434356689453	Lazy composition	WGD
+wgd_kernel	22	20	0.0016922950744628906	Lazy composition	WGD
+wgd_kernel	22	40	0.0072782039642333984	Lazy composition	WGD
+wgd_kernel	22	60	0.014883041381835938	Lazy composition	WGD
+wgd_kernel	22	80	0.023144960403442383	Lazy composition	WGD
+wgd_kernel	22	100	0.03219175338745117	Lazy composition	WGD
+wgd_kernel	22	120	0.037821292877197266	Lazy composition	WGD
+wgd_kernel	22	140	0.047953128814697266	Lazy composition	WGD
+wgd_kernel	22	160	0.07906913757324219	Lazy composition	WGD
+wgd_kernel	22	180	0.12967419624328613	Lazy composition	WGD
+wgd_kernel	22	200	0.12529826164245605	Lazy composition	WGD
+wgd_kernel	23	20	0.003148794174194336	Lazy composition	WGD
+wgd_kernel	23	40	0.013082027435302734	Lazy composition	WGD
+wgd_kernel	23	60	0.024811744689941406	Lazy composition	WGD
+wgd_kernel	23	80	0.03540539741516113	Lazy composition	WGD
+wgd_kernel	23	100	0.04272150993347168	Lazy composition	WGD
+wgd_kernel	23	120	0.047499656677246094	Lazy composition	WGD
+wgd_kernel	23	140	0.051009416580200195	Lazy composition	WGD
+wgd_kernel	23	160	0.06898760795593262	Lazy composition	WGD
+wgd_kernel	23	180	0.06918573379516602	Lazy composition	WGD
+wgd_kernel	23	200	0.07768774032592773	Lazy composition	WGD
+wgd_kernel	24	20	0.0017397403717041016	Lazy composition	WGD
+wgd_kernel	24	40	0.0076847076416015625	Lazy composition	WGD
+wgd_kernel	24	60	0.014927864074707031	Lazy composition	WGD
+wgd_kernel	24	80	0.022431135177612305	Lazy composition	WGD
+wgd_kernel	24	100	0.03055596351623535	Lazy composition	WGD
+wgd_kernel	24	120	0.03856539726257324	Lazy composition	WGD
+wgd_kernel	24	140	0.04509925842285156	Lazy composition	WGD
+wgd_kernel	24	160	0.05399131774902344	Lazy composition	WGD
+wgd_kernel	24	180	0.061867713928222656	Lazy composition	WGD
+wgd_kernel	24	200	0.06797122955322266	Lazy composition	WGD
+wgd_kernel	25	20	0.001627206802368164	Lazy composition	WGD
+wgd_kernel	25	40	0.006838560104370117	Lazy composition	WGD
+wgd_kernel	25	60	0.01510310173034668	Lazy composition	WGD
+wgd_kernel	25	80	0.021020889282226562	Lazy composition	WGD
+wgd_kernel	25	100	0.02826213836669922	Lazy composition	WGD
+wgd_kernel	25	120	0.0366518497467041	Lazy composition	WGD
+wgd_kernel	25	140	0.043253183364868164	Lazy composition	WGD
+wgd_kernel	25	160	0.055509090423583984	Lazy composition	WGD
+wgd_kernel	25	180	0.06652998924255371	Lazy composition	WGD
+wgd_kernel	25	200	0.07009339332580566	Lazy composition	WGD
+wgd_kernel	26	20	0.0016317367553710938	Lazy composition	WGD
+wgd_kernel	26	40	0.007138490676879883	Lazy composition	WGD
+wgd_kernel	26	60	0.014606475830078125	Lazy composition	WGD
+wgd_kernel	26	80	0.022423744201660156	Lazy composition	WGD
+wgd_kernel	26	100	0.030076980590820312	Lazy composition	WGD
+wgd_kernel	26	120	0.03714275360107422	Lazy composition	WGD
+wgd_kernel	26	140	0.04659724235534668	Lazy composition	WGD
+wgd_kernel	26	160	0.05435609817504883	Lazy composition	WGD
+wgd_kernel	26	180	0.06047964096069336	Lazy composition	WGD
+wgd_kernel	26	200	0.07380533218383789	Lazy composition	WGD
+wgd_kernel	27	20	0.0018010139465332031	Lazy composition	WGD
+wgd_kernel	27	40	0.0075418949127197266	Lazy composition	WGD
+wgd_kernel	27	60	0.014766693115234375	Lazy composition	WGD
+wgd_kernel	27	80	0.021908044815063477	Lazy composition	WGD
+wgd_kernel	27	100	0.03016829490661621	Lazy composition	WGD
+wgd_kernel	27	120	0.0385591983795166	Lazy composition	WGD
+wgd_kernel	27	140	0.04430985450744629	Lazy composition	WGD
+wgd_kernel	27	160	0.052361249923706055	Lazy composition	WGD
+wgd_kernel	27	180	0.059052228927612305	Lazy composition	WGD
+wgd_kernel	27	200	0.06918454170227051	Lazy composition	WGD
+wgd_kernel	28	20	0.0015995502471923828	Lazy composition	WGD
+wgd_kernel	28	40	0.007024526596069336	Lazy composition	WGD
+wgd_kernel	28	60	0.013825416564941406	Lazy composition	WGD
+wgd_kernel	28	80	0.021731853485107422	Lazy composition	WGD
+wgd_kernel	28	100	0.02927851676940918	Lazy composition	WGD
+wgd_kernel	28	120	0.0366668701171875	Lazy composition	WGD
+wgd_kernel	28	140	0.04940080642700195	Lazy composition	WGD
+wgd_kernel	28	160	0.06015205383300781	Lazy composition	WGD
+wgd_kernel	28	180	0.07445764541625977	Lazy composition	WGD
+wgd_kernel	28	200	0.08535242080688477	Lazy composition	WGD
+wgd_kernel	29	20	0.001867055892944336	Lazy composition	WGD
+wgd_kernel	29	40	0.008878469467163086	Lazy composition	WGD
+wgd_kernel	29	60	0.016345739364624023	Lazy composition	WGD
+wgd_kernel	29	80	0.02490234375	Lazy composition	WGD
+wgd_kernel	29	100	0.033731937408447266	Lazy composition	WGD
+wgd_kernel	29	120	0.043488502502441406	Lazy composition	WGD
+wgd_kernel	29	140	0.0548710823059082	Lazy composition	WGD
+wgd_kernel	29	160	0.05995535850524902	Lazy composition	WGD
+wgd_kernel	29	180	0.06594371795654297	Lazy composition	WGD
+wgd_kernel	29	200	0.07707500457763672	Lazy composition	WGD
+wgd_kernel	30	20	0.0018563270568847656	Lazy composition	WGD
+wgd_kernel	30	40	0.007942438125610352	Lazy composition	WGD
+wgd_kernel	30	60	0.01608586311340332	Lazy composition	WGD
+wgd_kernel	30	80	0.024355173110961914	Lazy composition	WGD
+wgd_kernel	30	100	0.03444933891296387	Lazy composition	WGD
+wgd_kernel	30	120	0.042052507400512695	Lazy composition	WGD
+wgd_kernel	30	140	0.05146598815917969	Lazy composition	WGD
+wgd_kernel	30	160	0.062211036682128906	Lazy composition	WGD
+wgd_kernel	30	180	0.06563782691955566	Lazy composition	WGD
+wgd_kernel	30	200	0.07271599769592285	Lazy composition	WGD
+wgd_kernel	31	20	0.0017573833465576172	Lazy composition	WGD
+wgd_kernel	31	40	0.0076830387115478516	Lazy composition	WGD
+wgd_kernel	31	60	0.01572704315185547	Lazy composition	WGD
+wgd_kernel	31	80	0.025180578231811523	Lazy composition	WGD
+wgd_kernel	31	100	0.03331756591796875	Lazy composition	WGD
+wgd_kernel	31	120	0.041138410568237305	Lazy composition	WGD
+wgd_kernel	31	140	0.049353837966918945	Lazy composition	WGD
+wgd_kernel	31	160	0.05969977378845215	Lazy composition	WGD
+wgd_kernel	31	180	0.06764745712280273	Lazy composition	WGD
+wgd_kernel	31	200	0.07710480690002441	Lazy composition	WGD
+wgd_kernel	32	20	0.0017704963684082031	Lazy composition	WGD
+wgd_kernel	32	40	0.007730960845947266	Lazy composition	WGD
+wgd_kernel	32	60	0.016215801239013672	Lazy composition	WGD
+wgd_kernel	32	80	0.024712085723876953	Lazy composition	WGD
+wgd_kernel	32	100	0.03194570541381836	Lazy composition	WGD
+wgd_kernel	32	120	0.040686607360839844	Lazy composition	WGD
+wgd_kernel	32	140	0.04708409309387207	Lazy composition	WGD
+wgd_kernel	32	160	0.056619882583618164	Lazy composition	WGD
+wgd_kernel	32	180	0.09251022338867188	Lazy composition	WGD
+wgd_kernel	32	200	0.0943148136138916	Lazy composition	WGD
+wgd_kernel	33	20	0.002327442169189453	Lazy composition	WGD
+wgd_kernel	33	40	0.009694337844848633	Lazy composition	WGD
+wgd_kernel	33	60	0.019701004028320312	Lazy composition	WGD
+wgd_kernel	33	80	0.034010887145996094	Lazy composition	WGD
+wgd_kernel	33	100	0.04677748680114746	Lazy composition	WGD
+wgd_kernel	33	120	0.05481433868408203	Lazy composition	WGD
+wgd_kernel	33	140	0.06611251831054688	Lazy composition	WGD
+wgd_kernel	33	160	0.08066248893737793	Lazy composition	WGD
+wgd_kernel	33	180	0.08739805221557617	Lazy composition	WGD
+wgd_kernel	33	200	0.09016251564025879	Lazy composition	WGD
+wgd_kernel	34	20	0.0018849372863769531	Lazy composition	WGD
+wgd_kernel	34	40	0.009213924407958984	Lazy composition	WGD
+wgd_kernel	34	60	0.018314123153686523	Lazy composition	WGD
+wgd_kernel	34	80	0.02955317497253418	Lazy composition	WGD
+wgd_kernel	34	100	0.03863048553466797	Lazy composition	WGD
+wgd_kernel	34	120	0.046889305114746094	Lazy composition	WGD
+wgd_kernel	34	140	0.05405473709106445	Lazy composition	WGD
+wgd_kernel	34	160	0.07584929466247559	Lazy composition	WGD
+wgd_kernel	34	180	0.0763404369354248	Lazy composition	WGD
+wgd_kernel	34	200	0.08359742164611816	Lazy composition	WGD
+wgd_kernel	35	20	0.0018935203552246094	Lazy composition	WGD
+wgd_kernel	35	40	0.00860905647277832	Lazy composition	WGD
+wgd_kernel	35	60	0.01764059066772461	Lazy composition	WGD
+wgd_kernel	35	80	0.027498483657836914	Lazy composition	WGD
+wgd_kernel	35	100	0.03406357765197754	Lazy composition	WGD
+wgd_kernel	35	120	0.041539907455444336	Lazy composition	WGD
+wgd_kernel	35	140	0.049878835678100586	Lazy composition	WGD
+wgd_kernel	35	160	0.06040501594543457	Lazy composition	WGD
+wgd_kernel	35	180	0.0674748420715332	Lazy composition	WGD
+wgd_kernel	35	200	0.08585143089294434	Lazy composition	WGD
+wgd_kernel	36	20	0.0017554759979248047	Lazy composition	WGD
+wgd_kernel	36	40	0.007663249969482422	Lazy composition	WGD
+wgd_kernel	36	60	0.01604318618774414	Lazy composition	WGD
+wgd_kernel	36	80	0.023806095123291016	Lazy composition	WGD
+wgd_kernel	36	100	0.04036688804626465	Lazy composition	WGD
+wgd_kernel	36	120	0.041268348693847656	Lazy composition	WGD
+wgd_kernel	36	140	0.045247554779052734	Lazy composition	WGD
+wgd_kernel	36	160	0.05580639839172363	Lazy composition	WGD
+wgd_kernel	36	180	0.06181001663208008	Lazy composition	WGD
+wgd_kernel	36	200	0.07380199432373047	Lazy composition	WGD
+wgd_kernel	37	20	0.0016179084777832031	Lazy composition	WGD
+wgd_kernel	37	40	0.007511615753173828	Lazy composition	WGD
+wgd_kernel	37	60	0.017027616500854492	Lazy composition	WGD
+wgd_kernel	37	80	0.0560765266418457	Lazy composition	WGD
+wgd_kernel	37	100	0.03037881851196289	Lazy composition	WGD
+wgd_kernel	37	120	0.03779292106628418	Lazy composition	WGD
+wgd_kernel	37	140	0.04545235633850098	Lazy composition	WGD
+wgd_kernel	37	160	0.06739640235900879	Lazy composition	WGD
+wgd_kernel	37	180	0.07143592834472656	Lazy composition	WGD
+wgd_kernel	37	200	0.07086610794067383	Lazy composition	WGD
+wgd_kernel	38	20	0.001613616943359375	Lazy composition	WGD
+wgd_kernel	38	40	0.007025241851806641	Lazy composition	WGD
+wgd_kernel	38	60	0.014299869537353516	Lazy composition	WGD
+wgd_kernel	38	80	0.025780200958251953	Lazy composition	WGD
+wgd_kernel	38	100	0.029417991638183594	Lazy composition	WGD
+wgd_kernel	38	120	0.0363001823425293	Lazy composition	WGD
+wgd_kernel	38	140	0.04312705993652344	Lazy composition	WGD
+wgd_kernel	38	160	0.05167889595031738	Lazy composition	WGD
+wgd_kernel	38	180	0.06065559387207031	Lazy composition	WGD
+wgd_kernel	38	200	0.06582951545715332	Lazy composition	WGD
+wgd_kernel	39	20	0.001600503921508789	Lazy composition	WGD
+wgd_kernel	39	40	0.007021903991699219	Lazy composition	WGD
+wgd_kernel	39	60	0.015041351318359375	Lazy composition	WGD
+wgd_kernel	39	80	0.02414870262145996	Lazy composition	WGD
+wgd_kernel	39	100	0.02917003631591797	Lazy composition	WGD
+wgd_kernel	39	120	0.03671765327453613	Lazy composition	WGD
+wgd_kernel	39	140	0.043059349060058594	Lazy composition	WGD
+wgd_kernel	39	160	0.057387351989746094	Lazy composition	WGD
+wgd_kernel	39	180	0.057674407958984375	Lazy composition	WGD
+wgd_kernel	39	200	0.1275646686553955	Lazy composition	WGD
+wgd_kernel	40	20	0.0015957355499267578	Lazy composition	WGD
+wgd_kernel	40	40	0.009073972702026367	Lazy composition	WGD
+wgd_kernel	40	60	0.01596999168395996	Lazy composition	WGD
+wgd_kernel	40	80	0.02457571029663086	Lazy composition	WGD
+wgd_kernel	40	100	0.03160595893859863	Lazy composition	WGD
+wgd_kernel	40	120	0.04021096229553223	Lazy composition	WGD
+wgd_kernel	40	140	0.04801344871520996	Lazy composition	WGD
+wgd_kernel	40	160	0.07071971893310547	Lazy composition	WGD
+wgd_kernel	40	180	0.07371377944946289	Lazy composition	WGD
+wgd_kernel	40	200	0.07370591163635254	Lazy composition	WGD
+wgd_kernel	41	20	0.0016841888427734375	Lazy composition	WGD
+wgd_kernel	41	40	0.007450580596923828	Lazy composition	WGD
+wgd_kernel	41	60	0.014912843704223633	Lazy composition	WGD
+wgd_kernel	41	80	0.026517868041992188	Lazy composition	WGD
+wgd_kernel	41	100	0.03243589401245117	Lazy composition	WGD
+wgd_kernel	41	120	0.0421299934387207	Lazy composition	WGD
+wgd_kernel	41	140	0.04757428169250488	Lazy composition	WGD
+wgd_kernel	41	160	0.05543041229248047	Lazy composition	WGD
+wgd_kernel	41	180	0.06353497505187988	Lazy composition	WGD
+wgd_kernel	41	200	0.07945108413696289	Lazy composition	WGD
+wgd_kernel	42	20	0.0017914772033691406	Lazy composition	WGD
+wgd_kernel	42	40	0.0108642578125	Lazy composition	WGD
+wgd_kernel	42	60	0.02226996421813965	Lazy composition	WGD
+wgd_kernel	42	80	0.030727386474609375	Lazy composition	WGD
+wgd_kernel	42	100	0.04032611846923828	Lazy composition	WGD
+wgd_kernel	42	120	0.04621601104736328	Lazy composition	WGD
+wgd_kernel	42	140	0.057108163833618164	Lazy composition	WGD
+wgd_kernel	42	160	0.06318998336791992	Lazy composition	WGD
+wgd_kernel	42	180	0.07963776588439941	Lazy composition	WGD
+wgd_kernel	42	200	0.0819239616394043	Lazy composition	WGD
+wgd_kernel	43	20	0.0018889904022216797	Lazy composition	WGD
+wgd_kernel	43	40	0.008750200271606445	Lazy composition	WGD
+wgd_kernel	43	60	0.017153263092041016	Lazy composition	WGD
+wgd_kernel	43	80	0.02559804916381836	Lazy composition	WGD
+wgd_kernel	43	100	0.03382396697998047	Lazy composition	WGD
+wgd_kernel	43	120	0.04385042190551758	Lazy composition	WGD
+wgd_kernel	43	140	0.0522150993347168	Lazy composition	WGD
+wgd_kernel	43	160	0.06659913063049316	Lazy composition	WGD
+wgd_kernel	43	180	0.07011842727661133	Lazy composition	WGD
+wgd_kernel	43	200	0.07787370681762695	Lazy composition	WGD
+wgd_kernel	44	20	0.0017757415771484375	Lazy composition	WGD
+wgd_kernel	44	40	0.007745981216430664	Lazy composition	WGD
+wgd_kernel	44	60	0.01599407196044922	Lazy composition	WGD
+wgd_kernel	44	80	0.024659156799316406	Lazy composition	WGD
+wgd_kernel	44	100	0.03335213661193848	Lazy composition	WGD
+wgd_kernel	44	120	0.0433192253112793	Lazy composition	WGD
+wgd_kernel	44	140	0.052185773849487305	Lazy composition	WGD
+wgd_kernel	44	160	0.06511855125427246	Lazy composition	WGD
+wgd_kernel	44	180	0.07151341438293457	Lazy composition	WGD
+wgd_kernel	44	200	0.08331680297851562	Lazy composition	WGD
+wgd_kernel	45	20	0.001878499984741211	Lazy composition	WGD
+wgd_kernel	45	40	0.007986068725585938	Lazy composition	WGD
+wgd_kernel	45	60	0.016268253326416016	Lazy composition	WGD
+wgd_kernel	45	80	0.024487733840942383	Lazy composition	WGD
+wgd_kernel	45	100	0.03281545639038086	Lazy composition	WGD
+wgd_kernel	45	120	0.042412757873535156	Lazy composition	WGD
+wgd_kernel	45	140	0.05015277862548828	Lazy composition	WGD
+wgd_kernel	45	160	0.05667304992675781	Lazy composition	WGD
+wgd_kernel	45	180	0.06642580032348633	Lazy composition	WGD
+wgd_kernel	45	200	0.07524585723876953	Lazy composition	WGD
+wgd_kernel	46	20	0.0017464160919189453	Lazy composition	WGD
+wgd_kernel	46	40	0.007570028305053711	Lazy composition	WGD
+wgd_kernel	46	60	0.015923738479614258	Lazy composition	WGD
+wgd_kernel	46	80	0.023909568786621094	Lazy composition	WGD
+wgd_kernel	46	100	0.0344846248626709	Lazy composition	WGD
+wgd_kernel	46	120	0.03990530967712402	Lazy composition	WGD
+wgd_kernel	46	140	0.04648709297180176	Lazy composition	WGD
+wgd_kernel	46	160	0.05597805976867676	Lazy composition	WGD
+wgd_kernel	46	180	0.06425714492797852	Lazy composition	WGD
+wgd_kernel	46	200	0.07218432426452637	Lazy composition	WGD
+wgd_kernel	47	20	0.0017461776733398438	Lazy composition	WGD
+wgd_kernel	47	40	0.0074977874755859375	Lazy composition	WGD
+wgd_kernel	47	60	0.015667200088500977	Lazy composition	WGD
+wgd_kernel	47	80	0.024184465408325195	Lazy composition	WGD
+wgd_kernel	47	100	0.03194594383239746	Lazy composition	WGD
+wgd_kernel	47	120	0.03945112228393555	Lazy composition	WGD
+wgd_kernel	47	140	0.04813742637634277	Lazy composition	WGD
+wgd_kernel	47	160	0.06336116790771484	Lazy composition	WGD
+wgd_kernel	47	180	0.0645439624786377	Lazy composition	WGD
+wgd_kernel	47	200	0.07545042037963867	Lazy composition	WGD
+wgd_kernel	48	20	0.0017457008361816406	Lazy composition	WGD
+wgd_kernel	48	40	0.007794618606567383	Lazy composition	WGD
+wgd_kernel	48	60	0.01575636863708496	Lazy composition	WGD
+wgd_kernel	48	80	0.023858070373535156	Lazy composition	WGD
+wgd_kernel	48	100	0.031201839447021484	Lazy composition	WGD
+wgd_kernel	48	120	0.03929924964904785	Lazy composition	WGD
+wgd_kernel	48	140	0.0472564697265625	Lazy composition	WGD
+wgd_kernel	48	160	0.05818748474121094	Lazy composition	WGD
+wgd_kernel	48	180	0.06346416473388672	Lazy composition	WGD
+wgd_kernel	48	200	0.07608246803283691	Lazy composition	WGD
+wgd_kernel	49	20	0.0017483234405517578	Lazy composition	WGD
+wgd_kernel	49	40	0.007666587829589844	Lazy composition	WGD
+wgd_kernel	49	60	0.016232728958129883	Lazy composition	WGD
+wgd_kernel	49	80	0.02497100830078125	Lazy composition	WGD
+wgd_kernel	49	100	0.03452181816101074	Lazy composition	WGD
+wgd_kernel	49	120	0.040874481201171875	Lazy composition	WGD
+wgd_kernel	49	140	0.04934072494506836	Lazy composition	WGD
+wgd_kernel	49	160	0.05636930465698242	Lazy composition	WGD
+wgd_kernel	49	180	0.06606888771057129	Lazy composition	WGD
+wgd_kernel	49	200	0.07835245132446289	Lazy composition	WGD
+no_wgd_kernel	0	20	0.0008816719055175781	Lazy composition	No WGD
+no_wgd_kernel	0	40	0.0014758110046386719	Lazy composition	No WGD
+no_wgd_kernel	0	60	0.0023462772369384766	Lazy composition	No WGD
+no_wgd_kernel	0	80	0.0034601688385009766	Lazy composition	No WGD
+no_wgd_kernel	0	100	0.004297733306884766	Lazy composition	No WGD
+no_wgd_kernel	0	120	0.004849433898925781	Lazy composition	No WGD
+no_wgd_kernel	0	140	0.005639553070068359	Lazy composition	No WGD
+no_wgd_kernel	0	160	0.006718158721923828	Lazy composition	No WGD
+no_wgd_kernel	0	180	0.007339954376220703	Lazy composition	No WGD
+no_wgd_kernel	0	200	0.008145332336425781	Lazy composition	No WGD
+no_wgd_kernel	1	20	0.0005624294281005859	Lazy composition	No WGD
+no_wgd_kernel	1	40	0.001558065414428711	Lazy composition	No WGD
+no_wgd_kernel	1	60	0.0025963783264160156	Lazy composition	No WGD
+no_wgd_kernel	1	80	0.003270387649536133	Lazy composition	No WGD
+no_wgd_kernel	1	100	0.004004240036010742	Lazy composition	No WGD
+no_wgd_kernel	1	120	0.005053997039794922	Lazy composition	No WGD
+no_wgd_kernel	1	140	0.005828380584716797	Lazy composition	No WGD
+no_wgd_kernel	1	160	0.006434202194213867	Lazy composition	No WGD
+no_wgd_kernel	1	180	0.007660388946533203	Lazy composition	No WGD
+no_wgd_kernel	1	200	0.008365869522094727	Lazy composition	No WGD
+no_wgd_kernel	2	20	0.0005614757537841797	Lazy composition	No WGD
+no_wgd_kernel	2	40	0.0014464855194091797	Lazy composition	No WGD
+no_wgd_kernel	2	60	0.0023651123046875	Lazy composition	No WGD
+no_wgd_kernel	2	80	0.0033545494079589844	Lazy composition	No WGD
+no_wgd_kernel	2	100	0.004274129867553711	Lazy composition	No WGD
+no_wgd_kernel	2	120	0.00500941276550293	Lazy composition	No WGD
+no_wgd_kernel	2	140	0.00602269172668457	Lazy composition	No WGD
+no_wgd_kernel	2	160	0.006537199020385742	Lazy composition	No WGD
+no_wgd_kernel	2	180	0.007494449615478516	Lazy composition	No WGD
+no_wgd_kernel	2	200	0.008455514907836914	Lazy composition	No WGD
+no_wgd_kernel	3	20	0.0005762577056884766	Lazy composition	No WGD
+no_wgd_kernel	3	40	0.0014579296112060547	Lazy composition	No WGD
+no_wgd_kernel	3	60	0.0023267269134521484	Lazy composition	No WGD
+no_wgd_kernel	3	80	0.003164529800415039	Lazy composition	No WGD
+no_wgd_kernel	3	100	0.00411677360534668	Lazy composition	No WGD
+no_wgd_kernel	3	120	0.005121469497680664	Lazy composition	No WGD
+no_wgd_kernel	3	140	0.005685091018676758	Lazy composition	No WGD
+no_wgd_kernel	3	160	0.006307840347290039	Lazy composition	No WGD
+no_wgd_kernel	3	180	0.007406473159790039	Lazy composition	No WGD
+no_wgd_kernel	3	200	0.008017539978027344	Lazy composition	No WGD
+no_wgd_kernel	4	20	0.0005464553833007812	Lazy composition	No WGD
+no_wgd_kernel	4	40	0.0013911724090576172	Lazy composition	No WGD
+no_wgd_kernel	4	60	0.0022628307342529297	Lazy composition	No WGD
+no_wgd_kernel	4	80	0.003215312957763672	Lazy composition	No WGD
+no_wgd_kernel	4	100	0.003874540328979492	Lazy composition	No WGD
+no_wgd_kernel	4	120	0.005060911178588867	Lazy composition	No WGD
+no_wgd_kernel	4	140	0.0058345794677734375	Lazy composition	No WGD
+no_wgd_kernel	4	160	0.0065670013427734375	Lazy composition	No WGD
+no_wgd_kernel	4	180	0.007947206497192383	Lazy composition	No WGD
+no_wgd_kernel	4	200	0.008118867874145508	Lazy composition	No WGD
+no_wgd_kernel	5	20	0.0006413459777832031	Lazy composition	No WGD
+no_wgd_kernel	5	40	0.0016715526580810547	Lazy composition	No WGD
+no_wgd_kernel	5	60	0.0022699832916259766	Lazy composition	No WGD
+no_wgd_kernel	5	80	0.0030786991119384766	Lazy composition	No WGD
+no_wgd_kernel	5	100	0.0039060115814208984	Lazy composition	No WGD
+no_wgd_kernel	5	120	0.004754781723022461	Lazy composition	No WGD
+no_wgd_kernel	5	140	0.0058519840240478516	Lazy composition	No WGD
+no_wgd_kernel	5	160	0.006296634674072266	Lazy composition	No WGD
+no_wgd_kernel	5	180	0.0071392059326171875	Lazy composition	No WGD
+no_wgd_kernel	5	200	0.00828862190246582	Lazy composition	No WGD
+no_wgd_kernel	6	20	0.0005450248718261719	Lazy composition	No WGD
+no_wgd_kernel	6	40	0.0014040470123291016	Lazy composition	No WGD
+no_wgd_kernel	6	60	0.002267599105834961	Lazy composition	No WGD
+no_wgd_kernel	6	80	0.0030870437622070312	Lazy composition	No WGD
+no_wgd_kernel	6	100	0.0038747787475585938	Lazy composition	No WGD
+no_wgd_kernel	6	120	0.005193471908569336	Lazy composition	No WGD
+no_wgd_kernel	6	140	0.005591869354248047	Lazy composition	No WGD
+no_wgd_kernel	6	160	0.00631403923034668	Lazy composition	No WGD
+no_wgd_kernel	6	180	0.00854349136352539	Lazy composition	No WGD
+no_wgd_kernel	6	200	0.008285760879516602	Lazy composition	No WGD
+no_wgd_kernel	7	20	0.0005903244018554688	Lazy composition	No WGD
+no_wgd_kernel	7	40	0.0014538764953613281	Lazy composition	No WGD
+no_wgd_kernel	7	60	0.002312898635864258	Lazy composition	No WGD
+no_wgd_kernel	7	80	0.00319671630859375	Lazy composition	No WGD
+no_wgd_kernel	7	100	0.004238128662109375	Lazy composition	No WGD
+no_wgd_kernel	7	120	0.004998683929443359	Lazy composition	No WGD
+no_wgd_kernel	7	140	0.005718708038330078	Lazy composition	No WGD
+no_wgd_kernel	7	160	0.0064465999603271484	Lazy composition	No WGD
+no_wgd_kernel	7	180	0.007471799850463867	Lazy composition	No WGD
+no_wgd_kernel	7	200	0.008415699005126953	Lazy composition	No WGD
+no_wgd_kernel	8	20	0.0005962848663330078	Lazy composition	No WGD
+no_wgd_kernel	8	40	0.001438140869140625	Lazy composition	No WGD
+no_wgd_kernel	8	60	0.002309083938598633	Lazy composition	No WGD
+no_wgd_kernel	8	80	0.0033118724822998047	Lazy composition	No WGD
+no_wgd_kernel	8	100	0.003972053527832031	Lazy composition	No WGD
+no_wgd_kernel	8	120	0.004818916320800781	Lazy composition	No WGD
+no_wgd_kernel	8	140	0.005658626556396484	Lazy composition	No WGD
+no_wgd_kernel	8	160	0.006685972213745117	Lazy composition	No WGD
+no_wgd_kernel	8	180	0.007328510284423828	Lazy composition	No WGD
+no_wgd_kernel	8	200	0.008919000625610352	Lazy composition	No WGD
+no_wgd_kernel	9	20	0.0005805492401123047	Lazy composition	No WGD
+no_wgd_kernel	9	40	0.001428842544555664	Lazy composition	No WGD
+no_wgd_kernel	9	60	0.0022962093353271484	Lazy composition	No WGD
+no_wgd_kernel	9	80	0.0032625198364257812	Lazy composition	No WGD
+no_wgd_kernel	9	100	0.003984212875366211	Lazy composition	No WGD
+no_wgd_kernel	9	120	0.004926204681396484	Lazy composition	No WGD
+no_wgd_kernel	9	140	0.005782127380371094	Lazy composition	No WGD
+no_wgd_kernel	9	160	0.006576061248779297	Lazy composition	No WGD
+no_wgd_kernel	9	180	0.007428169250488281	Lazy composition	No WGD
+no_wgd_kernel	9	200	0.008283853530883789	Lazy composition	No WGD
+no_wgd_kernel	10	20	0.0005686283111572266	Lazy composition	No WGD
+no_wgd_kernel	10	40	0.0014355182647705078	Lazy composition	No WGD
+no_wgd_kernel	10	60	0.0024492740631103516	Lazy composition	No WGD
+no_wgd_kernel	10	80	0.0033922195434570312	Lazy composition	No WGD
+no_wgd_kernel	10	100	0.004215717315673828	Lazy composition	No WGD
+no_wgd_kernel	10	120	0.004832029342651367	Lazy composition	No WGD
+no_wgd_kernel	10	140	0.0055942535400390625	Lazy composition	No WGD
+no_wgd_kernel	10	160	0.00716090202331543	Lazy composition	No WGD
+no_wgd_kernel	10	180	0.0075342655181884766	Lazy composition	No WGD
+no_wgd_kernel	10	200	0.008282184600830078	Lazy composition	No WGD
+no_wgd_kernel	11	20	0.0005664825439453125	Lazy composition	No WGD
+no_wgd_kernel	11	40	0.0014529228210449219	Lazy composition	No WGD
+no_wgd_kernel	11	60	0.002322673797607422	Lazy composition	No WGD
+no_wgd_kernel	11	80	0.003175497055053711	Lazy composition	No WGD
+no_wgd_kernel	11	100	0.003950834274291992	Lazy composition	No WGD
+no_wgd_kernel	11	120	0.004786968231201172	Lazy composition	No WGD
+no_wgd_kernel	11	140	0.005661964416503906	Lazy composition	No WGD
+no_wgd_kernel	11	160	0.006477832794189453	Lazy composition	No WGD
+no_wgd_kernel	11	180	0.007293224334716797	Lazy composition	No WGD
+no_wgd_kernel	11	200	0.008185863494873047	Lazy composition	No WGD
+no_wgd_kernel	12	20	0.0005567073822021484	Lazy composition	No WGD
+no_wgd_kernel	12	40	0.0014295578002929688	Lazy composition	No WGD
+no_wgd_kernel	12	60	0.0023200511932373047	Lazy composition	No WGD
+no_wgd_kernel	12	80	0.0031485557556152344	Lazy composition	No WGD
+no_wgd_kernel	12	100	0.00395655632019043	Lazy composition	No WGD
+no_wgd_kernel	12	120	0.004855155944824219	Lazy composition	No WGD
+no_wgd_kernel	12	140	0.005596637725830078	Lazy composition	No WGD
+no_wgd_kernel	12	160	0.0064127445220947266	Lazy composition	No WGD
+no_wgd_kernel	12	180	0.007333278656005859	Lazy composition	No WGD
+no_wgd_kernel	12	200	0.008728742599487305	Lazy composition	No WGD
+no_wgd_kernel	13	20	0.0006906986236572266	Lazy composition	No WGD
+no_wgd_kernel	13	40	0.0016019344329833984	Lazy composition	No WGD
+no_wgd_kernel	13	60	0.002315521240234375	Lazy composition	No WGD
+no_wgd_kernel	13	80	0.0032052993774414062	Lazy composition	No WGD
+no_wgd_kernel	13	100	0.004005908966064453	Lazy composition	No WGD
+no_wgd_kernel	13	120	0.004857778549194336	Lazy composition	No WGD
+no_wgd_kernel	13	140	0.005759716033935547	Lazy composition	No WGD
+no_wgd_kernel	13	160	0.0065157413482666016	Lazy composition	No WGD
+no_wgd_kernel	13	180	0.007408857345581055	Lazy composition	No WGD
+no_wgd_kernel	13	200	0.008214235305786133	Lazy composition	No WGD
+no_wgd_kernel	14	20	0.0005867481231689453	Lazy composition	No WGD
+no_wgd_kernel	14	40	0.001447916030883789	Lazy composition	No WGD
+no_wgd_kernel	14	60	0.0023505687713623047	Lazy composition	No WGD
+no_wgd_kernel	14	80	0.0031447410583496094	Lazy composition	No WGD
+no_wgd_kernel	14	100	0.0039882659912109375	Lazy composition	No WGD
+no_wgd_kernel	14	120	0.0047986507415771484	Lazy composition	No WGD
+no_wgd_kernel	14	140	0.0055887699127197266	Lazy composition	No WGD
+no_wgd_kernel	14	160	0.006456136703491211	Lazy composition	No WGD
+no_wgd_kernel	14	180	0.007243633270263672	Lazy composition	No WGD
+no_wgd_kernel	14	200	0.008141517639160156	Lazy composition	No WGD
+no_wgd_kernel	15	20	0.0005629062652587891	Lazy composition	No WGD
+no_wgd_kernel	15	40	0.0014336109161376953	Lazy composition	No WGD
+no_wgd_kernel	15	60	0.002293109893798828	Lazy composition	No WGD
+no_wgd_kernel	15	80	0.003143787384033203	Lazy composition	No WGD
+no_wgd_kernel	15	100	0.004003763198852539	Lazy composition	No WGD
+no_wgd_kernel	15	120	0.004803180694580078	Lazy composition	No WGD
+no_wgd_kernel	15	140	0.005615234375	Lazy composition	No WGD
+no_wgd_kernel	15	160	0.006489276885986328	Lazy composition	No WGD
+no_wgd_kernel	15	180	0.007288217544555664	Lazy composition	No WGD
+no_wgd_kernel	15	200	0.008210897445678711	Lazy composition	No WGD
+no_wgd_kernel	16	20	0.0005717277526855469	Lazy composition	No WGD
+no_wgd_kernel	16	40	0.0014624595642089844	Lazy composition	No WGD
+no_wgd_kernel	16	60	0.002302885055541992	Lazy composition	No WGD
+no_wgd_kernel	16	80	0.003144502639770508	Lazy composition	No WGD
+no_wgd_kernel	16	100	0.0040130615234375	Lazy composition	No WGD
+no_wgd_kernel	16	120	0.004809856414794922	Lazy composition	No WGD
+no_wgd_kernel	16	140	0.00560450553894043	Lazy composition	No WGD
+no_wgd_kernel	16	160	0.006476163864135742	Lazy composition	No WGD
+no_wgd_kernel	16	180	0.007317543029785156	Lazy composition	No WGD
+no_wgd_kernel	16	200	0.008219718933105469	Lazy composition	No WGD
+no_wgd_kernel	17	20	0.0005657672882080078	Lazy composition	No WGD
+no_wgd_kernel	17	40	0.0014433860778808594	Lazy composition	No WGD
+no_wgd_kernel	17	60	0.002305269241333008	Lazy composition	No WGD
+no_wgd_kernel	17	80	0.0031859874725341797	Lazy composition	No WGD
+no_wgd_kernel	17	100	0.0039789676666259766	Lazy composition	No WGD
+no_wgd_kernel	17	120	0.004809141159057617	Lazy composition	No WGD
+no_wgd_kernel	17	140	0.0055849552154541016	Lazy composition	No WGD
+no_wgd_kernel	17	160	0.006463050842285156	Lazy composition	No WGD
+no_wgd_kernel	17	180	0.0073854923248291016	Lazy composition	No WGD
+no_wgd_kernel	17	200	0.00827646255493164	Lazy composition	No WGD
+no_wgd_kernel	18	20	0.0005710124969482422	Lazy composition	No WGD
+no_wgd_kernel	18	40	0.0014362335205078125	Lazy composition	No WGD
+no_wgd_kernel	18	60	0.0023055076599121094	Lazy composition	No WGD
+no_wgd_kernel	18	80	0.0031578540802001953	Lazy composition	No WGD
+no_wgd_kernel	18	100	0.003999948501586914	Lazy composition	No WGD
+no_wgd_kernel	18	120	0.0048563480377197266	Lazy composition	No WGD
+no_wgd_kernel	18	140	0.005640745162963867	Lazy composition	No WGD
+no_wgd_kernel	18	160	0.0063250064849853516	Lazy composition	No WGD
+no_wgd_kernel	18	180	0.010378122329711914	Lazy composition	No WGD
+no_wgd_kernel	18	200	0.014159440994262695	Lazy composition	No WGD
+no_wgd_kernel	19	20	0.0009605884552001953	Lazy composition	No WGD
+no_wgd_kernel	19	40	0.0024225711822509766	Lazy composition	No WGD
+no_wgd_kernel	19	60	0.0039179325103759766	Lazy composition	No WGD
+no_wgd_kernel	19	80	0.003438711166381836	Lazy composition	No WGD
+no_wgd_kernel	19	100	0.004775047302246094	Lazy composition	No WGD
+no_wgd_kernel	19	120	0.006354093551635742	Lazy composition	No WGD
+no_wgd_kernel	19	140	0.006664276123046875	Lazy composition	No WGD
+no_wgd_kernel	19	160	0.007169246673583984	Lazy composition	No WGD
+no_wgd_kernel	19	180	0.008855581283569336	Lazy composition	No WGD
+no_wgd_kernel	19	200	0.00865793228149414	Lazy composition	No WGD
+no_wgd_kernel	20	20	0.0005843639373779297	Lazy composition	No WGD
+no_wgd_kernel	20	40	0.002306699752807617	Lazy composition	No WGD
+no_wgd_kernel	20	60	0.0030517578125	Lazy composition	No WGD
+no_wgd_kernel	20	80	0.003608226776123047	Lazy composition	No WGD
+no_wgd_kernel	20	100	0.00408482551574707	Lazy composition	No WGD
+no_wgd_kernel	20	120	0.00510859489440918	Lazy composition	No WGD
+no_wgd_kernel	20	140	0.006604909896850586	Lazy composition	No WGD
+no_wgd_kernel	20	160	0.0066509246826171875	Lazy composition	No WGD
+no_wgd_kernel	20	180	0.0077211856842041016	Lazy composition	No WGD
+no_wgd_kernel	20	200	0.009228229522705078	Lazy composition	No WGD
+no_wgd_kernel	21	20	0.0005927085876464844	Lazy composition	No WGD
+no_wgd_kernel	21	40	0.001478433609008789	Lazy composition	No WGD
+no_wgd_kernel	21	60	0.0023827552795410156	Lazy composition	No WGD
+no_wgd_kernel	21	80	0.0033724308013916016	Lazy composition	No WGD
+no_wgd_kernel	21	100	0.004670619964599609	Lazy composition	No WGD
+no_wgd_kernel	21	120	0.005037069320678711	Lazy composition	No WGD
+no_wgd_kernel	21	140	0.005849123001098633	Lazy composition	No WGD
+no_wgd_kernel	21	160	0.006676912307739258	Lazy composition	No WGD
+no_wgd_kernel	21	180	0.008044719696044922	Lazy composition	No WGD
+no_wgd_kernel	21	200	0.008428335189819336	Lazy composition	No WGD
+no_wgd_kernel	22	20	0.00057220458984375	Lazy composition	No WGD
+no_wgd_kernel	22	40	0.0014715194702148438	Lazy composition	No WGD
+no_wgd_kernel	22	60	0.0029058456420898438	Lazy composition	No WGD
+no_wgd_kernel	22	80	0.0032989978790283203	Lazy composition	No WGD
+no_wgd_kernel	22	100	0.0041027069091796875	Lazy composition	No WGD
+no_wgd_kernel	22	120	0.0050601959228515625	Lazy composition	No WGD
+no_wgd_kernel	22	140	0.00607752799987793	Lazy composition	No WGD
+no_wgd_kernel	22	160	0.007143259048461914	Lazy composition	No WGD
+no_wgd_kernel	22	180	0.007646799087524414	Lazy composition	No WGD
+no_wgd_kernel	22	200	0.008923768997192383	Lazy composition	No WGD
+no_wgd_kernel	23	20	0.0006000995635986328	Lazy composition	No WGD
+no_wgd_kernel	23	40	0.0014767646789550781	Lazy composition	No WGD
+no_wgd_kernel	23	60	0.0024089813232421875	Lazy composition	No WGD
+no_wgd_kernel	23	80	0.0033407211303710938	Lazy composition	No WGD
+no_wgd_kernel	23	100	0.004120826721191406	Lazy composition	No WGD
+no_wgd_kernel	23	120	0.005396366119384766	Lazy composition	No WGD
+no_wgd_kernel	23	140	0.00569605827331543	Lazy composition	No WGD
+no_wgd_kernel	23	160	0.006520986557006836	Lazy composition	No WGD
+no_wgd_kernel	23	180	0.008090734481811523	Lazy composition	No WGD
+no_wgd_kernel	23	200	0.008342266082763672	Lazy composition	No WGD
+no_wgd_kernel	24	20	0.0005612373352050781	Lazy composition	No WGD
+no_wgd_kernel	24	40	0.0014531612396240234	Lazy composition	No WGD
+no_wgd_kernel	24	60	0.002302408218383789	Lazy composition	No WGD
+no_wgd_kernel	24	80	0.0031473636627197266	Lazy composition	No WGD
+no_wgd_kernel	24	100	0.004398345947265625	Lazy composition	No WGD
+no_wgd_kernel	24	120	0.004838705062866211	Lazy composition	No WGD
+no_wgd_kernel	24	140	0.0056951045989990234	Lazy composition	No WGD
+no_wgd_kernel	24	160	0.006698131561279297	Lazy composition	No WGD
+no_wgd_kernel	24	180	0.007791757583618164	Lazy composition	No WGD
+no_wgd_kernel	24	200	0.008147239685058594	Lazy composition	No WGD
+no_wgd_kernel	25	20	0.0005695819854736328	Lazy composition	No WGD
+no_wgd_kernel	25	40	0.0014679431915283203	Lazy composition	No WGD
+no_wgd_kernel	25	60	0.002328634262084961	Lazy composition	No WGD
+no_wgd_kernel	25	80	0.0035598278045654297	Lazy composition	No WGD
+no_wgd_kernel	25	100	0.0045757293701171875	Lazy composition	No WGD
+no_wgd_kernel	25	120	0.005155324935913086	Lazy composition	No WGD
+no_wgd_kernel	25	140	0.006336212158203125	Lazy composition	No WGD
+no_wgd_kernel	25	160	0.007169485092163086	Lazy composition	No WGD
+no_wgd_kernel	25	180	0.007424592971801758	Lazy composition	No WGD
+no_wgd_kernel	25	200	0.00863337516784668	Lazy composition	No WGD
+no_wgd_kernel	26	20	0.0005636215209960938	Lazy composition	No WGD
+no_wgd_kernel	26	40	0.0014476776123046875	Lazy composition	No WGD
+no_wgd_kernel	26	60	0.0023403167724609375	Lazy composition	No WGD
+no_wgd_kernel	26	80	0.003162384033203125	Lazy composition	No WGD
+no_wgd_kernel	26	100	0.004157543182373047	Lazy composition	No WGD
+no_wgd_kernel	26	120	0.004775524139404297	Lazy composition	No WGD
+no_wgd_kernel	26	140	0.00606226921081543	Lazy composition	No WGD
+no_wgd_kernel	26	160	0.0064737796783447266	Lazy composition	No WGD
+no_wgd_kernel	26	180	0.007323026657104492	Lazy composition	No WGD
+no_wgd_kernel	26	200	0.008916378021240234	Lazy composition	No WGD
+no_wgd_kernel	27	20	0.0005922317504882812	Lazy composition	No WGD
+no_wgd_kernel	27	40	0.0014302730560302734	Lazy composition	No WGD
+no_wgd_kernel	27	60	0.0023767948150634766	Lazy composition	No WGD
+no_wgd_kernel	27	80	0.0031845569610595703	Lazy composition	No WGD
+no_wgd_kernel	27	100	0.004326343536376953	Lazy composition	No WGD
+no_wgd_kernel	27	120	0.005228996276855469	Lazy composition	No WGD
+no_wgd_kernel	27	140	0.0057141780853271484	Lazy composition	No WGD
+no_wgd_kernel	27	160	0.0065534114837646484	Lazy composition	No WGD
+no_wgd_kernel	27	180	0.00767064094543457	Lazy composition	No WGD
+no_wgd_kernel	27	200	0.00823974609375	Lazy composition	No WGD
+no_wgd_kernel	28	20	0.0005605220794677734	Lazy composition	No WGD
+no_wgd_kernel	28	40	0.0014262199401855469	Lazy composition	No WGD
+no_wgd_kernel	28	60	0.0023260116577148438	Lazy composition	No WGD
+no_wgd_kernel	28	80	0.0033960342407226562	Lazy composition	No WGD
+no_wgd_kernel	28	100	0.004060029983520508	Lazy composition	No WGD
+no_wgd_kernel	28	120	0.004815101623535156	Lazy composition	No WGD
+no_wgd_kernel	28	140	0.0056116580963134766	Lazy composition	No WGD
+no_wgd_kernel	28	160	0.0069277286529541016	Lazy composition	No WGD
+no_wgd_kernel	28	180	0.0073854923248291016	Lazy composition	No WGD
+no_wgd_kernel	28	200	0.008183717727661133	Lazy composition	No WGD
+no_wgd_kernel	29	20	0.0005645751953125	Lazy composition	No WGD
+no_wgd_kernel	29	40	0.0018699169158935547	Lazy composition	No WGD
+no_wgd_kernel	29	60	0.0023069381713867188	Lazy composition	No WGD
+no_wgd_kernel	29	80	0.003187894821166992	Lazy composition	No WGD
+no_wgd_kernel	29	100	0.004013776779174805	Lazy composition	No WGD
+no_wgd_kernel	29	120	0.004859447479248047	Lazy composition	No WGD
+no_wgd_kernel	29	140	0.006138324737548828	Lazy composition	No WGD
+no_wgd_kernel	29	160	0.00647735595703125	Lazy composition	No WGD
+no_wgd_kernel	29	180	0.007383108139038086	Lazy composition	No WGD
+no_wgd_kernel	29	200	0.00863790512084961	Lazy composition	No WGD
+no_wgd_kernel	30	20	0.0005726814270019531	Lazy composition	No WGD
+no_wgd_kernel	30	40	0.0014338493347167969	Lazy composition	No WGD
+no_wgd_kernel	30	60	0.0023076534271240234	Lazy composition	No WGD
+no_wgd_kernel	30	80	0.0031862258911132812	Lazy composition	No WGD
+no_wgd_kernel	30	100	0.0039670467376708984	Lazy composition	No WGD
+no_wgd_kernel	30	120	0.005253791809082031	Lazy composition	No WGD
+no_wgd_kernel	30	140	0.005654335021972656	Lazy composition	No WGD
+no_wgd_kernel	30	160	0.006531476974487305	Lazy composition	No WGD
+no_wgd_kernel	30	180	0.0076978206634521484	Lazy composition	No WGD
+no_wgd_kernel	30	200	0.00846552848815918	Lazy composition	No WGD
+no_wgd_kernel	31	20	0.0005924701690673828	Lazy composition	No WGD
+no_wgd_kernel	31	40	0.0014579296112060547	Lazy composition	No WGD
+no_wgd_kernel	31	60	0.0023691654205322266	Lazy composition	No WGD
+no_wgd_kernel	31	80	0.0031938552856445312	Lazy composition	No WGD
+no_wgd_kernel	31	100	0.004401445388793945	Lazy composition	No WGD
+no_wgd_kernel	31	120	0.004836320877075195	Lazy composition	No WGD
+no_wgd_kernel	31	140	0.005669116973876953	Lazy composition	No WGD
+no_wgd_kernel	31	160	0.0065555572509765625	Lazy composition	No WGD
+no_wgd_kernel	31	180	0.00783848762512207	Lazy composition	No WGD
+no_wgd_kernel	31	200	0.008328676223754883	Lazy composition	No WGD
+no_wgd_kernel	32	20	0.0005841255187988281	Lazy composition	No WGD
+no_wgd_kernel	32	40	0.0014355182647705078	Lazy composition	No WGD
+no_wgd_kernel	32	60	0.0023109912872314453	Lazy composition	No WGD
+no_wgd_kernel	32	80	0.0035195350646972656	Lazy composition	No WGD
+no_wgd_kernel	32	100	0.003981351852416992	Lazy composition	No WGD
+no_wgd_kernel	32	120	0.0047872066497802734	Lazy composition	No WGD
+no_wgd_kernel	32	140	0.005605220794677734	Lazy composition	No WGD
+no_wgd_kernel	32	160	0.006912708282470703	Lazy composition	No WGD
+no_wgd_kernel	32	180	0.007300615310668945	Lazy composition	No WGD
+no_wgd_kernel	32	200	0.008737802505493164	Lazy composition	No WGD
+no_wgd_kernel	33	20	0.0005714893341064453	Lazy composition	No WGD
+no_wgd_kernel	33	40	0.001443624496459961	Lazy composition	No WGD
+no_wgd_kernel	33	60	0.0022962093353271484	Lazy composition	No WGD
+no_wgd_kernel	33	80	0.0031442642211914062	Lazy composition	No WGD
+no_wgd_kernel	33	100	0.003968477249145508	Lazy composition	No WGD
+no_wgd_kernel	33	120	0.0049343109130859375	Lazy composition	No WGD
+no_wgd_kernel	33	140	0.006027936935424805	Lazy composition	No WGD
+no_wgd_kernel	33	160	0.006475687026977539	Lazy composition	No WGD
+no_wgd_kernel	33	180	0.007344961166381836	Lazy composition	No WGD
+no_wgd_kernel	33	200	0.008563756942749023	Lazy composition	No WGD
+no_wgd_kernel	34	20	0.0005788803100585938	Lazy composition	No WGD
+no_wgd_kernel	34	40	0.001439809799194336	Lazy composition	No WGD
+no_wgd_kernel	34	60	0.0023343563079833984	Lazy composition	No WGD
+no_wgd_kernel	34	80	0.0031664371490478516	Lazy composition	No WGD
+no_wgd_kernel	34	100	0.003981590270996094	Lazy composition	No WGD
+no_wgd_kernel	34	120	0.005141496658325195	Lazy composition	No WGD
+no_wgd_kernel	34	140	0.0056667327880859375	Lazy composition	No WGD
+no_wgd_kernel	34	160	0.006546497344970703	Lazy composition	No WGD
+no_wgd_kernel	34	180	0.008119821548461914	Lazy composition	No WGD
+no_wgd_kernel	34	200	0.008322954177856445	Lazy composition	No WGD
+no_wgd_kernel	35	20	0.0005612373352050781	Lazy composition	No WGD
+no_wgd_kernel	35	40	0.0014331340789794922	Lazy composition	No WGD
+no_wgd_kernel	35	60	0.002296924591064453	Lazy composition	No WGD
+no_wgd_kernel	35	80	0.003165721893310547	Lazy composition	No WGD
+no_wgd_kernel	35	100	0.0043561458587646484	Lazy composition	No WGD
+no_wgd_kernel	35	120	0.004822969436645508	Lazy composition	No WGD
+no_wgd_kernel	35	140	0.0058481693267822266	Lazy composition	No WGD
+no_wgd_kernel	35	160	0.006876230239868164	Lazy composition	No WGD
+no_wgd_kernel	35	180	0.007561445236206055	Lazy composition	No WGD
+no_wgd_kernel	35	200	0.00839376449584961	Lazy composition	No WGD
+no_wgd_kernel	36	20	0.0006051063537597656	Lazy composition	No WGD
+no_wgd_kernel	36	40	0.0017638206481933594	Lazy composition	No WGD
+no_wgd_kernel	36	60	0.0024979114532470703	Lazy composition	No WGD
+no_wgd_kernel	36	80	0.0036585330963134766	Lazy composition	No WGD
+no_wgd_kernel	36	100	0.0041582584381103516	Lazy composition	No WGD
+no_wgd_kernel	36	120	0.004843711853027344	Lazy composition	No WGD
+no_wgd_kernel	36	140	0.006152153015136719	Lazy composition	No WGD
+no_wgd_kernel	36	160	0.006487131118774414	Lazy composition	No WGD
+no_wgd_kernel	36	180	0.007288694381713867	Lazy composition	No WGD
+no_wgd_kernel	36	200	0.00856924057006836	Lazy composition	No WGD
+no_wgd_kernel	37	20	0.0005617141723632812	Lazy composition	No WGD
+no_wgd_kernel	37	40	0.0014302730560302734	Lazy composition	No WGD
+no_wgd_kernel	37	60	0.002316713333129883	Lazy composition	No WGD
+no_wgd_kernel	37	80	0.0031807422637939453	Lazy composition	No WGD
+no_wgd_kernel	37	100	0.004183530807495117	Lazy composition	No WGD
+no_wgd_kernel	37	120	0.005382061004638672	Lazy composition	No WGD
+no_wgd_kernel	37	140	0.0056760311126708984	Lazy composition	No WGD
+no_wgd_kernel	37	160	0.006459951400756836	Lazy composition	No WGD
+no_wgd_kernel	37	180	0.007768154144287109	Lazy composition	No WGD
+no_wgd_kernel	37	200	0.008148908615112305	Lazy composition	No WGD
+no_wgd_kernel	38	20	0.0005621910095214844	Lazy composition	No WGD
+no_wgd_kernel	38	40	0.0014452934265136719	Lazy composition	No WGD
+no_wgd_kernel	38	60	0.002386808395385742	Lazy composition	No WGD
+no_wgd_kernel	38	80	0.0032291412353515625	Lazy composition	No WGD
+no_wgd_kernel	38	100	0.004392147064208984	Lazy composition	No WGD
+no_wgd_kernel	38	120	0.004966259002685547	Lazy composition	No WGD
+no_wgd_kernel	38	140	0.0056400299072265625	Lazy composition	No WGD
+no_wgd_kernel	38	160	0.006534099578857422	Lazy composition	No WGD
+no_wgd_kernel	38	180	0.007921934127807617	Lazy composition	No WGD
+no_wgd_kernel	38	200	0.008192777633666992	Lazy composition	No WGD
+no_wgd_kernel	39	20	0.000568389892578125	Lazy composition	No WGD
+no_wgd_kernel	39	40	0.0014412403106689453	Lazy composition	No WGD
+no_wgd_kernel	39	60	0.002413511276245117	Lazy composition	No WGD
+no_wgd_kernel	39	80	0.0033919811248779297	Lazy composition	No WGD
+no_wgd_kernel	39	100	0.0039980411529541016	Lazy composition	No WGD
+no_wgd_kernel	39	120	0.004816532135009766	Lazy composition	No WGD
+no_wgd_kernel	39	140	0.005616664886474609	Lazy composition	No WGD
+no_wgd_kernel	39	160	0.006840705871582031	Lazy composition	No WGD
+no_wgd_kernel	39	180	0.007288217544555664	Lazy composition	No WGD
+no_wgd_kernel	39	200	0.008715391159057617	Lazy composition	No WGD
+no_wgd_kernel	40	20	0.0005624294281005859	Lazy composition	No WGD
+no_wgd_kernel	40	40	0.0014388561248779297	Lazy composition	No WGD
+no_wgd_kernel	40	60	0.002362966537475586	Lazy composition	No WGD
+no_wgd_kernel	40	80	0.0031409263610839844	Lazy composition	No WGD
+no_wgd_kernel	40	100	0.003960132598876953	Lazy composition	No WGD
+no_wgd_kernel	40	120	0.004893779754638672	Lazy composition	No WGD
+no_wgd_kernel	40	140	0.006239891052246094	Lazy composition	No WGD
+no_wgd_kernel	40	160	0.006877422332763672	Lazy composition	No WGD
+no_wgd_kernel	40	180	0.0074999332427978516	Lazy composition	No WGD
+no_wgd_kernel	40	200	0.009001731872558594	Lazy composition	No WGD
+no_wgd_kernel	41	20	0.0006058216094970703	Lazy composition	No WGD
+no_wgd_kernel	41	40	0.0015125274658203125	Lazy composition	No WGD
+no_wgd_kernel	41	60	0.0023355484008789062	Lazy composition	No WGD
+no_wgd_kernel	41	80	0.003309965133666992	Lazy composition	No WGD
+no_wgd_kernel	41	100	0.0043735504150390625	Lazy composition	No WGD
+no_wgd_kernel	41	120	0.005213022232055664	Lazy composition	No WGD
+no_wgd_kernel	41	140	0.005697488784790039	Lazy composition	No WGD
+no_wgd_kernel	41	160	0.006908893585205078	Lazy composition	No WGD
+no_wgd_kernel	41	180	0.0075190067291259766	Lazy composition	No WGD
+no_wgd_kernel	41	200	0.008249521255493164	Lazy composition	No WGD
+no_wgd_kernel	42	20	0.0005910396575927734	Lazy composition	No WGD
+no_wgd_kernel	42	40	0.0018451213836669922	Lazy composition	No WGD
+no_wgd_kernel	42	60	0.002327442169189453	Lazy composition	No WGD
+no_wgd_kernel	42	80	0.0031528472900390625	Lazy composition	No WGD
+no_wgd_kernel	42	100	0.003969669342041016	Lazy composition	No WGD
+no_wgd_kernel	42	120	0.004832029342651367	Lazy composition	No WGD
+no_wgd_kernel	42	140	0.006107330322265625	Lazy composition	No WGD
+no_wgd_kernel	42	160	0.006618499755859375	Lazy composition	No WGD
+no_wgd_kernel	42	180	0.007477998733520508	Lazy composition	No WGD
+no_wgd_kernel	42	200	0.008828163146972656	Lazy composition	No WGD
+no_wgd_kernel	43	20	0.0005822181701660156	Lazy composition	No WGD
+no_wgd_kernel	43	40	0.0014324188232421875	Lazy composition	No WGD
+no_wgd_kernel	43	60	0.002321958541870117	Lazy composition	No WGD
+no_wgd_kernel	43	80	0.003220081329345703	Lazy composition	No WGD
+no_wgd_kernel	43	100	0.004021406173706055	Lazy composition	No WGD
+no_wgd_kernel	43	120	0.005402326583862305	Lazy composition	No WGD
+no_wgd_kernel	43	140	0.0056955814361572266	Lazy composition	No WGD
+no_wgd_kernel	43	160	0.006521463394165039	Lazy composition	No WGD
+no_wgd_kernel	43	180	0.007609844207763672	Lazy composition	No WGD
+no_wgd_kernel	43	200	0.008162975311279297	Lazy composition	No WGD
+no_wgd_kernel	44	20	0.0005517005920410156	Lazy composition	No WGD
+no_wgd_kernel	44	40	0.0014514923095703125	Lazy composition	No WGD
+no_wgd_kernel	44	60	0.002541065216064453	Lazy composition	No WGD
+no_wgd_kernel	44	80	0.0032303333282470703	Lazy composition	No WGD
+no_wgd_kernel	44	100	0.004499197006225586	Lazy composition	No WGD
+no_wgd_kernel	44	120	0.004901885986328125	Lazy composition	No WGD
+no_wgd_kernel	44	140	0.005641460418701172	Lazy composition	No WGD
+no_wgd_kernel	44	160	0.0065424442291259766	Lazy composition	No WGD
+no_wgd_kernel	44	180	0.007886886596679688	Lazy composition	No WGD
+no_wgd_kernel	44	200	0.00821375846862793	Lazy composition	No WGD
+no_wgd_kernel	45	20	0.0005576610565185547	Lazy composition	No WGD
+no_wgd_kernel	45	40	0.0014300346374511719	Lazy composition	No WGD
+no_wgd_kernel	45	60	0.0023190975189208984	Lazy composition	No WGD
+no_wgd_kernel	45	80	0.0036776065826416016	Lazy composition	No WGD
+no_wgd_kernel	45	100	0.0040836334228515625	Lazy composition	No WGD
+no_wgd_kernel	45	120	0.004785299301147461	Lazy composition	No WGD
+no_wgd_kernel	45	140	0.005629062652587891	Lazy composition	No WGD
+no_wgd_kernel	45	160	0.006985664367675781	Lazy composition	No WGD
+no_wgd_kernel	45	180	0.007287025451660156	Lazy composition	No WGD
+no_wgd_kernel	45	200	0.00932765007019043	Lazy composition	No WGD
+no_wgd_kernel	46	20	0.0005924701690673828	Lazy composition	No WGD
+no_wgd_kernel	46	40	0.0014481544494628906	Lazy composition	No WGD
+no_wgd_kernel	46	60	0.0022966861724853516	Lazy composition	No WGD
+no_wgd_kernel	46	80	0.003191709518432617	Lazy composition	No WGD
+no_wgd_kernel	46	100	0.004045724868774414	Lazy composition	No WGD
+no_wgd_kernel	46	120	0.0048444271087646484	Lazy composition	No WGD
+no_wgd_kernel	46	140	0.006204366683959961	Lazy composition	No WGD
+no_wgd_kernel	46	160	0.0065767765045166016	Lazy composition	No WGD
+no_wgd_kernel	46	180	0.0074045658111572266	Lazy composition	No WGD
+no_wgd_kernel	46	200	0.00853729248046875	Lazy composition	No WGD
+no_wgd_kernel	47	20	0.0005562305450439453	Lazy composition	No WGD
+no_wgd_kernel	47	40	0.0014836788177490234	Lazy composition	No WGD
+no_wgd_kernel	47	60	0.002295970916748047	Lazy composition	No WGD
+no_wgd_kernel	47	80	0.0031723976135253906	Lazy composition	No WGD
+no_wgd_kernel	47	100	0.0040590763092041016	Lazy composition	No WGD
+no_wgd_kernel	47	120	0.005505800247192383	Lazy composition	No WGD
+no_wgd_kernel	47	140	0.0059871673583984375	Lazy composition	No WGD
+no_wgd_kernel	47	160	0.006960868835449219	Lazy composition	No WGD
+no_wgd_kernel	47	180	0.009609699249267578	Lazy composition	No WGD
+no_wgd_kernel	47	200	0.008579015731811523	Lazy composition	No WGD
+no_wgd_kernel	48	20	0.0006024837493896484	Lazy composition	No WGD
+no_wgd_kernel	48	40	0.0015003681182861328	Lazy composition	No WGD
+no_wgd_kernel	48	60	0.0027561187744140625	Lazy composition	No WGD
+no_wgd_kernel	48	80	0.003298044204711914	Lazy composition	No WGD
+no_wgd_kernel	48	100	0.004125118255615234	Lazy composition	No WGD
+no_wgd_kernel	48	120	0.005219697952270508	Lazy composition	No WGD
+no_wgd_kernel	48	140	0.0062084197998046875	Lazy composition	No WGD
+no_wgd_kernel	48	160	0.0072138309478759766	Lazy composition	No WGD
+no_wgd_kernel	48	180	0.007650852203369141	Lazy composition	No WGD
+no_wgd_kernel	48	200	0.008744001388549805	Lazy composition	No WGD
+no_wgd_kernel	49	20	0.0005981922149658203	Lazy composition	No WGD
+no_wgd_kernel	49	40	0.0015022754669189453	Lazy composition	No WGD
+no_wgd_kernel	49	60	0.002428293228149414	Lazy composition	No WGD
+no_wgd_kernel	49	80	0.0032987594604492188	Lazy composition	No WGD
+no_wgd_kernel	49	100	0.004227161407470703	Lazy composition	No WGD
+no_wgd_kernel	49	120	0.0050547122955322266	Lazy composition	No WGD
+no_wgd_kernel	49	140	0.005818605422973633	Lazy composition	No WGD
+no_wgd_kernel	49	160	0.00665736198425293	Lazy composition	No WGD
+no_wgd_kernel	49	180	0.00764155387878418	Lazy composition	No WGD
+no_wgd_kernel	49	200	0.008458375930786133	Lazy composition	No WGD

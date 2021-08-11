@@ -84,8 +84,8 @@ if CALC_NEW or not os.path.isfile(DATA_FILE):
     timing['Algorithm'] = ''
     timing['WGD'] = ''
     timing.loc['no_wgd_legacy', 'Algorithm'] = 'Legacy composition\n(Schwarz et al. 2014)'
-    timing.loc['wgd_kernel', 'Algorithm'] = 'Lazy kernel composition'
-    timing.loc['no_wgd_kernel', 'Algorithm'] = 'Lazy kernel composition'
+    timing.loc['wgd_kernel', 'Algorithm'] = 'Lazy composition'
+    timing.loc['no_wgd_kernel', 'Algorithm'] = 'Lazy composition'
     timing.loc['no_wgd_legacy', 'WGD'] = 'No WGD'
     timing.loc['wgd_kernel', 'WGD'] = 'WGD'
     timing.loc['no_wgd_kernel', 'WGD'] = 'No WGD'
@@ -96,7 +96,7 @@ else:
     timing = pd.read_csv(DATA_FILE, sep='\t')
 
 #%% Plot Figure
-fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
+fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 sns.lineplot(data=timing, x='length', y='Time', hue='Algorithm', style='WGD',
              markers=True, legend=True, ci='sd', ax=ax)
 ax.set_xlabel('CNP length (#segments)')

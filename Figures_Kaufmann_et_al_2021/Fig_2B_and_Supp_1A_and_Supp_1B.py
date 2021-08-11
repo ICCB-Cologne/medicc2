@@ -49,7 +49,7 @@ def plot_variables(df, variables):
              'dist_euclidean': 'Euclidean Distance',
              'nevents': 'True distance'}
 
-    fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
+    fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 
     xname, yname = variables
     plotdat = df.groupby([xname, yname, 'is_wgd']).sum()['Count'].reset_index()
