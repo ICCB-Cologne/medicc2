@@ -48,7 +48,7 @@ fig = plot_cn_heatmap(input_df, final_tree=final_tree, y_posns=None, cmax=6,
                       figsize=(plotting_params['WIDTH_FULL'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']),
                       tree_line_width=0.5, tree_marker_size=0.5,
                       tree_label_colors=lambda x: 'grey', tree_label_func=None)
-fig.get_axes()[0].set_title('Minimum Evoltion - Patient TN1')
+#fig.get_axes()[0].set_title('Minimum Evolution\nPatient TN1')
 
 fig.savefig('final_figures/Supp_13B.pdf', bbox_inches='tight')
 fig.savefig('final_figures/Supp_13B.png', bbox_inches='tight', dpi=600)
@@ -62,7 +62,7 @@ fig = plot_cn_heatmap(input_df, final_tree=final_tree, y_posns=None, cmax=6,
                       figsize=(plotting_params['WIDTH_FULL'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']),
                       tree_line_width=0.5, tree_marker_size=0.5,
                       tree_label_colors=lambda x: 'grey', tree_label_func=None)
-fig.get_axes()[0].set_title('Minimum Evoltion - Patient TN2')
+#fig.get_axes()[0].set_title('Minimum Evolution\nPatient TN2')
 
 fig.savefig('final_figures/Supp_13C.pdf', bbox_inches='tight')
 fig.savefig('final_figures/Supp_13C.png', bbox_inches='tight', dpi=600)

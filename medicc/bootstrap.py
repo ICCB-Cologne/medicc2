@@ -172,10 +172,6 @@ def run_bootstrap(input_df,
     are calculated.
     """
 
-    if not show_progress:
-        def tqdm(x, disable):
-            return x
-
     if method == 'chr-wise':
         bootstrap_method = chr_wise_bootstrap_df
         logger.info('Starting {} chr-wise bootstrap runs'.format(N_bootstrap))
