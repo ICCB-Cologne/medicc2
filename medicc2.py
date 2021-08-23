@@ -136,7 +136,6 @@ else:
 logger.info("Reading FST.")
 if args.fst is not None:
     fst_path = args.fst
-    fst = medicc.io.read_fst(fst_path)
 else:
     if args.no_wgd:
         fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
@@ -145,7 +144,7 @@ else:
             fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
         else:
             fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
-        fst = medicc.io.read_fst(fst_path)
+fst = medicc.io.read_fst(fst_path)
 
 if args.user_tree is not None:
     logger.info("Importing user tree.")
