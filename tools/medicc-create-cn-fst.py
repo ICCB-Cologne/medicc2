@@ -15,6 +15,7 @@ parser.add_argument("output_folder", type=str, help="output folder")
 parser.add_argument("--max-cn", "-m", type=int, required=False, default=8, help="Maximum copy-number per allel (default:8).")
 parser.add_argument("--sep", "-s", type=str, required=False, default='X', help="Chromosome separator (default:\"X\")")
 parser.add_argument("--wgd", "-w", action='store_true', required=False, default=False)
+parser.add_argument("--max-num-wgds", type=int, required=False, default=8, help="Maximum number of WGD events (Default: 8)")
 parser.add_argument("--prefix", "-p", action='store', required=False, default='fst')
 parser.add_argument("--write-symbol-table", action='store_true', required=False, default=False)
 args = parser.parse_args()
@@ -26,7 +27,8 @@ symbol_table = medicc.create_symbol_table(args.max_cn, separator)
 logger.info('Symbol table: %s', str(list(symbol_table)))
 
 logger.info('Creating FSTs.')
-fst = medicc.create_copynumber_fst(symbol_table, separator, args.wgd)
+fst = medicc.create_copynumber_fst(symbol_table=symbol_table, sep=separator, 
+                                   enable_wgd=args.wgd, max_num_wgds=args.max_num_wgds)
 logger.info('FST: %d states.', fst.num_states())
 
 logger.info('Writing.')

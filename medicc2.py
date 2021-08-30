@@ -135,6 +135,7 @@ else:
 ## Read in symbol table and transducers
 logger.info("Reading FST.")
 if args.fst is not None:
+    logger.info('Custom FST supplied at {}'.format(args.fst))
     fst_path = args.fst
 else:
     if args.no_wgd:
