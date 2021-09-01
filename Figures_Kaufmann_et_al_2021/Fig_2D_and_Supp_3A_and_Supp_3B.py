@@ -16,11 +16,13 @@ linea = -2
 linec = 2.9
 liney = linea * linex + linec
 # %% Figure with false MEDICC predictions
-plotting_data[['hom', 'ploidy_pcawg', 'pcawg_wgd']].to_csv('../Figures_Kaufmann_et_al_2021/data/Fig_2D.tsv',
-                                                    sep='\t', index=False)
+# plotting_data[['hom', 'ploidy_pcawg', 'pcawg_wgd']].to_csv('../Figures_Kaufmann_et_al_2021/data/Fig_2D.tsv',
+#                                                     sep='\t', index=False)
 
 fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data, hue='pcawg_wgd', ax=ax, hue_order=['No WGD', 'WGD'])
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data['bootstrap_2_wgds']],
+                color='C2', label='2 WGDs')
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data.eval('pcawg_wgd != wgd_status_medicc_bootstrap')],
                 color='black', label='False Predictions')
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data.eval('pcawg_wgd != wgd_status_medicc_bootstrap') &
