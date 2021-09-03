@@ -16,8 +16,7 @@ linea = -2
 linec = 2.9
 liney = linea * linex + linec
 
-#%% Fig 2D: MEDICC predictions
-fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
+fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data, hue='pcawg_wgd', ax=ax, hue_order=['No WGD', 'WGD'])
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data['bootstrap_2_wgds']],
                 color='C2', label='2 WGDs')
@@ -26,7 +25,7 @@ sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data.
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data.eval('pcawg_wgd != wgd_status_medicc_bootstrap') &
                                                            plotting_data['wgd_uncertain']],
                 color='grey', label='False Predictions (uncertain)')
-ax.set_title('False Predictions')
+#ax.set_title('False Predictions')
 ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
 ax.plot(linex, liney, '--', color='grey')
@@ -37,7 +36,7 @@ fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Fig_2D.png', bbox_inch
 # #%% Supp 3A: MEDICC MED distributions
 palette = dict(zip(pcawg_color_palette.index, pcawg_color_palette['Hexadecimal']))
 fig, axs = plt.subplots(nrows=1, ncols=3, sharey=True,
-                        figsize=(3*plotting_params['WIDTH_HALF'], plotting_params['WIDTH_FULL']))
+                        figsize=(3*plotting_params['WIDTH_HALF'], plotting_params['WIDTH_FULL']/plotting_params['ASPECT_RATIO']))
 
 cur_plotting_data = plotting_data.query("histology_useable").sort_values('histology_abbreviation')
 sns.boxplot(x='dist_wgd', y='histology_abbreviation', palette=palette, data=cur_plotting_data, ax=axs[0])
@@ -49,7 +48,6 @@ cur_plotting_data = plotting_data.query("histology_useable").sort_values('histol
 sns.boxplot(x='dist_diff', y='histology_abbreviation', palette=palette, data=cur_plotting_data, ax=axs[1])
 axs[1].set_xlabel('MEDICC2 WGD score')
 axs[1].set_ylabel('')
-# axs[1].set_yticklabels([])
 
 #%% Supp 3C: MEDICC2 WGD score distributions
 plotting_data['has_wgd'] = plotting_data['wgd_status_medicc_bootstrap'] == 'WGD'
@@ -60,7 +58,6 @@ sns.barplot(x='has_wgd', y=cur_plotting_data.index, orient='h', data=cur_plottin
             palette=palette, ax=axs[2], edgecolor='black', linewidth=1)
 axs[2].set_xlabel('Fraction of samples exhibiting WGD')
 axs[2].set_ylabel('')
-# axs[2].set_yticklabels([])
 
 fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3A_3B_3C.pdf', bbox_inches='tight')
 fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3A_3B_3C.png',

@@ -409,7 +409,6 @@ def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
     ax.set_ylim(mincn, maxcn)
     ax.set_xlim(0, data['end_pos'].max())
 
-
 def _get_x_positions(tree):
     """Create a mapping of each clade to its horizontal position.
     Dict of {clade: x-coord}
@@ -685,6 +684,7 @@ def plot_tree(input_tree,
             if marker is not None and clade is not None and not(hide_internal_nodes and not clade.is_terminal()):
                 marker_size, marker_col = marker_func(clade)
                 ax.scatter(x_here, y_here, s=marker_size, c=marker_col, zorder=3)
+
         # Add node/taxon labels
         label = label_func(str(clade))
         ax_scale = ax.get_xlim()[1] - ax.get_xlim()[0]
