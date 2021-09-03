@@ -35,30 +35,44 @@ fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Fig_2D.png', bbox_inch
 
 # #%% Supp 3A: MEDICC MED distributions
 palette = dict(zip(pcawg_color_palette.index, pcawg_color_palette['Hexadecimal']))
-fig, axs = plt.subplots(nrows=1, ncols=3, sharey=True,
-                        figsize=(3*plotting_params['WIDTH_HALF'], plotting_params['WIDTH_FULL']/plotting_params['ASPECT_RATIO']))
+fig, ax = plt.subplots(nrows=1, ncols=1, sharey=True,
+                        figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_FULL']/plotting_params['ASPECT_RATIO']))
 
 cur_plotting_data = plotting_data.query("histology_useable").sort_values('histology_abbreviation')
-sns.boxplot(x='dist_wgd', y='histology_abbreviation', palette=palette, data=cur_plotting_data, ax=axs[0])
-axs[0].set_xlabel('MED (WGD) from diploid normal')
-axs[0].set_ylabel('PCAWG histology')
+sns.boxplot(x='dist_wgd', y='histology_abbreviation', palette=palette, data=cur_plotting_data, ax=ax)
+ax.set_xlabel('MED (WGD) from diploid normal')
+ax.set_ylabel('PCAWG histology')
+
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3A.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3A.png',
+            bbox_inches='tight', dpi=600)
 
 #%% Supp 3B: MEDICC2 WGD score distributions
+fig, ax = plt.subplots(nrows=1, ncols=1, sharey=True,
+                       figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_FULL']/plotting_params['ASPECT_RATIO']))
+
 cur_plotting_data = plotting_data.query("histology_useable").sort_values('histology_abbreviation')
-sns.boxplot(x='dist_diff', y='histology_abbreviation', palette=palette, data=cur_plotting_data, ax=axs[1])
-axs[1].set_xlabel('MEDICC2 WGD score')
-axs[1].set_ylabel('')
+sns.boxplot(x='dist_diff', y='histology_abbreviation', palette=palette, data=cur_plotting_data, ax=ax)
+ax.set_xlabel('MEDICC2 WGD score')
+ax.set_ylabel('')
+
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3B.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3B.png',
+            bbox_inches='tight', dpi=600)
 
 #%% Supp 3C: MEDICC2 WGD score distributions
+fig, ax = plt.subplots(nrows=1, ncols=1, sharey=True,
+                       figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_FULL']/plotting_params['ASPECT_RATIO']))
+
 plotting_data['has_wgd'] = plotting_data['wgd_status_medicc_bootstrap'] == 'WGD'
 cur_plotting_data = plotting_data.query("histology_useable").groupby(
     'histology_abbreviation').mean()[['has_wgd']]
 
 sns.barplot(x='has_wgd', y=cur_plotting_data.index, orient='h', data=cur_plotting_data, 
-            palette=palette, ax=axs[2], edgecolor='black', linewidth=1)
-axs[2].set_xlabel('Fraction of samples exhibiting WGD')
-axs[2].set_ylabel('')
+            palette=palette, ax=ax, edgecolor='black', linewidth=1)
+ax.set_xlabel('Fraction of samples exhibiting WGD')
+ax.set_ylabel('')
 
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3A_3B_3C.pdf', bbox_inches='tight')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3A_3B_3C.png',
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3C.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3C.png',
             bbox_inches='tight', dpi=600)
