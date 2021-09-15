@@ -33,9 +33,6 @@ setup(
              'tools/medicc-phase.py'],
     license='GPL-3',
     include_dirs=np.get_include(),
-    install_requires=[
-        'numpy>=1.20.1'
-    ],
     package_data={
         "": ["objects/*"],
     },
