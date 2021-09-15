@@ -41,14 +41,14 @@ setup(
                   ["fstlib/cext/pywrapfst.pyx"],
                   include_dirs=['fstlib/cext'],
                   libraries=["fst", "fstfar", "fstscript", "fstfarscript"],
-                  extra_compile_args=['-std=c++17'],
+                #   extra_compile_args=['-std=c++17'],
                   language = "c++"),
 
         Extension("fstlib.cext.ops", 
                   ["fstlib/cext/ops.pyx"],
                   include_dirs=['fstlib/cext'],
                   libraries=["fst", "fstfar", "fstscript", "fstfarscript"],
-                  extra_compile_args=['-std=c++17'],
+                #   extra_compile_args=['-std=c++17'],
                   language = "c++")
     ])
 )
