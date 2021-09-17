@@ -21,4 +21,4 @@ fstlib/cext/pywrapfst.cpp
 Figures_Kaufmann_et_al_2021/final_figures
 dist
 build
-medicc.egg-info
+medicc2.egg-info

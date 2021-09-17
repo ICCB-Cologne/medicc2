@@ -7,7 +7,7 @@ from setuptools import Extension, setup
 sys.path.append('fstlib/cext')
 
 setup(
-    name='medicc',
+    name='medicc2',
     version='0.5b3',
     author='Tom L Kaufmann, Roland F Schwarz, Marina Petkovic',
     author_email='tkau93@gmail.com, roland.f.schwarz@gmail.com, marina.55kovic@gmail.com',
