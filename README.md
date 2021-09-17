@@ -1,34 +1,33 @@
 # MEDICC2 - Minimum Event Distance for Intra-tumour Copy number Comparisons
 
-**Version 0.5 beta (May 2021)**
+**Version 0.5 beta (September 2021)**
 
 For more information see the accompanying  paper [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://www.biorxiv.org/content/10.1101/2021.02.28.433227v2).
 
-# Setup
-Due to the dependency on OpenFST, MEDICC2 cannot be installed on Windows machines.
+# Installation
+Due to the dependency on OpenFST, MEDICC2 cannot be installed on Windows machines (we recommended using [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10)). 
 
-## Download
+Install MEDICC2 either via pip (recommended) or from source. In either case, you need to make sure to have a working version of `gcc` and `gxx` installed.
 
-Clone the MEDICC2 repository and its submodules using `git clone --recursive https://bitbucket.org/schwarzlab/medicc2.git`
+## Installation with pip
+*Note that the notebooks and examples are not included when installing from pip.*
 
-**It is important to use the `--recursive` flag to also download the OpenFST submodule**
+First install OpenFST using conda with `conda install -c conda-force openfst`. Next you can install MEDICC2 via `pip install medicc2`.
 
-## Installing dependencies
-All dependencies including OpenFST should be directly installable via conda. A YML file with a suggested MEDICC2 conda environment is provided in 'doc/medicc2.yml'. You can create a new conda environment using `conda env create -f doc/medicc2.yml -n medicc_env`.
+## Installation from source
+Clone the MEDICC2 repository and its submodules using `git clone --recursive https://bitbucket.org/schwarzlab/medicc2.git`. It is important to use the `--recursive` flag to also download the modified OpenFST submodule.
 
+All dependencies including OpenFST should be directly installable via conda. A yaml file with a suggested MEDICC2 conda environment is provided in 'doc/medicc2.yml'. You can create a new conda environment with all requirements using `conda env create -f doc/medicc2.yml -n medicc_env`.
 
-## Installation
-
-Run `python setup.py build_ext --inplace` to compile the fstlib C extension.
+Then, inside the `medicc2` folder, run `pip install .` to install MEDICC2 to your environment. 
 
 # Usage
+After installing MEDICC2, you can use MEDICC2 in python scripts (through `import medicc`) and from the command line. General usage from the command line is `medicc2 path/to/input/file path/to/output/folder`. Run `medicc2 --help` for information on optional arguments.
 
-General usage is `python medicc2.py path/to/input/file path/to/output/folder`. Run `python medicc2.py --help` for information on optional arguments.
-
-Logging settings can be changed using the `logging_conf.yaml` file with the standard python logging 
+Logging settings can be changed using the `medicc/logging_conf.yaml` file with the standard python logging syntax.
 
 
-## Flags
+## Command line Flags
 
 * `input_file`: path to the input file
 * `output_dir`: path to the output folder
@@ -61,10 +60,10 @@ Input files can be either in fasta or tsv format:
 * **tsv:** Files should have the following columns: `sample_id`, `chrom`, `start`, `end` as well as columns for the copy numbers. MEDICC expects the copy number columns to be called `cn_a` and `cn_b`. Using the flag `--input-allele-columns` you can set your own copy number columns. If you want to use total copy numbers, make sure to use the flag `--total-copy-numbers`.
 
 The folder `examples/simple_example` contains a simple example input both in fasta and tsv format.
-The folder `examples/OV03-04` contains a larger example consisting of multiple fasta files. If you want to run MEDICC on this data run `python medicc2.py examples/OV03-04/OV03-04_descr.txt path/to/output/folder --input-type fasta`.
+The folder `examples/OV03-04` contains a larger example consisting of multiple fasta files. If you want to run MEDICC on this data run `medicc2 examples/OV03-04/OV03-04_descr.txt path/to/output/folder --input-type fasta`.
 
 ## Usage examples
-For first time users we recommend to have a look at `examples/simple_example` to get an idea of how input data should look like. Then run `python medicc2.py examples/simple_example/simple_example.tsv path/to/output/folder` as an example of a standard MEDICC run. Finally, the notebook `notebooks/example_workflows.py` shows how the individual functions in the workflow are used.
+For first time users we recommend to have a look at `examples/simple_example` to get an idea of how input data should look like. Then run `medicc2 examples/simple_example/simple_example.tsv path/to/output/folder` as an example of a standard MEDICC run. Finally, the notebook `notebooks/example_workflows.py` shows how the individual functions in the workflow are used.
 
 The notebook `notebooks/bootstrap_demo.py` demonstrates how to use the bootstrapping routine and `notebooks/plot_demo.py` shows how to use the main plotting functions.
 
