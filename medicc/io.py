@@ -66,7 +66,7 @@ def validate_input(input_df, symbol_table):
         raise MEDICCIOError("No alleles found.")
 
     # Check if index of dataframe is sorted
-    if not input_df.index.is_monotonic_increasing():
+    if not input_df.index.is_monotonic_increasing:
         raise MEDICCIOError("DataFrame index must be sorted.")
 
     # Check if all samples have same number of segments
@@ -91,7 +91,7 @@ def validate_input(input_df, symbol_table):
         raise MEDICCIOError("Payload columns must be of type: string.")
 
     # Check if index of dataframe is sorted
-    if not input_df.index.is_monotonic_increasing():
+    if not input_df.index.is_monotonic_increasing:
         raise MEDICCIOError("DataFrame index must be sorted.")
 
     logger.info('Input data is valid!')
