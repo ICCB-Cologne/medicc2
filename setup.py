@@ -1,24 +1,18 @@
 import sys
 from pathlib import Path
 
-import numpy as np
 from Cython.Build import cythonize
 from setuptools import Extension, setup
 
 sys.path.append('fstlib/cext')
 
-this_directory = Path(__file__).parent
-print(this_directory)
-print(this_directory.absolute())
-long_description = (this_directory / "README.md").read_text()
-
 setup(
     name='medicc',
-    version='0.5b2',
+    version='0.5b3',
     author='Tom L Kaufmann, Roland F Schwarz, Marina Petkovic',
     author_email='tkau93@gmail.com, roland.f.schwarz@gmail.com, marina.55kovic@gmail.com',
     description='Minimum Event Distance for Intra-tumour Copy-number Comparisons',
-    long_description=long_description,
+    long_description=(Path(__file__).parent / "README.md").read_text(),
     long_description_content_type='text/markdown',
     url='https://bitbucket.org/schwarzlab/medicc2',
     classifiers=[
@@ -38,7 +32,6 @@ setup(
         'scipy>=1.7',
         'matplotlib>=3.3.4'
     ],
-    include_dirs=np.get_include(),
     package_data={
         "medicc": ["objects/*.fst", "objects/*.bed", "logging_conf.yaml"],
         "fstlib": ["logging_conf.yaml", "cext/*.pxd", "cext/*.pyx", "cext/*.h"],

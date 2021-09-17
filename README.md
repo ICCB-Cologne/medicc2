@@ -5,6 +5,8 @@
 For more information see the accompanying  paper [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://www.biorxiv.org/content/10.1101/2021.02.28.433227v2).
 
 # Setup
+Due to the dependency on OpenFST, MEDICC2 cannot be installed on Windows machines.
+
 ## Download
 
 Clone the MEDICC2 repository and its submodules using `git clone --recursive https://bitbucket.org/schwarzlab/medicc2.git`
