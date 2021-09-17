@@ -14,7 +14,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name='medicc',
-    version='0.5b1',
+    version='0.5b2',
     author='Tom L Kaufmann, Roland F Schwarz, Marina Petkovic',
     author_email='tkau93@gmail.com, roland.f.schwarz@gmail.com, marina.55kovic@gmail.com',
     description='Minimum Event Distance for Intra-tumour Copy-number Comparisons',
@@ -31,20 +31,17 @@ setup(
     license='GPL-3',
     install_requires=[
         'numpy>=1.20.1',
-        # 'openfst>=1.6.6',
         'pyyaml>=5.4.1',
         'pandas>=1.2.2',
         'joblib>=1.0.1',
         'biopython>=1.78',
+        'scipy>=1.7',
         'matplotlib>=3.3.4'
     ],
     include_dirs=np.get_include(),
     package_data={
-        # TODO: optimize wildcards
-        # "medicc": ["objects/*.fst", "objects/*.bed", "logging_conf.yaml"],
-        "medicc": ["objects/*.fst", "objects/*.bed", "*.yaml"],
-        # "fstlib": ["logging_conf.yaml", "cext/*.pxd", "cext/*.pyx", "cext/*.h"],
-        "fstlib": ["*.yaml", "*.pxd", "*.pyx", "*.h"],
+        "medicc": ["objects/*.fst", "objects/*.bed", "logging_conf.yaml"],
+        "fstlib": ["logging_conf.yaml", "cext/*.pxd", "cext/*.pyx", "cext/*.h"],
     },
     ext_modules = cythonize([
         Extension("fstlib.cext.pywrapfst", 
