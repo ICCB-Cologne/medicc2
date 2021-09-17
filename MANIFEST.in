@@ -1,7 +1,0 @@
-include fstlib/cext/*.pxd
-include fstlib/cext/*.pyx
-include fstlib/cext/*.h
-include medicc/logging_conf.yaml
-include fstlib/logging_conf.yaml
-include objects/*.fst
-include objects/*.bed

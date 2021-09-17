@@ -40,7 +40,11 @@ setup(
     ],
     include_dirs=np.get_include(),
     package_data={
-        "": ["medicc/objects/*", "*.yaml"],
+        # TODO: optimize wildcards
+        # "medicc": ["objects/*.fst", "objects/*.bed", "logging_conf.yaml"],
+        "medicc": ["objects/*.fst", "objects/*.bed", "*.yaml"],
+        # "fstlib": ["logging_conf.yaml", "cext/*.pxd", "cext/*.pyx", "cext/*.h"],
+        "fstlib": ["*.yaml", "*.pxd", "*.pyx", "*.h"],
     },
     ext_modules = cythonize([
         Extension("fstlib.cext.pywrapfst", 
