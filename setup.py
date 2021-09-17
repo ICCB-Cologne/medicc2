@@ -32,11 +32,11 @@ setup(
     install_requires=[
         'numpy>=1.20.1',
         # 'openfst>=1.6.6',
-        'pyyaml>=5.4.1'
+        'pyyaml>=5.4.1',
         'pandas>=1.2.2',
-        'joblib>=1.0.1,',
+        'joblib>=1.0.1',
         'biopython>=1.78',
-        'matplotlib>=3.3.4',
+        'matplotlib>=3.3.4'
     ],
     include_dirs=np.get_include(),
     package_data={
