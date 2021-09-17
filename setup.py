@@ -34,7 +34,7 @@ setup(
         # 'openfst>=1.6.6',
         'pyyaml>=5.4.1'
         'pandas>=1.2.2',
-        'joblib>=1.0.1,'
+        'joblib>=1.0.1,',
         'biopython>=1.78',
         'matplotlib>=3.3.4',
     ],
