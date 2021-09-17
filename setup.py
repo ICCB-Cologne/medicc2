@@ -13,7 +13,7 @@ print(this_directory.absolute())
 long_description = (this_directory / "README.md").read_text()
 
 setup(
-    name='MEDICC2',
+    name='medicc',
     version='0.5b1',
     author='Tom L Kaufmann, Roland F Schwarz, Marina Petkovic',
     author_email='tkau93@gmail.com, roland.f.schwarz@gmail.com, marina.55kovic@gmail.com',
@@ -27,14 +27,20 @@ setup(
                 "Operating System :: OS Independent",
     ],
     packages=['medicc', 'fstlib', 'fstlib.cext'],
-    scripts=['tools/medicc-convert-old-input.py',
-             'tools/medicc-create-cn-fst.py',
-             'medicc2.py',
-             'tools/medicc-phase.py'],
+    scripts=['medicc2'],
     license='GPL-3',
+    install_requires=[
+        'numpy>=1.20.1',
+        # 'openfst>=1.6.6',
+        'pyyaml>=5.4.1'
+        'pandas>=1.2.2',
+        'joblib>=1.0.1,'
+        'biopython>=1.78',
+        'matplotlib>=3.3.4',
+    ],
     include_dirs=np.get_include(),
     package_data={
-        "": ["objects/*"],
+        "": ["medicc/objects/*", "*.yaml"],
     },
     ext_modules = cythonize([
         Extension("fstlib.cext.pywrapfst", 

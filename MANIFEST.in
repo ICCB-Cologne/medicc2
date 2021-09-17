@@ -1,6 +1,7 @@
 include fstlib/cext/*.pxd
 include fstlib/cext/*.pyx
 include fstlib/cext/*.h
-include logging_conf.yaml
+include medicc/logging_conf.yaml
+include fstlib/logging_conf.yaml
 include objects/*.fst
 include objects/*.bed

@@ -14,6 +14,6 @@ from medicc.ancestors import reconstruct_ancestors
 from medicc.core import *
 from medicc.factory import *
 
-with open(os.path.join(os.path.dirname(__file__), '../logging_conf.yaml'), 'rt') as f:
+with open(os.path.join(os.path.dirname(__file__), 'logging_conf.yaml'), 'rt') as f:
     config = yaml.safe_load(f.read())
 logging.config.dictConfig(config)

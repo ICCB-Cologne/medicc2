@@ -13,11 +13,6 @@ matplotlib.use("Agg")
 logger = logging.getLogger(__name__)
 
 
-def read_fst(filename):
-    """ Simple wrapper for loading the FST using the fstlib read function. """
-    return fstlib.read(filename)
-
-
 def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv', separator='X', 
                               allele_columns=['cn_a', 'cn_b'], maxcn=8, total_copy_numbers=False):
     ## Read in input data
@@ -42,9 +37,25 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     logger.info("Read %d samples, %d chromosomes, %d segments per sample", nsamples, nchr, nsegs)
     return input_df
 
-def read_fst(filename):
+
+def read_fst(user_fst=None, no_wgd=False, total_copy_numbers=False):
     """ Simple wrapper for loading the FST using the fstlib read function. """
-    return fstlib.read(filename)
+
+    objects_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "objects")
+
+    if user_fst is not None:
+        fst_path = user_fst
+
+    else:
+        if no_wgd:
+            fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
+        else:
+            if total_copy_numbers:
+                fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
+            else:
+                fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
+
+    return fstlib.read(fst_path)
 
 def validate_input(input_df, symbol_table):
     # Check the number of alleles

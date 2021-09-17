@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import logging
 import os
@@ -8,7 +10,6 @@ import numpy as np
 import medicc
 
 logger = logging.getLogger('medicc-main')
-objects_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "objects")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input_file", 
@@ -134,17 +135,9 @@ else:
 
 ## Read in symbol table and transducers
 logger.info("Reading FST.")
-if args.fst is not None:
-    fst_path = args.fst
-else:
-    if args.no_wgd:
-        fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
-    else:
-        if args.total_copy_numbers:
-            fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
-        else:
-            fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
-fst = medicc.io.read_fst(fst_path)
+fst = medicc.io.read_fst(user_fst=args.fst, 
+                         no_wgd=args.no_wgd,
+                         total_copy_numbers=args.total_copy_numbers)
 
 if args.user_tree is not None:
     logger.info("Importing user tree.")
