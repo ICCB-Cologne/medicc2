@@ -9,8 +9,8 @@ sys.path.append('fstlib/cext')
 setup(
     name='medicc2',
     version='0.5b3',
-    author='Tom L Kaufmann, Roland F Schwarz, Marina Petkovic',
-    author_email='tkau93@gmail.com, roland.f.schwarz@gmail.com, marina.55kovic@gmail.com',
+    author='Tom L Kaufmann, Marina Petkovic, Roland F Schwarz',
+    author_email='tkau93@gmail.com, marina.55kovic@gmail.com, roland.f.schwarz@gmail.com',
     description='Minimum Event Distance for Intra-tumour Copy-number Comparisons',
     long_description=(Path(__file__).parent / "README.md").read_text(),
     long_description_content_type='text/markdown',

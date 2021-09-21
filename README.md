@@ -5,19 +5,19 @@
 For more information see the accompanying  paper [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://www.biorxiv.org/content/10.1101/2021.02.28.433227v2).
 
 # Installation
-Due to the dependency on OpenFST, MEDICC2 cannot be installed on Windows machines (we recommended using [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10)). 
+MEDICC2 was developed and tested on unix-built systems (Linux and MacOS). For Windows users we recommoned WSL2.
 
 Install MEDICC2 either via pip (recommended) or from source. In either case, you need to make sure to have a working version of `gcc` and `gxx` installed.
 
 ## Installation with pip
 *Note that the notebooks and examples are not included when installing from pip.*
 
-First install OpenFST using conda with `conda install -c conda-force openfst`. Next you can install MEDICC2 via `pip install medicc2`.
+First install OpenFST (v1.8.1) using conda with `conda install -c conda-forge openfst`. Next you can install MEDICC2 via `pip install medicc2`.
 
 ## Installation from source
 Clone the MEDICC2 repository and its submodules using `git clone --recursive https://bitbucket.org/schwarzlab/medicc2.git`. It is important to use the `--recursive` flag to also download the modified OpenFST submodule.
 
-All dependencies including OpenFST should be directly installable via conda. A yaml file with a suggested MEDICC2 conda environment is provided in 'doc/medicc2.yml'. You can create a new conda environment with all requirements using `conda env create -f doc/medicc2.yml -n medicc_env`.
+All dependencies including OpenFST (v1.8.1) should be directly installable via conda. A yaml file with a suggested MEDICC2 conda environment is provided in 'doc/medicc2.yml'. You can create a new conda environment with all requirements using `conda env create -f doc/medicc2.yml -n medicc_env`.
 
 Then, inside the `medicc2` folder, run `pip install .` to install MEDICC2 to your environment. 
 
