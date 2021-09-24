@@ -1,18 +1,17 @@
-# MEDICC2 - Minimum Event Distance for Intra-tumour Copy number Comparisons
-
-**Version 0.5 beta (September 2021)**
+# MEDICC2 - Whole-genome doubling-aware copy number phylogenies for cancer evolution
 
 For more information see the accompanying  paper [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://www.biorxiv.org/content/10.1101/2021.02.28.433227v2).
 
 # Installation
-MEDICC2 was developed and tested on unix-built systems (Linux and MacOS). For Windows users we recommoned WSL2.
+Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was developed and tested on unix-built systems (Linux and MacOS). For Windows users we recommended WSL2.
 
-Install MEDICC2 either via pip (recommended) or from source. In either case, you need to make sure to have a working version of `gcc` and `gxx` installed.
+Note that the notebooks and examples are not included when installing from conda or pip. When installing from pip or source, you need to make sure to have a working version of `gcc` and `gxx` installed.
 
-## Installation with pip
-*Note that the notebooks and examples are not included when installing from pip.*
+## Installation via conda (recommended)
+MEDICC2 can be installed via `conda install -c bioconda -c conda-forge medicc2`.
 
-First install OpenFST (v1.8.1) using conda with `conda install -c conda-forge openfst`. Next you can install MEDICC2 via `pip install medicc2`.
+## Installation via pip
+As MEDICC2 relies on OpenFST version 1.8.1 which is not packaged on PyPi you have to first install it using conda with `conda install -c conda-forge openfst`. Next you can install MEDICC2 via `pip install medicc2`.
 
 ## Installation from source
 Clone the MEDICC2 repository and its submodules using `git clone --recursive https://bitbucket.org/schwarzlab/medicc2.git`. It is important to use the `--recursive` flag to also download the modified OpenFST submodule.
@@ -22,10 +21,9 @@ All dependencies including OpenFST (v1.8.1) should be directly installable via c
 Then, inside the `medicc2` folder, run `pip install .` to install MEDICC2 to your environment. 
 
 # Usage
-After installing MEDICC2, you can use MEDICC2 in python scripts (through `import medicc`) and from the command line. General usage from the command line is `medicc2 path/to/input/file path/to/output/folder`. Run `medicc2 --help` for information on optional arguments.
+After installing MEDICC2, you can use MEDICC2 functions in python scripts (through `import medicc`) and from the command line. General usage from the command line is `medicc2 path/to/input/file path/to/output/folder`. Run `medicc2 --help` for information on optional arguments.
 
 Logging settings can be changed using the `medicc/logging_conf.yaml` file with the standard python logging syntax.
-
 
 ## Command line Flags
 
@@ -81,4 +79,3 @@ bioRxiv 2021 Sep 6; doi: 10.1101/2021.02.28.433227
 Schwarz RF, Trinh A, Sipos B, Brenton JD, Goldman N, Markowetz F.  
 **Phylogenetic quantification of intra-tumour heterogeneity.**  
 PLoS Comput Biol. 2014 Apr 17;10(4):e1003535. doi: 10.1371/journal.pcbi.1003535.
-
