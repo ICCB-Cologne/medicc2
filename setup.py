@@ -8,10 +8,10 @@ sys.path.append('fstlib/cext')
 
 setup(
     name='medicc2',
-    version='0.5b3',
+    version='0.5b4',
     author='Tom L Kaufmann, Marina Petkovic, Roland F Schwarz',
     author_email='tkau93@gmail.com, marina.55kovic@gmail.com, roland.f.schwarz@gmail.com',
-    description='Minimum Event Distance for Intra-tumour Copy-number Comparisons',
+    description='Whole-genome doubling-aware copy number phylogenies for cancer evolution',
     long_description=(Path(__file__).parent / "README.md").read_text(),
     long_description_content_type='text/markdown',
     url='https://bitbucket.org/schwarzlab/medicc2',
