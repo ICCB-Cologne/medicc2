@@ -235,8 +235,7 @@ def summarize_changes(input_df,
     if input_tree is not None and calc_wgd:
 
         if asymm_fst_nowgd is None:
-            asymm_fst_nowgd = medicc.io.read_fst(os.path.join(
-                Path(__file__).parent.absolute(), '../objects/no_wgd_asymm.fst'))
+            asymm_fst_nowgd = medicc.io.read_fst(no_wgd=True)
 
         # To save time only potential candidates are investigated further
         wgd_candidate_threshold = 0.3
