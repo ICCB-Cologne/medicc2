@@ -172,6 +172,13 @@ def run_bootstrap(input_df,
     are calculated.
     """
 
+    # tqdm can be used for progress bars
+    try:
+        from tqdm.auto import tqdm
+    except ImportError:
+        def tqdm(x, disable):
+            return x
+
     if not show_progress:
         def tqdm(x, disable):
             return x
@@ -189,11 +196,9 @@ def run_bootstrap(input_df,
         np.random.seed(seed)
 
     if wgd:
-        fst = medicc.io.read_fst(os.path.join(os.path.dirname(os.path.realpath(__file__)), 
-                                             '..', 'objects', 'wgd_asymm.fst'))
+        fst = medicc.io.read_fst()
     else:
-        fst = medicc.io.read_fst(os.path.join(os.path.dirname(os.path.realpath(__file__)), 
-                                             '..', 'objects', 'no_wgd_asymm.fst'))
+        fst = medicc.io.read_fst(no_wgd=True)
 
     if original_tree is not None:
         trees = {original_tree: [0, 'original']}

@@ -6,7 +6,6 @@ import os
 import pickle
 
 import numpy as np
-import pkg_resources
 
 import medicc
 
@@ -197,7 +196,8 @@ else:
         chr_separator=args.fst_chr_separator.strip(),
         prune_weight=args.prune_weight,
         allele_columns=allele_columns,
-        n_cores=args.n_cores)
+        n_cores=args.n_cores,
+        total_copy_numbers=args.total_copy_numbers)
 
 ## Output pairwise distance matrices
 logger.info("Writing pairwise distance matrices.")

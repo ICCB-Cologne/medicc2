@@ -25,7 +25,8 @@ def main(input_df,
          chr_separator='X',
          prune_weight=0,
          allele_columns=['cn_a', 'cn_b'],
-         n_cores=None):
+         n_cores=None,
+         total_copy_numbers=False):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
@@ -88,7 +89,7 @@ def main(input_df,
 
     if ancestral_reconstruction:
         output_df = summarize_changes(output_df, final_tree, normal_name=normal_name,
-                                      allele_columns=allele_columns)
+                                      allele_columns=allele_columns, allele_specific=(not total_copy_numbers))
 
     return sample_labels, pdms, nj_tree, final_tree, output_df
 
@@ -216,8 +217,8 @@ def summarize_changes(input_df,
         cn_changes = compute_change_events(df[input_df.columns], input_tree, normal_name)
         df.loc[:, 'is_gain'] = np.any(cn_changes.values > 0, axis=1)
         df.loc[:, 'is_loss'] = np.any(cn_changes.values < 0, axis=1)
-        df.loc[np.logical_and(cn_changes[['cn_a', 'cn_b']] < 0,
-                              df[['cn_a', 'cn_b']] == 0).any(axis=1), 'is_loh'] = True
+        df.loc[np.logical_and(cn_changes[allele_columns] < 0,
+                              df[allele_columns] == 0).any(axis=1), 'is_loh'] = True
         if allele_specific:
             df.loc[:, 'is_gain_a'] = cn_changes['cn_a'].values > 0
             df.loc[:, 'is_loss_a'] = cn_changes['cn_a'].values < 0
