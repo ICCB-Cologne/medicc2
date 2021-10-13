@@ -23,10 +23,12 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
         logger.info("Reading Refphase TSV input.")
         input_df = io._read_tsv_as_dataframe(filename, allele_columns=allele_columns, maxcn=maxcn)
     else:
-        raise MEDICCIOError("Unknown input type, possible options are FASTA or TSV.")
+        raise MEDICCIOError("Unknown input type, possible options are 'fasta' or 'tsv'.")
 
     if len(allele_columns) == 1 and not total_copy_numbers:
         logger.warn('You have provided only one allele column but the --total-copy-numbers flag was not set')
+    if total_copy_numbers and not len(allele_columns) == 1:
+        raise MEDICCIOError("You have set the --total-copy-numbers flag but provided more than one allele column")
 
     ## Add normal sample if needed
     input_df = io.add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 
@@ -204,15 +206,18 @@ def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_cop
 
     if normal_name is not None and normal_name not in samples:
         logger.info("Normal sample '%s' not found, adding artifical normal by the name: '%s'.", normal_name, normal_name)
-        tmp=df.unstack('sample_id')
+        tmp = df.unstack('sample_id')
         for col in allele_columns:
             tmp.loc[:, (col, normal_name)] = normal_value
         tmp = tmp.stack('sample_id')
         tmp = tmp.reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
     else:
+        logger.info("Sample '%s' was found in data is is used as normal", normal_name)
         if np.any(df.loc[normal_name] == '0'):
             logger.warn("The provided normal sample contains segments with copy number 0. "
                         "If any other sample has non-zero values in these segments, MEDICC will crash")
+        if np.any(df.loc[normal_name] != normal_value):
+            logger.warn("The provided normal sample contains segments with copy number != {}.".format(normal_value))
 
         tmp = df
 
