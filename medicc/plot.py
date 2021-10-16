@@ -64,8 +64,11 @@ def plot_cn_profiles(
         show_branch_support=False,
         hide_internal_nodes=False,
         chr_label_func=None,
-        show_events=False,
+        show_events_in_tree=False,
+        show_events_in_cn=True,
         show_branch_lengths=True,
+        detailed_xticks=False,
+        clonal_transparant=True,
         label_func=None):
     
     if input_tree is None or normal_name is None: 
@@ -205,7 +208,7 @@ def plot_cn_profiles(
                   label_func=lambda x: '',
                   label_colors=clade_colors,
                   show_branch_support=show_branch_support,
-                  show_events=show_events,
+                  show_events=show_events_in_tree,
                   show_branch_lengths=show_branch_lengths,
                   hide_internal_nodes=hide_internal_nodes)
     
@@ -224,12 +227,15 @@ def plot_cn_profiles(
                          maxcn=maxcn+1,
                          alleles=allele_columns,
                          type='sample',
+                         clonal_transparant=clonal_transparant,
                          chr_label_func=chr_label_func,
                          plot_xaxis_labels=plot_axis_labels if not (
                             plot_summary + plot_subclonal_summary + plot_clonal_summary) else False,
                          plot_yaxis_labels=True,
                          yaxis_label_color=clade_colors[sample],
-                         show_small_segments=show_small_segments)
+                         show_small_segments=show_small_segments,
+                         detailed_xticks=detailed_xticks,
+                         show_events_in_cn=show_events_in_cn)
 
     if plot_clonal_summary:
         _plot_cn_profile(ax=cn_axes[nsamp],
@@ -238,6 +244,7 @@ def plot_cn_profiles(
                          mincn=mrca_df[allele_columns].min().min()-1,
                          maxcn=mrca_df[allele_columns].max().max()+1,
                          alleles=allele_columns,
+                         detailed_xticks=detailed_xticks,
                          chr_label_func=chr_label_func,
                          type='summary',
                          show_small_segments=show_small_segments)
@@ -250,6 +257,7 @@ def plot_cn_profiles(
                          mincn=agg_events[allele_columns].min().min()-1,
                          maxcn=agg_events[allele_columns].max().max()+1,
                          alleles=allele_columns,
+                         detailed_xticks=detailed_xticks,
                          chr_label_func=chr_label_func,
                          type='summary',
                          show_small_segments=show_small_segments)
@@ -263,6 +271,7 @@ def plot_cn_profiles(
                          mincn=agg_events[allele_columns].min().min()-1,
                          maxcn=agg_events[allele_columns].max().max()+1,
                          alleles=allele_columns,
+                         detailed_xticks=detailed_xticks,
                          chr_label_func=chr_label_func,
                          show_small_segments=show_small_segments)
         cn_axes[-1 - int(plot_summary)].get_xaxis().set_visible(not plot_summary)
@@ -275,8 +284,9 @@ def plot_cn_profiles(
 
 
 def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
-                     plot_xaxis_labels=True, plot_yaxis_labels=True,
-                     chr_label_func=None, yaxis_label_color='black', show_small_segments=False):
+                     plot_xaxis_labels=True, plot_yaxis_labels=True, chr_label_func=None,
+                     clonal_transparant=True, yaxis_label_color='black', show_small_segments=False,
+                     show_events_in_cn=True, detailed_xticks=False):
     ## collect line segments and background patches
     event_patches = []
     bkg_patches = []
@@ -295,19 +305,16 @@ def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
             lines_b.append([(r['start_pos'], r[alleles[1]]), (r['end_pos'], r[alleles[1]])])
         rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'],
                                      maxcn-mincn, edgecolor=None, facecolor=COL_PATCH_BACKGROUND, alpha=1)
-        alpha.append(ALPHA_CLONAL if r['is_clonal'] and type=='sample' else 1.0)
+        alpha.append(ALPHA_CLONAL if (clonal_transparant and r['is_clonal'] and type=='sample') else 1.0)
         bkg_patches.append(rect)
-        # Not used because clonal tracks are made transparent below
-        # if r['is_clonal']:
-        #     rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_CLONAL, alpha=0.1)
-        #     event_patches.append(rect)
+
         if show_small_segments and r['small_segment']:
             circles_a.append((r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[0]]))
             if two_alleles:
                 circles_b.append(
                     (r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[1]]))
 
-        if type=='sample':
+        if show_events_in_cn and type=='sample':
             if r['is_normal']:
                 rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'],
                                             maxcn-mincn, edgecolor=None, facecolor=COL_NORMAL, alpha=ALPHA_PATCHES)
@@ -401,6 +408,8 @@ def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
         ax.yaxis.label.set_color(yaxis_label_color)
 
     ## axis modifications
+    if detailed_xticks:
+        ax.set_xticks(np.arange(0, data['end_pos'].max(), 1e7))
     ax.get_xaxis().set_visible(plot_xaxis_labels)
 
     #ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(integer=True, prune='both', nbins=(maxcn-mincn)/2 + 1))
