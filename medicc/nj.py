@@ -34,7 +34,7 @@ class NeighbourJoining(object):
     def _run_nj(self):
         """ main algorithm routine """
         
-        self.log.info("Reconstructing tree:")
+        self.log.info("Neighbor joining:")
         name_clade_map = dict()
         internal_node_list = list()
         sequence_files = list(self.taxa) ## create mutable copy
@@ -45,7 +45,7 @@ class NeighbourJoining(object):
             (left, right) = self._nj_nearest_neighbours(q_matrix)
             left_name = sequence_files[left]
             right_name = sequence_files[right]
-            self.log.info("Choosing %s with distance %f" % ((left_name, right_name), distances[left,right]))
+            self.log.debug("Choosing %s with distance %f" % ((left_name, right_name), distances[left,right]))
             new_distances = self._nj_get_distances_to_new_node((left, right), distances)
             distances = self._nj_forge_new_distance_matrix((left, right), distances, new_distances)
             ## ancestor_filename = "(%s-%s)" % (left_name, right_name)
@@ -81,7 +81,7 @@ class NeighbourJoining(object):
             sequence_files.remove(right_name)
             sequence_files.append(ancestor_filename)
             
-            self.log.info("Remaining number of sequences: %d" % len(sequence_files))
+            self.log.debug("Remaining number of sequences: %d" % len(sequence_files))
         
         ## here we have exactly 2 sequences left
         last_index = (sequence_files.index(ancestor_filename) + 1) % 2

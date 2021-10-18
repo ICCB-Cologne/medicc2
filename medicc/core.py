@@ -41,7 +41,7 @@ def main(input_df,
     sample_labels = input_df.index.get_level_values('sample_id').unique()
 
     ## Calculate pairwise distances
-    logger.info("Calculating pairwise distance matrices for both alleles")
+    logger.info("Calculating pairwise distance matrices")
     if n_cores is not None and n_cores > 1:
         pdms = {'total': parallelization_calc_pairwise_distance_matrix(sample_labels, 
                                                                        asymm_fst,
