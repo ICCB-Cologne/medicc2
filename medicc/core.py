@@ -57,7 +57,21 @@ def main(input_df,
             pdms['total'].values, pdms['total'].index, normal_name=normal_name)
     else:
         logger.info("Tree provided, using it.")
+
+        assert len([x for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name]) == \
+            len(np.unique(input_df.index.get_level_values('sample_id'))), \
+            "Number of samples differs in input tree and input dataframe"
+        assert np.all(
+            np.sort([x.name for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name]) ==
+            np.sort(np.unique(input_df.index.get_level_values('sample_id')))), \
+            "Input tree does not match input dataframe"
+        
+        # necessary for the way that reconstruct_ancestors is performed
+        if ancestral_reconstruction:
+            input_tree.root_with_outgroup([x for x in input_tree.root.clades if x.name != normal_name][0].name)
+
         nj_tree = input_tree
+
 
     tools.set_sequences_on_tree_from_df(nj_tree, input_df)
 
@@ -529,7 +543,7 @@ def summarise_patient(tree, pdm, sample_labels, normal_name):
 
 
 def overlap_events(events_df=None, df=None, tree=None, overlap_threshold=0.9,
-                   chromosome_bed='../objects/hg19_chromosome_arms.bed', regions_bed=None,
+                   chromosome_bed='../medicc/objects/hg19_chromosome_arms.bed', regions_bed=None,
                    replace_loss_with_loh=True, allele_specific=False,
                    replace_both_arms_with_chrom=True):
 
