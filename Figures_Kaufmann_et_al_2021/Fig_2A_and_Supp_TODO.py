@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from scipy.stats import norm
 
 from plotting_params import plotting_params, set_plotting_params
 
@@ -25,7 +26,7 @@ fig, ax = plt.subplots(figsize=(
 sns.barplot(data=cur_plotting_data.loc[cur_plotting_data['start_both'] == 'start matches'],
             x='method', y='count', ax=ax, color='C0', label='start matches')
 sns.barplot(data=cur_plotting_data.loc[cur_plotting_data['start_both'] == 'start/end matches'],
-            x='method', y='count', ax=ax, color='C1', label='start and end matches')
+            x='method', y='count', ax=ax, color='C1', label='start and end match')
 
 for n, method in enumerate(['MEDICC2', 'next segment', 'random segment']):
     cur_count = cur_plotting_data.loc[(cur_plotting_data['method'] == method) & (
@@ -34,6 +35,24 @@ for n, method in enumerate(['MEDICC2', 'next segment', 'random segment']):
     ax.text(n, cur_count-(max_y/50), f"{int(np.round(100*cur_fraction, 0))}%",
             ha='center', va='top', fontsize=plotting_params['FONTSIZE_MEDIUM'])
 
+
+# statistical annotation
+yticks = ax.get_yticks()
+x1, x2 = 0, 1
+h = (max_y/50)
+hl = (max_y/25)
+y = cur_plotting_data['count'].max() + h
+ax.plot([x1, x1, x2, x2], [y, y+hl, y+hl, y], lw=1.5, c='black')
+ax.text((x1+x2)*.5, y+hl*1.15, "$P$<.0001", ha='center', va='bottom', color='black', fontsize=plotting_params['FONTSIZE_MEDIUM'])
+
+x1, x2 = 0, 2
+h = 4*(max_y/50)
+y = cur_plotting_data['count'].max() + 1.5*h
+ax.plot([x1, x1, x2, x2], [y, y+hl, y+hl, y], lw=1.5, c='black')
+ax.text((x1+x2)*.5, y+hl*1.15, "$P$<.0001", ha='center', va='bottom', color='black', fontsize=plotting_params['FONTSIZE_MEDIUM'])
+
+ax.set_ylim(0, ax.get_ylim()[1] + hl)
+ax.set_yticks(yticks[:-1])
 ax.set_xticklabels(ax.get_xticklabels(), fontsize=plotting_params['FONTSIZE_MEDIUM'])
 ax.set_ylabel('count')
 ax.set_xlabel('')
@@ -57,7 +76,7 @@ for ax, filter in zip(axs,
     sns.barplot(data=cur_plotting_data.loc[cur_plotting_data['start_both'] == 'start matches'],
                 x='method', y='count', ax=ax, color='C0', label='start matches')
     sns.barplot(data=cur_plotting_data.loc[cur_plotting_data['start_both'] == 'start/end matches'],
-                x='method', y='count', ax=ax, color='C1', label='start and end matches')
+                x='method', y='count', ax=ax, color='C1', label='start and end match')
     ax.set_title(f'Filtered at $10^{filter.split("_")[1]}$bp{", only dup/del" if filter.split("_")[-1]=="del" else ""}')
     for n, method in enumerate(['MEDICC2', 'next segment', 'random segment']):
         cur_count = cur_plotting_data.loc[(cur_plotting_data['method'] == method) & (
@@ -70,6 +89,26 @@ for ax, filter in zip(axs,
     ax.set_xticklabels(['MEDICC2', 'next\nsegment', 'random\nsegment'], fontsize=plotting_params['FONTSIZE_MEDIUM'])
     ax.set_ylabel('')
     ax.set_xlabel('')
+
+    # statistical annotation
+    yticks = ax.get_yticks()
+    x1, x2 = 0, 1
+    h = (max_y/50)
+    hl = (max_y/50)
+    y = cur_plotting_data['count'].max() + h
+    ax.plot([x1, x1, x2, x2], [y, y+hl, y+hl, y], lw=1.5, c='black')
+    ax.text((x1+x2)*.5, y+hl*1.15, "$P$<.0001", ha='center', va='bottom',
+            color='black', fontsize=plotting_params['FONTSIZE_MEDIUM'])
+
+    x1, x2 = 0, 2
+    h = 4*(max_y/50)
+    y = cur_plotting_data['count'].max() + 1.5*h
+    ax.plot([x1, x1, x2, x2], [y, y+hl, y+hl, y], lw=1.5, c='black')
+    ax.text((x1+x2)*.5, y+hl*1.15, "$P$<.0001", ha='center', va='bottom',
+            color='black', fontsize=plotting_params['FONTSIZE_MEDIUM'])
+
+    ax.set_ylim(0, ax.get_ylim()[1] + hl)
+    ax.set_yticks(yticks[:-1])
 
 axs[-1].set_ylabel('count')
 axs[-1].legend(bbox_to_anchor=(1, 1))
