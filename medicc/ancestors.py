@@ -7,6 +7,10 @@ import medicc
 
 
 def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0):
+
+    if len(samples_dict) == 2:
+        return samples_dict
+
     fsa_dict = samples_dict.copy()
     tree = Bio.Phylo.BaseTree.copy.deepcopy(tree)
 
