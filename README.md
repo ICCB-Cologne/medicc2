@@ -46,6 +46,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--total-copy-numbers`: Run for total copy number data instead of allele-specific data. Default: False
 * `-j`, `--n-cores`: Number of cores to run on. Default: None
 * `-v`, `--verbose`: Enable verbose output. Default: False
+* `-vv`, `--debug`: Enable more verbose output Default: False
 * `--maxcn`: Expert option: maximum CN at which the input is capped. Does not change FST. Default: 8
 * `--prune-weight`: Expert option: Prune weight in ancestor reconstruction. Values >0 might result in more accurate ancestors but will require more time and memory. Default: 0
 * `--fst`: Expert option: path to an alternative FST. Default: None
@@ -64,6 +65,27 @@ The folder `examples/OV03-04` contains a larger example consisting of multiple f
 For first time users we recommend to have a look at `examples/simple_example` to get an idea of how input data should look like. Then run `medicc2 examples/simple_example/simple_example.tsv path/to/output/folder` as an example of a standard MEDICC run. Finally, the notebook `notebooks/example_workflows.py` shows how the individual functions in the workflow are used.
 
 The notebook `notebooks/bootstrap_demo.py` demonstrates how to use the bootstrapping routine and `notebooks/plot_demo.py` shows how to use the main plotting functions.
+
+# Issues
+If you experience problems with MEDICC2 please [file an issue directly on Bitbucket](https://bitbucket.org/schwarzlab/medicc2/issues/new) or [contact us directly](tom.kaufmann@mdc-berlin.de). 
+
+## Known Issues
+
+**Noisy segments**
+Small faulty or noisy segments can have a strong effect on the distances MEDICC2 calculates between samples and therefore the resulting tree.
+This is because MEDICC2 counts all segments equally in order appropriatlely take focal events into account. 
+If the resulting and the inferred events look strange to you, you can replot the tree and copy-number profiles using the function `plot_cn_profiles` setting `ignore_segment_lengths=True` (see the notebook `notebooks/plot_demo.py` for usage examples) in order to investigate small segments that might not have been visible in the original plot.
+If you are unsure about the copy-number profiles we recommened to filter small segments.
+
+**Taxon imbalance**
+If your data contains 100s to 1000s samples with a few distinct subgroups, an imbalance in the number of samples per subgroups might lead to an incorrect tree (e.g. 50 samples of subclone A and 1000 samples each of subclone B and C).
+This is a known problem in phylogeny called *taxon imbalance* or *taxon sampling*. If you have multiple, clearly separable subgroups in your data we recommoned either subsampling over-represented groups or upsampling under-represented groups to gauge the effect of taxon imbalance.
+
+**Running out of memory / bad_alloc error**
+If MEDICC2 terminates with the following error `terminate called after throwing an instance of 'std::bad_alloc'` or your machine runs out of memory this hints towards an issue with the FST.
+Rerun MEDICC2 with the `-vv` flag to enable extended logging. If the error occurs during the ancestral reconstruction routine, the issue is related to OpenFST which is the FST library employed by MEDICC2 and cannot be easily solved by us.
+This issue can be related to small bin sizes (and therefore a large number of segments). Increasing the binsize (although decreasing accuracy) solves this issue most of the time.
+You can also try to remove the sample that led to the error (see the extended logs for this). 
 
 # Contact
 Email questions, feature requests and bug reports to **Tom Kaufmann, tom.kaufmann@mdc-berlin.de**.
