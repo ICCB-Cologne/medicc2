@@ -2,13 +2,13 @@
 import os
 import sys
 
+import adjustText
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pyranges as pr
 import seaborn as sns
 from scipy.stats import pearsonr
-import adjustText
 
 sys.path.append('..')
 import medicc
@@ -82,8 +82,8 @@ for patient in patients:
 
     cur_events = medicc.core.overlap_events(df=cur_df[['cn_a', 'cn_b']],
                                             tree=cur_tree,
-                                            chromosome_bed='../objects/hg19_chromosome_arms.bed',
-                                            regions_bed='../objects/Davoli_2013_TSG_OG_genes.bed',
+                                            chromosome_bed='../medicc/objects/hg19_chromosome_arms.bed',
+                                            regions_bed='../medicc/objects/Davoli_2013_TSG_OG_genes.bed',
                                             replace_loss_with_loh=True,
                                             allele_specific=True,
                                             replace_both_arms_with_chrom=False)

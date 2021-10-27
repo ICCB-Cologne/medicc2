@@ -18,7 +18,7 @@ SEED = 42
 set_plotting_params()
 
 CALC_NEW = False
-DATA_FILE = 'data/Fig_1E.tsv'
+DATA_FILE = 'data/Fig_2A.tsv'
 
 #%% read fsts
 T_no_wgd_asymm = medicc.io.read_fst(no_wgd=False)
@@ -102,5 +102,5 @@ sns.lineplot(data=timing, x='length', y='Time', hue='Algorithm', style='WGD',
 ax.set_xlabel('CNP length (#segments)')
 ax.set_ylabel('Time (s)')
 
-fig.savefig('final_figures/Fig_1E.pdf', bbox_inches='tight')
-fig.savefig('final_figures/Fig_1E.png', bbox_inches='tight', dpi=600)
+fig.savefig('final_figures/Fig_2A.pdf', bbox_inches='tight')
+fig.savefig('final_figures/Fig_2A.png', bbox_inches='tight', dpi=600)

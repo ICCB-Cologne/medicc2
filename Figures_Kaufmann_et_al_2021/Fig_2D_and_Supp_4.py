@@ -9,8 +9,8 @@ from plotting_params import plotting_params, set_plotting_params
 set_plotting_params()
 
 # Run the notebook 'pcawg.py' in the folder 'notebooks' to recreate the data from scratch
-plotting_data = pd.read_csv('data/Fig_2D_and_Supp_3A_and_Supp_3B.tsv', index_col=None, sep='\t')
-pcawg_color_palette = pd.read_csv('data/Supp_3A_and_Supp_3B_color_palette.tsv', index_col=0, sep='\t')
+plotting_data = pd.read_csv('data/Fig_2D_and_Supp_4.tsv', index_col=None, sep='\t')
+pcawg_color_palette = pd.read_csv('data/Supp_4_color_palette.tsv', index_col=0, sep='\t')
 linex = np.linspace(0, plotting_data['hom'].max())
 linea = -2
 linec = 2.9
@@ -33,7 +33,7 @@ fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Fig_2D.pdf', bbox_inch
 fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Fig_2D.png', bbox_inches='tight', dpi=600)
 
 
-# #%% Supp 3A: MEDICC MED distributions
+# #%% Supp 4A: MEDICC MED distributions
 palette = dict(zip(pcawg_color_palette.index, pcawg_color_palette['Hexadecimal']))
 fig, ax = plt.subplots(nrows=1, ncols=1, sharey=True,
                         figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_FULL']/plotting_params['ASPECT_RATIO']))
@@ -43,11 +43,11 @@ sns.boxplot(x='dist_wgd', y='histology_abbreviation', palette=palette, data=cur_
 ax.set_xlabel('MED (WGD) from diploid normal')
 ax.set_ylabel('PCAWG histology')
 
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3A.pdf', bbox_inches='tight')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3A.png',
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4A.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4A.png',
             bbox_inches='tight', dpi=600)
 
-#%% Supp 3B: MEDICC2 WGD score distributions
+#%% Supp 4B: MEDICC2 WGD score distributions
 fig, ax = plt.subplots(nrows=1, ncols=1, sharey=True,
                        figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_FULL']/plotting_params['ASPECT_RATIO']))
 
@@ -56,11 +56,11 @@ sns.boxplot(x='dist_diff', y='histology_abbreviation', palette=palette, data=cur
 ax.set_xlabel('MEDICC2 WGD score')
 ax.set_ylabel('')
 
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3B.pdf', bbox_inches='tight')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3B.png',
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4B.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4B.png',
             bbox_inches='tight', dpi=600)
 
-#%% Supp 3C: MEDICC2 WGD score distributions
+#%% Supp 4C: MEDICC2 WGD score distributions
 fig, ax = plt.subplots(nrows=1, ncols=1, sharey=True,
                        figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_FULL']/plotting_params['ASPECT_RATIO']))
 
@@ -73,6 +73,6 @@ sns.barplot(x='has_wgd', y=cur_plotting_data.index, orient='h', data=cur_plottin
 ax.set_xlabel('Fraction of samples exhibiting WGD')
 ax.set_ylabel('')
 
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3C.pdf', bbox_inches='tight')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3C.png',
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4C.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4C.png',
             bbox_inches='tight', dpi=600)

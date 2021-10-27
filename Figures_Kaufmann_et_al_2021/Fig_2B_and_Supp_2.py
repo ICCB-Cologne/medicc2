@@ -10,9 +10,9 @@ set_plotting_params()
 
 #%% load results
 # Due to the number of simulations the results were computed on a computing cluster, see Script TODO
-results_grf = pd.read_csv('data/Fig_2C_grf.tsv', sep='\t', index_col=0)
-results_rf = pd.read_csv('data/Fig_2C_rf.tsv', sep='\t', index_col=0)
-results_quartet = pd.read_csv('data/Fig_2C_quartet.tsv', sep='\t', index_col=0)
+results_grf = pd.read_csv('data/Fig_2B_grf.tsv', sep='\t', index_col=0)
+results_rf = pd.read_csv('data/Fig_2B_rf.tsv', sep='\t', index_col=0)
+results_quartet = pd.read_csv('data/Fig_2B_quartet.tsv', sep='\t', index_col=0)
 
 for results in [results_grf, results_quartet, results_rf]:
     # results = results.loc[results['Number of Leaves'] > 3]
@@ -47,8 +47,8 @@ ax.set_ylabel('Generalized RF distance')
 
 plt.legend(loc='lower right')
 
-fig.savefig('final_figures/Fig_2C.pdf', bbox_inches='tight')
-fig.savefig('final_figures/Fig_2C.png', bbox_inches='tight', dpi=600)
+fig.savefig('final_figures/Fig_2B.pdf', bbox_inches='tight')
+fig.savefig('final_figures/Fig_2B.png', bbox_inches='tight', dpi=600)
 
 #%% Figure Supp 2A Full ranges
 print('Supp 2A')
