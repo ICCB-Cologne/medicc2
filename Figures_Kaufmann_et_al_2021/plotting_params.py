@@ -24,8 +24,12 @@ def set_plotting_params():
     plt.rc('xtick', labelsize=plotting_params['FONTSIZE_SMALL'])
     plt.rc('ytick', labelsize=plotting_params['FONTSIZE_SMALL'])
     plt.rc('legend', fontsize=plotting_params['FONTSIZE_SMALL'])
+    plt.rc('legend', frameon=False)
     plt.rc('figure', titlesize=plotting_params['FONTSIZE_LARGE'])
 
     # Seaborn standard palette
     sns.set_palette(sns.color_palette())
     # sns.set_palette(sns.color_palette("husl"))
+
+    plt.rcParams['axes.spines.right'] = False
+    plt.rcParams['axes.spines.top'] = False
