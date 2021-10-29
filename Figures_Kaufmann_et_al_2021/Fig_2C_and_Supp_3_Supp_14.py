@@ -49,16 +49,16 @@ fig, ax = plt.subplots(figsize=(
     plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 
 sns.barplot(data=cur_plotting_data.loc[cur_plotting_data['start_both'] == 'one matches'],
-            x='method', y='count', ax=ax, color='C0', label='One segment boundary matches')
+            x='method', y='count', ax=ax, color='C0', label='_nolegend_') # label was: "One segment boundary matches"
 sns.barplot(data=cur_plotting_data.loc[cur_plotting_data['start_both'] == 'start/end matches'],
-            x='method', y='count', ax=ax, color='C1', label='Both segment boundaries match')
+            x='method', y='count', ax=ax, color='C1', label='_nolegend_') # label was: "Both segment boundaries match"
 
 for n, method in enumerate(['MEDICC2', 'neighbor', 'random']):
     cur_count = cur_plotting_data.loc[(cur_plotting_data['method'] == method) & (
         cur_plotting_data['start_both'] == 'start/end matches'), 'count'].values[0]
     cur_fraction = cur_count / cur_plotting_data.loc[(cur_plotting_data['method'] == method) & (cur_plotting_data['start_both'] == 'one matches'), 'count'].values[0]
     ax.text(n, cur_count+(max_y/50), f"{int(np.round(100*cur_fraction, 0))}%",
-            ha='center', va='bottom', fontsize=plotting_params['FONTSIZE_MEDIUM'])
+            ha='center', va='bottom', color='white', fontsize=plotting_params['FONTSIZE_MEDIUM'])
 
 
 # statistical annotation, note that actual calculation is done in external notebook using a z-test
@@ -84,10 +84,10 @@ ax.set_ylim(0, ax.get_ylim()[1] + hl)
 ax.set_yticks(yticks[:-1])
 ax.set_xticklabels(['MEDICC2 event\nboundary', 'Neighboring segment\nboundary', 'Random segment\nboundary'],
                    fontsize=plotting_params['FONTSIZE_MEDIUM'])
-ax.set_ylabel('Count')
+ax.set_ylabel('Frequency')
 ax.set_xlabel('')
 ax.legend(loc='center right')
-fig.suptitle('Overlap of MEDICC2 events with\nstructural variants in all PCAWG samples', fontsize=plotting_params['FONTSIZE_LARGE'])
+#fig.suptitle('Overlap of MEDICC2 events with\nstructural variants in all PCAWG samples', fontsize=plotting_params['FONTSIZE_LARGE'])
 plt.tight_layout()
 
 fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Fig_2C.pdf', bbox_inches='tight')
@@ -96,10 +96,10 @@ fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Fig_2C.png',
 plt.close()
 
 # Supp 3: SV validation for all filters for all PCAWG data
-fig, axs = plt.subplots(ncols=6, figsize=(1.5*plotting_params['WIDTH_FULL'], 
-                                          plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
-for ax, filter in zip(axs,
-                      np.sort(np.unique(plotting_data['filter']))):
+fig, axs = plt.subplots(ncols=3, nrows=2, sharex=True, figsize=(plotting_params['WIDTH_FULL'], 
+                                          plotting_params['WIDTH_FULL']/plotting_params['ASPECT_RATIO']))
+axs = axs.ravel()
+for ax, filter in zip(axs, np.sort(np.unique(plotting_data['filter']))):
     cur_plotting_data = plotting_data.loc[plotting_data['filter'] == filter]
     cur_plotting_data.loc[cur_plotting_data['start_both'] == 'one matches', 'count'] = cur_plotting_data.loc[cur_plotting_data['start_both'] ==
                                                                                                             'one matches', 'count'].values + cur_plotting_data.loc[cur_plotting_data['start_both'] == 'start/end matches', 'count'].values
@@ -147,10 +147,11 @@ for ax, filter in zip(axs,
     ax.set_ylim(0, ax.get_ylim()[1] + hl)
     ax.set_yticks(yticks[:-1])
 
-axs[0].set_ylabel('Count')
-axs[-1].legend(bbox_to_anchor=(1, 1))
-fig.suptitle('Overlap of MEDICC2 events with structural variants in all PCAWG samples',
-             fontsize=plotting_params['FONTSIZE_LARGE'])
+axs[0].set_ylabel('Frequency')
+axs[3].set_ylabel('Frequency')
+#axs[-1].legend(bbox_to_anchor=(1, 1))
+#fig.suptitle('Overlap of MEDICC2 events with structural variants in all PCAWG samples',
+#             fontsize=plotting_params['FONTSIZE_LARGE'])
 plt.tight_layout()
 
 fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_3.pdf', bbox_inches='tight')
@@ -164,8 +165,10 @@ plotting_data = pd.read_csv('data/Fig_2C_Gundem.tsv', index_col=0, sep='\t')
 plotting_data['method'] = plotting_data['method'].apply(
     lambda x: {'MEDICC': 'MEDICC2', 'next seg': 'next segment', 'random chrom': 'random segment'}.get(x, x))
 
-fig, axs = plt.subplots(ncols=6, figsize=(1.5*plotting_params['WIDTH_FULL'],
-                                          plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
+fig, axs = plt.subplots(ncols=3, nrows=2, sharex=True, figsize=(plotting_params['WIDTH_FULL'], 
+                                          plotting_params['WIDTH_FULL']/plotting_params['ASPECT_RATIO']))
+axs = axs.ravel()
+
 for ax, filter in zip(axs,
                       np.sort(np.unique(plotting_data['filter']))):
     cur_plotting_data = plotting_data.loc[plotting_data['filter'] == filter]
@@ -216,10 +219,12 @@ for ax, filter in zip(axs,
     ax.set_ylim(0, ax.get_ylim()[1] + hl)
     ax.set_yticks(yticks[:-1])
 
-axs[0].set_ylabel('Count')
-axs[-1].legend(bbox_to_anchor=(1, 1))
-fig.suptitle('Overlap of MEDICC2 events with structural variants in all Gundem et al. samples',
-             fontsize=plotting_params['FONTSIZE_LARGE'])
+axs[0].set_ylabel('Frequency')
+axs[3].set_ylabel('Frequency')
+
+#axs[2].legend(bbox_to_anchor=(1, 1))
+#fig.suptitle('Overlap of MEDICC2 events with structural variants in all Gundem et al. samples',
+#             fontsize=plotting_params['FONTSIZE_LARGE'])
 plt.tight_layout()
 
 fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_14.pdf',

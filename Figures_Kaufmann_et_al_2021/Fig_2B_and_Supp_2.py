@@ -20,8 +20,8 @@ for results in [results_grf, results_quartet, results_rf]:
 
 
 
-#%% Figure 2C
-print('Fig 2C')
+#%% Figure 2B
+print('Fig 2B')
 fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 
 cur_results = results_grf.loc[results_grf['WGD'] == 'Low WGD']

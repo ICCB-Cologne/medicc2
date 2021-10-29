@@ -62,7 +62,7 @@ for p in ax.patches:
 ax.set_ylabel('WGD type', rotation=90, labelpad=0)
 ax.set_xlabel('Frequency')
 # plt.ylabel('WGD type', rotation=0, labelpad=40)
-ax.set_title('WGDs\n(10 patients)', fontsize=plotting_params['FONTSIZE_LARGE'])
+#ax.set_title('WGDs\n(10 patients)', fontsize=plotting_params['FONTSIZE_LARGE'])
 plt.tight_layout()
 plt.savefig('final_figures/Fig_4A.pdf', pad_inches=0)
 plt.savefig('final_figures/Fig_4A.png', pad_inches=0, dpi=600)
@@ -120,22 +120,25 @@ texts = []
 for i, (arm, row) in enumerate(arm_results.iterrows()):
     plt.plot(row['score'], row['gain_loss_diff'], 
              'o', ms=plotting_params['MARKERSIZE_LARGE'], color=plt.cm.tab20c.colors[i%20])
-    texts.append(plt.text(row['score'], row['gain_loss_diff']-0.2, arm,
-             fontsize=plotting_params['FONTSIZE_TINY']))
+    texts.append(plt.text(row['score'], row['gain_loss_diff']-0.2, arm.replace('chr', ''),
+             fontsize=plotting_params['FONTSIZE_SMALL']))
 adjustText.adjust_text(texts)
-plt.title('Aggregated for all 10 patients\nPearson R={:.2f} (p={:.0e})'.format(*pearsonr(arm_results['score'], arm_results['gain_loss_diff'])),
-          fontsize=plotting_params['FONTSIZE_LARGE'])
+#plt.title('Aggregated for all 10 patients\nPearson R={:.2f} (p={:.0e})'.format(*pearsonr(arm_results['score'], arm_results['gain_loss_diff'])),
+#          fontsize=plotting_params['FONTSIZE_LARGE'])
 
 x = np.linspace(arm_results['score'].min(), arm_results['score'].max(), 100)
 linear_model = np.polyfit(arm_results['score'], arm_results['gain_loss_diff'], 1)
 linear_model_fn = np.poly1d(linear_model)
-plt.plot(x, linear_model_fn(x), color="grey", lw=3, label='linear fit')
+plt.plot(x, linear_model_fn(x), color="grey", lw=3, label='_nolegend_') # label was: "linear fit"
 
-plt.legend()
+r = pearsonr(arm_results['score'], arm_results['gain_loss_diff'])[0]
+plt.text(0.98, 0.02, "$r = {:.2f}$".format(r), transform=plt.gca().transAxes, 
+        ha='right', va='bottom', fontsize=plotting_params['FONTSIZE_MEDIUM'])
+
 plt.xlabel('OG-TSG score')
 plt.ylabel('#gains - #losses')
 
-#plt.tight_layout()
+plt.tight_layout()
 plt.savefig('final_figures/Fig_4B.pdf', pad_inches=0)
 plt.savefig('final_figures/Fig_4B.png', pad_inches=0, dpi=600)
 
@@ -188,28 +191,33 @@ texts.clear()
 for g, row in results_Davoli.loc[results_Davoli['p-value'] < 1e-20].iterrows():
     if row['type'] == 'OG':
         texts.append(ax.text(-1*np.log10(row['p-value']), row['gains-losses']-0.7, g, 
-                fontsize=plotting_params['FONTSIZE_TINY']))
+                fontsize=plotting_params['FONTSIZE_SMALL']))
     else:
         texts.append(ax.text(np.log10(row['p-value']), row['gains-losses']-0.7, g, 
-                fontsize=plotting_params['FONTSIZE_TINY']))
+                fontsize=plotting_params['FONTSIZE_SMALL']))
 adjustText.adjust_text(texts)
 
 ax.axvline(0, color='grey')
 ax.set_ylabel('#gains - #losses')
 
-ax.legend(loc='upper left')
-ax.set_title('{} OG-TSG genes\nPearson R = {:.2f} (p={:.0e})'.format(len(x1)+len(x2), 
-                                                                       *pearsonr(np.append(x1, x2),
-                                                                                 np.append(y1, y2))),
-                fontsize=plotting_params['FONTSIZE_LARGE'])
+ax.legend(loc='upper left', frameon=False)
+#ax.set_title('{} OG-TSG genes\nPearson R = {:.2f} (p={:.0e})'.format(len(x1)+len(x2), 
+#                                                                       *pearsonr(np.append(x1, x2),
+#                                                                                 np.append(y1, y2))),
+#                fontsize=plotting_params['FONTSIZE_LARGE'])
 
 x = np.linspace(np.append(x1, x2).min(), np.append(x1, x2).max(), 100)
 linear_model = np.polyfit(np.append(x1, x2), np.append(y1, y2), 1)
 linear_model_fn = np.poly1d(linear_model)
 ax.plot(x, linear_model_fn(x), color="grey", lw=3, label='linear fit')
     
-ax.set_xlabel('log10 of p-value for OG-TSG score')
+ax.set_xlabel('signed log10 p-value for OG-TSG score')
 
+r = pearsonr(np.append(x1, x2), np.append(y1, y2))[0]
+ax.text(0.98, 0.02, "$r = {:.2f}$".format(r), transform=ax.transAxes, 
+        ha='right', va='bottom', fontsize=plotting_params['FONTSIZE_MEDIUM'])
+
+plt.tight_layout()
 plt.savefig('final_figures/Fig_4C.pdf', pad_inches=0)
 plt.savefig('final_figures/Fig_4C.png', pad_inches=0, dpi=600)
 
