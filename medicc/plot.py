@@ -54,11 +54,11 @@ def plot_cn_profiles(
         plot_subclonal_summary=True,
         plot_clonal_summary=False,
         hide_normal_chromosomes=False,
-        ignore_segment_lengths=False, 
+        ignore_segment_lengths=False,
         tree_width_scale=1,
-        track_width_scale=1, 
+        track_width_scale=1,
         height_scale=1,
-        horizontal_margin_adjustment=-0.03,
+        horizontal_margin_adjustment=0,
         close_gaps=False,
         show_small_segments=False,
         show_branch_support=False,
@@ -99,11 +99,11 @@ def plot_cn_profiles(
         df = df.query("~hide").drop('hide', axis=1)
 
     if mincn=='auto':
-        mincn = df.min().min()
+        mincn = df[allele_columns].min().min()
     else:
         mincn = int(mincn)        
     if maxcn=='auto':
-        maxcn = df.max().max()
+        maxcn = df[allele_columns].max().max()
     else:
         maxcn = int(maxcn)
 
@@ -212,7 +212,7 @@ def plot_cn_profiles(
                   show_branch_lengths=show_branch_lengths,
                   hide_internal_nodes=hide_internal_nodes)
     
-    # Adjust the margin between the tree and cn tracks. Default is -0.03
+    # Adjust the margin between the tree and cn tracks. Default is 0
     fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=horizontal_margin_adjustment)
     ## iterate over samples and plot the track
     for sample, group in df.groupby('sample_id'):

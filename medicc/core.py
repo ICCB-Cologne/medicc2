@@ -41,7 +41,7 @@ def main(input_df,
     sample_labels = input_df.index.get_level_values('sample_id').unique()
 
     ## Calculate pairwise distances
-    logger.info("Calculating pairwise distance matrices for both alleles")
+    logger.info("Calculating pairwise distance matrices")
     if n_cores is not None and n_cores > 1:
         pdms = {'total': parallelization_calc_pairwise_distance_matrix(sample_labels, 
                                                                        asymm_fst,
@@ -57,7 +57,21 @@ def main(input_df,
             pdms['total'].values, pdms['total'].index, normal_name=normal_name)
     else:
         logger.info("Tree provided, using it.")
+
+        assert len([x for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name]) == \
+            len(np.unique(input_df.index.get_level_values('sample_id'))), \
+            "Number of samples differs in input tree and input dataframe"
+        assert np.all(
+            np.sort([x.name for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name]) ==
+            np.sort(np.unique(input_df.index.get_level_values('sample_id')))), \
+            "Input tree does not match input dataframe"
+        
+        # necessary for the way that reconstruct_ancestors is performed
+        if ancestral_reconstruction:
+            input_tree.root_with_outgroup([x for x in input_tree.root.clades if x.name != normal_name][0].name)
+
         nj_tree = input_tree
+
 
     tools.set_sequences_on_tree_from_df(nj_tree, input_df)
 
@@ -438,32 +452,48 @@ def calc_pairwise_distance_matrix(model_fst, fsa_dict, parallel_run=True):
 
 
 def infer_tree_topology(pdm, labels, normal_name):
-    tree = nj.NeighbourJoining(pdm, labels).tree
-    
-    input_tree = Bio.Phylo.BaseTree.copy.deepcopy(tree)
-    tmpsearch = [c for c in input_tree.find_clades(name = normal_name)]
-    normal_node = tmpsearch[0]
-    root_path = input_tree.get_path(normal_node)[::-1]
+    if len(labels) > 2:
+        tree = nj.NeighbourJoining(pdm, labels).tree
 
-    if len(root_path)>1:
-        new_root = root_path[1]
-        input_tree.root_with_outgroup(new_root)
+        tmpsearch = [c for c in tree.find_clades(name = normal_name)]
+        normal_node = tmpsearch[0]
+        root_path = tree.get_path(normal_node)[::-1]
 
-    ## from mythic: nj.tree.root_with_outgroup([{'name':s} for s in normal_samples], outgroup_branch_length=0)
-    return input_tree
+        if len(root_path)>1:
+            new_root = root_path[1]
+            tree.root_with_outgroup(new_root)
+    else:
+        clade_ancestor = Bio.Phylo.PhyloXML.Clade(branch_length=0, name='internal_1')
+        clade_ancestor.clades = [Bio.Phylo.PhyloXML.Clade(
+            name=label, branch_length=0 if label == normal_name else 1) for label in labels]
+
+        tree = Bio.Phylo.PhyloXML.Phylogeny(root=clade_ancestor)
+        tree.root_with_outgroup(normal_name)
+
+    return tree
 
 
 def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
-    """ Updates the branch lengths in the tree using the internal nodes supplied in the FSA dict """
+    """ Updates the branch lengths in the tree using the internal nodes supplied in the FSA dict 
+    
+    The two versions that are selected based on isinstance refer to the current and the legacy version 
+    of MEDICC2. In the legacy version the two alleles are treated as separate FSTs and therefore 
+    presented as a list.
+    """
+    if len(ancestor_fsa) == 2:
+        child_clade = [x for x in tree.find_clades() if x.name is not None and x.name != normal_name][0]
+        child_clade.branch_length = float(fstlib.score(
+            fst, ancestor_fsa[normal_name], ancestor_fsa[child_clade.name]))
 
     if isinstance(ancestor_fsa, dict):
-        def _distance_to_child(fst, fsa_dict, sample_1, sample_2):
-            return float(fstlib.score(fst, fsa_dict[sample_1], fsa_dict[sample_2]))
+        def _distance_to_child(fst, ancestor_fsa, sample_1, sample_2):
+            return float(fstlib.score(fst, ancestor_fsa[sample_1], ancestor_fsa[sample_2]))
 
+    # legacy version
     elif isinstance(ancestor_fsa, list) and np.all([isinstance(ancestor_item, dict) for ancestor_item in ancestor_fsa]):
-        def _distance_to_child(fst, fsa_dict_list, sample_1, sample_2):
-            return np.sum([float(fstlib.score(fst, cur_fsa_dict[sample_1], cur_fsa_dict[sample_2]))
-                           for cur_fsa_dict in fsa_dict_list])
+        def _distance_to_child(fst, ancestor_fsa_list, sample_1, sample_2):
+            return np.sum([float(fstlib.score(fst, cur_ancestor_fsa[sample_1], cur_ancestor_fsa[sample_2]))
+                           for cur_ancestor_fsa in ancestor_fsa_list])
 
     else:
         raise MEDICCError("input ancestor_fsa to function update_branch_lengths has to be either a dict"
@@ -529,7 +559,7 @@ def summarise_patient(tree, pdm, sample_labels, normal_name):
 
 
 def overlap_events(events_df=None, df=None, tree=None, overlap_threshold=0.9,
-                   chromosome_bed='../objects/hg19_chromosome_arms.bed', regions_bed=None,
+                   chromosome_bed='../medicc/objects/hg19_chromosome_arms.bed', regions_bed=None,
                    replace_loss_with_loh=True, allele_specific=False,
                    replace_both_arms_with_chrom=True):
 

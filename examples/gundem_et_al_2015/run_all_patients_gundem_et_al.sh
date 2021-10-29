@@ -6,5 +6,5 @@ for file in $(ls | grep PTX)
 do
     patient=$(echo $file | egrep "PTX0.." -o)
     echo "$patient"
-    python ../../medicc2.py $file $output_dir --prefix $patient
+    python ../../medicc2 $file $output_dir --prefix $patient
 done

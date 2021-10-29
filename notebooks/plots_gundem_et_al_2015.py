@@ -22,76 +22,77 @@ paper_figure_folder = "../Figures_Kaufmann_et_al_2021/final_figures/"
 patients = [f.split('_')[0] for f in os.listdir(results_folder) if 'final_cn_profiles.tsv' in f]
 patients.sort()
 
-#%% Figure 3B of the paper
-patient = 'PTX011'
-print('Plotting extended CN track for patient {}'.format(patient))
+# #%% Figure 3B of the paper
+# patient = 'PTX011'
+# print('Plotting extended CN track for patient {}'.format(patient))
 
-cur_output_df = medicc.io.read_and_parse_input_data(
-    os.path.join(results_folder, "{}_final_cn_profiles.tsv".format(patient)))
-cur_input_df = medicc.io.read_and_parse_input_data(
-    os.path.join(data_folder, "{}_input_df.tsv".format(patient)))
-cur_tree = medicc.io.import_tree(
-    os.path.join(results_folder, "{}_final_tree.new".format(patient)), 'diploid')
+# cur_output_df = medicc.io.read_and_parse_input_data(
+#     os.path.join(results_folder, "{}_final_cn_profiles.tsv".format(patient)))
+# cur_input_df = medicc.io.read_and_parse_input_data(
+#     os.path.join(data_folder, "{}_input_df.tsv".format(patient)))
+# cur_tree = medicc.io.import_tree(
+#     os.path.join(results_folder, "{}_final_tree.new".format(patient)), 'diploid')
 
-#%% Bootstrapping
-N_bootstrap = 100
-_, support_tree = medicc.bootstrap.run_bootstrap(cur_input_df,
-                                                 cur_tree,
-                                                 seed=42,
-                                                 N_bootstrap=N_bootstrap,
-                                                 method='chr-wise',
-                                                 show_progress=False,
-                                                 normal_name='diploid')
+# #%% Bootstrapping
+# N_bootstrap = 100
+# _, support_tree = medicc.bootstrap.run_bootstrap(cur_input_df,
+#                                                  cur_tree,
+#                                                  seed=42,
+#                                                  N_bootstrap=N_bootstrap,
+#                                                  method='chr-wise',
+#                                                  show_progress=False,
+#                                                  normal_name='diploid')
 
 
-#%% Event detection
-events_df = medicc.core.summarize_changes(cur_output_df[['cn_a', 'cn_b']],
-                                          cur_tree,
-                                          'diploid',
-                                          allele_specific=False,
-                                          calc_wgd=True)
-all_events = medicc.core.overlap_events(events_df=events_df,
-                                        chromosome_bed='../objects/hg19_chromosome_arms.bed',
-                                        regions_bed=None)
+# #%% Event detection
+# events_df = medicc.core.summarize_changes(cur_output_df[['cn_a', 'cn_b']],
+#                                           cur_tree,
+#                                           'diploid',
+#                                           allele_specific=False,
+#                                           calc_wgd=True)
+# all_events = medicc.core.overlap_events(events_df=events_df,
+#                                         chromosome_bed='../medicc/objects/hg19_chromosome_arms.bed',
+#                                         regions_bed=None)
 
-changed_branches = set(all_events.index)
-for clade in cur_tree.find_clades():
-    clade.events = None
-    if clade.name is not None and clade.name in changed_branches:
-        # more than 1 event (otherwise single event is split per character)
-        if len(all_events.loc[clade.name][['final_name']].shape) == 2:
-            clade.events = '\n'.join(all_events.loc[clade.name, 'final_name'].values)
-        else:
-            clade.events = all_events.loc[clade.name][['final_name']].values[0]
+# changed_branches = set(all_events.index)
+# for clade in cur_tree.find_clades():
+#     clade.events = None
+#     if clade.name is not None and clade.name in changed_branches:
+#         # more than 1 event (otherwise single event is split per character)
+#         if len(all_events.loc[clade.name][['final_name']].shape) == 2:
+#             clade.events = '\n'.join(all_events.loc[clade.name, 'final_name'].values)
+#         else:
+#             clade.events = all_events.loc[clade.name][['final_name']].values[0]
 
-#%% Plot Figure for 3B
-labels = {'diploid': 'Diploid'}
-for label in cur_output_df.reset_index()['sample_id']:
-    if 'diploid' not in label and 'internal' not in label:
-        labels[label] = '_'.join([label.split('_')[1].split('-')[0], label.split('_')[-1]])
+# #%% Plot Figure for 3B
+# labels = {'diploid': 'Diploid'}
+# for label in cur_output_df.reset_index()['sample_id']:
+#     if 'diploid' not in label and 'internal' not in label:
+#         labels[label] = '_'.join([label.split('_')[1].split('-')[0], label.split('_')[-1]])
 
-fig = medicc.plot.plot_cn_profiles(
-    cur_output_df,
-    support_tree,
-    title=patient,
-    normal_name='diploid',
-    hide_normal_chromosomes=False,
-    show_branch_support=True,
-    show_branch_lengths=False,
-    show_events=True,
-    ignore_segment_lengths=False,
-    horizontal_margin_adjustment=0.0,
-    label_func=lambda label: labels.get(label, label))
+# fig = medicc.plot.plot_cn_profiles(
+#     cur_output_df,
+#     support_tree,
+#     title=patient,
+#     normal_name='diploid',
+#     hide_normal_chromosomes=False,
+#     show_branch_support=True,
+#     show_branch_lengths=False,
+#     show_events=False,
+#     ignore_segment_lengths=False,
+#     horizontal_margin_adjustment=0.0,
+#     label_func=lambda label: labels.get(label, label))
 
-for ax in fig.get_axes():
-    ax.set_ylabel(ax.get_ylabel(), rotation=0, horizontalalignment='right')
+# for ax in fig.get_axes():
+#     ax.set_ylabel(ax.get_ylabel(), rotation=0, horizontalalignment='right')
 
-fig.savefig(os.path.join(paper_figure_folder, 'Fig_3B.pdf'), bbox_inches='tight')
-fig.savefig(os.path.join(paper_figure_folder, 'Fig_3B.png'), bbox_inches='tight', dpi=600)
+# fig.savefig(os.path.join(paper_figure_folder, 'Fig_3B.pdf'), bbox_inches='tight')
+# fig.savefig(os.path.join(paper_figure_folder, 'Fig_3B.png'), bbox_inches='tight', dpi=600)
 
 
 #%% Basic CN tracks for all patients
-for patient in patients:
+# for patient in patients:
+for patient in ['PTX008']:
     print('Plotting CN track for patient {}'.format(patient))
     cur_output_df = medicc.io.read_and_parse_input_data(
         os.path.join(results_folder, "{}_final_cn_profiles.tsv".format(patient)))

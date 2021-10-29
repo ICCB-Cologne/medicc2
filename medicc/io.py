@@ -108,20 +108,14 @@ def filter_by_segment_length(input_df, filter_size):
 def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
     logger.info("Reading TSV file %s", path)
     input_file = pd.read_csv(path, sep = "\t")
-    nexpected = 4 + len(allele_columns)
-    input_columns = list(input_file.columns[0:4]) + allele_columns
-    if input_file.shape[1] < nexpected:
-        raise MEDICCIOError("TSV file needs at least {} columns (sample_id, chrom, start, end and the allele columns)"
-                            "\nCurrent columns are: {}".format(nexpected, input_file.columns))
+    columnn_names = ['sample_id', 'chrom', 'start', 'end'] + allele_columns
+    if len(np.setdiff1d(columnn_names, input_file.columns)) > 0:
+        raise MEDICCIOError(f"TSV file needs the following columns: sample_id, chrom, start, end and the allele columns ({allele_columns})"
+                            "\nMissing columns are: {}".format(
+                                np.setdiff1d(columnn_names, input_file.columns)))
 
-    ## check if allele_columns are present
-    if not np.all(np.in1d(allele_columns, input_file.columns)):
-        raise MEDICCIOError("Allele columns {%s} not found!" % ', '.join(allele_columns))
-
-    logger.info("Successfully read input file. Using columns {%s}" % ', '.join(input_columns))
-    new_columns = ['sample_id', 'chrom', 'start', 'end'] + allele_columns ## rename user input to what we know
-    input_file = input_file[input_columns]
-    input_file.columns = new_columns
+    logger.info("Successfully read input file. Using columns {%s}" % ', '.join(columnn_names))
+    input_file = input_file[columnn_names]
     for c in allele_columns:
         if input_file[c].dtype in [np.dtype('float64'), np.dtype('float32')]:
             logger.warning("Floating point payload! I will round, but this might not be intended.")
