@@ -41,9 +41,9 @@ set_plotting_params()
 LOAD = True
 
 #%% FSTs
-T_wgd_asymm = fstlib.Fst.read('../objects/wgd_asymm.fst')
-T_no_wgd_asymm = fstlib.Fst.read('../objects/no_wgd_asymm.fst')
-T_1_wgd_asymm = fstlib.Fst.read('../objects/wgd_1_asymm.fst')
+T_wgd_asymm = fstlib.Fst.read('../medicc/objects/wgd_asymm.fst')
+T_no_wgd_asymm = fstlib.Fst.read('../medicc/objects/no_wgd_asymm.fst')
+T_1_wgd_asymm = fstlib.Fst.read('../medicc/objects/wgd_1_asymm.fst')
 symbol_table = T_wgd_asymm.input_symbols()
 
 #%% folders and HDF5 store
@@ -260,7 +260,7 @@ else:
 #%% Bootstrap for WGD detection
 # This cell will take some time to finish
 # if LOAD:
-if False:
+if LOAD:
     bootstrap_results = hdfstore['bootstrap_distances']
 else:
     N_bootstrap = 100
@@ -384,3 +384,5 @@ result[['hom', 'ploidy_pcawg', 'pcawg_wgd', 'histology_abbreviation', 'wgd_statu
 tumour_types[['Hexadecimal']].to_csv(
             '../Figures_Kaufmann_et_al_2021/data/Supp_3A_and_Supp_3B_color_palette.tsv',
     sep='\t', index=True)
+
+# %%
