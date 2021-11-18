@@ -378,11 +378,9 @@ ax.set_ylabel('PCAWG histology')
 result[['hom', 'ploidy_pcawg', 'pcawg_wgd', 'histology_abbreviation', 'wgd_status_medicc_bootstrap',
         'bootstrap_2_wgds', 'histology_useable', 'dist_diff', 'dist_wgd',
         'wgd_uncertain']].to_csv(
-            '../Figures_Kaufmann_et_al_2021/data/Fig_2D_and_Supp_3A_and_Supp_3B.tsv',
+            '../Figures_Kaufmann_et_al_2021/data/Fig_2D_and_Supp_4.tsv',
     sep='\t', index=False)
 
 tumour_types[['Hexadecimal']].to_csv(
-            '../Figures_Kaufmann_et_al_2021/data/Supp_3A_and_Supp_3B_color_palette.tsv',
+    '../Figures_Kaufmann_et_al_2021/data/Supp_4_color_palette.tsv',
     sep='\t', index=True)
-
-# %%
