@@ -76,7 +76,7 @@ parser.add_argument("--bootstrap-nr",
                     help="""Number of bootstrap runs to perform""")
 parser.add_argument("--prefix", '-p', type=str, dest='prefix', default=None,
                     help='Output prefix to be used (default: input filename).', required=False)
-parser.add_argument("--no-wgd", action='store_true', default=False,
+parser.add_argument("--no-wgd", action='store_true', default=False, dest='no_wgd',
                     help='Enable whole-genome doubling events (default: False).', required=False)
 parser.add_argument("--no-plot", action='store_true', default=False,
                     help='Disable plotting (default: False).', required=False)
@@ -114,6 +114,7 @@ parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', d
                     help = 'Expert option: character used to separate chromosomes in the FST (default: \"X\").')
 args = parser.parse_args()
 
+print(args.no_wgd)
 
 if args.verbose:
     logging.getLogger('medicc').setLevel(logging.INFO)
