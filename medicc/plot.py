@@ -46,7 +46,7 @@ def plot_cn_profiles(
         input_df,
         input_tree=None,
         title=None,
-        normal_name=None,
+        normal_name='diploid',
         mincn='auto',
         maxcn='auto',
         allele_columns=['cn_a', 'cn_b'],
@@ -75,10 +75,6 @@ def plot_cn_profiles(
         plot_summary = False
         plot_subclonal_summary = False
         plot_clonal_summary = False
-
-    if normal_name is None:
-        logger.warn('normal_name is not set!\nnormal_name will be set to "diploid"')
-        normal_name = 'diploid'
 
     df = input_df.copy()
     if len(allele_columns) > 2:
