@@ -141,8 +141,7 @@ else:
 ## Read in symbol table and transducers
 logger.info("Reading FST.")
 fst = medicc.io.read_fst(user_fst=args.fst, 
-                         no_wgd=args.no_wgd,
-                         total_copy_numbers=args.total_copy_numbers)
+                         no_wgd=args.no_wgd)
 
 if args.user_tree is not None:
     logger.info("Importing user tree.")

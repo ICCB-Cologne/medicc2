@@ -40,7 +40,7 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     return input_df
 
 
-def read_fst(user_fst=None, no_wgd=False, total_copy_numbers=False, n_wgd=None):
+def c(user_fst=None, no_wgd=False, n_wgd=None):
     """ Simple wrapper for loading the FST using the fstlib read function. """
 
     objects_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "objects")
@@ -48,17 +48,12 @@ def read_fst(user_fst=None, no_wgd=False, total_copy_numbers=False, n_wgd=None):
     if user_fst is not None:
         fst_path = user_fst
     else:
-        if total_copy_numbers:
-            fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
-            if any([no_wgd, n_wgd is not None]):
-                logger.warn("Loading FST: total_copy_numbers FST cannot be combined with no_wgd or n_wgd")
+        if no_wgd:
+            fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
+        elif n_wgd is not None and int(n_wgd) <= 3:
+            fst_path = os.path.join(objects_dir, 'wgd_{}_asymm.fst'.format(int(n_wgd)))
         else:
-            if no_wgd:
-                fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
-            elif n_wgd is not None and int(n_wgd) <= 3:
-                fst_path = os.path.join(objects_dir, 'wgd_{}_asymm.fst'.format(int(n_wgd)))
-            else:
-                fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
+            fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
 
     return fstlib.read(fst_path)
 
