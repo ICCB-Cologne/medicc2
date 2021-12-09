@@ -40,7 +40,7 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     return input_df
 
 
-def c(user_fst=None, no_wgd=False, n_wgd=None):
+def read_fst(user_fst=None, no_wgd=False, n_wgd=None):
     """ Simple wrapper for loading the FST using the fstlib read function. """
 
     objects_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "objects")
