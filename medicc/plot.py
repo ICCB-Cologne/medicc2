@@ -68,7 +68,7 @@ def plot_cn_profiles(
         show_events_in_cn=True,
         show_branch_lengths=True,
         detailed_xticks=False,
-        clonal_transparant=True,
+        clonal_transparant=False,
         label_func=None):
     
     if input_tree is None or normal_name is None: 
