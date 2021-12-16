@@ -228,7 +228,7 @@ def summarize_changes(input_df,
     df['is_wgd'] = False
 
     if input_tree is not None:
-        cn_changes = compute_change_events(df[input_df.columns], input_tree, normal_name)
+        cn_changes = compute_cn_change(df[input_df.columns], input_tree, normal_name)
         df.loc[:, 'is_gain'] = np.any(cn_changes.values > 0, axis=1)
         df.loc[:, 'is_loss'] = np.any(cn_changes.values < 0, axis=1)
         df.loc[np.logical_and(cn_changes[allele_columns] < 0,
@@ -512,20 +512,212 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
                 child.branch_length = brs
 
 
-def compute_change_events(df, tree, normal_name='diploid'):
-    dfderiv = df.copy()
-    alleles = dfderiv.columns
-    for c in alleles:
-        dfderiv[c] = dfderiv[c].astype('int')
+def calculate_all_events(tree, cur_df, alleles=('cn_a', 'cn_b')):
+    events = pd.DataFrame(columns=['sample_id', 'chrom', 'start',
+                                   'end', 'allele', 'type', 'cn_child'])
+
+    clades = [x for x in tree.find_clades()]
+
+    for clade in clades:
+        if not len(clade.clades):
+            continue
+        if clade.name is None:
+            clade = copy.deepcopy(clade)
+            clade.name = 'diploid'
+        for child in clade.clades:
+            if child.branch_length == 0:
+                continue
+
+            cur_events = calculate_cn_events_per_branch(
+                cur_df, clade.name, child.name, alleles=alleles)
+
+            events = pd.concat([events, cur_events])
+
+    events = events.reset_index(drop=True)
+
+    return events
+
+
+def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn_a', 'cn_b')):
+
+    asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, symbol_table = io.load_main_fsts(
+        return_symbol_table=True)
+
+    events = pd.DataFrame(columns=['sample_id', 'chrom', 'start', 'end', 'allele', 'type', 'cn_child'])
+
+    cur_parent_cn = cur_df.loc[parent_name, alleles].astype(int)
+    cur_child_cn = cur_df.loc[child_name, alleles].astype(int)
+    cur_chroms = cur_df.loc['diploid'].index.get_level_values(
+        'chrom').map(lambda x: int(x.split('chr')[-1])).values.astype(int)
+
+    # 1. find total losss (tloss)
+    parent_tloss = cur_parent_cn == 0
+    for allele in alleles:
+
+        cur_tloss = cur_child_cn.loc[~parent_tloss[allele], allele] == 0
+        if cur_tloss.sum() == 0:
+            continue
+
+        max_previous_cn = np.max(
+            np.unique(cur_parent_cn.loc[~parent_tloss[allele], allele].loc[cur_tloss]))
+
+        for _ in np.arange(max_previous_cn):
+            cur_tloss_and_parental_val = np.logical_and(cur_tloss.values, 
+                                                        cur_parent_cn.loc[~parent_tloss[allele], allele] > 0).values
+
+            event_labels_ = ((np.cumsum(np.concatenate([[0], np.diff(
+                (cur_tloss_and_parental_val + cur_chroms[~parent_tloss[allele]]))])
+                * cur_tloss_and_parental_val) + 1)
+                * cur_tloss_and_parental_val)
+
+            event_labels = np.zeros_like(event_labels_)
+            for i, j in enumerate(np.unique(event_labels_)):
+                event_labels[event_labels_ == j] = i
+
+            cur_parent_cn.loc[parent_tloss.loc[~parent_tloss[allele],
+                                               allele].index[cur_tloss_and_parental_val], allele] -= 1
+
+            cur_events = (cur_parent_cn
+                        .loc[~parent_tloss[allele]]
+                        .reset_index()
+                        .loc[np.array([np.argmax(event_labels == ind) for ind in np.setdiff1d(np.unique(event_labels), [0])])]
+                        [['chrom', 'start', 'end']].values)
+            # adjust ends
+            cur_events[:, 2] = (cur_parent_cn
+                                .loc[~parent_tloss[allele]]
+                                .reset_index()
+                                .loc[np.array([len(event_labels) - np.argmax(event_labels[::-1] == ind) - 1 for ind in np.setdiff1d(np.unique(event_labels), [0])])]
+                                ['end'].values)
+
+            cur_ind = np.arange(len(events), len(events)+len(cur_events))
+            events = events.append(pd.DataFrame(index=cur_ind))
+            events.loc[cur_ind, 'sample_id'] = child_name
+            events.loc[cur_ind, 'allele'] = allele
+            events.loc[cur_ind, 'type'] = 'tloss'
+            events.loc[cur_ind, 'cn_child'] = 0
+            events.loc[cur_ind, ['chrom', 'start', 'end']] = cur_events[:, :3]
+
+            # recalculate parental_loss and cur_tloss for next iteration
+            parent_tloss = cur_parent_cn <= 0
+            cur_tloss = cur_child_cn.loc[~parent_tloss[allele], allele] == 0
+
+        cur_parent_cn.loc[cur_parent_cn[allele] < 0, allele] = 0
+
+    # 2. WGDs
+    # only check if >30% of is gained
+    wgd_candidate_threshold = 0.3
+
+    widths = cur_df.loc[[child_name]].eval('end-start')
+    fraction_gain = ((cur_df.loc[child_name, alleles] > 1).astype(int).sum(axis=1) * widths.loc[child_name]
+                        ).sum() / (2 * widths.loc[child_name].sum())
+    if fraction_gain > wgd_candidate_threshold:
+
+        parent_fsa = fstlib.factory.from_string('X'.join(['X'.join(["".join(x.astype('str')) for _, x in cur_df.loc[parent_name, alleles][allele].groupby('chrom')]) for allele in alleles]),
+                                                arc_type="standard",
+                                                isymbols=symbol_table,
+                                                osymbols=symbol_table)
+        child_fsa = fstlib.factory.from_string('X'.join(['X'.join(["".join(x.astype('str')) for _, x in cur_df.loc[child_name, alleles][allele].groupby('chrom')]) for allele in alleles]),
+                                                arc_type="standard",
+                                                isymbols=symbol_table,
+                                                osymbols=symbol_table)
+
+        score_wgd = float(fstlib.score(asymm_fst, parent_fsa, child_fsa))
+        fraction_double_gain = (((cur_df.loc[child_name, alleles] > 2)
+                                 .astype(int)
+                                 .sum(axis=1)
+                                 * widths.loc[child_name]
+                                 ).sum() / widths.loc[child_name].sum())
+
+        # double wgd
+        if fraction_double_gain and (float(fstlib.score(asymm_fst_1_wgd, parent_fsa, child_fsa)) != score_wgd):
+            cur_parent_cn = 4 * cur_parent_cn
+            events.loc[len(events.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+                                             cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
+            events.loc[len(events.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+                                                cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
+        # single wgd
+        elif float(fstlib.score(asymm_fst_nowgd, parent_fsa, child_fsa)) != score_wgd:
+            cur_parent_cn = 2 * cur_parent_cn
+            events.loc[len(events.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+                                             cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
+
+    # 3. losses and gains
+    tloss_pos = (cur_parent_cn == 0)
+    for allele in alleles:
+
+        all_changes = np.unique(cur_child_cn[allele] - cur_parent_cn[allele])
+        all_changes = np.setdiff1d(np.arange(np.min(all_changes), np.max(all_changes)+1), [0])
+        for cur_cn_change in all_changes[np.argsort(np.abs(all_changes))[::-1]]:
+            cur_event = 'gain' if cur_cn_change > 0 else 'loss'
+
+            cur_change_location = ((cur_child_cn.loc[~tloss_pos[allele], allele] -
+                        cur_parent_cn.loc[~tloss_pos[allele], allele]) == cur_cn_change)
+
+            event_labels_ = ((np.cumsum(np.concatenate([[0], np.diff(
+                (cur_change_location.values + cur_chroms[~tloss_pos[allele]]))])
+                * cur_change_location.values) + 1)
+                * cur_change_location.values)
+
+            event_labels = np.zeros_like(event_labels_)
+            for i, j in enumerate(np.unique(event_labels_)):
+                event_labels[event_labels_ == j] = i
+
+            cur_events = (cur_child_cn
+                          .loc[~tloss_pos[allele]]
+                          .reset_index()
+                          .loc[np.array([np.argmax(event_labels == val) for val in np.setdiff1d(np.unique(event_labels), [0])])]
+                          [['chrom', 'start', 'end', allele]].values)
+            # adjust ends
+            cur_events[:, 2] = (cur_child_cn
+                                .loc[~tloss_pos[allele]]
+                                .reset_index()
+                                .loc[np.array([len(event_labels) - np.argmax(event_labels[::-1] == val) - 1 for val in np.setdiff1d(np.unique(event_labels), [0])])]
+                                ['end'].values)
+
+            cur_ind = np.arange(len(events), len(events)+len(cur_events))
+            events = events.append(pd.DataFrame(index=cur_ind))
+            events.loc[cur_ind, 'sample_id'] = child_name
+            events.loc[cur_ind, 'allele'] = allele
+            events.loc[cur_ind, 'type'] = cur_event
+            events.loc[cur_ind, 'cn_child'] = cur_events[:, 3]
+            events.loc[cur_ind, ['chrom', 'start', 'end']] = cur_events[:, :3]
+
+            cur_child_cn.loc[np.intersect1d(tloss_pos.loc[~tloss_pos[allele]].index,
+                                            cur_change_location.loc[cur_change_location].index), allele] += (1 if (cur_cn_change < 0) else -1)
+
+    chrom_offset = cur_df.reset_index().groupby('chrom', sort=False).max()['end']
+    chrom_offset.dropna(inplace=True)
+    chrom_offset.loc[:] = np.append(0, chrom_offset.cumsum().values[:-1])
+    chrom_offset.name = 'chrom_offset'
+    # chr0 is used for WGDs
+    chrom_offset.index = chrom_offset.index.add_categories('chr0')
+    chrom_offset['chr0'] = 0
+
+    events = (events.set_index(['chrom'])
+                    .join(chrom_offset, how='inner')
+                    .reset_index()
+                    .sort_values(['sample_id', 'chrom', 'start', 'end']))
+    events = events[['sample_id', 'chrom', 'start', 'end', 'allele',
+                     'type', 'cn_child', 'chrom_offset']].reset_index(drop=True)
+
+    return events
+
+
+def compute_cn_change(df, tree, normal_name='diploid'):
+    cn_change = df.copy()
+    alleles = cn_change.columns
+    for allele in alleles:
+        cn_change[allele] = cn_change[allele].astype('int')
 
     clades = [clade for clade in tree.find_clades(order = "postorder") if clade.name is not None and clade.name != normal_name]
     for clade in clades:
         for child in clade.clades:
-            dfderiv.loc[child.name, alleles] = dfderiv.loc[child.name, alleles].values - dfderiv.loc[clade.name, alleles].values
-    dfderiv.loc[clades[-1].name, alleles] = dfderiv.loc[clades[-1].name, alleles].values - dfderiv.loc[normal_name, alleles].values
-    dfderiv.loc[normal_name, alleles] = 0
+            cn_change.loc[child.name, alleles] = cn_change.loc[child.name, alleles].values - cn_change.loc[clade.name, alleles].values
+    cn_change.loc[clades[-1].name, alleles] = cn_change.loc[clades[-1].name, alleles].values - cn_change.loc[normal_name, alleles].values
+    cn_change.loc[normal_name, alleles] = 0
 
-    return dfderiv
+    return cn_change
+
 
 def summarise_patient(tree, pdm, sample_labels, normal_name):
     branch_lengths = []

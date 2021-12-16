@@ -147,7 +147,7 @@ def plot_cn_profiles(
     df = df.reset_index().set_index(['sample_id', 'chrom', 'start', 'end'])
 
     if plot_summary or plot_subclonal_summary:
-        agg_events = core.compute_change_events(df=df, tree=input_tree, normal_name=normal_name)
+        agg_events = core.compute_cn_change(df=df, tree=input_tree, normal_name=normal_name)
         agg_events = agg_events.groupby(["chrom", "start", "end"], observed=True).sum()
 
         agg_events.loc[:, ['start_pos', 'end_pos', 'small_segment']
