@@ -139,7 +139,7 @@ def _single_bootstrap_run(input_df, fst, bootstrap_method, i, N_bootstrap, norma
             ancestral_reconstruction=False,
             chr_separator='X')
     else:
-        _, _, _, cur_final_tree, _ = medicc.main(
+        _, _, _, cur_final_tree, _, _ = medicc.main(
             cur_df,
             fst,
             normal_name,

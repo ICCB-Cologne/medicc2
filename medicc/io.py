@@ -28,7 +28,8 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     if len(allele_columns) == 1 and not total_copy_numbers:
         logger.warn('You have provided only one allele column but the --total-copy-numbers flag was not set')
     if total_copy_numbers and not len(allele_columns) == 1:
-        raise MEDICCIOError("You have set the --total-copy-numbers flag but provided more than one allele column")
+        raise MEDICCIOError("You have set the --total-copy-numbers flag but provided more than one allele column. "
+                            "Set allele columns with the flag --input-allele-columns")
 
     ## Add normal sample if needed
     input_df = io.add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 

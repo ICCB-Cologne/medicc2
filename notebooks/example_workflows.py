@@ -14,7 +14,7 @@ fst = fstlib.Fst.read('../objects/wgd_asymm.fst')
 #%% Load data from tsv table and run MEDICC
 input_df = medicc.io.read_and_parse_input_data('../examples/simple_example/simple_example.tsv')
 
-sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main(
+sample_labels, pdms, nj_tree, final_tree, output_df, events_df = medicc.main(
     input_df,
     fst)
 
@@ -45,7 +45,7 @@ fasta_desc_file = pd.read_csv('../examples/OV03-04/OV03-04_descr.txt', sep=' ', 
 fasta_desc_file.head()
 
 #%% Run MEDICC
-sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main(input_df, fst)
+sample_labels, pdms, nj_tree, final_tree, output_df, events_df = medicc.main(input_df, fst)
 
 #%% Save files and plot tree and copy number track
 medicc.io.write_tree_files(final_tree, '../examples/output/OV03-04_final_tree')
@@ -72,7 +72,7 @@ print("P star: %.4f, p clock: %.4f" % (p_star, p_clock))
 # 3) WGD example
 #%% Load data and run MEDICC
 input_df = medicc.io.read_and_parse_input_data('../examples/WGD_example/WGD_example.tsv')
-sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main(input_df, fst)
+sample_labels, pdms, nj_tree, final_tree, output_df, events_df = medicc.main(input_df, fst)
 
 #%% Save files and plot tree and copy number track
 medicc.io.write_tree_files(final_tree, '../examples/output/WGD_example_final_tree')

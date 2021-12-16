@@ -85,10 +85,7 @@ def plot_cn_profiles(
                     "These are: {}".format(np.setdiff1d(allele_columns, df.columns)))
 
     if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd'], df.columns).size > 0:
-        df = core.summarize_changes(df,
-                                    input_tree,
-                                    normal_name,
-                                    allele_columns=allele_columns)
+        df, _ = core.calculate_all_events(input_tree, df, allele_columns, normal_name)
 
     if hide_normal_chromosomes:
         df = df.join(df.groupby('chrom')['is_normal'].all().to_frame('hide'))
@@ -111,7 +108,7 @@ def plot_cn_profiles(
         else:
             samples = [x for x in df.index.get_level_values('sample_id').unique() if 'internal_' not in x]
     nsamp = len(samples)
-    nsegs = df.loc[samples[0],:].groupby('chrom').size()
+    nsegs = df.loc[samples[0], :].groupby('chrom').size()
 
     if len(samples) > 20:
         logger.warn('More than 20 samples were provided. Creating the copy number tracks will take '

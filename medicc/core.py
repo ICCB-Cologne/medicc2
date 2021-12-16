@@ -93,19 +93,19 @@ def main(input_df,
         logger.info("Updating branch lengths of final tree using ancestors.")
         tools.set_sequences_on_tree_from_df(final_tree, output_df)
         update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
-        
-        
-    else:
-        output_df = input_df
 
     nj_tree.root_with_outgroup(normal_name)
     final_tree.root_with_outgroup(normal_name)
 
     if ancestral_reconstruction:
-        output_df = summarize_changes(output_df, final_tree, normal_name=normal_name,
-                                      allele_columns=allele_columns, allele_specific=(not total_copy_numbers))
+        output_df, events_df = calculate_all_events(
+            final_tree, output_df, allele_columns, normal_name)
+    else:
+        events_df = None
+        output_df = input_df
 
-    return sample_labels, pdms, nj_tree, final_tree, output_df
+
+    return sample_labels, pdms, nj_tree, final_tree, output_df, events_df
 
 
 def main_legacy(input_df,
@@ -179,13 +179,14 @@ def main_legacy(input_df,
     final_tree.root_with_outgroup(normal_name)
 
     if ancestral_reconstruction:
-        output_df = summarize_changes(
+        output_df = summarize_changes_LEGACY(
             output_df, final_tree, normal_name=normal_name, allele_columns=allele_columns)
 
     return sample_labels, pdms, nj_tree, final_tree, output_df
 
 
-def summarize_changes(input_df,
+# TODO replace with new events_df (also that doesn't use summarize_cn_changes)
+def summarize_changes_LEGACY(input_df,
                       input_tree,
                       normal_name='diploid',
                       allele_specific=False,
@@ -512,7 +513,11 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
                 child.branch_length = brs
 
 
-def calculate_all_events(tree, cur_df, alleles=('cn_a', 'cn_b')):
+def calculate_all_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name='diploid'):
+    
+    cur_df[['is_gain', 'is_loss', 'is_wgd']] = False
+    cur_df[alleles] = cur_df[alleles].astype(int)
+
     events = pd.DataFrame(columns=['sample_id', 'chrom', 'start',
                                    'end', 'allele', 'type', 'cn_child'])
 
@@ -528,14 +533,26 @@ def calculate_all_events(tree, cur_df, alleles=('cn_a', 'cn_b')):
             if child.branch_length == 0:
                 continue
 
-            cur_events = calculate_cn_events_per_branch(
+            cur_df, cur_events = calculate_cn_events_per_branch(
                 cur_df, clade.name, child.name, alleles=alleles)
 
             events = pd.concat([events, cur_events])
 
     events = events.reset_index(drop=True)
 
-    return events
+    is_normal = ~cur_df.unstack('sample_id')[['is_loss', 'is_gain', 'is_wgd']].any(axis=1)
+    is_normal.name = 'is_normal'
+    mrca = [x for x in tree.root.clades if x.name != normal_name][0].name
+    is_clonal = ~cur_df.loc[cur_df.index.get_level_values('sample_id')!=mrca].unstack('sample_id')[['is_loss', 'is_gain', 'is_wgd']].any(axis=1)
+    is_clonal.name = 'is_clonal'
+
+    cur_df = (cur_df
+              .join(is_normal, how='inner')
+              .join(is_clonal, how='inner')
+              .reorder_levels(['sample_id', 'chrom', 'start', 'end'])
+              .sort_index())
+
+    return cur_df, events
 
 
 def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn_a', 'cn_b')):
@@ -543,7 +560,7 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
     asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, symbol_table = io.load_main_fsts(
         return_symbol_table=True)
 
-    events = pd.DataFrame(columns=['sample_id', 'chrom', 'start', 'end', 'allele', 'type', 'cn_child'])
+    events_df = pd.DataFrame(columns=['sample_id', 'chrom', 'start', 'end', 'allele', 'type', 'cn_child'])
 
     cur_parent_cn = cur_df.loc[parent_name, alleles].astype(int)
     cur_child_cn = cur_df.loc[child_name, alleles].astype(int)
@@ -557,6 +574,10 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
         cur_tloss = cur_child_cn.loc[~parent_tloss[allele], allele] == 0
         if cur_tloss.sum() == 0:
             continue
+
+        cur_df.loc[child_name, 'is_loss'] = (cur_df.loc[child_name, 'is_loss'].values 
+                                             + np.logical_and(cur_child_cn[allele] == 0, 
+                                                              cur_parent_cn[allele] != 0).values)
 
         max_previous_cn = np.max(
             np.unique(cur_parent_cn.loc[~parent_tloss[allele], allele].loc[cur_tloss]))
@@ -589,13 +610,13 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
                                 .loc[np.array([len(event_labels) - np.argmax(event_labels[::-1] == ind) - 1 for ind in np.setdiff1d(np.unique(event_labels), [0])])]
                                 ['end'].values)
 
-            cur_ind = np.arange(len(events), len(events)+len(cur_events))
-            events = events.append(pd.DataFrame(index=cur_ind))
-            events.loc[cur_ind, 'sample_id'] = child_name
-            events.loc[cur_ind, 'allele'] = allele
-            events.loc[cur_ind, 'type'] = 'tloss'
-            events.loc[cur_ind, 'cn_child'] = 0
-            events.loc[cur_ind, ['chrom', 'start', 'end']] = cur_events[:, :3]
+            cur_ind = np.arange(len(events_df), len(events_df)+len(cur_events))
+            events_df = events_df.append(pd.DataFrame(index=cur_ind))
+            events_df.loc[cur_ind, 'sample_id'] = child_name
+            events_df.loc[cur_ind, 'allele'] = allele
+            events_df.loc[cur_ind, 'type'] = 'tloss'
+            events_df.loc[cur_ind, 'cn_child'] = 0
+            events_df.loc[cur_ind, ['chrom', 'start', 'end']] = cur_events[:, :3]
 
             # recalculate parental_loss and cur_tloss for next iteration
             parent_tloss = cur_parent_cn <= 0
@@ -631,23 +652,32 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
         # double wgd
         if fraction_double_gain and (float(fstlib.score(asymm_fst_1_wgd, parent_fsa, child_fsa)) != score_wgd):
             cur_parent_cn = 4 * cur_parent_cn
-            events.loc[len(events.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+            events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
                                              cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
-            events.loc[len(events.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+            events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
                                                 cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
+            cur_df.loc[child_name, 'is_wgd'] = True
         # single wgd
         elif float(fstlib.score(asymm_fst_nowgd, parent_fsa, child_fsa)) != score_wgd:
             cur_parent_cn = 2 * cur_parent_cn
-            events.loc[len(events.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+            events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
                                              cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
+            cur_df.loc[child_name, 'is_wgd'] = True
 
     # 3. losses and gains
     tloss_pos = (cur_parent_cn == 0)
     for allele in alleles:
 
-        all_changes = np.unique(cur_child_cn[allele] - cur_parent_cn[allele])
-        all_changes = np.setdiff1d(np.arange(np.min(all_changes), np.max(all_changes)+1), [0])
-        for cur_cn_change in all_changes[np.argsort(np.abs(all_changes))[::-1]]:
+        cn_changes = (cur_child_cn[allele] - cur_parent_cn[allele]).values
+        all_cn_change_vals = np.unique(cn_changes)
+
+        cur_df.loc[child_name, 'is_loss'] = np.logical_or(cur_df.loc[child_name, 'is_loss'].values,
+                                                          cn_changes < 0)
+        cur_df.loc[child_name, 'is_gain'] = np.logical_or(cur_df.loc[child_name, 'is_gain'].values,
+                                                          cn_changes > 0)
+
+        all_cn_change_vals = np.setdiff1d(np.arange(np.min(all_cn_change_vals), np.max(all_cn_change_vals)+1), [0])
+        for cur_cn_change in all_cn_change_vals[np.argsort(np.abs(all_cn_change_vals))[::-1]]:
             cur_event = 'gain' if cur_cn_change > 0 else 'loss'
 
             cur_change_location = ((cur_child_cn.loc[~tloss_pos[allele], allele] -
@@ -674,33 +704,23 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
                                 .loc[np.array([len(event_labels) - np.argmax(event_labels[::-1] == val) - 1 for val in np.setdiff1d(np.unique(event_labels), [0])])]
                                 ['end'].values)
 
-            cur_ind = np.arange(len(events), len(events)+len(cur_events))
-            events = events.append(pd.DataFrame(index=cur_ind))
-            events.loc[cur_ind, 'sample_id'] = child_name
-            events.loc[cur_ind, 'allele'] = allele
-            events.loc[cur_ind, 'type'] = cur_event
-            events.loc[cur_ind, 'cn_child'] = cur_events[:, 3]
-            events.loc[cur_ind, ['chrom', 'start', 'end']] = cur_events[:, :3]
+            cur_ind = np.arange(len(events_df), len(events_df)+len(cur_events))
+            events_df = events_df.append(pd.DataFrame(index=cur_ind))
+            events_df.loc[cur_ind, 'sample_id'] = child_name
+            events_df.loc[cur_ind, 'allele'] = allele
+            events_df.loc[cur_ind, 'type'] = cur_event
+            events_df.loc[cur_ind, 'cn_child'] = cur_events[:, 3]
+            events_df.loc[cur_ind, ['chrom', 'start', 'end']] = cur_events[:, :3]
 
             cur_child_cn.loc[np.intersect1d(tloss_pos.loc[~tloss_pos[allele]].index,
                                             cur_change_location.loc[cur_change_location].index), allele] += (1 if (cur_cn_change < 0) else -1)
 
-    chrom_offset = cur_df.reset_index().groupby('chrom', sort=False).max()['end']
-    chrom_offset.dropna(inplace=True)
-    chrom_offset.loc[:] = np.append(0, chrom_offset.cumsum().values[:-1])
-    chrom_offset.name = 'chrom_offset'
-    # chr0 is used for WGDs
-    chrom_offset.index = chrom_offset.index.add_categories('chr0')
-    chrom_offset['chr0'] = 0
+    events_df['chrom'] = tools.format_chromosomes(events_df['chrom'])
+    events_df = (events_df[['sample_id', 'allele', 'chrom', 'start', 'end', 'type', 'cn_child']]
+                 .reset_index(drop=True)
+                 .sort_values(['sample_id', 'allele', 'chrom', 'start', 'end', 'type', 'cn_child']))
 
-    events = (events.set_index(['chrom'])
-                    .join(chrom_offset, how='inner')
-                    .reset_index()
-                    .sort_values(['sample_id', 'chrom', 'start', 'end']))
-    events = events[['sample_id', 'chrom', 'start', 'end', 'allele',
-                     'type', 'cn_child', 'chrom_offset']].reset_index(drop=True)
-
-    return events
+    return cur_df, events_df
 
 
 def compute_cn_change(df, tree, normal_name='diploid'):
@@ -719,7 +739,7 @@ def compute_cn_change(df, tree, normal_name='diploid'):
     return cn_change
 
 
-def summarise_patient(tree, pdm, sample_labels, normal_name):
+def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df=None):
     branch_lengths = []
     for parent in tree.find_clades(terminal=False, order="level"):
         for child in parent.clades:
@@ -735,6 +755,14 @@ def summarise_patient(tree, pdm, sample_labels, normal_name):
     p_star = stats.star_topology_test(pdm)
     normal_index = np.flatnonzero(np.array(sample_labels) == normal_name)[0]
     p_clock = stats.molecular_clock_test(pdm, normal_index)
+    if events_df is None:
+        wgd_status = "unknown"
+    else:
+        if "wgd" not in events_df['type']:
+            wgd_status = "no WGD"
+        else:
+            wgd_status = "WGD on " + "and ".join(events_df.loc[events_df['type'] == 'wgd', 'sample_id'])
+
     result = pd.Series({
         'nsamples':nsamples,
         'normal_name':normal_name,
@@ -744,13 +772,15 @@ def summarise_patient(tree, pdm, sample_labels, normal_name):
         'min_branch_length':min_branch_length,
         'max_branch_length':max_branch_length,
         'p_star':p_star,
-        'p_clock':p_clock
+        'p_clock':p_clock,
+        'wgd_status': wgd_status,
     })
     
     return result
 
 
-def overlap_events(events_df=None, df=None, tree=None, overlap_threshold=0.9,
+# TODO: make compatible with new events_df
+def overlap_events(OLD_events_df=None, df=None, tree=None, overlap_threshold=0.9,
                    chromosome_bed='../medicc/objects/hg19_chromosome_arms.bed', regions_bed=None,
                    replace_loss_with_loh=True, allele_specific=False,
                    replace_both_arms_with_chrom=True):
@@ -761,10 +791,10 @@ def overlap_events(events_df=None, df=None, tree=None, overlap_threshold=0.9,
     all_events = pd.DataFrame(columns=['Chromosome', 'Start', 'End', 'name', 'NumberOverlaps',
                                        'FractionOverlaps', 'event', 'branch']).set_index(['Chromosome', 'Start', 'End'])
 
-    if events_df is None:
+    if OLD_events_df is None:
         if df is None or tree is None:
             raise MEDICCError("Either events_df or df and tree has to be specified")
-        events_df = summarize_changes(df, tree, allele_specific=allele_specific)
+        OLD_events_df = summarize_changes_LEGACY(df, tree, allele_specific=allele_specific)
 
     # Read chromosome regions and other regions
     if chromosome_bed is None and regions_bed is None:
@@ -788,15 +818,15 @@ def overlap_events(events_df=None, df=None, tree=None, overlap_threshold=0.9,
         else:
             regions.append(pr.PyRanges(medicc.io.read_bed_file(regions_bed)))
 
-    for branch in events_df.index.get_level_values('sample_id').unique():
+    for branch in OLD_events_df.index.get_level_values('sample_id').unique():
         # add wgd
-        if events_df.loc[branch, 'is_wgd'].any():
-            all_events = all_events.append(pd.DataFrame([['all', '0', '0', 'WGD', len(events_df.loc[events_df.index.get_level_values('sample_id').unique()[0]]), 1.0, 'WGD', branch]],
+        if OLD_events_df.loc[branch, 'is_wgd'].any():
+            all_events = all_events.append(pd.DataFrame([['all', '0', '0', 'WGD', len(OLD_events_df.loc[OLD_events_df.index.get_level_values('sample_id').unique()[0]]), 1.0, 'WGD', branch]],
                                                         columns=['Chromosome', 'Start', 'End', 'name', 'NumberOverlaps', 'FractionOverlaps', 'event', 'branch']).set_index(['Chromosome', 'Start', 'End']))
         
         for event in ['loh', 'gain', 'loss'] if replace_loss_with_loh else ['gain', 'loss']:
 
-            cur_events_ranges = events_df.loc[branch].reset_index().rename(
+            cur_events_ranges = OLD_events_df.loc[branch].reset_index().rename(
                 {'chrom': 'Chromosome', 'start': 'Start', 'end': 'End'}, axis=1)
             cur_events_ranges = cur_events_ranges.loc[cur_events_ranges['is_{}'.format(event)]]
             cur_events_ranges = pr.PyRanges(cur_events_ranges)
