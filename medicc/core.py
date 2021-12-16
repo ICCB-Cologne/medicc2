@@ -100,6 +100,8 @@ def main(input_df,
     if ancestral_reconstruction:
         output_df, events_df = calculate_all_events(
             final_tree, output_df, allele_columns, normal_name)
+        if len(events_df) != final_tree.total_branch_length():
+            logger.warn("Event recreation was faulty. Events in '_cn_events_df.tsv' might be incorrect")
     else:
         events_df = None
         output_df = input_df
@@ -746,7 +748,7 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
             if child.branch_length:
                 branch_lengths.append(child.branch_length)
     
-    nsamples=len(sample_labels)
+    nsamples = len(sample_labels)
     tree_length = np.sum(branch_lengths)
     avg_branch_length = np.mean(branch_lengths)
     min_branch_length = np.min(branch_lengths)
@@ -758,10 +760,10 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
     if events_df is None:
         wgd_status = "unknown"
     else:
-        if "wgd" not in events_df['type']:
-            wgd_status = "no WGD"
+        if "wgd" in events_df['type'].values:
+            wgd_status = "WGD on branch" + "and ".join(events_df.loc[events_df['type'] == 'wgd', 'sample_id'])
         else:
-            wgd_status = "WGD on " + "and ".join(events_df.loc[events_df['type'] == 'wgd', 'sample_id'])
+            wgd_status = "no WGD"
 
     result = pd.Series({
         'nsamples':nsamples,
