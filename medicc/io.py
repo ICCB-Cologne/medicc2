@@ -57,6 +57,19 @@ def read_fst(user_fst=None, no_wgd=False, n_wgd=None):
 
     return fstlib.read(fst_path)
 
+
+def load_main_fsts(return_symbol_table=False):
+    asymm_fst = read_fst()
+    asymm_fst_nowgd = read_fst(no_wgd=True)
+    asymm_fst_1_wgd = read_fst(n_wgd=1)
+
+    if return_symbol_table:
+        symbol_table = asymm_fst.input_symbols()
+        return asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, symbol_table
+    else:
+        return asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd
+
+
 def validate_input(input_df, symbol_table):
     # Check the number of alleles
     if len(input_df.columns)>2:
