@@ -208,8 +208,8 @@ medicc.io.write_pdms(sample_labels, pdms, os.path.join(output_dir, output_prefix
 
 ## Write trees
 logger.info("Writing trees.")
-medicc.io.write_tree_files(tree=nj_tree, out_name=os.path.join(
-    output_dir, output_prefix + "_nj_tree"))
+# medicc.io.write_tree_files(tree=nj_tree, out_name=os.path.join(
+#     output_dir, output_prefix + "_nj_tree"))
 medicc.io.write_tree_files(tree=final_tree, out_name=os.path.join(
     output_dir, output_prefix + "_final_tree"))
 
