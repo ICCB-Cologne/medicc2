@@ -199,12 +199,11 @@ else:
         chr_separator=args.fst_chr_separator.strip(),
         prune_weight=args.prune_weight,
         allele_columns=allele_columns,
-        n_cores=args.n_cores,
-        total_copy_numbers=args.total_copy_numbers)
+        n_cores=args.n_cores)
 
 ## Output pairwise distance matrices
 logger.info("Writing pairwise distance matrices.")
-medicc.io.write_pdms(sample_labels, pdms, os.path.join(output_dir, output_prefix + "_pdm"))
+medicc.io.write_pdms(sample_labels, pdms, os.path.join(output_dir, output_prefix + "_pairwise_distances"))
 
 ## Write trees
 logger.info("Writing trees.")

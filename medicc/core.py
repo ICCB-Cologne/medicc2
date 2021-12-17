@@ -25,8 +25,7 @@ def main(input_df,
          chr_separator='X',
          prune_weight=0,
          allele_columns=['cn_a', 'cn_b'],
-         n_cores=None,
-         total_copy_numbers=False):
+         n_cores=None):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
@@ -550,8 +549,13 @@ def calculate_all_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name='di
 
     cur_df = (cur_df
               .join(is_normal, how='inner')
-              .join(is_clonal, how='inner')
               .reorder_levels(['sample_id', 'chrom', 'start', 'end'])
+              .sort_index()
+              .join(is_clonal, how='inner')
+              .reset_index())
+    cur_df['chrom'] = tools.format_chromosomes(cur_df['chrom'])
+    cur_df = (cur_df
+              .set_index(['sample_id', 'chrom', 'start', 'end'])
               .sort_index())
 
     return cur_df, events
