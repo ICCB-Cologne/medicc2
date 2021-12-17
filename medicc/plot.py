@@ -71,11 +71,6 @@ def plot_cn_profiles(
         clonal_transparant=False,
         label_func=None):
     
-    if input_tree is None or normal_name is None: 
-        plot_summary = False
-        plot_subclonal_summary = False
-        plot_clonal_summary = False
-
     df = input_df.copy()
     if len(allele_columns) > 2:
         logger.warn("More than two allels were provided ({})\n"
@@ -110,7 +105,13 @@ def plot_cn_profiles(
     nsamp = len(samples)
     nsegs = df.loc[samples[0], :].groupby('chrom').size()
 
-    if len(samples) > 20:
+    # == 2 because of diploid
+    if input_tree is None or normal_name is None or nsamp == 2:
+        plot_summary = False
+        plot_subclonal_summary = False
+        plot_clonal_summary = False
+
+    if nsamp > 20:
         logger.warn('More than 20 samples were provided. Creating the copy number tracks will take '
                     'a long time to process and might crash.\nBest to use plot_tree instead.')
 
