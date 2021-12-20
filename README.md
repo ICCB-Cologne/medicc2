@@ -75,6 +75,12 @@ MEDICC creates the following output files:
 * `_events_overlap.tsv`: Overlap of copy-number events with regions of interest (see below)
 
 
+## Output plots
+The file `_cn_profiles.pdf` contains most of the information of the MEDICC2 output. The left part consists of the inferred phylogenetic tree including the number of events in the branches. The right part is made up of the copy-number profiles of the samples as well as the reconstructed ancestral nodes. Copy-number events are also marked in the respective copy-number profiles where they appear.
+
+**Legend**
+![legend of copy-number plot](doc/MEDICC2_cn_plot_legend.png)
+
 ## Usage examples
 For first time users we recommend to have a look at `examples/simple_example` to get an idea of how input data should look like. Then run `medicc2 examples/simple_example/simple_example.tsv path/to/output/folder` as an example of a standard MEDICC run. Finally, the notebook `notebooks/example_workflows.py` shows how the individual functions in the workflow are used.
 
