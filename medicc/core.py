@@ -547,6 +547,7 @@ def calculate_all_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name='di
     is_clonal = ~cur_df.loc[cur_df.index.get_level_values('sample_id')!=mrca].unstack('sample_id')[['is_loss', 'is_gain', 'is_wgd']].any(axis=1)
     is_clonal.name = 'is_clonal'
 
+    cur_df = cur_df.drop(['is_normal', 'is_clonal'], axis=1, errors='ignore')
     cur_df = (cur_df
               .join(is_normal, how='inner')
               .reorder_levels(['sample_id', 'chrom', 'start', 'end'])
