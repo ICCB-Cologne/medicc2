@@ -32,7 +32,7 @@ def test_medicc_with_example():
 
     expected_files = ['simple_example_cn_profiles.pdf', 'simple_example_final_cn_profiles.tsv',
                       'simple_example_final_tree.new', 'simple_example_final_tree.png',
-                      'simple_example_final_tree.xml', 'simple_example_pairwise_distances_total.tsv',
+                      'simple_example_final_tree.xml', 'simple_example_pairwise_distances.tsv',
                       'simple_example_summary.tsv', 'simple_example_cn_events_df.tsv']
     all_files_exist = [os.path.isfile(os.path.join('examples/test_output/', f)) for f in expected_files]
     subprocess.Popen(["rm", "examples/test_output", "-rf"])
@@ -56,7 +56,7 @@ def test_medicc_with_example_total_copy_numbers():
 
     expected_files = ['simple_example_cn_profiles.pdf', 'simple_example_final_cn_profiles.tsv',
                       'simple_example_final_tree.new', 'simple_example_final_tree.png',
-                      'simple_example_final_tree.xml', 'simple_example_pairwise_distances_total.tsv',
+                      'simple_example_final_tree.xml', 'simple_example_pairwise_distances.tsv',
                       'simple_example_summary.tsv', 'simple_example_cn_events_df.tsv']
     all_files_exist = [os.path.isfile(os.path.join('examples/test_output/', f))
                        for f in expected_files]

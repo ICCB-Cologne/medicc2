@@ -31,24 +31,6 @@ def set_sequences_on_tree_from_df(tree: Bio.Phylo.BaseTree, df: pd.DataFrame, cl
             except KeyError:
                 pass
 
-def set_sequences_on_tree(tree, fsa_dicts, allele_labels, clear_before=True): 
-    """LEGACY - treats alleles separately"""
-    if not hasattr(tree.root, 'sequences'):
-        tree = tree.as_phyloxml()
-    for clade in tree.find_clades():
-        if clear_before:
-            clade.sequences.clear()
-        for label, fsa_dict in zip(allele_labels, fsa_dicts):
-            try:
-                fsa = fsa_dict[clade.name]
-                clade.sequences.append(
-                    Bio.Phylo.PhyloXML.Sequence(
-                        name=fsa_to_string(fsa),
-                        symbol=label.upper())
-                ) 
-            except KeyError:
-                pass
-
 
 def fsa_to_string(fsa):
     fsa_string = fstlib.tools.strings(fsa).string[0]
@@ -85,33 +67,6 @@ def format_chromosomes(ds):
                     "chr2, ... to avoid potential errors.")
         newchr = pd.Categorical(ds, categories=ds.unique())
     return newchr
-
-def lcp(m):
-    """ Returns the longest common prefix of a set of strings (in an iterable). """
-    if m is None: 
-        return None
-    
-    s1 = min(m)
-    s2 = max(m)
-    for i, c in enumerate(s1):
-        if c != s2[i]:
-            return s1[:i]
-    return s1
-
-def format_sample_ids(ds, underscore_replacement=None):
-    """ Replaces _ with spaces and inserts \n in the sample id after the longest 
-    common prefix. """
-    if underscore_replacement is not None:
-        output = ds.str.replace('_', underscore_replacement)
-    else:
-        output = ds.copy()
-    prefix = lcp(output)
-    if prefix!='':
-        if underscore_replacement and prefix.endswith(underscore_replacement):
-            output = output.str.replace(prefix, prefix[:-1] + '\n')
-        else:
-            output = output.str.replace(prefix, prefix + '\n')
-    return output
 
 
 def next_prime(N):

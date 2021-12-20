@@ -42,7 +42,6 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--prefix`, '-p': Output prefix to be used. None uses input filename. Default: None
 * `--no-wgd`: Disable whole-genome doubling events. Default: False
 * `--no-plot`: Disable plotting. Default: False
-* `--legacy-version`: Use legacy version in which alleles are treated separately. Default: False
 * `--total-copy-numbers`: Run for total copy number data instead of allele-specific data. Default: False
 * `-j`, `--n-cores`: Number of cores to run on. Default: None
 * `-v`, `--verbose`: Enable verbose output. Default: False

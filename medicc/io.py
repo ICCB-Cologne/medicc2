@@ -242,17 +242,13 @@ def write_tree_files(tree, out_name: str, plot_tree=True, draw_ascii=False):
                        label_func=lambda x: x if 'internal' not in x else '',
                        show_branch_lengths=True)
 
-def write_pdms(sample_labels, pdms, filename_prefix):
-    """ Writes all PDMs in the pdms dictionary. """
-    for allele, pdm in pdms.items():
-        _write_pdm(sample_labels, pdm, "%s_%s.tsv" % (filename_prefix, allele))
+def write_pairwise_distances(sample_labels, pairwise_distances, filename_prefix):
+    """ Write the pairwise distance matrix as a tsv."""
 
-def _write_pdm(labels, pdm, filename):
-    """ Writes a single PDM to the given filename using the provided labels as row and column names. """
-    if not isinstance(pdm, pd.DataFrame):
-        pdm = pd.DataFrame(pdm, columns = labels, index = labels)
-    pdm.to_csv(filename, sep='\t')
-    return pdm
+    if not isinstance(pairwise_distances, pd.DataFrame):
+        pairwise_distances = pd.DataFrame(pairwise_distances, columns=sample_labels, index=sample_labels)
+    pairwise_distances.to_csv(f"{filename_prefix}.tsv", sep='\t')
+
 
 def import_tree(tree_file, normal_name='diploid', file_format='newick'):
     """ Loads a phylogenetic tree in the given format and roots it at the normal sample. """

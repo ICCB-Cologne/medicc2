@@ -41,18 +41,18 @@ def main(input_df,
     ## Calculate pairwise distances
     logger.info("Calculating pairwise distance matrices")
     if n_cores is not None and n_cores > 1:
-        pdms = {'total': parallelization_calc_pairwise_distance_matrix(sample_labels, 
+        pairwise_distances = parallelization_calc_pairwise_distance_matrix(sample_labels, 
                                                                        asymm_fst,
                                                                        FSA_dict,
-                                                                       n_cores)}
+                                                                       n_cores)
     else:
-        pdms = {'total': calc_pairwise_distance_matrix(asymm_fst, FSA_dict)}
+        pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, FSA_dict)
 
     ## Reconstruct a tree
     if input_tree is None:
         logger.info("Inferring tree topology.")
         nj_tree = infer_tree_topology(
-            pdms['total'].values, pdms['total'].index, normal_name=normal_name)
+            pairwise_distances.values, pairwise_distances.index, normal_name=normal_name)
     else:
         logger.info("Tree provided, using it.")
 
@@ -96,7 +96,7 @@ def main(input_df,
     final_tree.root_with_outgroup(normal_name)
 
     if ancestral_reconstruction:
-        output_df, events_df = calculate_all_events(
+        output_df, events_df = calculate_all_cn_events(
             final_tree, output_df, allele_columns, normal_name)
         if len(events_df) != final_tree.total_branch_length():
             logger.warn("Event recreation was faulty. Events in '_cn_events_df.tsv' might be incorrect")
@@ -105,190 +105,7 @@ def main(input_df,
         output_df = input_df
 
 
-    return sample_labels, pdms, nj_tree, final_tree, output_df, events_df
-
-
-def main_legacy(input_df,
-                asymm_fst,
-                normal_name='diploid',
-                input_tree=None,
-                ancestral_reconstruction=True,
-                chr_separator='X',
-                prune_weight=0,
-                allele_columns=['cn_a', 'cn_b'],
-                n_cores=None):
-    """ MEDICC Main Method 
-    LEGACY VERSION: The alleles are treated separately in the WGD step"""
-
-    symbol_table = asymm_fst.input_symbols()
-
-    ## Validate input
-    logger.info("Validating input.")
-    io.validate_input(input_df, symbol_table)
-
-    ## Compile input data into FSAs stored in dictionaries
-    logger.info("Compiling input sequences into FSAs.")
-    FSA_dicts = [create_standard_fsa_dict_from_data(input_df[c], symbol_table, chr_separator) 
-                    for c in input_df]
-
-    ## Calculate pairwise distances
-    logger.info("Calculating pairwise distance matrices for both alleles")
-    sample_labels = input_df.index.get_level_values('sample_id').unique()
-    if n_cores is not None and n_cores > 1:
-        pdms = {allele: parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, fsa_dict, n_cores)
-                    for allele, fsa_dict in zip(input_df.columns, FSA_dicts)}
-    else:
-        pdms = {allele: calc_pairwise_distance_matrix(asymm_fst, fsa_dict) 
-                    for allele, fsa_dict in zip(input_df.columns, FSA_dicts)}
-    pdms['total'] = sum(pdms.values())
-
-    ## Reconstruct a tree
-    if input_tree is None:
-        logger.info("Inferring tree topology.")
-        nj_tree = infer_tree_topology(pdms['total'].values, sample_labels, normal_name=normal_name)
-    else:
-        logger.info("Tree provided, using it.")
-        nj_tree = input_tree
-    
-    tools.set_sequences_on_tree(nj_tree, FSA_dicts, input_df.columns)
-
-    final_tree = copy.deepcopy(nj_tree)
-
-    if ancestral_reconstruction:
-        logger.info("Reconstructing ancestors.")
-        ancestors = [medicc.reconstruct_ancestors(tree=final_tree,
-                                                  samples_dict=fsa_dict,
-                                                  fst=asymm_fst,
-                                                  normal_name=normal_name,
-                                                  prune_weight=prune_weight)
-                     for fsa_dict in FSA_dicts]
-
-        ## Create and write output data frame with ancestors
-        logger.info("Creating output table.")
-        output_df = create_df_from_fsa(input_df, ancestors)
-
-        ## Update branch lengths with ancestors
-        logger.info("Updating branch lengths of final tree using ancestors.")
-        tools.set_sequences_on_tree(final_tree, ancestors, input_df.columns)
-        update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
-        
-    else:
-        output_df = input_df
-
-    nj_tree.root_with_outgroup(normal_name)
-    final_tree.root_with_outgroup(normal_name)
-
-    if ancestral_reconstruction:
-        output_df = summarize_changes_LEGACY(
-            output_df, final_tree, normal_name=normal_name, allele_columns=allele_columns)
-
-    return sample_labels, pdms, nj_tree, final_tree, output_df
-
-
-# TODO replace with new events_df (also that doesn't use summarize_cn_changes)
-def summarize_changes_LEGACY(input_df,
-                      input_tree,
-                      normal_name='diploid',
-                      allele_specific=False,
-                      calc_wgd=True,
-                      chr_separator='X',
-                      asymm_fst_nowgd=None,
-                      allele_columns=['cn_a', 'cn_b']):
-    df = input_df.copy()
-
-    ## we're force converting to categoricals to always maintain the order of the chromosomes as given
-    if not pd.api.types.is_categorical_dtype(df.index.get_level_values('chrom')):
-        df.reset_index('chrom', inplace=True)
-        df['chrom'] = pd.Categorical(df['chrom'], categories=df['chrom'].unique())
-        df.set_index('chrom', inplace=True, append=True)
-        df = df.reorder_levels(['sample_id', 'chrom', 'start', 'end'])
-
-    ## test if region is fully conserved
-    df.columns.name = 'allele'
-    df = df.unstack('sample_id').stack('allele')
-    is_normal = df.apply(lambda x: (x.loc[normal_name] == x).all(), axis=1).unstack(
-        'allele').apply(lambda x: np.all(x), axis=1)
-    is_clonal = df.drop(normal_name, axis=1).apply(lambda x: (x.iloc[0] == x).all(), axis=1).unstack(
-        'allele').apply(lambda x: np.all(x), axis=1)
-
-    for a in df:
-        df[a] = df[a].astype(int)
-    df = df.unstack('allele').stack('sample_id')
-    df = df.reorder_levels(['sample_id', 'chrom', 'start', 'end'])
-    df.sort_index(inplace=True)
-    cats = df.index.get_level_values('chrom').categories
-    df = df.join(is_clonal.to_frame('is_clonal').join(is_normal.to_frame('is_normal')))
-
-    ## now work around pandas bug of dropping categoricals
-    df.reset_index(inplace=True)
-    df.loc[:, 'chrom'] = pd.Categorical(df['chrom'], categories=cats)
-    df.set_index(input_df.index.names, inplace=True)
-    df.sort_index(inplace=True)
-
-    df['is_loh'] = False
-    df['is_wgd'] = False
-
-    if input_tree is not None:
-        cn_changes = compute_cn_change(df[input_df.columns], input_tree, normal_name)
-        df.loc[:, 'is_gain'] = np.any(cn_changes.values > 0, axis=1)
-        df.loc[:, 'is_loss'] = np.any(cn_changes.values < 0, axis=1)
-        df.loc[np.logical_and(cn_changes[allele_columns] < 0,
-                              df[allele_columns] == 0).any(axis=1), 'is_loh'] = True
-        if allele_specific:
-            df.loc[:, 'is_gain_a'] = cn_changes['cn_a'].values > 0
-            df.loc[:, 'is_loss_a'] = cn_changes['cn_a'].values < 0
-            df.loc[:, 'is_gain_b'] = cn_changes['cn_b'].values > 0
-            df.loc[:, 'is_loss_b'] = cn_changes['cn_b'].values < 0
-    else:
-        df['is_gain'] = False
-        df['is_loss'] = False
-        if allele_specific:
-            df.loc[:, 'is_gain_a'] = False
-            df.loc[:, 'is_loss_a'] = False
-            df.loc[:, 'is_gain_b'] = False
-            df.loc[:, 'is_loss_b'] = False
-
-    if input_tree is not None and calc_wgd:
-
-        if asymm_fst_nowgd is None:
-            asymm_fst_nowgd = medicc.io.read_fst(no_wgd=True)
-
-        # To save time only potential candidates are investigated further
-        wgd_candidate_threshold = 0.3
-        df['width'] = df.eval('end-start')
-        fraction_gain = (df['is_gain'].astype(int) * df['width']
-                         ).groupby('sample_id').sum() / df.loc[df.index.get_level_values('sample_id')[0], 'width'].sum()
-        wgd_candidates = list(fraction_gain.index[(fraction_gain > wgd_candidate_threshold)])
-
-        for candidate in wgd_candidates:
-            if len(input_tree.get_path(candidate)) == 1:
-                parent = normal_name
-            else:
-                parent = input_tree.get_path(candidate)[-2].name
-            cur_FSA_dict = create_standard_fsa_dict_from_data(
-                df.loc[[candidate, parent], allele_columns], asymm_fst_nowgd.input_symbols(), chr_separator)
-            if float(fstlib.score(asymm_fst_nowgd, cur_FSA_dict[parent], cur_FSA_dict[candidate])) != list(input_tree.find_clades(candidate))[0].branch_length:
-                df.loc[candidate, 'is_wgd'] = True
-                df.loc[candidate, 'is_gain'] = False
-                df.loc[candidate, 'is_loss'] = False
-                if allele_specific:
-                    df.loc[candidate, 'is_gain_a'] = False
-                    df.loc[candidate, 'is_loss_a'] = False
-                    df.loc[candidate, 'is_gain_b'] = False
-                    df.loc[candidate, 'is_loss_b'] = False
-
-                # calculate subsequent losses and gains
-                cur_change = df.loc[candidate, allele_columns] - \
-                    (df.loc[parent, allele_columns] + 1)
-                df.loc[candidate, 'is_gain'] = np.any(cur_change.values > 0, axis=1)
-                df.loc[candidate, 'is_loss'] = np.any(cur_change.values < 0, axis=1)
-                if allele_specific:
-                    df.loc[candidate, 'is_gain_a'] = cur_change['cn_a'].values > 0
-                    df.loc[candidate, 'is_loss_a'] = cur_change['cn_a'].values < 0
-                    df.loc[candidate, 'is_gain_b'] = cur_change['cn_b'].values > 0
-                    df.loc[candidate, 'is_loss_b'] = cur_change['cn_b'].values < 0
-        df.drop('width', axis=1, inplace=True)
-    return df
+    return sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df
 
 
 def create_standard_fsa_dict_from_data(input_data,
@@ -372,46 +189,31 @@ def phase_dict(phasing_dict, model_fst, reference_fst):
     return fsa_dict_a, fsa_dict_b, scores
 
 
-def create_df_from_fsa(input_df: pd.DataFrame,
-                       fsa,
-                       separator: str = 'X'):
+def create_df_from_fsa(input_df: pd.DataFrame, fsa, separator: str = 'X'):
     """ 
     Takes a single FSA dict or a list of FSA dicts and extracts the copy number profiles.
     The allele names are taken from the input_df columns and the returned data frame has the same 
     number of rows and row index as the input_df. """
 
     alleles = input_df.columns
-    if isinstance(fsa, dict):
-        nr_alleles = len(alleles)
-        output_df = input_df.unstack('sample_id')
-
-        for sample in fsa:
-            cns = tools.fsa_to_string(fsa[sample]).split(separator)
-            if len(cns) % nr_alleles != 0:
-                raise MEDICCError('For sample {} we have {} haplotype-specific chromosomes for {} alleles'
-                                  '\nnumber of chromosomes has to be divisible by nr of alleles'.format(sample,
-                                                                                                        len(cns),
-                                                                                                        nr_alleles))
-            nr_chroms = int(len(cns) // nr_alleles)
-            for i, allele in enumerate(alleles):
-                cn = list(''.join(cns[(i*nr_chroms):((i+1)*nr_chroms)]))
-                output_df.loc[:, (allele, sample)] = cn
-
-    elif isinstance(fsa, list) and np.all([isinstance(fsa_item, dict) for fsa_item in fsa]):
-        output_index = input_df.reset_index('sample_id').index.unique()
-
-        result = {}
-        for allele, fsa_dict in zip(alleles, fsa):
-            for sample in fsa_dict:
-                cn = list(tools.fsa_to_string(fsa_dict[sample]).replace(separator, ''))
-                result[(allele, sample)] = cn
-
-        output_df = pd.DataFrame(result, index=output_index)
-        output_df.columns.names = ['allele', 'sample_id']
-
-    else:
+    if not isinstance(fsa, dict):
         raise MEDICCError("fsa input to create_df_from_fsa has to be either dict or list of dicts"
                           "Input type is {}".format(type(fsa)))
+
+    nr_alleles = len(alleles)
+    output_df = input_df.unstack('sample_id')
+
+    for sample in fsa:
+        cns = tools.fsa_to_string(fsa[sample]).split(separator)
+        if len(cns) % nr_alleles != 0:
+            raise MEDICCError('For sample {} we have {} haplotype-specific chromosomes for {} alleles'
+                              '\nnumber of chromosomes has to be divisible by nr of alleles'.format(sample,
+                                                                                                    len(cns),
+                                                                                                    nr_alleles))
+        nr_chroms = int(len(cns) // nr_alleles)
+        for i, allele in enumerate(alleles):
+            cn = list(''.join(cns[(i*nr_chroms):((i+1)*nr_chroms)]))
+            output_df.loc[:, (allele, sample)] = cn
 
     output_df = output_df.stack('sample_id')
     output_df = output_df.reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
@@ -424,11 +226,11 @@ def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_
     parallelization_groups = [sample_labels[group] for group in parallelization_groups]
     logger.info("Running {} parallel runs on {} cores".format(len(parallelization_groups), n_cores))
 
-    parallel_pdms = Parallel(n_jobs=n_cores)(delayed(calc_pairwise_distance_matrix)(
+    parallel_pairwise_distances = Parallel(n_jobs=n_cores)(delayed(calc_pairwise_distance_matrix)(
         asymm_fst, {key: val for key, val in FSA_dict.items() if key in cur_group}, True)
             for cur_group in parallelization_groups)
 
-    pdm = medicc.tools.total_pdm_from_parallel_pdms(sample_labels, parallel_pdms)
+    pdm = medicc.tools.total_pdm_from_parallel_pairwise_distances(sample_labels, parallel_pairwise_distances)
 
     return pdm
 
@@ -452,9 +254,9 @@ def calc_pairwise_distance_matrix(model_fst, fsa_dict, parallel_run=True):
     return pdm
 
 
-def infer_tree_topology(pdm, labels, normal_name):
+def infer_tree_topology(pairwise_distances, labels, normal_name):
     if len(labels) > 2:
-        tree = nj.NeighbourJoining(pdm, labels).tree
+        tree = nj.NeighbourJoining(pairwise_distances, labels).tree
 
         tmpsearch = [c for c in tree.find_clades(name = normal_name)]
         normal_node = tmpsearch[0]
@@ -476,29 +278,18 @@ def infer_tree_topology(pdm, labels, normal_name):
 
 def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
     """ Updates the branch lengths in the tree using the internal nodes supplied in the FSA dict 
-    
-    The two versions that are selected based on isinstance refer to the current and the legacy version 
-    of MEDICC2. In the legacy version the two alleles are treated as separate FSTs and therefore 
-    presented as a list.
     """
     if len(ancestor_fsa) == 2:
         child_clade = [x for x in tree.find_clades() if x.name is not None and x.name != normal_name][0]
         child_clade.branch_length = float(fstlib.score(
             fst, ancestor_fsa[normal_name], ancestor_fsa[child_clade.name]))
 
-    if isinstance(ancestor_fsa, dict):
-        def _distance_to_child(fst, ancestor_fsa, sample_1, sample_2):
-            return float(fstlib.score(fst, ancestor_fsa[sample_1], ancestor_fsa[sample_2]))
-
-    # legacy version
-    elif isinstance(ancestor_fsa, list) and np.all([isinstance(ancestor_item, dict) for ancestor_item in ancestor_fsa]):
-        def _distance_to_child(fst, ancestor_fsa_list, sample_1, sample_2):
-            return np.sum([float(fstlib.score(fst, cur_ancestor_fsa[sample_1], cur_ancestor_fsa[sample_2]))
-                           for cur_ancestor_fsa in ancestor_fsa_list])
-
-    else:
+    if not isinstance(ancestor_fsa, dict):
         raise MEDICCError("input ancestor_fsa to function update_branch_lengths has to be either a dict"
-                          "or a list of dicts\nprovided type is {}".format(type(ancestor_fsa)))
+                          "provided type is {}".format(type(ancestor_fsa)))
+
+    def _distance_to_child(fst, ancestor_fsa, sample_1, sample_2):
+        return float(fstlib.score(fst, ancestor_fsa[sample_1], ancestor_fsa[sample_2]))
 
     for clade in tree.find_clades():
         if clade.name is None:
@@ -513,7 +304,7 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
                 child.branch_length = brs
 
 
-def calculate_all_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name='diploid'):
+def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name='diploid'):
     
     cur_df[['is_gain', 'is_loss', 'is_wgd']] = False
     cur_df[alleles] = cur_df[alleles].astype(int)
@@ -799,7 +590,7 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
     if events_df is None:
         if output_df is None or tree is None:
             raise MEDICCError("Either events_df or df and tree has to be specified")
-        events_df = calculate_all_events(tree, output_df, alleles=alleles, normal_name=normal_name)
+        events_df = calculate_all_cn_events(tree, output_df, alleles=alleles, normal_name=normal_name)
     if replace_totalloss_with_loss:
         events_df.loc[events_df['type'] == 'totalloss', 'type'] = 'loss'
 

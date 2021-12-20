@@ -80,11 +80,6 @@ parser.add_argument("--no-wgd", action='store_true', default=False, dest='no_wgd
                     help='Enable whole-genome doubling events (default: False).', required=False)
 parser.add_argument("--no-plot", action='store_true', default=False,
                     help='Disable plotting (default: False).', required=False)
-parser.add_argument("--legacy-version",
-                    dest="legacy_version",
-                    action="store_true",
-                    required=False,
-                    help="Use legacy version in which alleles are treated separately")
 parser.add_argument("--total-copy-numbers",
                     dest="total_copy_numbers",
                     action='store_true',
@@ -131,13 +126,13 @@ allele_columns = [x.strip() for x in args.input_allele_columns.split(',')]
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-## Determine prefix for output files 
+# Determine prefix for output files 
 if args.prefix is None:
     output_prefix = os.path.basename(os.path.splitext(args.input_file)[0])
 else:
     output_prefix = args.prefix
 
-## Read in symbol table and transducers
+# Read in symbol table and transducers
 logger.info("Reading FST.")
 fst = medicc.io.read_fst(user_fst=args.fst, 
                          no_wgd=args.no_wgd)
@@ -148,7 +143,7 @@ if args.user_tree is not None:
 else:
     input_tree = None
 
-## Load data
+# Load data
 logger.info("Reading and parsing input data.")
 input_df = medicc.io.read_and_parse_input_data(
     filename=args.input_file,
@@ -175,54 +170,43 @@ if args.exclude_samples is not None:
 if args.n_cores is not None:
     logger.info("Running on {} cores.".format(args.n_cores))
 
-## Run main method
+# Run main method
 logger.info("Running main reconstruction routine.")
-if args.legacy_version:
-    logger.info("Using legacy version in which alleles are treated separately.")
-    sample_labels, pdms, nj_tree, final_tree, output_df = medicc.main_legacy(
-        input_df, 
-        fst, 
-        normal_name, 
-        input_tree=input_tree, 
-        ancestral_reconstruction=not args.topology_only,
-        chr_separator=args.fst_chr_separator.strip(),
-        prune_weight=args.prune_weight,
-        allele_columns=allele_columns,
-        n_cores=args.n_cores)
-else:
-    sample_labels, pdms, nj_tree, final_tree, output_df, events_df = medicc.main(
-        input_df, 
-        fst, 
-        normal_name, 
-        input_tree=input_tree, 
-        ancestral_reconstruction=not args.topology_only,
-        chr_separator=args.fst_chr_separator.strip(),
-        prune_weight=args.prune_weight,
-        allele_columns=allele_columns,
-        n_cores=args.n_cores)
+sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = medicc.main(
+    input_df, 
+    fst, 
+    normal_name, 
+    input_tree=input_tree, 
+    ancestral_reconstruction=not args.topology_only,
+    chr_separator=args.fst_chr_separator.strip(),
+    prune_weight=args.prune_weight,
+    allele_columns=allele_columns,
+    n_cores=args.n_cores)
 
-## Output pairwise distance matrices
+# Output pairwise distance matrices
 logger.info("Writing pairwise distance matrices.")
-medicc.io.write_pdms(sample_labels, pdms, os.path.join(output_dir, output_prefix + "_pairwise_distances"))
+medicc.io.write_pairwise_distances(sample_labels, pairwise_distances, os.path.join(
+    output_dir, output_prefix + "_pairwise_distances"))
 
-## Write trees
+# Write trees
 logger.info("Writing trees.")
 # medicc.io.write_tree_files(tree=nj_tree, out_name=os.path.join(
 #     output_dir, output_prefix + "_nj_tree"))
 medicc.io.write_tree_files(tree=final_tree, out_name=os.path.join(
     output_dir, output_prefix + "_final_tree"))
 
-## Write ouput table
+# Write ouput table
 output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.tsv"), sep='\t')
 
-## Write events table
+# Write events table
 if events_df is not None:
     events_df.to_csv(os.path.join(output_dir, output_prefix + "_cn_events_df.tsv"), 
                      sep='\t', index=False)
 
-## Summarize
+# Summarize
 logger.info("Writing patient summary.")
-summary = medicc.summarize_patient(final_tree, pdms['total'].values, sample_labels, normal_name, events_df)
+summary = medicc.summarize_patient(
+    final_tree, pairwise_distances.values, sample_labels, normal_name, events_df)
 logger.info("Final tree length %d", summary.tree_length)
 summary.to_csv(os.path.join(output_dir, output_prefix + "_summary.tsv"),
                index=True, header=False, sep='\t')
@@ -236,7 +220,6 @@ if args.bootstrap_nr is not None:
                                                                       N_bootstrap=args.bootstrap_nr, 
                                                                       method=args.bootstrap_method,
                                                                       normal_name=normal_name,
-                                                                      legacy_version=args.legacy_version,
                                                                       n_cores=args.n_cores)
 
     logger.info('Writing bootstrap output')
