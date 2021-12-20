@@ -231,7 +231,7 @@ def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_
         asymm_fst, {key: val for key, val in FSA_dict.items() if key in cur_group}, True)
             for cur_group in parallelization_groups)
 
-    pdm = medicc.tools.total_pdm_from_parallel_pairwise_distances(sample_labels, parallel_pairwise_distances)
+    pdm = medicc.tools.total_pdm_from_parallel_pdms(sample_labels, parallel_pairwise_distances)
 
     return pdm
 
