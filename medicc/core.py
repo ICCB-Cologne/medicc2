@@ -306,56 +306,84 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
 
 
 def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name='diploid'):
+    """Create a DataFrame containing all copy-number events in the current data
+
+    Args:
+        tree (Bio.Phylo.Tree): Phylogenetic tree created by MEDICC2's tree reconstruction
+        cur_df (pandas.DataFrame): DataFrame containing the copy-numbers of the samples and internal nodes
+        alleles (list, optional): List of alleles. Defaults to ['cn_a', 'cn_b'].
+        normal_name (str, optional): Name of the normal sample. Defaults to 'diploid'.
+
+    Returns:
+        pandas.DataFrame: Updated copy-number DataFrame
+        pandas.DataFrame: DataFrame of copy-number events
+    """
     
     cur_df[['is_gain', 'is_loss', 'is_wgd']] = False
     cur_df[alleles] = cur_df[alleles].astype(int)
+    if tree == None:
+        cur_df[['is_normal', 'is_clonal']] = False
+        events = None
+    else:
 
-    events = pd.DataFrame(columns=['sample_id', 'chrom', 'start',
-                                   'end', 'allele', 'type', 'cn_child'])
+        events = pd.DataFrame(columns=['sample_id', 'chrom', 'start',
+                                    'end', 'allele', 'type', 'cn_child'])
 
-    clades = [x for x in tree.find_clades()]
+        clades = [x for x in tree.find_clades()]
 
-    for clade in clades:
-        if not len(clade.clades):
-            continue
-        if clade.name is None:
-            clade = copy.deepcopy(clade)
-            clade.name = 'diploid'
-        for child in clade.clades:
-            if child.branch_length == 0:
+        for clade in clades:
+            if not len(clade.clades):
                 continue
+            if clade.name is None:
+                clade = copy.deepcopy(clade)
+                clade.name = 'diploid'
+            for child in clade.clades:
+                if child.branch_length == 0:
+                    continue
 
-            cur_df, cur_events = calculate_cn_events_per_branch(
-                cur_df, clade.name, child.name, alleles=alleles)
+                cur_df, cur_events = calculate_cn_events_per_branch(
+                    cur_df, clade.name, child.name, alleles=alleles)
 
-            events = pd.concat([events, cur_events])
+                events = pd.concat([events, cur_events])
 
-    events = events.reset_index(drop=True)
+        events = events.reset_index(drop=True)
 
-    is_normal = ~cur_df.unstack('sample_id')[['is_loss', 'is_gain', 'is_wgd']].any(axis=1)
-    is_normal.name = 'is_normal'
-    mrca = [x for x in tree.root.clades if x.name != normal_name][0].name
-    is_clonal = ~cur_df.loc[cur_df.index.get_level_values('sample_id')!=mrca].unstack('sample_id')[['is_loss', 'is_gain', 'is_wgd']].any(axis=1)
-    is_clonal.name = 'is_clonal'
+        is_normal = ~cur_df.unstack('sample_id')[['is_loss', 'is_gain', 'is_wgd']].any(axis=1)
+        is_normal.name = 'is_normal'
+        mrca = [x for x in tree.root.clades if x.name != normal_name][0].name
+        is_clonal = ~cur_df.loc[cur_df.index.get_level_values('sample_id')!=mrca].unstack('sample_id')[['is_loss', 'is_gain', 'is_wgd']].any(axis=1)
+        is_clonal.name = 'is_clonal'
 
-    cur_df = cur_df.drop(['is_normal', 'is_clonal'], axis=1, errors='ignore')
-    cur_df = (cur_df
-              .join(is_normal, how='inner')
-              .reorder_levels(['sample_id', 'chrom', 'start', 'end'])
-              .sort_index()
-              .join(is_clonal, how='inner')
-              .reset_index())
-    cur_df['chrom'] = tools.format_chromosomes(cur_df['chrom'])
-    cur_df = (cur_df
-              .set_index(['sample_id', 'chrom', 'start', 'end'])
-              .sort_index())
+        cur_df = cur_df.drop(['is_normal', 'is_clonal'], axis=1, errors='ignore')
+        cur_df = (cur_df
+                .join(is_normal, how='inner')
+                .reorder_levels(['sample_id', 'chrom', 'start', 'end'])
+                .sort_index()
+                .join(is_clonal, how='inner')
+                .reset_index())
+        cur_df['chrom'] = tools.format_chromosomes(cur_df['chrom'])
+        cur_df = (cur_df
+                .set_index(['sample_id', 'chrom', 'start', 'end'])
+                .sort_index())
 
-    events = events.set_index(['sample_id', 'chrom', 'start', 'end'])
+        events = events.set_index(['sample_id', 'chrom', 'start', 'end'])
 
     return cur_df, events
 
 
 def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn_a', 'cn_b')):
+    """Calculate copy-number events for a single branch. Used in calculate_all_cn_events
+
+    Args:
+        cur_df (pandas.DataFrame): DataFrame containing the copy-numbers of the samples and internal nodes
+        parent_name (str): Name of the parent sample
+        child_name (str): Name of the child sample
+        alleles (list, optional): List of alleles. Defaults to ['cn_a', 'cn_b'].
+
+    Returns:
+        pandas.DataFrame: Updated copy-number DataFrame
+        pandas.DataFrame: DataFrame of copy-number events
+    """
 
     asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, symbol_table = io.load_main_fsts(
         return_symbol_table=True)
@@ -524,6 +552,16 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
 
 
 def compute_cn_change(df, tree, normal_name='diploid'):
+    """Compute the copy-number changes per segment in all branches
+
+    Args:
+        df (pandas.DataFrame): DataFrame containing the copy-numbers of samples and internal nodes
+        tree (Bio.Phylo.Tree): Phylogenetic tree
+        normal_name (str, optional): Name of normal sample. Defaults to 'diploid'.
+
+    Returns:
+        pandas.DataFrame: DataFrame containing the copy-number changes
+    """    
     cn_change = df.copy()
     alleles = cn_change.columns
     for allele in alleles:
@@ -540,6 +578,18 @@ def compute_cn_change(df, tree, normal_name='diploid'):
 
 
 def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df=None):
+    """Calculate several summary values for the provided samples
+
+    Args:
+        tree (Bio.Phylo.Tree): Phylogenetic tree
+        pdm (pandas.DataFrame): Pairwise distance matrix between the samples
+        sample_labels (list): List of all samples
+        normal_name (str, optional): Name of normal sample. Defaults to 'diploid'.
+        events_df (pandas.DataFrame, optional): DataFrame containg all copy-number events. Defaults to None.
+
+    Returns:
+        pandas.DataFrame: Summary DataFrame
+    """    
     branch_lengths = []
     for parent in tree.find_clades(terminal=False, order="level"):
         for child in parent.clades:
@@ -585,6 +635,23 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
                    chromosome_bed='default', regions_bed='default',
                    replace_totalloss_with_loss=True, alleles=['cn_a', 'cn_b'],
                    replace_both_arms_with_chrom=True, normal_name='diploid'):
+    """Overlap copy-number events with regions of interest
+
+    Args:
+        events_df (pandas.DataFrame, optional): All copy-number events. Defaults to None.
+        output_df (pandas.DataFrame, optional): DataFrame containing all copy-numbers. Defaults to None.
+        tree (Bio.Phylo.Tree, optional): Phylogenetic tree. Defaults to None.
+        overlap_threshold (float, optional): Threshold above which an overlap is considered. Defaults to 0.9.
+        chromosome_bed (str, optional): Name of BED file containing chromosome arm information. Defaults to 'default'.
+        regions_bed (str, optional): Name of BED file containing regions of interest. Defaults to 'default'.
+        replace_totalloss_with_loss (bool, optional): If True, totalloss is considered like a normal loss. Defaults to True.
+        alleles (list, optional): List of alleles. Defaults to ['cn_a', 'cn_b'].
+        replace_both_arms_with_chrom (bool, optional): If True, an event in the p- and q-arm of a chromosome will be displayed as a single event. Defaults to True.
+        normal_name (str, optional): Name of normal sample. Defaults to 'diploid'.
+
+    Returns:
+        pandas.DataFrame: DataFrame with events concerning the regions of interest
+    """                   
 
     if chromosome_bed == 'default':
         chromosome_bed = os.path.join(os.path.dirname(os.path.realpath(__file__)),
