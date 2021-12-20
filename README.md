@@ -44,6 +44,8 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--no-plot`: Disable plotting. Default: False
 * `--total-copy-numbers`: Run for total copy number data instead of allele-specific data. Default: False
 * `-j`, `--n-cores`: Number of cores to run on. Default: None
+* `--chromosomes-bed`: BED file for chromosome regions to compare copy-number events to
+* `--regions-bed`: BED file for regions of interest to compare copy-number events to
 * `-v`, `--verbose`: Enable verbose output. Default: False
 * `-vv`, `--debug`: Enable more verbose output Default: False
 * `--maxcn`: Expert option: maximum CN at which the input is capped. Does not change FST. Default: 8
@@ -62,10 +64,28 @@ MEDICC2 follows the BED convention for segment coordinates, i.e. segment start i
 The folder `examples/simple_example` contains a simple example input both in fasta and tsv format.
 The folder `examples/OV03-04` contains a larger example consisting of multiple fasta files. If you want to run MEDICC on this data run `medicc2 examples/OV03-04/OV03-04_descr.txt path/to/output/folder --input-type fasta`.
 
+
+## Output files
+MEDICC creates the following output files:
+* `_final_tree.new`, `_final_tree.xml`, `_final_tree.png`: The final phylogenetic tree in Newick and XML format as well as an image
+* `_pairwise_distances.tsv`: A NxN matrix (N being the number of samples) of pairwise distances calculated with the symmetric MEDICC2 distance
+* `_final_cn_profiles.tsv`: Copy-number profiles of the input as well as the newly internal nodes. Also includes additional information such as whether a gain or loss has happened
+* `_copynumber_events_df.tsv`: List of all copy-number events detected 
+* `_cn_profiles.pdf`: Combined plot of the phylogenetic tree as well as the copy-number profiles of all samples (including the internal nodes)
+* `_events_overlap.tsv`: Overlap of copy-number events with regions of interest (see below)
+
+
 ## Usage examples
 For first time users we recommend to have a look at `examples/simple_example` to get an idea of how input data should look like. Then run `medicc2 examples/simple_example/simple_example.tsv path/to/output/folder` as an example of a standard MEDICC run. Finally, the notebook `notebooks/example_workflows.py` shows how the individual functions in the workflow are used.
 
 The notebook `notebooks/bootstrap_demo.py` demonstrates how to use the bootstrapping routine and `notebooks/plot_demo.py` shows how to use the main plotting functions.
+
+
+## Regions of interest
+MEDICC2 compares the detected copy-number events to regions of interest. These regions are chromosome-boundaries and known oncogenes and tumor-suppressor genes. By default MEDICC2 uses hg38 chromosome-arms and a list of genes taken from Davoli et al. Cell 2013. This data is present as BED files in the `medicc/objects` folder.
+
+Users can specify regions of interest of their own in BED format by providing the `--chromosomes-bed` or `--regions-bed` flags.
+
 
 # Issues
 If you experience problems with MEDICC2 please [file an issue directly on Bitbucket](https://bitbucket.org/schwarzlab/medicc2/issues/new) or [contact us directly](tom.kaufmann@mdc-berlin.de). 

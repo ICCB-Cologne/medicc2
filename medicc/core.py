@@ -1,5 +1,6 @@
 import copy
 import logging
+import os
 from itertools import combinations
 
 import Bio
@@ -558,7 +559,9 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
         wgd_status = "unknown"
     else:
         if "wgd" in events_df['type'].values:
-            wgd_status = "WGD on branch" + "and ".join(events_df.loc[events_df['type'] == 'wgd', 'sample_id'])
+            wgd_status = "WGD on branch" + \
+                "and ".join(events_df.loc[events_df['type'] ==
+                                          'wgd'].index.get_level_values('sample_id'))
         else:
             wgd_status = "no WGD"
 
@@ -579,10 +582,16 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
 
 
 def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=0.9,
-                   chromosome_bed='../medicc/objects/hg19_chromosome_arms.bed', 
-                   regions_bed='../medicc/objects/Davoli_2013_TSG_OG_genes.bed',
-                   replace_totalloss_with_loss=True, allele_specific=False, alleles=['cn_a', 'cn_b'],
+                   chromosome_bed='default', regions_bed='default',
+                   replace_totalloss_with_loss=True, alleles=['cn_a', 'cn_b'],
                    replace_both_arms_with_chrom=True, normal_name='diploid'):
+
+    if chromosome_bed == 'default':
+        chromosome_bed = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                      "objects", "hg19_chromosome_arms.bed")
+    if regions_bed == 'default':
+        regions_bed = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                   "objects", "Davoli_2013_TSG_OG_genes.bed")
 
     all_events = pd.DataFrame(columns=['Chromosome', 'Start', 'End', 'name', 'NumberOverlaps',
                                        'FractionOverlaps', 'event', 'branch']).set_index(['Chromosome', 'Start', 'End'])
@@ -621,27 +630,29 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
         all_events.loc[('all', '0', '0')] = ['WGD', 1, 1., 'WGD', ind[0]]
 
     for cur_branch in events_df.index.get_level_values('sample_id').unique():
-        cur_events_df = events_df.loc[cur_branch]
-        for event_type in ['gain', 'loss'] if replace_totalloss_with_loss else ['gain', 'totalloss', 'loss']:
-            cur_events_ranges = pr.PyRanges(cur_events_df.loc[cur_events_df['type'] == event_type].reset_index(
-            ).rename({'chrom': 'Chromosome', 'start': 'Start', 'end': 'End'}, axis=1))
+        for allele in alleles:
+            cur_events_df = events_df.loc[cur_branch]
+            cur_events_df = cur_events_df.loc[cur_events_df['allele']==allele]
+            for event_type in ['gain', 'loss'] if replace_totalloss_with_loss else ['gain', 'totalloss', 'loss']:
+                cur_events_ranges = pr.PyRanges(cur_events_df.loc[cur_events_df['type'] == event_type].reset_index(
+                ).rename({'chrom': 'Chromosome', 'start': 'Start', 'end': 'End'}, axis=1))
 
-            # Calculate chromosomal events
-            if chr_arm_regions is not None:
-                chr_events = overlap_regions(
-                    chr_arm_regions, cur_events_ranges, event_type, cur_branch, overlap_threshold)
-                # remove arms if the whole chromosome is in there
-                if replace_both_arms_with_chrom and len(chr_events) > 0:
-                    chr_events = chr_events[~chr_events['name'].isin(np.concatenate(
-                        [[name + 'p', name + 'q'] if ('q' not in name and 'p' not in name) else [] for name in chr_events['name']]))]
-                all_events = all_events.append(chr_events)
-
-            # Calculate other events
-            if regions is not None:
-                for region in regions:
+                # Calculate chromosomal events
+                if chr_arm_regions is not None:
                     chr_events = overlap_regions(
-                        region, cur_events_ranges, event_type, cur_branch, overlap_threshold)
+                        chr_arm_regions, cur_events_ranges, event_type, cur_branch, overlap_threshold)
+                    # remove arms if the whole chromosome is in there
+                    if replace_both_arms_with_chrom and len(chr_events) > 0:
+                        chr_events = chr_events[~chr_events['name'].isin(np.concatenate(
+                            [[name + 'p', name + 'q'] if ('q' not in name and 'p' not in name) else [] for name in chr_events['name']]))]
                     all_events = all_events.append(chr_events)
+
+                # Calculate other events
+                if regions is not None:
+                    for region in regions:
+                        chr_events = overlap_regions(
+                            region, cur_events_ranges, event_type, cur_branch, overlap_threshold)
+                        all_events = all_events.append(chr_events)
 
     all_events['final_name'] = all_events['name'].apply(lambda x: x.split(
         'chr')[-1]) + all_events['event'].apply(lambda x: ' +' if x == 'gain' else (' -' if x == 'loss' else (' 0' if x == 'totalloss' else '')))
