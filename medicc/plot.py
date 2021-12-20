@@ -80,7 +80,7 @@ def plot_cn_profiles(
                     "These are: {}".format(np.setdiff1d(allele_columns, df.columns)))
 
     if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd'], df.columns).size > 0:
-        df, _ = core.calculate_all_events(input_tree, df, allele_columns, normal_name)
+        df, _ = core.calculate_all_cn_events(input_tree, df, allele_columns, normal_name)
 
     if hide_normal_chromosomes:
         df = df.join(df.groupby('chrom')['is_normal'].all().to_frame('hide'))

@@ -267,7 +267,7 @@ def import_tree(tree_file, normal_name='diploid', file_format='newick'):
     return input_tree
 
 
-def read_bed_file(filename, as_pyranges=False):
+def read_bed_file(filename):
 
     data = pd.read_csv(filename, header=None, comment='#', sep='\t')
 
