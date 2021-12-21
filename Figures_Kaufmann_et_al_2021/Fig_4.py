@@ -6,7 +6,6 @@ import adjustText
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pyranges as pr
 import seaborn as sns
 from scipy.stats import pearsonr
 
@@ -34,8 +33,8 @@ for patient in patients:
     cur_tree = medicc.io.import_tree(os.path.join(data_folder, "{}_final_tree.new".format(patient)),
                                      'diploid', file_format='newick')
 
-    output_df = medicc.core.summarize_changes(cur_df[['cn_a', 'cn_b']], cur_tree, normal_name='diploid',
-                                      allele_columns=['cn_a', 'cn_b'])
+    output_df, events_df = medicc.core.calculate_all_cn_events(
+        cur_tree, cur_df[['cn_a', 'cn_b']], ['cn_a', 'cn_b'], 'diploid')
 
     WGD_nodes = np.unique(output_df.loc[output_df['is_wgd']].index.get_level_values('sample_id'))
     WGD_results.loc[patient, 'nr_wgds'] = len(WGD_nodes)
@@ -72,7 +71,7 @@ print('plotting Fig 4B')
 data_folder = "../examples/output_gundem_et_al_2015"
 patients = np.sort([f.split('_')[0] for f in os.listdir(data_folder) if 'final_cn_profiles.tsv' in f])
 
-all_events = {}
+all_region_overlaps = {}
 
 for patient in patients:
     cur_df = medicc.io.read_and_parse_input_data(
@@ -80,18 +79,18 @@ for patient in patients:
     cur_tree = medicc.io.import_tree(os.path.join(data_folder, "{}_final_tree.new".format(patient)),
                                      'diploid', file_format='newick')
 
-    cur_events = medicc.core.overlap_events(df=cur_df[['cn_a', 'cn_b']],
+    cur_overlap = medicc.core.overlap_events(output_df=cur_df[['cn_a', 'cn_b']],
                                             tree=cur_tree,
                                             chromosome_bed='../medicc/objects/hg19_chromosome_arms.bed',
                                             regions_bed='../medicc/objects/Davoli_2013_TSG_OG_genes.bed',
-                                            replace_loss_with_loh=True,
-                                            allele_specific=True,
+                                            replace_loh_with_loss=True,
+                                            alleles=['cn_a', 'cn_b'],
                                             replace_both_arms_with_chrom=False)
 
-    cur_events['patient'] = patient
-    all_events[patient] = cur_events
+    cur_overlap['patient'] = patient
+    all_region_overlaps[patient] = cur_overlap
 
-combined_events = pd.concat(all_events.values()).reset_index().set_index('branch')
+combined_events = pd.concat(all_region_overlaps.values()).reset_index().set_index('branch')
 regions = np.unique(combined_events['name'])
 arms = [x for x in regions if 'chr' in x and ('p' in x or 'q' in x)]
 genes = [x for x in regions if 'chr' not in x]
