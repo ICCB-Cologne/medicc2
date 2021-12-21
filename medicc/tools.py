@@ -47,12 +47,12 @@ def format_chromosomes(ds):
     The goal is to take recognisalbe chromosome names, i.e. chr4 or chrom3 and turn them into chr3 format.
     If the chromosomes names are not recognized, return them unchanged."""
     ds = ds.astype('str')
-    pattern = re.compile(r"(chr|chrom)?((\d+)|X|Y)", flags=re.IGNORECASE)
+    pattern = re.compile(r"(chr|chrom)?(_)?(0)?((\d+)|X|Y)", flags=re.IGNORECASE)
     matches = ds.apply(pattern.match)
     matchable = ~matches.isnull().any()
     if matchable:
-        newchr = matches.apply(lambda x:"chr%s" % x[2].upper())
-        numchr = matches.apply(lambda x:int(x[3]) if x[3] is not None else -1)
+        newchr = matches.apply(lambda x:"chr%s" % x[4].upper())
+        numchr = matches.apply(lambda x:int(x[5]) if x[5] is not None else -1)
         chrlevels = np.sort(numchr.unique())
         chrlevels = np.setdiff1d(chrlevels, [-1])
         chrcats = ["chr%d" % i for i in chrlevels]
@@ -64,8 +64,10 @@ def format_chromosomes(ds):
     else:
         logger = logging.getLogger('medicc.io')
         logger.warn("Could not match the chromosome labels. Rename the chromosomes according chr1, "
-                    "chr2, ... to avoid potential errors.")
+                    "chr2, ... to avoid potential errors."
+                    "Current format: {}".format(ds.unique()))
         newchr = pd.Categorical(ds, categories=ds.unique())
+    assert not newchr.isna().any(), "Could not reformat chromosome labels. Rename according to chr1, chr2, ..."
     return newchr
 
 
