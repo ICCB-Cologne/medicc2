@@ -7,10 +7,11 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # %matplotlib inline
 import fstlib
+import medicc
 
 #%%
-T_wgd_asymm = fstlib.Fst.read('../objects/wgd_asymm.fst')
-T_no_wgd_asymm = fstlib.Fst.read('../objects/no_wgd_asymm.fst')
+T_wgd_asymm = medicc.io.read_fst()
+T_no_wgd_asymm = medicc.io.read_fst(no_wgd=True)
 
 # %% phasing solution
 allele_a = '12102'

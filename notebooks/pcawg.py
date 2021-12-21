@@ -41,15 +41,18 @@ set_plotting_params()
 LOAD = True
 
 #%% FSTs
-T_wgd_asymm = fstlib.Fst.read('../medicc/objects/wgd_asymm.fst')
-T_no_wgd_asymm = fstlib.Fst.read('../medicc/objects/no_wgd_asymm.fst')
-T_1_wgd_asymm = fstlib.Fst.read('../medicc/objects/wgd_1_asymm.fst')
+T_wgd_asymm = medicc.io.read_fst()
+T_no_wgd_asymm = medicc.io.read_fst(no_wgd=True)
+T_1_wgd_asymm = medicc.io.read_fst(n_wgd=1)
 symbol_table = T_wgd_asymm.input_symbols()
 
 #%% folders and HDF5 store
-pcawg_folder = '../../data/PCAWG' ## modify this to point to your local PCAWG folder
+# modify this to point to your local PCAWG folder
+pcawg_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../data/PCAWG')
 data_folder = os.path.join(pcawg_folder, 'consensus.20170119.somatic.cna.annotated')
 metadata_folder = os.path.join(pcawg_folder, 'metadata')
+figures_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                              '../Figures_Kaufmann_et_al_2021/data/')
 
 #%% open HDF5 store
 hdfstore = pd.HDFStore(os.path.join(pcawg_folder, 'pcawg_scna.hdf5'))
@@ -378,9 +381,9 @@ ax.set_ylabel('PCAWG histology')
 result[['hom', 'ploidy_pcawg', 'pcawg_wgd', 'histology_abbreviation', 'wgd_status_medicc_bootstrap',
         'bootstrap_2_wgds', 'histology_useable', 'dist_diff', 'dist_wgd',
         'wgd_uncertain']].to_csv(
-            '../Figures_Kaufmann_et_al_2021/data/Fig_2D_and_Supp_4.tsv',
+            os.path.join(figures_folder, 'Fig_2D_and_Supp_4.tsv'),
     sep='\t', index=False)
 
 tumour_types[['Hexadecimal']].to_csv(
-    '../Figures_Kaufmann_et_al_2021/data/Supp_4_color_palette.tsv',
+    os.path.join(figures_folder, 'Supp_4_color_palette.tsv'),
     sep='\t', index=True)
