@@ -609,22 +609,22 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
         wgd_status = "unknown"
     else:
         if "wgd" in events_df['type'].values:
-            wgd_status = "WGD on branch" + \
+            wgd_status = "WGD on branch " + \
                 "and ".join(events_df.loc[events_df['type'] ==
                                           'wgd'].index.get_level_values('sample_id'))
         else:
             wgd_status = "no WGD"
 
     result = pd.Series({
-        'nsamples':nsamples,
-        'normal_name':normal_name,
-        'tree_length':tree_length,
-        'mean_branch_length':avg_branch_length,
-        'median_branch_length':median_branch_length,
-        'min_branch_length':min_branch_length,
-        'max_branch_length':max_branch_length,
-        'p_star':p_star,
-        'p_clock':p_clock,
+        'nsamples': nsamples,
+        'normal_name': normal_name,
+        'tree_length': tree_length,
+        'mean_branch_length': avg_branch_length,
+        'median_branch_length': median_branch_length,
+        'min_branch_length': min_branch_length,
+        'max_branch_length': max_branch_length,
+        'p_star': p_star,
+        'p_clock': p_clock,
         'wgd_status': wgd_status,
     })
     
