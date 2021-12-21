@@ -666,7 +666,7 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
     if events_df is None:
         if output_df is None or tree is None:
             raise MEDICCError("Either events_df or df and tree has to be specified")
-        events_df = calculate_all_cn_events(tree, output_df, alleles=alleles, normal_name=normal_name)
+        _, events_df = calculate_all_cn_events(tree, output_df, alleles=alleles, normal_name=normal_name)
     if replace_loh_with_loss:
         events_df.loc[events_df['type'] == 'loh', 'type'] = 'loss'
 
