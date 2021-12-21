@@ -78,7 +78,13 @@ MEDICC creates the following output files:
 ## Output plots
 The file `_cn_profiles.pdf` contains most of the information of the MEDICC2 output. The left part consists of the inferred phylogenetic tree including the number of events in the branches. The right part is made up of the copy-number profiles of the samples as well as the reconstructed ancestral nodes. Copy-number events are also marked in the respective copy-number profiles where they appear.
 
+**Example**
+
+![](doc/MEDICC2_cn_plot_example.png)
+
+
 **Legend**
+Example from patient PTX011 from the Gundem et al. Nature 2015. The data can be found in `example/gundem_et_al_2015/`.
 
 ![legend of copy-number plot](doc/MEDICC2_cn_plot_legend.png)
 
