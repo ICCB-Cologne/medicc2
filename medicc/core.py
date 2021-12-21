@@ -395,12 +395,12 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
     cur_chroms = cur_df.loc['diploid'].index.get_level_values(
         'chrom').map(lambda x: int(x.split('chr')[-1])).values.astype(int)
 
-    # 1. find total losss (totalloss)
-    parent_totalloss = cur_parent_cn == 0
+    # 1. find total losss (loh)
+    parent_loh = cur_parent_cn == 0
     for allele in alleles:
 
-        cur_totalloss = cur_child_cn.loc[~parent_totalloss[allele], allele] == 0
-        if cur_totalloss.sum() == 0:
+        cur_loh = cur_child_cn.loc[~parent_loh[allele], allele] == 0
+        if cur_loh.sum() == 0:
             continue
 
         cur_df.loc[child_name, 'is_loss'] = (cur_df.loc[child_name, 'is_loss'].values 
@@ -408,32 +408,32 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
                                                               cur_parent_cn[allele] != 0).values)
 
         max_previous_cn = np.max(
-            np.unique(cur_parent_cn.loc[~parent_totalloss[allele], allele].loc[cur_totalloss]))
+            np.unique(cur_parent_cn.loc[~parent_loh[allele], allele].loc[cur_loh]))
 
         for _ in np.arange(max_previous_cn):
-            cur_totalloss_and_parental_val = np.logical_and(cur_totalloss.values, 
-                                                        cur_parent_cn.loc[~parent_totalloss[allele], allele] > 0).values
+            cur_loh_and_parental_val = np.logical_and(cur_loh.values, 
+                                                        cur_parent_cn.loc[~parent_loh[allele], allele] > 0).values
 
             event_labels_ = ((np.cumsum(np.concatenate([[0], np.diff(
-                (cur_totalloss_and_parental_val + cur_chroms[~parent_totalloss[allele]]))])
-                * cur_totalloss_and_parental_val) + 1)
-                * cur_totalloss_and_parental_val)
+                (cur_loh_and_parental_val + cur_chroms[~parent_loh[allele]]))])
+                * cur_loh_and_parental_val) + 1)
+                * cur_loh_and_parental_val)
 
             event_labels = np.zeros_like(event_labels_)
             for i, j in enumerate(np.unique(event_labels_)):
                 event_labels[event_labels_ == j] = i
 
-            cur_parent_cn.loc[parent_totalloss.loc[~parent_totalloss[allele],
-                                               allele].index[cur_totalloss_and_parental_val], allele] -= 1
+            cur_parent_cn.loc[parent_loh.loc[~parent_loh[allele],
+                                               allele].index[cur_loh_and_parental_val], allele] -= 1
 
             cur_events = (cur_parent_cn
-                        .loc[~parent_totalloss[allele]]
+                        .loc[~parent_loh[allele]]
                         .reset_index()
                         .loc[np.array([np.argmax(event_labels == ind) for ind in np.setdiff1d(np.unique(event_labels), [0])])]
                         [['chrom', 'start', 'end']].values)
             # adjust ends
             cur_events[:, 2] = (cur_parent_cn
-                                .loc[~parent_totalloss[allele]]
+                                .loc[~parent_loh[allele]]
                                 .reset_index()
                                 .loc[np.array([len(event_labels) - np.argmax(event_labels[::-1] == ind) - 1 for ind in np.setdiff1d(np.unique(event_labels), [0])])]
                                 ['end'].values)
@@ -442,13 +442,13 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
             events_df = events_df.append(pd.DataFrame(index=cur_ind))
             events_df.loc[cur_ind, 'sample_id'] = child_name
             events_df.loc[cur_ind, 'allele'] = allele
-            events_df.loc[cur_ind, 'type'] = 'totalloss'
+            events_df.loc[cur_ind, 'type'] = 'loh'
             events_df.loc[cur_ind, 'cn_child'] = 0
             events_df.loc[cur_ind, ['chrom', 'start', 'end']] = cur_events[:, :3]
 
-            # recalculate parental_loss and cur_totalloss for next iteration
-            parent_totalloss = cur_parent_cn <= 0
-            cur_totalloss = cur_child_cn.loc[~parent_totalloss[allele], allele] == 0
+            # recalculate parental_loss and cur_loh for next iteration
+            parent_loh = cur_parent_cn <= 0
+            cur_loh = cur_child_cn.loc[~parent_loh[allele], allele] == 0
 
         cur_parent_cn.loc[cur_parent_cn[allele] < 0, allele] = 0
 
@@ -493,7 +493,7 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
             cur_df.loc[child_name, 'is_wgd'] = True
 
     # 3. losses and gains
-    totalloss_pos = (cur_parent_cn == 0)
+    loh_pos = (cur_parent_cn == 0)
     for allele in alleles:
 
         cn_changes = (cur_child_cn[allele] - cur_parent_cn[allele]).values
@@ -508,11 +508,11 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
         for cur_cn_change in all_cn_change_vals[np.argsort(np.abs(all_cn_change_vals))[::-1]]:
             cur_event = 'gain' if cur_cn_change > 0 else 'loss'
 
-            cur_change_location = ((cur_child_cn.loc[~totalloss_pos[allele], allele] -
-                        cur_parent_cn.loc[~totalloss_pos[allele], allele]) == cur_cn_change)
+            cur_change_location = ((cur_child_cn.loc[~loh_pos[allele], allele] -
+                        cur_parent_cn.loc[~loh_pos[allele], allele]) == cur_cn_change)
 
             event_labels_ = ((np.cumsum(np.concatenate([[0], np.diff(
-                (cur_change_location.values + cur_chroms[~totalloss_pos[allele]]))])
+                (cur_change_location.values + cur_chroms[~loh_pos[allele]]))])
                 * cur_change_location.values) + 1)
                 * cur_change_location.values)
 
@@ -521,13 +521,13 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
                 event_labels[event_labels_ == j] = i
 
             cur_events = (cur_child_cn
-                          .loc[~totalloss_pos[allele]]
+                          .loc[~loh_pos[allele]]
                           .reset_index()
                           .loc[np.array([np.argmax(event_labels == val) for val in np.setdiff1d(np.unique(event_labels), [0])])]
                           [['chrom', 'start', 'end', allele]].values)
             # adjust ends
             cur_events[:, 2] = (cur_child_cn
-                                .loc[~totalloss_pos[allele]]
+                                .loc[~loh_pos[allele]]
                                 .reset_index()
                                 .loc[np.array([len(event_labels) - np.argmax(event_labels[::-1] == val) - 1 for val in np.setdiff1d(np.unique(event_labels), [0])])]
                                 ['end'].values)
@@ -540,7 +540,7 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
             events_df.loc[cur_ind, 'cn_child'] = cur_events[:, 3]
             events_df.loc[cur_ind, ['chrom', 'start', 'end']] = cur_events[:, :3]
 
-            cur_child_cn.loc[np.intersect1d(totalloss_pos.loc[~totalloss_pos[allele]].index,
+            cur_child_cn.loc[np.intersect1d(loh_pos.loc[~loh_pos[allele]].index,
                                             cur_change_location.loc[cur_change_location].index), allele] += (1 if (cur_cn_change < 0) else -1)
 
     events_df['chrom'] = tools.format_chromosomes(events_df['chrom'])
@@ -633,7 +633,7 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
 
 def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=0.9,
                    chromosome_bed='default', regions_bed='default',
-                   replace_totalloss_with_loss=True, alleles=['cn_a', 'cn_b'],
+                   replace_loh_with_loss=True, alleles=['cn_a', 'cn_b'],
                    replace_both_arms_with_chrom=True, normal_name='diploid'):
     """Overlap copy-number events with regions of interest
 
@@ -644,7 +644,7 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
         overlap_threshold (float, optional): Threshold above which an overlap is considered. Defaults to 0.9.
         chromosome_bed (str, optional): Name of BED file containing chromosome arm information. Defaults to 'default'.
         regions_bed (str, optional): Name of BED file containing regions of interest. Defaults to 'default'.
-        replace_totalloss_with_loss (bool, optional): If True, totalloss is considered like a normal loss. Defaults to True.
+        replace_loh_with_loss (bool, optional): If True, loh is considered like a normal loss. Defaults to True.
         alleles (list, optional): List of alleles. Defaults to ['cn_a', 'cn_b'].
         replace_both_arms_with_chrom (bool, optional): If True, an event in the p- and q-arm of a chromosome will be displayed as a single event. Defaults to True.
         normal_name (str, optional): Name of normal sample. Defaults to 'diploid'.
@@ -667,8 +667,8 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
         if output_df is None or tree is None:
             raise MEDICCError("Either events_df or df and tree has to be specified")
         events_df = calculate_all_cn_events(tree, output_df, alleles=alleles, normal_name=normal_name)
-    if replace_totalloss_with_loss:
-        events_df.loc[events_df['type'] == 'totalloss', 'type'] = 'loss'
+    if replace_loh_with_loss:
+        events_df.loc[events_df['type'] == 'loh', 'type'] = 'loss'
 
     # Read chromosome regions and other regions
     if chromosome_bed is None and regions_bed is None:
@@ -700,7 +700,7 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
         for allele in alleles:
             cur_events_df = events_df.loc[cur_branch]
             cur_events_df = cur_events_df.loc[cur_events_df['allele']==allele]
-            for event_type in ['gain', 'loss'] if replace_totalloss_with_loss else ['gain', 'totalloss', 'loss']:
+            for event_type in ['gain', 'loss'] if replace_loh_with_loss else ['gain', 'loh', 'loss']:
                 cur_events_ranges = pr.PyRanges(cur_events_df.loc[cur_events_df['type'] == event_type].reset_index(
                 ).rename({'chrom': 'Chromosome', 'start': 'Start', 'end': 'End'}, axis=1))
 
@@ -722,7 +722,7 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
                         all_events = all_events.append(chr_events)
 
     all_events['final_name'] = all_events['name'].apply(lambda x: x.split(
-        'chr')[-1]) + all_events['event'].apply(lambda x: ' +' if x == 'gain' else (' -' if x == 'loss' else (' 0' if x == 'totalloss' else '')))
+        'chr')[-1]) + all_events['event'].apply(lambda x: ' +' if x == 'gain' else (' -' if x == 'loss' else (' 0' if x == 'loh' else '')))
 
     all_events = all_events.set_index(['branch', 'name']).drop('NumberOverlaps', axis=1)
     all_events = all_events.reset_index().set_index('branch')
