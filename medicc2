@@ -199,7 +199,7 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = m
 # Write events table and overlap events with chromosome and oncogenes
 if events_df is not None:
     events_df.to_csv(os.path.join(output_dir, output_prefix + "_copynumber_events_df.tsv"),
-                     sep='\t', index=False)
+                     sep='\t', index=True)
 
     logger.info("Overlapping copy-number events with chromosomes and known oncogenes.")
     overlaps = medicc.core.overlap_events(events_df=events_df, alleles=allele_columns, 
