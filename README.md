@@ -7,6 +7,8 @@ Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was develop
 
 Note that the notebooks and examples are not included when installing from conda or pip. When installing from pip or source, you need to make sure to have a working version of `gcc` and `gxx` installed.
 
+Due to dependencies only Python version 3.9 and lower are supported
+
 ## Installation via conda (recommended)
 MEDICC2 can be installed via `conda install -c bioconda -c conda-forge medicc2`.
 
