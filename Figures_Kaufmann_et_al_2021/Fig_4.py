@@ -19,7 +19,8 @@ set_plotting_params()
 
 #%%
 print('plotting Fig 4A')
-data_folder = "../examples/output_gundem_et_al_2015"
+data_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           "../examples/output_gundem_et_al_2015")
 patients = np.sort([f.split('_')[0] for f in os.listdir(data_folder) if 'final_cn_profiles.tsv' in f])
 
 all_changes = {}
@@ -68,7 +69,6 @@ plt.savefig('final_figures/Fig_4A.png', pad_inches=0, dpi=600)
 
 #%%
 print('plotting Fig 4B')
-data_folder = "../examples/output_gundem_et_al_2015"
 patients = np.sort([f.split('_')[0] for f in os.listdir(data_folder) if 'final_cn_profiles.tsv' in f])
 
 all_region_overlaps = {}

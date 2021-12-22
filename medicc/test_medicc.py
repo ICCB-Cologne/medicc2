@@ -47,7 +47,7 @@ def test_medicc_with_example():
 def test_medicc_with_example_total_copy_numbers():
     "Testing small example"
     process = subprocess.Popen(['python', "medicc2", "examples/simple_example/simple_example.tsv", 
-                                "examples/test_output", "--total-copy-numbers", 
+                                "examples/test_output_total_cn", "--total-copy-numbers", 
                                 "--input-allele-columns", "cn_a"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
@@ -61,9 +61,9 @@ def test_medicc_with_example_total_copy_numbers():
                       'simple_example_final_tree.xml', 'simple_example_pairwise_distances.tsv',
                       'simple_example_summary.tsv', 'simple_example_copynumber_events_df.tsv',
                       'simple_example_events_overlap.tsv']
-    all_files_exist = [os.path.isfile(os.path.join('examples/test_output/', f))
+    all_files_exist = [os.path.isfile(os.path.join('examples/test_output_total_cn/', f))
                        for f in expected_files]
-    subprocess.Popen(["rm", "examples/test_output", "-rf"])
+    subprocess.Popen(["rm", "examples/test_output_total_cn", "-rf"])
 
     assert process.returncode == 0, 'Error while running MEDICC'
     assert np.all(all_files_exist), "Some files were not created! \nMissing files are: {}".format(
@@ -73,7 +73,7 @@ def test_medicc_with_example_total_copy_numbers():
 def test_medicc_with_multiple_cores():
     "Testing small example"
     process = subprocess.Popen(['python', "medicc2", "examples/simple_example/simple_example.tsv", 
-                                "examples/test_output", "-j 4"],
+                                "examples/test_output_multiple_cores", "-j 4"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -86,9 +86,9 @@ def test_medicc_with_multiple_cores():
                       'simple_example_final_tree.xml', 'simple_example_pairwise_distances.tsv',
                       'simple_example_summary.tsv', 'simple_example_copynumber_events_df.tsv',
                       'simple_example_events_overlap.tsv']
-    all_files_exist = [os.path.isfile(os.path.join('examples/test_output/', f))
+    all_files_exist = [os.path.isfile(os.path.join('examples/test_output_multiple_cores/', f))
                        for f in expected_files]
-    subprocess.Popen(["rm", "examples/test_output", "-rf"])
+    subprocess.Popen(["rm", "examples/test_output_multiple_cores", "-rf"])
 
     assert process.returncode == 0, 'Error while running MEDICC'
     assert np.all(all_files_exist), "Some files were not created! \nMissing files are: {}".format(
@@ -99,7 +99,8 @@ def test_medicc_with_multiple_cores():
 def test_medicc_with_bootstrap():
     "Testing bootstrap workflow"
     process = subprocess.Popen(['python', "medicc2",
-                                "examples/simple_example/simple_example.tsv", "examples/test_output",
+                                "examples/simple_example/simple_example.tsv",
+                                "examples/test_output_bootstrap",
                                 "--bootstrap-nr", "5"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
@@ -108,8 +109,8 @@ def test_medicc_with_bootstrap():
         # Process hasn't exited yet
         time.sleep(0.5)
 
-    support_tree_exists = os.path.isfile('examples/test_output/simple_example_support_tree.new')
-    subprocess.Popen(["rm", "examples/test_output", "-rf"])
+    support_tree_exists = os.path.isfile('examples/test_output_bootstrap/simple_example_support_tree.new')
+    subprocess.Popen(["rm", "examples/test_output_bootstrap", "-rf"])
 
     assert process.returncode == 0, 'Error while running MEDICC'
     assert support_tree_exists, "Support tree file was not created"
