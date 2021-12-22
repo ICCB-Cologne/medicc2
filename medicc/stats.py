@@ -18,6 +18,8 @@ def _remove_duplicates(D):
     return D
 
 def star_topology_test(D):
+    if D.shape[0] == 2:
+        return 1
     """ Tests the distance matrix D for star topology. """
     ## check if any non-diagonal entry is zero
     D = _remove_duplicates(D)

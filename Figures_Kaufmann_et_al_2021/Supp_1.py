@@ -49,7 +49,7 @@ def plot_variables(df, variables):
              'dist_euclidean': 'Euclidean Distance',
              'nevents': 'True distance'}
 
-    fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
+    fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 
     xname, yname = variables
     plotdat = df.groupby([xname, yname, 'is_wgd']).sum()['Count'].reset_index()
@@ -64,9 +64,10 @@ def plot_variables(df, variables):
             ha='right', va='bottom', fontsize=plotting_params['FONTSIZE_MEDIUM'])
     return fig
 
+
 #%% Load FSTs
-T_wgd_asymm = fstlib.Fst.read('../objects/wgd_asymm.fst')
-T_no_wgd_asymm = fstlib.Fst.read('../objects/no_wgd_asymm.fst')
+T_wgd_asymm = medicc.io.read_fst()
+T_no_wgd_asymm = medicc.io.read_fst(no_wgd=True)
 
 # %% generate samples
 chr_length = 10
@@ -88,13 +89,13 @@ results['Count'] = 1
 
 #%% Create Figures
 fig_main = plot_variables(results, ('nevents', 'dist_fst_wgd_asymm'))
-fig_main.savefig('final_figures/Fig_2B.pdf', bbox_inches='tight')
-fig_main.savefig('final_figures/Fig_2B.png', bbox_inches='tight', dpi=600)
-
-fig_main = plot_variables(results, ('nevents', 'dist_fst_no_wgd_asymm'))
 fig_main.savefig('final_figures/Supp_1A.pdf', bbox_inches='tight')
 fig_main.savefig('final_figures/Supp_1A.png', bbox_inches='tight', dpi=600)
 
-fig_main = plot_variables(results, ('nevents', 'dist_euclidean'))
+fig_main = plot_variables(results, ('nevents', 'dist_fst_no_wgd_asymm'))
 fig_main.savefig('final_figures/Supp_1B.pdf', bbox_inches='tight')
 fig_main.savefig('final_figures/Supp_1B.png', bbox_inches='tight', dpi=600)
+
+fig_main = plot_variables(results, ('nevents', 'dist_euclidean'))
+fig_main.savefig('final_figures/Supp_1C.pdf', bbox_inches='tight')
+fig_main.savefig('final_figures/Supp_1C.png', bbox_inches='tight', dpi=600)

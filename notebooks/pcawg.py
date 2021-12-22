@@ -41,14 +41,18 @@ set_plotting_params()
 LOAD = True
 
 #%% FSTs
-T_wgd_asymm = fstlib.Fst.read('../objects/wgd_asymm.fst')
-T_no_wgd_asymm = fstlib.Fst.read('../objects/no_wgd_asymm.fst')
+T_wgd_asymm = medicc.io.read_fst()
+T_no_wgd_asymm = medicc.io.read_fst(no_wgd=True)
+T_1_wgd_asymm = medicc.io.read_fst(n_wgd=1)
 symbol_table = T_wgd_asymm.input_symbols()
 
 #%% folders and HDF5 store
-pcawg_folder = '../../data/PCAWG' ## modify this to point to your local PCAWG folder
+# modify this to point to your local PCAWG folder
+pcawg_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../data/PCAWG')
 data_folder = os.path.join(pcawg_folder, 'consensus.20170119.somatic.cna.annotated')
 metadata_folder = os.path.join(pcawg_folder, 'metadata')
+figures_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                              '../Figures_Kaufmann_et_al_2021/data/')
 
 #%% open HDF5 store
 hdfstore = pd.HDFStore(os.path.join(pcawg_folder, 'pcawg_scna.hdf5'))
@@ -245,13 +249,20 @@ else:
                           for aliquot_id, fsa in fsa_dict.items()}, name='dist_wgd_a')
     dist_wgd.name = 'dist_wgd'
 
-    distances = pd.concat([dist_no_wgd, dist_wgd], axis=1)
+    # Calc distance with only a single WGD
+    dist_1_wgd = pd.Series({aliquot_id: float(fstlib.score(T_1_wgd_asymm, diploid_fsa, fsa))
+                          for aliquot_id, fsa in fsa_dict.items()}, name='dist_wgd_a')
+    dist_1_wgd.name = 'dist_1_wgd'
+
+    distances = pd.concat([dist_no_wgd, dist_wgd, dist_1_wgd], axis=1)
     distances['dist_diff'] = distances['dist_no_wgd'] - distances['dist_wgd']
+    distances['dist_diff_1_wgd'] = distances['dist_wgd'] - distances['dist_1_wgd']
 
     hdfstore.put('distances', distances, format='table')
 
 #%% Bootstrap for WGD detection
 # This cell will take some time to finish
+# if LOAD:
 if LOAD:
     bootstrap_results = hdfstore['bootstrap_distances']
 else:
@@ -268,9 +279,10 @@ else:
     diploid_fsa.add_arc(0, ('1', '1', 0, 0))
     diploid_fsa.add_arc(0, ('X', 'X', 0, 0))
 
-    bootstrap_distances = -1*np.ones((len(samples), 2, N_bootstrap))
+    bootstrap_distances = -1*np.ones((len(samples), 3, N_bootstrap))
 
     for i in np.arange(N_bootstrap):
+        print(i)
         bootstrap_dat = medicc.bootstrap.chr_wise_bootstrap_df(dat)
 
         FSA_dict = medicc.create_standard_fsa_dict_from_data(
@@ -279,17 +291,24 @@ else:
                                  for aliquot_id, fsa in FSA_dict.items()}, name='dist_no_wgd')
         dist_wgd = pd.Series({aliquot_id: float(fstlib.score(T_wgd_asymm, diploid_fsa, fsa))
                               for aliquot_id, fsa in FSA_dict.items()}, name='dist_wgd')
+        dist_1_wgd = pd.Series({aliquot_id: float(fstlib.score(T_1_wgd_asymm, diploid_fsa, fsa))
+                              for aliquot_id, fsa in FSA_dict.items()}, name='dist_1_wgd')
 
         bootstrap_distances[:, 0, i] = dist_wgd
         bootstrap_distances[:, 1, i] = dist_no_wgd
+        bootstrap_distances[:, 2, i] = dist_1_wgd
 
     bootstrap_results = pd.DataFrame(index=samples)
 
     bootstrap_results['pcawg_wgd'] = meta.loc[samples, 'wgd_status']
     bootstrap_results['nr_bootstraps_with_wgd'] = N_bootstrap - \
         np.sum((bootstrap_distances[:, 1, :] - bootstrap_distances[:, 0, :]) == 0, axis=1)
+    bootstrap_results['nr_bootstraps_with_2_wgds'] = N_bootstrap - \
+        np.sum((bootstrap_distances[:, 0, :] - bootstrap_distances[:, 2, :]) == 0, axis=1)
     bootstrap_results['bootstrap_wgd'] = (
         bootstrap_results['nr_bootstraps_with_wgd'] / N_bootstrap) > 0.05
+    bootstrap_results['bootstrap_2_wgds'] = (
+        bootstrap_results['nr_bootstraps_with_2_wgds'] / N_bootstrap) > 0.05
 
     hdfstore.put('bootstrap_distances', bootstrap_results, format='table')
 # %%
@@ -297,7 +316,7 @@ hdfstore.close()
 
 #%%
 result = meta.join(distances, how='inner').join(
-    wgd[['ploidy_pcawg', 'hom']]).join(bootstrap_results[['bootstrap_wgd']])
+    wgd[['ploidy_pcawg', 'hom']]).join(bootstrap_results[['bootstrap_wgd', 'bootstrap_2_wgds']])
 result['pcawg_wgd'] = result['wgd_status'].map({'wgd': 'WGD', 'no_wgd': 'No WGD'})
 result['wgd_status_medicc'] = (result['dist_diff'] >= 1).map({True: 'WGD', False: 'No WGD'})
 result['wgd_status_medicc_bootstrap'] = (result['bootstrap_wgd']).map({
@@ -330,7 +349,6 @@ print("p-value for over-represenation of uncertain samples in false predictions:
     sp.stats.chi2_contingency(uncertain)[1]))
 
 # %% Figure with false MEDICC predictions
-
 fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=result, hue='pcawg_wgd', ax=ax)
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=result.loc[result.eval('pcawg_wgd != wgd_status_medicc_bootstrap')],
@@ -342,7 +360,6 @@ ax.set_title('False Predictions')
 ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
 ax.plot(linex, liney, '--', color='grey')
-
 
 # %% plot PCAWG MED distributions
 palette = dict(zip(tumour_types.index, tumour_types.Hexadecimal))
@@ -362,10 +379,11 @@ ax.set_ylabel('PCAWG histology')
 
 #%% Save data for plotting
 result[['hom', 'ploidy_pcawg', 'pcawg_wgd', 'histology_abbreviation', 'wgd_status_medicc_bootstrap',
-        'histology_useable', 'dist_diff', 'dist_wgd', 'wgd_uncertain']].to_csv(
-            '../Figures_Kaufmann_et_al_2021/data/Fig_2D_and_Supp_2A_and_Supp_2B.tsv',
+        'bootstrap_2_wgds', 'histology_useable', 'dist_diff', 'dist_wgd',
+        'wgd_uncertain']].to_csv(
+            os.path.join(figures_folder, 'Fig_2D_and_Supp_4.tsv'),
     sep='\t', index=False)
 
 tumour_types[['Hexadecimal']].to_csv(
-            '../Figures_Kaufmann_et_al_2021/data/Supp_2A_and_Supp_2B_color_palette.tsv',
+    os.path.join(figures_folder, 'Supp_4_color_palette.tsv'),
     sep='\t', index=True)

@@ -2,10 +2,10 @@
 import os
 import sys
 
+import adjustText
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pyranges as pr
 import seaborn as sns
 from scipy.stats import pearsonr
 
@@ -19,12 +19,13 @@ set_plotting_params()
 
 #%%
 print('plotting Fig 4A')
-data_folder = "../examples/output_gundem_et_al_2015"
+data_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           "../examples/output_gundem_et_al_2015")
 patients = np.sort([f.split('_')[0] for f in os.listdir(data_folder) if 'final_cn_profiles.tsv' in f])
 
 all_changes = {}
 WGD_results = pd.DataFrame(index=patients, columns=['nr_wgds', 'type'])
-WGD_results['type'] = 'no WGD'
+WGD_results['type'] = 'No WGD'
 
 for patient in patients:
     cur_df = medicc.io.read_and_parse_input_data(
@@ -33,24 +34,25 @@ for patient in patients:
     cur_tree = medicc.io.import_tree(os.path.join(data_folder, "{}_final_tree.new".format(patient)),
                                      'diploid', file_format='newick')
 
-    output_df = medicc.core.summarize_changes(cur_df[['cn_a', 'cn_b']], cur_tree, normal_name='diploid',
-                                      allele_columns=['cn_a', 'cn_b'])
+    output_df, events_df = medicc.core.calculate_all_cn_events(
+        cur_tree, cur_df[['cn_a', 'cn_b']], ['cn_a', 'cn_b'], 'diploid')
 
     WGD_nodes = np.unique(output_df.loc[output_df['is_wgd']].index.get_level_values('sample_id'))
     WGD_results.loc[patient, 'nr_wgds'] = len(WGD_nodes)
     if len(WGD_nodes):
         if list(cur_tree.find_clades(WGD_nodes[0]))[0] in cur_tree.root.clades:
-            WGD_results.loc[patient, 'type'] = 'clonal'
+            WGD_results.loc[patient, 'type'] = 'Clonal'
         elif list(cur_tree.find_clades(WGD_nodes[0]))[0] in cur_tree.get_terminals():
-            WGD_results.loc[patient, 'type'] = 'terminal'
+            WGD_results.loc[patient, 'type'] = 'Terminal'
         else:
-            WGD_results.loc[patient, 'type'] = 'sub-clonal'
+            WGD_results.loc[patient, 'type'] = 'Subclonal'
           
     all_changes[patient] = output_df
     
-WGD_results['type'] = pd.Categorical(WGD_results['type'], ['no WGD','clonal','sub-clonal','terminal'])
+WGD_results['type'] = pd.Categorical(WGD_results['type'], ['No WGD','Clonal','Subclonal','Terminal'])
 
-plt.figure(figsize=(plotting_params['WIDTH_HALF']/2, plotting_params['WIDTH_HALF']))
+figwidth_panel1 = plotting_params['WIDTH_HALF']/2
+plt.figure(figsize=(figwidth_panel1, plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 ax = sns.countplot(y='type', data=WGD_results)
 for p in ax.patches:
     ax.annotate('{:d}'.format(p.get_width()), (p.get_width()-0.5, (p.get_y()+p.get_height()/2)), 
@@ -60,17 +62,16 @@ for p in ax.patches:
 ax.set_ylabel('WGD type', rotation=90, labelpad=0)
 ax.set_xlabel('Frequency')
 # plt.ylabel('WGD type', rotation=0, labelpad=40)
-ax.set_title('WGDs\n(10 patients)', fontsize=plotting_params['FONTSIZE_LARGE'])
+#ax.set_title('WGDs\n(10 patients)', fontsize=plotting_params['FONTSIZE_LARGE'])
 plt.tight_layout()
 plt.savefig('final_figures/Fig_4A.pdf', pad_inches=0)
 plt.savefig('final_figures/Fig_4A.png', pad_inches=0, dpi=600)
 
 #%%
 print('plotting Fig 4B')
-data_folder = "../examples/output_gundem_et_al_2015"
 patients = np.sort([f.split('_')[0] for f in os.listdir(data_folder) if 'final_cn_profiles.tsv' in f])
 
-all_events = {}
+all_region_overlaps = {}
 
 for patient in patients:
     cur_df = medicc.io.read_and_parse_input_data(
@@ -78,18 +79,18 @@ for patient in patients:
     cur_tree = medicc.io.import_tree(os.path.join(data_folder, "{}_final_tree.new".format(patient)),
                                      'diploid', file_format='newick')
 
-    cur_events = medicc.core.overlap_events(df=cur_df[['cn_a', 'cn_b']],
+    cur_overlap = medicc.core.overlap_events(output_df=cur_df[['cn_a', 'cn_b']],
                                             tree=cur_tree,
-                                            chromosome_bed='../objects/hg19_chromosome_arms.bed',
-                                            regions_bed='../objects/Davoli_2013_TSG_OG_genes.bed',
-                                            replace_loss_with_loh=True,
-                                            allele_specific=True,
+                                            chromosome_bed='../medicc/objects/hg19_chromosome_arms.bed',
+                                            regions_bed='../medicc/objects/Davoli_2013_TSG_OG_genes.bed',
+                                            replace_loh_with_loss=True,
+                                            alleles=['cn_a', 'cn_b'],
                                             replace_both_arms_with_chrom=False)
 
-    cur_events['patient'] = patient
-    all_events[patient] = cur_events
+    cur_overlap['patient'] = patient
+    all_region_overlaps[patient] = cur_overlap
 
-combined_events = pd.concat(all_events.values()).reset_index().set_index('branch')
+combined_events = pd.concat(all_region_overlaps.values()).reset_index().set_index('branch')
 regions = np.unique(combined_events['name'])
 arms = [x for x in regions if 'chr' in x and ('p' in x or 'q' in x)]
 genes = [x for x in regions if 'chr' not in x]
@@ -112,23 +113,28 @@ armwise_scores = armwise_scores.set_index('arm')
 arm_results = arm_results.join(armwise_scores, how='inner')
 
 #%%
-plt.figure(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
+plt.figure(figsize=(plotting_params['WIDTH_HALF']-figwidth_panel1/4, plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 
+texts = []
 for i, (arm, row) in enumerate(arm_results.iterrows()):
     plt.plot(row['score'], row['gain_loss_diff'], 
              'o', ms=plotting_params['MARKERSIZE_LARGE'], color=plt.cm.tab20c.colors[i%20])
-    plt.text(row['score'], row['gain_loss_diff']-0.2, arm,
-             fontsize=plotting_params['FONTSIZE_TINY'])
-plt.title('Aggregated for all 10 patients\nPearson R={:.2f} (p={:.0e})'.format(*pearsonr(arm_results['score'], arm_results['gain_loss_diff'])),
-          fontsize=plotting_params['FONTSIZE_LARGE'])
+    texts.append(plt.text(row['score'], row['gain_loss_diff']-0.2, arm.replace('chr', ''),
+             fontsize=plotting_params['FONTSIZE_SMALL']))
+adjustText.adjust_text(texts)
+#plt.title('Aggregated for all 10 patients\nPearson R={:.2f} (p={:.0e})'.format(*pearsonr(arm_results['score'], arm_results['gain_loss_diff'])),
+#          fontsize=plotting_params['FONTSIZE_LARGE'])
 
 x = np.linspace(arm_results['score'].min(), arm_results['score'].max(), 100)
 linear_model = np.polyfit(arm_results['score'], arm_results['gain_loss_diff'], 1)
 linear_model_fn = np.poly1d(linear_model)
-plt.plot(x, linear_model_fn(x), color="grey", lw=3, label='linear fit')
+plt.plot(x, linear_model_fn(x), color="grey", lw=3, label='_nolegend_') # label was: "linear fit"
 
-plt.legend()
-plt.xlabel('OG-TSG score\n(Davoli 2013)')
+r = pearsonr(arm_results['score'], arm_results['gain_loss_diff'])[0]
+plt.text(0.98, 0.02, "$r = {:.2f}$".format(r), transform=plt.gca().transAxes, 
+        ha='right', va='bottom', fontsize=plotting_params['FONTSIZE_MEDIUM'])
+
+plt.xlabel('OG-TSG score')
 plt.ylabel('#gains - #losses')
 
 plt.tight_layout()
@@ -168,7 +174,7 @@ results_Davoli['gains-losses'] = results_Davoli['gains'] - results_Davoli['losse
 
 #%%
 p_min = 1
-fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
+fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF']-figwidth_panel1/4, plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 
 x1 = -1*np.log10(results_Davoli.loc[np.logical_and(results_Davoli['p-value'] < p_min, results_Davoli['type']=='OG'), 'p-value'].values.astype(float))
 y1 = results_Davoli.loc[np.logical_and(results_Davoli['p-value'] < p_min, results_Davoli['type']=='OG'), 'gains-losses']
@@ -178,32 +184,39 @@ x2 = np.log10(results_Davoli.loc[np.logical_and(
     results_Davoli['p-value'] < p_min, results_Davoli['type'] == 'TSG'), 'p-value'].values.astype(float))
 y2 = results_Davoli.loc[np.logical_and(
     results_Davoli['p-value'] < p_min, results_Davoli['type'] == 'TSG'), 'gains-losses']
-ax.plot(x2, y2, 'o', color='C3', ms=plotting_params['MARKERSIZE_SMALL'], label='Tumor-Suppressors')
+ax.plot(x2, y2, 'o', color='C3', ms=plotting_params['MARKERSIZE_SMALL'], label='Tumour-suppressors')
 
+texts.clear()
 for g, row in results_Davoli.loc[results_Davoli['p-value'] < 1e-20].iterrows():
     if row['type'] == 'OG':
-        ax.text(-1*np.log10(row['p-value']), row['gains-losses']-0.7, g, 
-                fontsize=plotting_params['FONTSIZE_TINY'])
+        texts.append(ax.text(-1*np.log10(row['p-value']), row['gains-losses']-0.7, g, 
+                fontsize=plotting_params['FONTSIZE_SMALL']))
     else:
-        ax.text(np.log10(row['p-value']), row['gains-losses']-0.7, g, 
-                fontsize=plotting_params['FONTSIZE_TINY'])
+        texts.append(ax.text(np.log10(row['p-value']), row['gains-losses']-0.7, g, 
+                fontsize=plotting_params['FONTSIZE_SMALL']))
+adjustText.adjust_text(texts)
 
 ax.axvline(0, color='grey')
 ax.set_ylabel('#gains - #losses')
 
-ax.legend(loc='upper left')
-ax.set_title('{} TSG / OG genes\nPearson R = {:.2f} (p={:.0e})'.format(len(x1)+len(x2), 
-                                                                       *pearsonr(np.append(x1, x2),
-                                                                                 np.append(y1, y2))),
-                fontsize=plotting_params['FONTSIZE_LARGE'])
+ax.legend(loc='upper left', frameon=False)
+#ax.set_title('{} OG-TSG genes\nPearson R = {:.2f} (p={:.0e})'.format(len(x1)+len(x2), 
+#                                                                       *pearsonr(np.append(x1, x2),
+#                                                                                 np.append(y1, y2))),
+#                fontsize=plotting_params['FONTSIZE_LARGE'])
 
 x = np.linspace(np.append(x1, x2).min(), np.append(x1, x2).max(), 100)
 linear_model = np.polyfit(np.append(x1, x2), np.append(y1, y2), 1)
 linear_model_fn = np.poly1d(linear_model)
 ax.plot(x, linear_model_fn(x), color="grey", lw=3, label='linear fit')
     
-ax.set_xlabel('log10 of p-value for TSG/OG score \n(Davoli 2013)')
+ax.set_xlabel('signed log10 p-value for OG-TSG score')
 
+r = pearsonr(np.append(x1, x2), np.append(y1, y2))[0]
+ax.text(0.98, 0.02, "$r = {:.2f}$".format(r), transform=ax.transAxes, 
+        ha='right', va='bottom', fontsize=plotting_params['FONTSIZE_MEDIUM'])
+
+plt.tight_layout()
 plt.savefig('final_figures/Fig_4C.pdf', pad_inches=0)
 plt.savefig('final_figures/Fig_4C.png', pad_inches=0, dpi=600)
 

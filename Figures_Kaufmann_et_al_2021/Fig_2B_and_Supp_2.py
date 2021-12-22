@@ -10,9 +10,9 @@ set_plotting_params()
 
 #%% load results
 # Due to the number of simulations the results were computed on a computing cluster, see Script TODO
-results_grf = pd.read_csv('data/Fig_2C_grf.tsv', sep='\t', index_col=0)
-results_rf = pd.read_csv('data/Fig_2C_rf.tsv', sep='\t', index_col=0)
-results_quartet = pd.read_csv('data/Fig_2C_quartet.tsv', sep='\t', index_col=0)
+results_grf = pd.read_csv('data/Fig_2B_grf.tsv', sep='\t', index_col=0)
+results_rf = pd.read_csv('data/Fig_2B_rf.tsv', sep='\t', index_col=0)
+results_quartet = pd.read_csv('data/Fig_2B_quartet.tsv', sep='\t', index_col=0)
 
 for results in [results_grf, results_quartet, results_rf]:
     # results = results.loc[results['Number of Leaves'] > 3]
@@ -20,9 +20,9 @@ for results in [results_grf, results_quartet, results_rf]:
 
 
 
-#%% Figure 2C
-print('Fig 2C')
-fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
+#%% Figure 2B
+print('Fig 2B')
+fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 
 cur_results = results_grf.loc[results_grf['WGD'] == 'Low WGD']
 cur_results = cur_results.loc[cur_results['Method'] != 'MEDALT']
@@ -45,14 +45,15 @@ for i, method in enumerate(['Euclidean Min. Ev.', 'Euclidean NJ', 'Manhattan NJ'
 ax.set_xlabel('Number of leaves')
 ax.set_ylabel('Generalized RF distance')
 
-plt.legend(loc='upper right')
+plt.legend(loc='lower right')
 
-fig.savefig('final_figures/Fig_2C.pdf', bbox_inches='tight')
-fig.savefig('final_figures/Fig_2C.png', bbox_inches='tight', dpi=600)
-#%% Figure Supp 1B Full ranges
+fig.savefig('final_figures/Fig_2B.pdf', bbox_inches='tight')
+fig.savefig('final_figures/Fig_2B.png', bbox_inches='tight', dpi=600)
+
+#%% Figure Supp 2A Full ranges
 print('Supp 2A')
 fig, axs = plt.subplots(ncols=3, nrows=2, sharey=True,
-                        figsize=(plotting_params['WIDTH_FULL'], plotting_params['WIDTH_HALF']))
+                        figsize=(plotting_params['WIDTH_FULL'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 
 cur_results = results_grf.loc[results_grf['Method'] != 'MEDALT']
 cur_results = cur_results.loc[cur_results['Number of Leaves'].isin([5, 10, 15, 20])]
@@ -92,9 +93,9 @@ fig.savefig('final_figures/Supp_2A.pdf', bbox_inches='tight')
 fig.savefig('final_figures/Supp_2A.png', bbox_inches='tight', dpi=600)
 
 
-#%% Figure Supp 1C (Include MEDALT)
+#%% Figure Supp 2B (Include MEDALT)
 print('Supp 2B')
-fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
+fig, ax = plt.subplots(figsize=(0.8*plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 
 cur_results = results_grf.loc[results_grf['WGD'] == 'Low WGD']
 cur_results = cur_results.loc[cur_results['Rate'].isin([0.01, 0.025, 0.05])]
@@ -122,7 +123,7 @@ fig.savefig('final_figures/Supp_2B.png', bbox_inches='tight', dpi=600)
 
 #%% Figure Supp 2C (Quartet and RF)
 print('Supp 2C')
-fig, axs = plt.subplots(ncols=2, figsize=(2*plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
+fig, axs = plt.subplots(ncols=2, figsize=(0.8*2*plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 
 
 for ax, results, name in zip(axs, [results_quartet, results_rf], ['Quartet', 'Robinson-Foulds']):
@@ -143,7 +144,7 @@ for ax, results, name in zip(axs, [results_quartet, results_rf], ['Quartet', 'Ro
     ax.set_xlabel('Number of leaves')
     ax.set_ylabel('{} distance'.format(name))
 
-axs[1].legend(loc='upper right')
+axs[1].legend(loc='upper left')
 
 fig.savefig('final_figures/Supp_2C.pdf', bbox_inches='tight')
 fig.savefig('final_figures/Supp_2C.png', bbox_inches='tight', dpi=600)

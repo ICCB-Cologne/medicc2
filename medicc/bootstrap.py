@@ -128,24 +128,15 @@ def compare_trees(tree1, tree2, fail_on_different_terminals=True):
     return _bitstrs(tree1) == _bitstrs(tree2)
 
 
-def _single_bootstrap_run(input_df, fst, bootstrap_method, i, N_bootstrap, normal_name='diploid', legacy_version=False):
+def _single_bootstrap_run(input_df, fst, bootstrap_method, i, N_bootstrap, normal_name='diploid'):
     cur_df = bootstrap_method(input_df)
-    if legacy_version:
-        _, _, _, cur_final_tree, _ = medicc.main_legacy(
-            cur_df,
-            fst,
-            normal_name,
-            input_tree=None,
-            ancestral_reconstruction=False,
-            chr_separator='X')
-    else:
-        _, _, _, cur_final_tree, _ = medicc.main(
-            cur_df,
-            fst,
-            normal_name,
-            input_tree=None,
-            ancestral_reconstruction=False,
-            chr_separator='X')
+    _, _, _, cur_final_tree, _, _ = medicc.main(
+        cur_df,
+        fst,
+        normal_name,
+        input_tree=None,
+        ancestral_reconstruction=False,
+        chr_separator='X')
 
     if (i+1) % (N_bootstrap//5) == 0:
         logger.info('{}/{} ({}%) bootstrap runs completed'.format(i + 1, N_bootstrap, 
@@ -162,7 +153,6 @@ def run_bootstrap(input_df,
                   seed=None,
                   normal_name='diploid',
                   show_progress=True,
-                  legacy_version=False,
                   n_cores=None):
     """Run a given number of bootstrapping steps on the original data. 
 
@@ -208,13 +198,13 @@ def run_bootstrap(input_df,
     # Run the actual bootstrapping steps
     if n_cores is not None and n_cores > 1:
         initial_trees = Parallel(n_jobs=n_cores)(delayed(_single_bootstrap_run)(
-            input_df, fst, bootstrap_method, i, N_bootstrap, normal_name, legacy_version)
+            input_df, fst, bootstrap_method, i, N_bootstrap, normal_name)
             for i in range(N_bootstrap))
     else:
         initial_trees=[]
         for i in tqdm(range(N_bootstrap), disable=not show_progress):
             cur_tree = _single_bootstrap_run(
-                input_df, fst, bootstrap_method, i, N_bootstrap, normal_name, legacy_version)
+                input_df, fst, bootstrap_method, i, N_bootstrap, normal_name)
             initial_trees.append(cur_tree)
 
     # delete duplicate trees

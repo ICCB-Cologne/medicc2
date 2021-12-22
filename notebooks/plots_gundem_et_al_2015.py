@@ -16,9 +16,11 @@ set_plotting_params()
 logging.getLogger('medicc').setLevel(logging.CRITICAL)
 SEED = 42
 # %%
-results_folder = "../examples/output_gundem_et_al_2015"
-data_folder = "../examples/gundem_et_al_2015"
-paper_figure_folder = "../Figures_Kaufmann_et_al_2021/final_figures/"
+results_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                              "../examples/output_gundem_et_al_2015")
+data_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           "../examples/gundem_et_al_2015")
+                           
 patients = [f.split('_')[0] for f in os.listdir(results_folder) if 'final_cn_profiles.tsv' in f]
 patients.sort()
 
@@ -45,24 +47,19 @@ _, support_tree = medicc.bootstrap.run_bootstrap(cur_input_df,
 
 
 #%% Event detection
-events_df = medicc.core.summarize_changes(cur_output_df[['cn_a', 'cn_b']],
-                                          cur_tree,
-                                          'diploid',
-                                          allele_specific=False,
-                                          calc_wgd=True)
-all_events = medicc.core.overlap_events(events_df=events_df,
-                                        chromosome_bed='../objects/hg19_chromosome_arms.bed',
-                                        regions_bed=None)
+output_df, events_df = medicc.core.calculate_all_cn_events(
+    cur_tree, cur_output_df[['cn_a', 'cn_b']], ['cn_a', 'cn_b'], 'diploid')
+overlaps = medicc.core.overlap_events(events_df=events_df, regions_bed=None)
 
-changed_branches = set(all_events.index)
-for clade in cur_tree.find_clades():
+changed_branches = set(overlaps.index)
+for clade in support_tree.find_clades():
     clade.events = None
     if clade.name is not None and clade.name in changed_branches:
         # more than 1 event (otherwise single event is split per character)
-        if len(all_events.loc[clade.name][['final_name']].shape) == 2:
-            clade.events = '\n'.join(all_events.loc[clade.name, 'final_name'].values)
+        if len(overlaps.loc[clade.name][['final_name']].shape) == 2:
+            clade.events = '\n'.join(overlaps.loc[clade.name, 'final_name'].values)
         else:
-            clade.events = all_events.loc[clade.name][['final_name']].values[0]
+            clade.events = overlaps.loc[clade.name][['final_name']].values[0]
 
 #%% Plot Figure for 3B
 labels = {'diploid': 'Diploid'}
@@ -78,7 +75,7 @@ fig = medicc.plot.plot_cn_profiles(
     hide_normal_chromosomes=False,
     show_branch_support=True,
     show_branch_lengths=False,
-    show_events=True,
+    show_events_in_tree=True,
     ignore_segment_lengths=False,
     horizontal_margin_adjustment=0.0,
     label_func=lambda label: labels.get(label, label))
@@ -86,12 +83,11 @@ fig = medicc.plot.plot_cn_profiles(
 for ax in fig.get_axes():
     ax.set_ylabel(ax.get_ylabel(), rotation=0, horizontalalignment='right')
 
-fig.savefig(os.path.join(paper_figure_folder, 'Fig_3B.pdf'), bbox_inches='tight')
-fig.savefig(os.path.join(paper_figure_folder, 'Fig_3B.png'), bbox_inches='tight', dpi=600)
 
 
 #%% Basic CN tracks for all patients
-for patient in patients:
+# for patient in patients:
+for patient in ['PTX008']:
     print('Plotting CN track for patient {}'.format(patient))
     cur_output_df = medicc.io.read_and_parse_input_data(
         os.path.join(results_folder, "{}_final_cn_profiles.tsv".format(patient)))
@@ -114,7 +110,4 @@ for patient in patients:
 
     for ax in fig.get_axes():
         ax.set_ylabel(ax.get_ylabel(), rotation=0, horizontalalignment='right')
-
-    fig.savefig(os.path.join(paper_figure_folder, 'Supp_Gundem_{}.pdf'.format(patient)), bbox_inches='tight')
-    fig.savefig(os.path.join(paper_figure_folder, 'Supp_Gundem_{}.png'.format(patient)), bbox_inches='tight')
 

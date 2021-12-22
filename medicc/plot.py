@@ -46,7 +46,7 @@ def plot_cn_profiles(
         input_df,
         input_tree=None,
         title=None,
-        normal_name=None,
+        normal_name='diploid',
         mincn='auto',
         maxcn='auto',
         allele_columns=['cn_a', 'cn_b'],
@@ -54,29 +54,23 @@ def plot_cn_profiles(
         plot_subclonal_summary=True,
         plot_clonal_summary=False,
         hide_normal_chromosomes=False,
-        ignore_segment_lengths=False, 
+        ignore_segment_lengths=False,
         tree_width_scale=1,
-        track_width_scale=1, 
+        track_width_scale=1,
         height_scale=1,
-        horizontal_margin_adjustment=-0.03,
+        horizontal_margin_adjustment=0,
         close_gaps=False,
         show_small_segments=False,
         show_branch_support=False,
         hide_internal_nodes=False,
         chr_label_func=None,
-        show_events=False,
+        show_events_in_tree=False,
+        show_events_in_cn=True,
         show_branch_lengths=True,
+        detailed_xticks=False,
+        clonal_transparant=False,
         label_func=None):
     
-    if input_tree is None or normal_name is None: 
-        plot_summary = False
-        plot_subclonal_summary = False
-        plot_clonal_summary = False
-
-    if normal_name is None:
-        logger.warn('normal_name is not set!\nnormal_name will be set to "diploid"')
-        normal_name = 'diploid'
-
     df = input_df.copy()
     if len(allele_columns) > 2:
         logger.warn("More than two allels were provided ({})\n"
@@ -86,21 +80,18 @@ def plot_cn_profiles(
                     "These are: {}".format(np.setdiff1d(allele_columns, df.columns)))
 
     if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd'], df.columns).size > 0:
-        df = core.summarize_changes(df,
-                                    input_tree,
-                                    normal_name,
-                                    allele_columns=allele_columns)
+        df, _ = core.calculate_all_cn_events(input_tree, df, allele_columns, normal_name)
 
     if hide_normal_chromosomes:
         df = df.join(df.groupby('chrom')['is_normal'].all().to_frame('hide'))
         df = df.query("~hide").drop('hide', axis=1)
 
     if mincn=='auto':
-        mincn = df.min().min()
+        mincn = df[allele_columns].min().min()
     else:
         mincn = int(mincn)        
     if maxcn=='auto':
-        maxcn = df.max().max()
+        maxcn = df[allele_columns].max().max()
     else:
         maxcn = int(maxcn)
 
@@ -112,9 +103,15 @@ def plot_cn_profiles(
         else:
             samples = [x for x in df.index.get_level_values('sample_id').unique() if 'internal_' not in x]
     nsamp = len(samples)
-    nsegs = df.loc[samples[0],:].groupby('chrom').size()
+    nsegs = df.loc[samples[0], :].groupby('chrom').size()
 
-    if len(samples) > 20:
+    # == 2 because of diploid
+    if input_tree is None or normal_name is None or nsamp == 2:
+        plot_summary = False
+        plot_subclonal_summary = False
+        plot_clonal_summary = False
+
+    if nsamp > 20:
         logger.warn('More than 20 samples were provided. Creating the copy number tracks will take '
                     'a long time to process and might crash.\nBest to use plot_tree instead.')
 
@@ -148,7 +145,7 @@ def plot_cn_profiles(
     df = df.reset_index().set_index(['sample_id', 'chrom', 'start', 'end'])
 
     if plot_summary or plot_subclonal_summary:
-        agg_events = core.compute_change_events(df=df, tree=input_tree, normal_name=normal_name)
+        agg_events = core.compute_cn_change(df=df, tree=input_tree, normal_name=normal_name)
         agg_events = agg_events.groupby(["chrom", "start", "end"], observed=True).sum()
 
         agg_events.loc[:, ['start_pos', 'end_pos', 'small_segment']
@@ -205,11 +202,11 @@ def plot_cn_profiles(
                   label_func=lambda x: '',
                   label_colors=clade_colors,
                   show_branch_support=show_branch_support,
-                  show_events=show_events,
+                  show_events=show_events_in_tree,
                   show_branch_lengths=show_branch_lengths,
                   hide_internal_nodes=hide_internal_nodes)
     
-    # Adjust the margin between the tree and cn tracks. Default is -0.03
+    # Adjust the margin between the tree and cn tracks. Default is 0
     fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=horizontal_margin_adjustment)
     ## iterate over samples and plot the track
     for sample, group in df.groupby('sample_id'):
@@ -224,12 +221,15 @@ def plot_cn_profiles(
                          maxcn=maxcn+1,
                          alleles=allele_columns,
                          type='sample',
+                         clonal_transparant=clonal_transparant,
                          chr_label_func=chr_label_func,
                          plot_xaxis_labels=plot_axis_labels if not (
                             plot_summary + plot_subclonal_summary + plot_clonal_summary) else False,
                          plot_yaxis_labels=True,
                          yaxis_label_color=clade_colors[sample],
-                         show_small_segments=show_small_segments)
+                         show_small_segments=show_small_segments,
+                         detailed_xticks=detailed_xticks,
+                         show_events_in_cn=show_events_in_cn)
 
     if plot_clonal_summary:
         _plot_cn_profile(ax=cn_axes[nsamp],
@@ -238,6 +238,7 @@ def plot_cn_profiles(
                          mincn=mrca_df[allele_columns].min().min()-1,
                          maxcn=mrca_df[allele_columns].max().max()+1,
                          alleles=allele_columns,
+                         detailed_xticks=detailed_xticks,
                          chr_label_func=chr_label_func,
                          type='summary',
                          show_small_segments=show_small_segments)
@@ -250,6 +251,7 @@ def plot_cn_profiles(
                          mincn=agg_events[allele_columns].min().min()-1,
                          maxcn=agg_events[allele_columns].max().max()+1,
                          alleles=allele_columns,
+                         detailed_xticks=detailed_xticks,
                          chr_label_func=chr_label_func,
                          type='summary',
                          show_small_segments=show_small_segments)
@@ -263,6 +265,7 @@ def plot_cn_profiles(
                          mincn=agg_events[allele_columns].min().min()-1,
                          maxcn=agg_events[allele_columns].max().max()+1,
                          alleles=allele_columns,
+                         detailed_xticks=detailed_xticks,
                          chr_label_func=chr_label_func,
                          show_small_segments=show_small_segments)
         cn_axes[-1 - int(plot_summary)].get_xaxis().set_visible(not plot_summary)
@@ -275,8 +278,9 @@ def plot_cn_profiles(
 
 
 def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
-                     plot_xaxis_labels=True, plot_yaxis_labels=True,
-                     chr_label_func=None, yaxis_label_color='black', show_small_segments=False):
+                     plot_xaxis_labels=True, plot_yaxis_labels=True, chr_label_func=None,
+                     clonal_transparant=True, yaxis_label_color='black', show_small_segments=False,
+                     show_events_in_cn=True, detailed_xticks=False):
     ## collect line segments and background patches
     event_patches = []
     bkg_patches = []
@@ -295,19 +299,16 @@ def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
             lines_b.append([(r['start_pos'], r[alleles[1]]), (r['end_pos'], r[alleles[1]])])
         rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'],
                                      maxcn-mincn, edgecolor=None, facecolor=COL_PATCH_BACKGROUND, alpha=1)
-        alpha.append(ALPHA_CLONAL if r['is_clonal'] and type=='sample' else 1.0)
+        alpha.append(ALPHA_CLONAL if (clonal_transparant and r['is_clonal'] and type=='sample') else 1.0)
         bkg_patches.append(rect)
-        # Not used because clonal tracks are made transparent below
-        # if r['is_clonal']:
-        #     rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'], maxcn-mincn, edgecolor=None, facecolor=COL_CLONAL, alpha=0.1)
-        #     event_patches.append(rect)
+
         if show_small_segments and r['small_segment']:
             circles_a.append((r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[0]]))
             if two_alleles:
                 circles_b.append(
                     (r['start_pos'] + 0.5*(r['end_pos'] - r['start_pos']), r[alleles[1]]))
 
-        if type=='sample':
+        if show_events_in_cn and type=='sample':
             if r['is_normal']:
                 rect = mpl.patches.Rectangle((r['start_pos'], mincn), r['end_pos']-r['start_pos'],
                                             maxcn-mincn, edgecolor=None, facecolor=COL_NORMAL, alpha=ALPHA_PATCHES)
@@ -401,6 +402,8 @@ def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
         ax.yaxis.label.set_color(yaxis_label_color)
 
     ## axis modifications
+    if detailed_xticks:
+        ax.set_xticks(np.arange(0, data['end_pos'].max(), 1e7))
     ax.get_xaxis().set_visible(plot_xaxis_labels)
 
     #ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(integer=True, prune='both', nbins=(maxcn-mincn)/2 + 1))
@@ -408,7 +411,6 @@ def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
     ax.yaxis.set_tick_params(labelsize=YLABEL_TICK_SIZE)
     ax.set_ylim(mincn, maxcn)
     ax.set_xlim(0, data['end_pos'].max())
-
 
 def _get_x_positions(tree):
     """Create a mapping of each clade to its horizontal position.
@@ -685,6 +687,7 @@ def plot_tree(input_tree,
             if marker is not None and clade is not None and not(hide_internal_nodes and not clade.is_terminal()):
                 marker_size, marker_col = marker_func(clade)
                 ax.scatter(x_here, y_here, s=marker_size, c=marker_col, zorder=3)
+
         # Add node/taxon labels
         label = label_func(str(clade))
         ax_scale = ax.get_xlim()[1] - ax.get_xlim()[0]

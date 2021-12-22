@@ -23,10 +23,13 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
         logger.info("Reading Refphase TSV input.")
         input_df = io._read_tsv_as_dataframe(filename, allele_columns=allele_columns, maxcn=maxcn)
     else:
-        raise MEDICCIOError("Unknown input type, possible options are FASTA or TSV.")
+        raise MEDICCIOError("Unknown input type, possible options are 'fasta' or 'tsv'.")
 
     if len(allele_columns) == 1 and not total_copy_numbers:
         logger.warn('You have provided only one allele column but the --total-copy-numbers flag was not set')
+    if total_copy_numbers and not len(allele_columns) == 1:
+        raise MEDICCIOError("You have set the --total-copy-numbers flag but provided more than one allele column. "
+                            "Set allele columns with the flag --input-allele-columns")
 
     ## Add normal sample if needed
     input_df = io.add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 
@@ -38,7 +41,7 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     return input_df
 
 
-def read_fst(user_fst=None, no_wgd=False, total_copy_numbers=False, n_wgd=None):
+def read_fst(user_fst=None, no_wgd=False, n_wgd=None):
     """ Simple wrapper for loading the FST using the fstlib read function. """
 
     objects_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "objects")
@@ -46,19 +49,27 @@ def read_fst(user_fst=None, no_wgd=False, total_copy_numbers=False, n_wgd=None):
     if user_fst is not None:
         fst_path = user_fst
     else:
-        if total_copy_numbers:
-            fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
-            if any([no_wgd, n_wgd is not None]):
-                logger.warn("Loading FST: total_copy_numbers FST cannot be combined with no_wgd or n_wgd")
+        if no_wgd:
+            fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
+        elif n_wgd is not None and int(n_wgd) <= 3:
+            fst_path = os.path.join(objects_dir, 'wgd_{}_asymm.fst'.format(int(n_wgd)))
         else:
-            if no_wgd:
-                fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
-            elif n_wgd is not None and int(n_wgd) <= 3:
-                fst_path = os.path.join(objects_dir, 'wgd_{}_asymm.fst'.format(int(n_wgd)))
-            else:
-                fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
+            fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
 
     return fstlib.read(fst_path)
+
+
+def load_main_fsts(return_symbol_table=False):
+    asymm_fst = read_fst()
+    asymm_fst_nowgd = read_fst(no_wgd=True)
+    asymm_fst_1_wgd = read_fst(n_wgd=1)
+
+    if return_symbol_table:
+        symbol_table = asymm_fst.input_symbols()
+        return asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, symbol_table
+    else:
+        return asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd
+
 
 def validate_input(input_df, symbol_table):
     # Check the number of alleles
@@ -106,20 +117,14 @@ def filter_by_segment_length(input_df, filter_size):
 def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
     logger.info("Reading TSV file %s", path)
     input_file = pd.read_csv(path, sep = "\t")
-    nexpected = 4 + len(allele_columns)
-    input_columns = list(input_file.columns[0:4]) + allele_columns
-    if input_file.shape[1] < nexpected:
-        raise MEDICCIOError("TSV file needs at least {} columns (sample_id, chrom, start, end and the allele columns)"
-                            "\nCurrent columns are: {}".format(nexpected, input_file.columns))
+    columnn_names = ['sample_id', 'chrom', 'start', 'end'] + allele_columns
+    if len(np.setdiff1d(columnn_names, input_file.columns)) > 0:
+        raise MEDICCIOError(f"TSV file needs the following columns: sample_id, chrom, start, end and the allele columns ({allele_columns})"
+                            "\nMissing columns are: {}".format(
+                                np.setdiff1d(columnn_names, input_file.columns)))
 
-    ## check if allele_columns are present
-    if not np.all(np.in1d(allele_columns, input_file.columns)):
-        raise MEDICCIOError("Allele columns {%s} not found!" % ', '.join(allele_columns))
-
-    logger.info("Successfully read input file. Using columns {%s}" % ', '.join(input_columns))
-    new_columns = ['sample_id', 'chrom', 'start', 'end'] + allele_columns ## rename user input to what we know
-    input_file = input_file[input_columns]
-    input_file.columns = new_columns
+    logger.info("Successfully read input file. Using columns {%s}" % ', '.join(columnn_names))
+    input_file = input_file[columnn_names]
     for c in allele_columns:
         if input_file[c].dtype in [np.dtype('float64'), np.dtype('float32')]:
             logger.warning("Floating point payload! I will round, but this might not be intended.")
@@ -204,22 +209,25 @@ def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_cop
 
     if normal_name is not None and normal_name not in samples:
         logger.info("Normal sample '%s' not found, adding artifical normal by the name: '%s'.", normal_name, normal_name)
-        tmp=df.unstack('sample_id')
+        tmp = df.unstack('sample_id')
         for col in allele_columns:
             tmp.loc[:, (col, normal_name)] = normal_value
         tmp = tmp.stack('sample_id')
         tmp = tmp.reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
     else:
+        logger.info("Sample '%s' was found in data is is used as normal", normal_name)
         if np.any(df.loc[normal_name] == '0'):
             logger.warn("The provided normal sample contains segments with copy number 0. "
                         "If any other sample has non-zero values in these segments, MEDICC will crash")
+        if np.any(df.loc[normal_name] != normal_value):
+            logger.warn("The provided normal sample contains segments with copy number != {}.".format(normal_value))
 
         tmp = df
 
     return tmp
 
 
-def write_tree_files(tree, out_name: str, plot_tree=True, draw_ascii=True):
+def write_tree_files(tree, out_name: str, plot_tree=True, draw_ascii=False):
     """ Writes a Newick, PhyloXML, Ascii graphic and PNG grahic file of the tree. """
     Bio.Phylo.write(tree, out_name + ".new", "newick")
     Bio.Phylo.write(tree, out_name + ".xml", "phyloxml")
@@ -234,17 +242,13 @@ def write_tree_files(tree, out_name: str, plot_tree=True, draw_ascii=True):
                        label_func=lambda x: x if 'internal' not in x else '',
                        show_branch_lengths=True)
 
-def write_pdms(sample_labels, pdms, filename_prefix):
-    """ Writes all PDMs in the pdms dictionary. """
-    for allele, pdm in pdms.items():
-        _write_pdm(sample_labels, pdm, "%s_%s.tsv" % (filename_prefix, allele))
+def write_pairwise_distances(sample_labels, pairwise_distances, filename_prefix):
+    """ Write the pairwise distance matrix as a tsv."""
 
-def _write_pdm(labels, pdm, filename):
-    """ Writes a single PDM to the given filename using the provided labels as row and column names. """
-    if not isinstance(pdm, pd.DataFrame):
-        pdm = pd.DataFrame(pdm, columns = labels, index = labels)
-    pdm.to_csv(filename, sep='\t')
-    return pdm
+    if not isinstance(pairwise_distances, pd.DataFrame):
+        pairwise_distances = pd.DataFrame(pairwise_distances, columns=sample_labels, index=sample_labels)
+    pairwise_distances.to_csv(f"{filename_prefix}.tsv", sep='\t')
+
 
 def import_tree(tree_file, normal_name='diploid', file_format='newick'):
     """ Loads a phylogenetic tree in the given format and roots it at the normal sample. """
@@ -263,7 +267,7 @@ def import_tree(tree_file, normal_name='diploid', file_format='newick'):
     return input_tree
 
 
-def read_bed_file(filename, as_pyranges=False):
+def read_bed_file(filename):
 
     data = pd.read_csv(filename, header=None, comment='#', sep='\t')
 

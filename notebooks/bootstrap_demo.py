@@ -17,7 +17,8 @@ import medicc.bootstrap
 np.random.seed(42)
 
 #%%
-data_folder = "../examples/output_gundem_et_al_2015"
+data_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           "../examples/output_gundem_et_al_2015")
 
 main_tree = medicc.io.import_tree(os.path.join(data_folder, "PTX011_final_tree.new"), 'diploid')
 main_df = medicc.io.read_and_parse_input_data(os.path.join(data_folder, "PTX011_final_cn_profiles.tsv"))

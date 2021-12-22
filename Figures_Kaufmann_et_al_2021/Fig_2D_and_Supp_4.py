@@ -1,0 +1,78 @@
+#%% imports
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
+from plotting_params import plotting_params, set_plotting_params
+
+set_plotting_params()
+
+# Run the notebook 'pcawg.py' in the folder 'notebooks' to recreate the data from scratch
+plotting_data = pd.read_csv('data/Fig_2D_and_Supp_4.tsv', index_col=None, sep='\t')
+pcawg_color_palette = pd.read_csv('data/Supp_4_color_palette.tsv', index_col=0, sep='\t')
+linex = np.linspace(0, plotting_data['hom'].max())
+linea = -2
+linec = 2.9
+liney = linea * linex + linec
+
+fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data, hue='pcawg_wgd', ax=ax, hue_order=['No WGD', 'WGD'])
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data['bootstrap_2_wgds']],
+                color='C2', label='2 WGDs')
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data.eval('pcawg_wgd != wgd_status_medicc_bootstrap')],
+                color='black', label='False Predictions')
+sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data.eval('pcawg_wgd != wgd_status_medicc_bootstrap') &
+                                                           plotting_data['wgd_uncertain']],
+                color='grey', label='False Predictions (uncertain)')
+#ax.set_title('False Predictions')
+ax.set_xlabel('Fraction of genome with LOH')
+ax.set_ylabel('Ploidy')
+ax.plot(linex, liney, '--', color='grey')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Fig_2D.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Fig_2D.png', bbox_inches='tight', dpi=600)
+
+
+# #%% Supp 4A: MEDICC MED distributions
+palette = dict(zip(pcawg_color_palette.index, pcawg_color_palette['Hexadecimal']))
+fig, ax = plt.subplots(nrows=1, ncols=1, sharey=True,
+                        figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_FULL']/plotting_params['ASPECT_RATIO']))
+
+cur_plotting_data = plotting_data.query("histology_useable").sort_values('histology_abbreviation')
+sns.boxplot(x='dist_wgd', y='histology_abbreviation', palette=palette, data=cur_plotting_data, ax=ax)
+ax.set_xlabel('MED (WGD) from diploid normal')
+ax.set_ylabel('PCAWG histology')
+
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4A.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4A.png',
+            bbox_inches='tight', dpi=600)
+
+#%% Supp 4B: MEDICC2 WGD score distributions
+fig, ax = plt.subplots(nrows=1, ncols=1, sharey=True,
+                       figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_FULL']/plotting_params['ASPECT_RATIO']))
+
+cur_plotting_data = plotting_data.query("histology_useable").sort_values('histology_abbreviation')
+sns.boxplot(x='dist_diff', y='histology_abbreviation', palette=palette, data=cur_plotting_data, ax=ax)
+ax.set_xlabel('MEDICC2 WGD score')
+ax.set_ylabel('')
+
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4B.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4B.png',
+            bbox_inches='tight', dpi=600)
+
+#%% Supp 4C: MEDICC2 WGD score distributions
+fig, ax = plt.subplots(nrows=1, ncols=1, sharey=True,
+                       figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_FULL']/plotting_params['ASPECT_RATIO']))
+
+plotting_data['has_wgd'] = plotting_data['wgd_status_medicc_bootstrap'] == 'WGD'
+cur_plotting_data = plotting_data.query("histology_useable").groupby(
+    'histology_abbreviation').mean()[['has_wgd']]
+
+sns.barplot(x='has_wgd', y=cur_plotting_data.index, orient='h', data=cur_plotting_data, 
+            palette=palette, ax=ax, edgecolor='black', linewidth=1)
+ax.set_xlabel('Fraction of samples exhibiting WGD')
+ax.set_ylabel('')
+
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4C.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4C.png',
+            bbox_inches='tight', dpi=600)

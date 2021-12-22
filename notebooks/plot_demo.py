@@ -3,17 +3,18 @@ import os
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 # %matplotlib inline
 import medicc
 
+data_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../examples")
+
 #%%
-evo001_df = medicc.io.read_and_parse_input_data('../examples/output/EVO001_EP_final_cn_profiles.tsv')
-evo001_tree = medicc.io.import_tree('../examples/output/EVO001_EP_final_tree.new', 'diploid')
-ptx011_df = medicc.io.read_and_parse_input_data('../examples/output/PTX011_final_cn_profiles.tsv')
-ptx011_tree = medicc.io.import_tree('../examples/output/PTX011_final_tree.new', 'diploid')
-ptx011_nowgd_df = medicc.io.read_and_parse_input_data('../examples/output/PTX011-noWGD_final_cn_profiles.tsv')
-ptx011_nowgd_tree = medicc.io.import_tree('../examples/output/PTX011-noWGD_final_tree.new', 'diploid')
+evo001_df = medicc.io.read_and_parse_input_data(os.path.join(data_folder, 'output/EVO001_EP_final_cn_profiles.tsv'))
+evo001_tree = medicc.io.import_tree(os.path.join(data_folder, 'output/EVO001_EP_final_tree.new'), 'diploid')
+ptx011_df = medicc.io.read_and_parse_input_data(os.path.join(data_folder, 'output/PTX011_final_cn_profiles.tsv'))
+ptx011_tree = medicc.io.import_tree(os.path.join(data_folder, 'output/PTX011_final_tree.new'), 'diploid')
+ptx011_nowgd_df = medicc.io.read_and_parse_input_data(os.path.join(data_folder, 'output/PTX011-noWGD_final_cn_profiles.tsv'))
+ptx011_nowgd_tree = medicc.io.import_tree(os.path.join(data_folder, 'output/PTX011-noWGD_final_tree.new'), 'diploid')
 
 # %%
 def plot_ptx011(df, tree, title='PTX011'):
@@ -45,9 +46,9 @@ def plot_ptx011(df, tree, title='PTX011'):
 		label_func = lambda x:labels[x])
 	return fig
 fig = plot_ptx011(ptx011_df, ptx011_tree, title='PTX011')
-fig.savefig('../examples/output/PTX011.pdf', bbox_inches='tight')
+fig.savefig(os.path.join(data_folder, 'output/PTX011.pdf'), bbox_inches='tight')
 fig = plot_ptx011(ptx011_nowgd_df, ptx011_nowgd_tree, title='PTX011 w/o WGD')
-fig.savefig('../examples/output/PTX011-noWGD.pdf', bbox_inches='tight')
+fig.savefig(os.path.join(data_folder, 'output/PTX011-noWGD.pdf'), bbox_inches='tight')
 
 # %%
 fig = medicc.plot.plot_cn_profiles(
@@ -62,6 +63,4 @@ fig = medicc.plot.plot_cn_profiles(
     plot_clonal_summary=True,
 	hide_normal_chromosomes=True,
 	label_func = lambda x:x.replace('_',' ').replace('G RLX001', 'G-RLX001\n'))
-fig.savefig('../examples/output/EVO001.pdf', bbox_inches='tight')
-
-# %%
+fig.savefig(os.path.join(data_folder, 'output/EVO001.pdf'), bbox_inches='tight')

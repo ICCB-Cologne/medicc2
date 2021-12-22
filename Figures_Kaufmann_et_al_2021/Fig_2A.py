@@ -21,9 +21,9 @@ CALC_NEW = False
 DATA_FILE = 'data/Fig_2A.tsv'
 
 #%% read fsts
-T_no_wgd_asymm = medicc.io.read_fst('../objects/no_wgd_asymm.fst')
+T_no_wgd_asymm = medicc.io.read_fst(no_wgd=False)
 T_no_wgd_symm = ~T_no_wgd_asymm * T_no_wgd_asymm
-T_wgd_asymm = medicc.io.read_fst('../objects/wgd_asymm.fst')
+T_wgd_asymm = medicc.io.read_fst()
 
 
 # %% time composition function
@@ -84,8 +84,8 @@ if CALC_NEW or not os.path.isfile(DATA_FILE):
     timing['Algorithm'] = ''
     timing['WGD'] = ''
     timing.loc['no_wgd_legacy', 'Algorithm'] = 'Legacy composition\n(Schwarz et al. 2014)'
-    timing.loc['wgd_kernel', 'Algorithm'] = 'Lazy kernel composition'
-    timing.loc['no_wgd_kernel', 'Algorithm'] = 'Lazy kernel composition'
+    timing.loc['wgd_kernel', 'Algorithm'] = 'Lazy composition'
+    timing.loc['no_wgd_kernel', 'Algorithm'] = 'Lazy composition'
     timing.loc['no_wgd_legacy', 'WGD'] = 'No WGD'
     timing.loc['wgd_kernel', 'WGD'] = 'WGD'
     timing.loc['no_wgd_kernel', 'WGD'] = 'No WGD'
@@ -96,7 +96,7 @@ else:
     timing = pd.read_csv(DATA_FILE, sep='\t')
 
 #%% Plot Figure
-fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
+fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 sns.lineplot(data=timing, x='length', y='Time', hue='Algorithm', style='WGD',
              markers=True, legend=True, ci='sd', ax=ax)
 ax.set_xlabel('CNP length (#segments)')

@@ -13,4 +13,5 @@ dependencies:
   - scipy>=1.7
   - matplotlib>=3.3
   - cython>=0.29.21
+  - pyranges>=0.0.96
 prefix: /usr/local/anaconda3/envs/medicc_env
