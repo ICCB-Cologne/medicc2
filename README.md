@@ -1,5 +1,8 @@
 # MEDICC2 - Whole-genome doubling-aware copy number phylogenies for cancer evolution
 
+[![PyPI](https://img.shields.io/pypi/v/medicc2?color=blue)](https://pypi.org/project/medicc2/)
+[![Conda](https://img.shields.io/conda/v/bioconda/medicc2?color=blue)](https://anaconda.org/bioconda/medicc2)
+
 For more information see the accompanying  paper [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://www.biorxiv.org/content/10.1101/2021.02.28.433227v2).
 
 # Installation
