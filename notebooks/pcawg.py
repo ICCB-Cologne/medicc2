@@ -38,7 +38,7 @@ set_plotting_params()
 # https://github.com/PCAWG-11/Heterogeneity/raw/master/code_figures_paper/figure_1b/wgd.status.txt.gz
 
 #%%
-LOAD = True
+LOAD = False
 
 #%% FSTs
 T_wgd_asymm = medicc.io.read_fst()
@@ -210,7 +210,7 @@ else:
     for idx, df in dat.groupby('sample_id'):
         phasing_dict = medicc.create_phasing_fsa_dict_from_df(df, symbol_table, 'X')
         fsa_dict_a, fsa_dict_b, scores = medicc.phase_dict(phasing_dict, T_wgd_asymm, diploid_fsa)
-        phased = medicc.create_df_from_fsa(df, [fsa_dict_a, fsa_dict_b], 'X')
+        phased = medicc.create_df_from_phasing_fsa(df, [fsa_dict_a, fsa_dict_b], 'X')
         phased.columns = ['cn_a', 'cn_b']
         phased_dfs.append(phased)
         phasing_scores.update(scores)
@@ -282,7 +282,6 @@ else:
     bootstrap_distances = -1*np.ones((len(samples), 3, N_bootstrap))
 
     for i in np.arange(N_bootstrap):
-        print(i)
         bootstrap_dat = medicc.bootstrap.chr_wise_bootstrap_df(dat)
 
         FSA_dict = medicc.create_standard_fsa_dict_from_data(

@@ -166,9 +166,10 @@ def phase(input_df: pd.DataFrame, model_fst: fstlib.Fst, reference_sample='diplo
     """ Phases every FST against the reference sample. 
     Returns two standard FSA dicts, one for each allele. """
     
+    diploid_fsa = medicc.tools.create_diploid_fsa(model_fst)
     phasing_dict = medicc.create_phasing_fsa_dict_from_df(input_df, model_fst.input_symbols(), separator)
-    fsa_dict_a, fsa_dict_b, _ = phase_dict(phasing_dict, model_fst, phasing_dict[reference_sample])
-    output_df = medicc.create_df_from_fsa(input_df, [fsa_dict_a, fsa_dict_b], separator)
+    fsa_dict_a, fsa_dict_b, _ = phase_dict(phasing_dict, model_fst, diploid_fsa)
+    output_df = medicc.create_df_from_phasing_fsa(input_df, [fsa_dict_a, fsa_dict_b], separator)
 
     return output_df
 
@@ -198,7 +199,7 @@ def create_df_from_fsa(input_df: pd.DataFrame, fsa, separator: str = 'X'):
 
     alleles = input_df.columns
     if not isinstance(fsa, dict):
-        raise MEDICCError("fsa input to create_df_from_fsa has to be either dict or list of dicts"
+        raise MEDICCError("fsa input to create_df_from_fsa has to be a dict"
                           "Input type is {}".format(type(fsa)))
 
     nr_alleles = len(alleles)
@@ -218,6 +219,39 @@ def create_df_from_fsa(input_df: pd.DataFrame, fsa, separator: str = 'X'):
 
     output_df = output_df.stack('sample_id')
     output_df = output_df.reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
+    
+    return output_df
+
+
+def create_df_from_phasing_fsa(input_df: pd.DataFrame, fsas, separator: str = 'X'):
+    """ 
+    Takes a two FSAs dicts from phasing and extracts the copy number profiles.
+    The allele names are taken from the input_df columns and the returned data frame has the same 
+    number of rows and row index as the input_df. """
+
+    alleles = input_df.columns
+    if len(fsas) != 2:
+        raise MEDICCError("fsas has to be of length 2")
+    if not all([isinstance(fsa, dict) for fsa in fsas]):
+        raise MEDICCError("all fsas entries have to be dicts")
+    if fsas[0].keys() != fsas[1].keys():
+        raise MEDICCError("fsas keys have to be the same")
+
+
+    output_df = input_df.copy()[[]]
+    output_df[alleles] = ''
+
+    for sample in fsas[0].keys():
+        cns_a = tools.fsa_to_string(fsas[0][sample]).split(separator)
+        cns_b = tools.fsa_to_string(fsas[1][sample]).split(separator)
+        if len(cns_a) != len(cns_b):
+            raise MEDICCError(f"length of alleles is not the same for sample {sample}")
+
+        output_df.loc[sample, alleles[0]] = list(''.join(cns_a))
+        output_df.loc[sample, alleles[1]] = list(''.join(cns_b))
+
+    # output_df = output_df.stack('sample_id')
+    # output_df = output_df.reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
     
     return output_df
 

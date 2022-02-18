@@ -126,3 +126,18 @@ def total_pdm_from_parallel_pdms(sample_labels, parallel_pdms):
             np.where(total_pdm.isna())))
 
     return total_pdm
+
+
+def create_diploid_fsa(fst):
+
+    # Create diploid FSA
+    diploid_fsa = fstlib.Fst()
+    diploid_fsa.set_input_symbols(fst.input_symbols())
+    diploid_fsa.set_output_symbols(fst.output_symbols())
+    diploid_fsa.add_state()
+    diploid_fsa.set_start(0)
+    diploid_fsa.set_final(0, 0)
+    diploid_fsa.add_arc(0, ('1', '1', 0, 0))
+    diploid_fsa.add_arc(0, ('X', 'X', 0, 0))
+
+    return diploid_fsa
