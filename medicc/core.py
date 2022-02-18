@@ -85,7 +85,7 @@ def main(input_df,
                                                  prune_weight=prune_weight)
 
         ## Create and write output data frame with ancestors
-        logger.info("Creating output table.")
+        logger.info("Creating output copynumbers.")
         output_df = create_df_from_fsa(input_df, ancestors)
 
         ## Update branch lengths with ancestors
@@ -636,9 +636,9 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
     min_branch_length = np.min(branch_lengths)
     max_branch_length = np.max(branch_lengths)
     median_branch_length = np.median(branch_lengths)
-    p_star = stats.star_topology_test(pdm)
-    normal_index = np.flatnonzero(np.array(sample_labels) == normal_name)[0]
-    p_clock = stats.molecular_clock_test(pdm, normal_index)
+    # p_star = stats.star_topology_test(pdm)
+    # p_clock = stats.molecular_clock_test(pdm,
+    #                                      np.flatnonzero(np.array(sample_labels) == normal_name)[0])
     if events_df is None:
         wgd_status = "unknown"
     else:
@@ -657,8 +657,8 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
         'median_branch_length': median_branch_length,
         'min_branch_length': min_branch_length,
         'max_branch_length': max_branch_length,
-        'p_star': p_star,
-        'p_clock': p_clock,
+        # 'p_star': p_star,
+        # 'p_clock': p_clock,
         'wgd_status': wgd_status,
     })
     
