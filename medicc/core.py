@@ -473,7 +473,7 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
                                 ['end'].values)
 
             cur_ind = np.arange(len(events_df), len(events_df)+len(cur_events))
-            events_df = events_df.append(pd.DataFrame(index=cur_ind))
+            events_df = pd.concat([events_df, pd.DataFrame(index=cur_ind)])
             events_df.loc[cur_ind, 'sample_id'] = child_name
             events_df.loc[cur_ind, 'allele'] = allele
             events_df.loc[cur_ind, 'type'] = 'loh'
@@ -567,7 +567,7 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
                                 ['end'].values)
 
             cur_ind = np.arange(len(events_df), len(events_df)+len(cur_events))
-            events_df = events_df.append(pd.DataFrame(index=cur_ind))
+            events_df = pd.concat([events_df, pd.DataFrame(index=cur_ind)])
             events_df.loc[cur_ind, 'sample_id'] = child_name
             events_df.loc[cur_ind, 'allele'] = allele
             events_df.loc[cur_ind, 'type'] = cur_event
@@ -714,7 +714,7 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
         whole_chromosome = chr_arm_regions.groupby('Chromosome').min()
         whole_chromosome['End'] = chr_arm_regions.groupby('Chromosome')['End'].max()
         whole_chromosome['name'] = whole_chromosome.index
-        chr_arm_regions = chr_arm_regions.append(whole_chromosome.reset_index()).sort_values('Chromosome')
+        chr_arm_regions = pd.concat([chr_arm_regions, whole_chromosome.reset_index()]).sort_values('Chromosome')
         chr_arm_regions = pr.PyRanges(chr_arm_regions)
 
     regions = None
@@ -746,14 +746,14 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
                     if replace_both_arms_with_chrom and len(chr_events) > 0:
                         chr_events = chr_events[~chr_events['name'].isin(np.concatenate(
                             [[name + 'p', name + 'q'] if ('q' not in name and 'p' not in name) else [] for name in chr_events['name']]))]
-                    all_events = all_events.append(chr_events)
+                    all_events = pd.concat([all_events, chr_events])
 
                 # Calculate other events
                 if regions is not None:
                     for region in regions:
                         chr_events = overlap_regions(
                             region, cur_events_ranges, event_type, cur_branch, overlap_threshold)
-                        all_events = all_events.append(chr_events)
+                        all_events = pd.concat([all_events, chr_events])
 
     all_events['final_name'] = all_events['name'].apply(lambda x: x.split(
         'chr')[-1]) + all_events['event'].apply(lambda x: ' +' if x == 'gain' else (' -' if x == 'loss' else (' 0' if x == 'loh' else '')))
