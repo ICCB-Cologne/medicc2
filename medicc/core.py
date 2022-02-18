@@ -203,23 +203,30 @@ def create_df_from_fsa(input_df: pd.DataFrame, fsa, separator: str = 'X'):
                           "Input type is {}".format(type(fsa)))
 
     nr_alleles = len(alleles)
+    samples = input_df.index.get_level_values('sample_id').unique()
     output_df = input_df.unstack('sample_id')
 
-    for sample in fsa:
-        cns = tools.fsa_to_string(fsa[sample]).split(separator)
+    # Create dict and concat later to prevent pandas PerformanceWarning
+    internal_cns = dict()
+    for node in fsa:
+        if node in samples:
+            continue
+        cns = tools.fsa_to_string(fsa[node]).split(separator)
         if len(cns) % nr_alleles != 0:
             raise MEDICCError('For sample {} we have {} haplotype-specific chromosomes for {} alleles'
-                              '\nnumber of chromosomes has to be divisible by nr of alleles'.format(sample,
+                              '\nnumber of chromosomes has to be divisible by nr of alleles'.format(node,
                                                                                                     len(cns),
                                                                                                     nr_alleles))
         nr_chroms = int(len(cns) // nr_alleles)
         for i, allele in enumerate(alleles):
             cn = list(''.join(cns[(i*nr_chroms):((i+1)*nr_chroms)]))
-            output_df.loc[:, (allele, sample)] = cn
+            internal_cns[(allele, node)] = cn
 
-    output_df = output_df.stack('sample_id')
-    output_df = output_df.reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
-    
+    output_df = (pd.concat([output_df, pd.DataFrame(internal_cns, index=output_df.index)], axis=1)
+                 .stack('sample_id')
+                 .reorder_levels(['sample_id', 'chrom', 'start', 'end'])
+                 .sort_index())
+
     return output_df
 
 
