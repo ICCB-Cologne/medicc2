@@ -7,7 +7,7 @@ import matplotlib
 import numpy as np
 import pandas as pd
 
-from medicc import io, plot, tools
+from medicc import plot, tools
 
 matplotlib.use("Agg")
 logger = logging.getLogger(__name__)
@@ -18,10 +18,10 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     ## Read in input data
     if input_type.lower() == "fasta" or input_type.lower() == 'f':
         logger.info("Reading FASTA input.")
-        input_df = io._read_fasta_as_dataframe(filename, separator=separator, allele_columns=allele_columns, maxcn=maxcn)
+        input_df = _read_fasta_as_dataframe(filename, separator=separator, allele_columns=allele_columns, maxcn=maxcn)
     elif input_type.lower() == "tsv" or input_type.lower() == 't':
         logger.info("Reading Refphase TSV input.")
-        input_df = io._read_tsv_as_dataframe(filename, allele_columns=allele_columns, maxcn=maxcn)
+        input_df = _read_tsv_as_dataframe(filename, allele_columns=allele_columns, maxcn=maxcn)
     else:
         raise MEDICCIOError("Unknown input type, possible options are 'fasta' or 'tsv'.")
 
@@ -32,7 +32,7 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
                             "Set allele columns with the flag --input-allele-columns")
 
     ## Add normal sample if needed
-    input_df = io.add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 
+    input_df = add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 
                                     total_copy_numbers=total_copy_numbers)
     nsamples = input_df.index.get_level_values('sample_id').unique().shape[0]
     nchr = input_df.index.get_level_values('chrom').unique().shape[0]
