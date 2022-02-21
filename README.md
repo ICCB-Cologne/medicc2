@@ -10,13 +10,13 @@ Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was develop
 
 Note that the notebooks and examples are not included when installing from conda or pip. When installing from pip or source, you need to make sure to have a working version of `gcc` and `gxx` installed.
 
-Due to dependencies only Python version 3.9 and lower are supported
+Due to dependencies we recommend using Python version 3.7-3.9.
 
 ## Installation via conda (recommended)
 MEDICC2 can be installed via `conda install -c bioconda -c conda-forge medicc2`.
 
 ## Installation via pip
-As MEDICC2 relies on OpenFST version 1.8.1 which is not packaged on PyPi you have to first install it using conda with `conda install -c conda-forge openfst`. Next you can install MEDICC2 via `pip install medicc2`.
+As MEDICC2 relies on OpenFST version 1.8.1 which is not packaged on PyPi you have to first install it using conda with `conda install -c conda-forge openfst=1.8.1`. Next you can install MEDICC2 via `pip install medicc2`.
 
 ## Installation from source
 Clone the MEDICC2 repository and its submodules using `git clone --recursive https://bitbucket.org/schwarzlab/medicc2.git`. It is important to use the `--recursive` flag to also download the modified OpenFST submodule.
