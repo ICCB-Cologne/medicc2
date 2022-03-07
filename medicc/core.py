@@ -11,7 +11,7 @@ import pyranges as pr
 from joblib import Parallel, delayed
 
 import medicc
-from medicc import io, nj, stats, tools
+from medicc import io, nj, tools
 
 # prepare logger 
 logger = logging.getLogger(__name__)

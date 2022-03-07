@@ -7,7 +7,8 @@ import pandas as pd
 from Bio.Phylo.Consensus import _BitString, get_support
 from joblib.parallel import Parallel, delayed
 
-import medicc
+from medicc import io, tools
+from medicc.core import main
 
 # tqdm can be used for progress bars
 try: 
@@ -31,9 +32,9 @@ def chr_wise_bootstrap_df(input_df):
     for i, cur_chrom in enumerate(cur_chroms):
         cur_data = input_df.reset_index().loc[(input_df.reset_index()['chrom'] == cur_chrom).values]
         cur_data['chrom'] = 'chr{}'.format(i+1)
-        bootstrap_df = bootstrap_df.append(cur_data)
+        bootstrap_df = pd.concat([bootstrap_df, cur_data])
 
-    bootstrap_df['chrom'] = medicc.tools.format_chromosomes(bootstrap_df['chrom'])
+    bootstrap_df['chrom'] = tools.format_chromosomes(bootstrap_df['chrom'])
     bootstrap_df.set_index(['sample_id', 'chrom', 'start', 'end'], inplace=True)
     bootstrap_df.sort_index(inplace=True)
 
@@ -130,7 +131,7 @@ def compare_trees(tree1, tree2, fail_on_different_terminals=True):
 
 def _single_bootstrap_run(input_df, fst, bootstrap_method, i, N_bootstrap, normal_name='diploid'):
     cur_df = bootstrap_method(input_df)
-    _, _, _, cur_final_tree, _, _ = medicc.main(
+    _, _, _, cur_final_tree, _, _ = main(
         cur_df,
         fst,
         normal_name,
@@ -186,9 +187,9 @@ def run_bootstrap(input_df,
         np.random.seed(seed)
 
     if wgd:
-        fst = medicc.io.read_fst()
+        fst = io.read_fst()
     else:
-        fst = medicc.io.read_fst(no_wgd=True)
+        fst = io.read_fst(no_wgd=True)
 
     if original_tree is not None:
         trees = {original_tree: [0, 'original']}
@@ -201,7 +202,7 @@ def run_bootstrap(input_df,
             input_df, fst, bootstrap_method, i, N_bootstrap, normal_name)
             for i in range(N_bootstrap))
     else:
-        initial_trees=[]
+        initial_trees = []
         for i in tqdm(range(N_bootstrap), disable=not show_progress):
             cur_tree = _single_bootstrap_run(
                 input_df, fst, bootstrap_method, i, N_bootstrap, normal_name)
