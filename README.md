@@ -72,10 +72,11 @@ The folder `examples/OV03-04` contains a larger example consisting of multiple f
 
 ## Output files
 MEDICC creates the following output files:
+
 * `_final_tree.new`, `_final_tree.xml`, `_final_tree.png`: The final phylogenetic tree in Newick and XML format as well as an image
 * `_pairwise_distances.tsv`: A NxN matrix (N being the number of samples) of pairwise distances calculated with the symmetric MEDICC2 distance
 * `_final_cn_profiles.tsv`: Copy-number profiles of the input as well as the newly internal nodes. Also includes additional information such as whether a gain or loss has happened
-* `_copynumber_events_df.tsv`: List of all copy-number events detected 
+* `_copynumber_events_df.tsv`: List of all copy-number events detected. Note that entries for WGD events have non-meaningful values for chrom, cn_child, ...
 * `_cn_profiles.pdf`: Combined plot of the phylogenetic tree as well as the copy-number profiles of all samples (including the internal nodes)
 * `_events_overlap.tsv`: Overlap of copy-number events with regions of interest (see below)
 
