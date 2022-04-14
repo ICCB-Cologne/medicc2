@@ -270,4 +270,4 @@ if not args.no_plot:
         allele_columns=allele_columns,
         show_branch_support=support_tree is not None,
         label_func=None)
-    p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'))
+    p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'), bbox_inches='tight')

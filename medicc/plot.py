@@ -464,6 +464,8 @@ def plot_tree(input_tree,
               ax=None,
               output_name=None,
               normal_name='diploid',
+              width_scale=1,
+              height_scale=1,
               show_branch_lengths=True,
               show_branch_support=False,
               show_events=False,
@@ -534,7 +536,13 @@ def plot_tree(input_tree,
     import matplotlib.collections as mpcollections
 
     if ax is None:
-        fig, ax = plt.subplots(figsize=(7, 7))
+        nsamp = len(list(input_tree.find_clades()))
+        plot_height = height_scale * nsamp * 0.25
+        max_leaf_to_root_distances = np.max([np.sum([x.branch_length for x in input_tree.get_path(leaf)])
+                            for leaf in input_tree.get_terminals()])
+        plot_width = 5 + np.max([0, width_scale * np.log10(max_leaf_to_root_distances / 100) * 5])
+
+        fig, ax = plt.subplots(figsize=(plot_width, plot_height))
 
     label_func=label_func if label_func is not None else lambda x: x
 
@@ -792,7 +800,7 @@ def plot_tree(input_tree,
             getattr(plt, str(key))(*value[0], **dict(value[1]))
 
     if output_name is not None:
-        plt.savefig(output_name + ".png")
+        plt.savefig(output_name + ".png", bbox_inches='tight')
 
     return plt.gcf()
 
