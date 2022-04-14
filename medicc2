@@ -209,6 +209,8 @@ if events_df is not None:
     overlaps.to_csv(os.path.join(output_dir, output_prefix + "_events_overlap.tsv"),
                      sep='\t', index=True)
 
+logger.info(f"Output is saved as {output_dir}/{output_prefix}...")
+
 # Output pairwise distance matrices
 logger.info("Writing pairwise distance matrices.")
 medicc.io.write_pairwise_distances(sample_labels, pairwise_distances, os.path.join(
@@ -223,7 +225,6 @@ medicc.io.write_tree_files(tree=final_tree, out_name=os.path.join(
 
 # Write ouput table
 output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.tsv"), sep='\t')
-
 
 # Summarize
 logger.info("Writing patient summary.")

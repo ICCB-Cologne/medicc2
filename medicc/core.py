@@ -433,10 +433,19 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
 
     cur_parent_cn = cur_df.loc[parent_name, alleles].astype(int)
     cur_child_cn = cur_df.loc[child_name, alleles].astype(int)
-    cur_chroms = cur_df.loc['diploid'].index.get_level_values(
-        'chrom').map(lambda x: int(x.split('chr')[-1])).values.astype(int)
 
-    # 1. find total losss (loh)
+    def get_int_chrom(x):
+        if x == 'chrX':
+            return 23
+        elif x == 'chrY':
+            return 24
+        else:
+            return int(x.split('chr')[-1])
+
+    cur_chroms = cur_df.loc['diploid'].index.get_level_values(
+        'chrom').map(get_int_chrom).values.astype(int)
+
+    # 1. find total loss (loh)
     parent_loh = cur_parent_cn == 0
     for allele in alleles:
 
@@ -455,6 +464,7 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
             cur_loh_and_parental_val = np.logical_and(cur_loh.values, 
                                                         cur_parent_cn.loc[~parent_loh[allele], allele] > 0).values
 
+            # + cur_chroms enables detection of chromosome boundaries
             event_labels_ = ((np.cumsum(np.concatenate([[0], np.diff(
                 (cur_loh_and_parental_val + cur_chroms[~parent_loh[allele]]))])
                 * cur_loh_and_parental_val) + 1)
@@ -552,6 +562,7 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
             cur_change_location = ((cur_child_cn.loc[~loh_pos[allele], allele] -
                         cur_parent_cn.loc[~loh_pos[allele], allele]) == cur_cn_change)
 
+            # + cur_chroms enables detection of chromosome boundaries
             event_labels_ = ((np.cumsum(np.concatenate([[0], np.diff(
                 (cur_change_location.values + cur_chroms[~loh_pos[allele]]))])
                 * cur_change_location.values) + 1)
@@ -696,7 +707,7 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
 
     if chromosome_bed == 'default':
         chromosome_bed = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                      "objects", "hg19_chromosome_arms.bed")
+                                      "objects", "hg38_chromosome_arms.bed")
     if regions_bed == 'default':
         regions_bed = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                    "objects", "Davoli_2013_TSG_OG_genes.bed")
@@ -717,6 +728,7 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
 
     chr_arm_regions = None
     if chromosome_bed is not None:
+        logger.debug(f'Overlap with chromosomes bed file {chromosome_bed}')
         chr_arm_regions = medicc.io.read_bed_file(chromosome_bed)
         whole_chromosome = chr_arm_regions.groupby('Chromosome').min()
         whole_chromosome['End'] = chr_arm_regions.groupby('Chromosome')['End'].max()
@@ -726,6 +738,7 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
 
     regions = None
     if regions_bed is not None:
+        logger.debug(f'Overlap with regions bed file {regions_bed}')
         regions = []
         if isinstance(regions_bed, list) or isinstance(regions_bed, tuple):
             for f in regions_bed:

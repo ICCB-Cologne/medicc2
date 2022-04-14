@@ -6,6 +6,7 @@ import fstlib
 import numpy as np
 import pandas as pd
 
+logger = logging.getLogger('medicc.io')
 
 def set_sequences_on_tree_from_df(tree: Bio.Phylo.BaseTree, df: pd.DataFrame, clear_before=True):
     """Set sequences on tree from dataframe
@@ -46,6 +47,9 @@ def format_chromosomes(ds):
     """ Expects pandas Series with chromosome names. 
     The goal is to take recognisalbe chromosome names, i.e. chr4 or chrom3 and turn them into chr3 format.
     If the chromosomes names are not recognized, return them unchanged."""
+    if ds.apply(lambda x: "Y" in str(x)).any():
+        logger.warn("Y chromosome detected in input. This might cause errors down the line!")
+
     ds = ds.astype('str')
     pattern = re.compile(r"(chr|chrom)?(_)?(0)?((\d+)|X|Y)", flags=re.IGNORECASE)
     matches = ds.apply(pattern.match)
@@ -62,7 +66,6 @@ def format_chromosomes(ds):
             chrcats += ['chrY',]
         newchr = pd.Categorical(newchr, categories=chrcats)
     else:
-        logger = logging.getLogger('medicc.io')
         logger.warn("Could not match the chromosome labels. Rename the chromosomes according chr1, "
                     "chr2, ... to avoid potential errors."
                     "Current format: {}".format(ds.unique()))
