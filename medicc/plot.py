@@ -805,17 +805,23 @@ def plot_tree(input_tree,
     return plt.gcf()
 
 
-def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, 
-                    alleles='total', tree_width_ratio=1, cbar_width_ratio=0.02, 
-                    figsize=(20, 10), tree_line_width=0.5, tree_marker_size=0.5,
+def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_numbers=False,
+                    alleles='total', tree_width_ratio=1, cbar_width_ratio=0.05, figsize=(20, 10),
+                    tree_line_width=0.5, tree_marker_size=0, show_internal_nodes=False,
                     tree_label_colors=None, tree_label_func=None, cmap='coolwarm'):
-    
-    cur_sample_labels = np.unique(input_df.index.get_level_values('sample_id'))
-    
+
+    if show_internal_nodes:
+        cur_sample_labels = np.array([x.name for x in list(final_tree.find_clades()) if x.name is not None])
+    else:
+        cur_sample_labels = np.array([x.name for x in final_tree.get_terminals()])
+    assert len(np.intersect1d(cur_sample_labels, input_df.index.get_level_values('sample_id').unique())) == len(cur_sample_labels), \
+        'tree nodes and labels in dataframe are not the same'
 
     if not isinstance(alleles, list) and not isinstance(alleles, tuple):
         alleles = [alleles]
     nr_alleles = len(alleles)
+
+    cmax = min(cmax, np.max(input_df.values.astype(int)))
 
     if final_tree is None:
         fig, axs = plt.subplots(figsize=figsize, ncols=1+nr_alleles, sharey=False,
@@ -831,11 +837,11 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8,
         tree_ax = axs[0]
         cn_axes = axs[1:-1]
 
-        y_posns = {k.name:v for k, v in _get_y_positions(final_tree, adjust=False).items()}
+        y_posns = {k.name:v for k, v in _get_y_positions(final_tree, adjust=show_internal_nodes).items()}
         
         _ = plot_tree(final_tree, ax=tree_ax,
                       label_func=tree_label_func if tree_label_func is not None else lambda x: '',
-                      hide_internal_nodes=True, show_branch_lengths=False, show_events=False,
+                      hide_internal_nodes=(not show_internal_nodes), show_branch_lengths=False, show_events=False,
                       line_width=tree_line_width, marker_size=tree_marker_size,
                       title='', label_colors=tree_label_colors)
         tree_ax.set_axis_off()
@@ -846,8 +852,7 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8,
 
     ind = [y_posns.get(x, -1) for x in cur_sample_labels]
     cur_sample_labels = cur_sample_labels[np.argsort(ind)]
-    color_norm = mcolors.TwoSlopeNorm(vmin=0, vcenter=1, vmax=min(
-        cmax, np.max(input_df.values.astype(int))))
+    color_norm = mcolors.TwoSlopeNorm(vmin=0, vcenter=(2 if total_copy_numbers else 1), vmax=cmax)
 
     chr_ends = input_df.loc[cur_sample_labels[0]].copy()
     chr_ends['end_pos'] = np.cumsum([1]*len(chr_ends))
@@ -879,9 +884,10 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8,
 
     cax.pcolormesh([0, 1],
                    np.arange(0, cmax+2),
-                   np.arange(0, cmax+2)[:, np.newaxis],
+                   np.arange(0, cmax+1)[:, np.newaxis],
                    cmap=cmap,
                    norm=color_norm)
+
     cax.set_xticks([])
     cax.set_yticks(np.arange(0, cmax+1)+0.5)
     if np.max(input_df.values.astype(int)) > cmax:
@@ -892,7 +898,7 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8,
     cax.yaxis.set_tick_params(left=False, labelleft=False, labelright=True)
 
     for ax in axs[:-1]:
-        ax.set_ylim(len(cur_sample_labels)+1, 0)
+        ax.set_ylim(len(cur_sample_labels)+0.5, 0.5)
 
     return fig
 

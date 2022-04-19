@@ -46,7 +46,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--bootstrap-nr`: Number of bootstrap runs to perform. Default: None
 * `--prefix`, '-p': Output prefix to be used. None uses input filename. Default: None
 * `--no-wgd`: Disable whole-genome doubling events. Default: False
-* `--no-plot`: Disable plotting. Default: False
+* `--plot`: Type of copy-number plot to save. 'bars' is recommended for <50 samples, heatmap for more samples, 'auto' will decide based on the number of samples, 'both' will plot both and 'none' will plot neither. (default: auto).
 * `--total-copy-numbers`: Run for total copy number data instead of allele-specific data. Default: False
 * `-j`, `--n-cores`: Number of cores to run on. Default: None
 * `--chromosomes-bed`: BED file for chromosome regions to compare copy-number events to
@@ -82,17 +82,26 @@ MEDICC creates the following output files:
 
 
 ## Output plots
-The file `_cn_profiles.pdf` contains most of the information of the MEDICC2 output. The left part consists of the inferred phylogenetic tree including the number of events in the branches. The right part is made up of the copy-number profiles of the samples as well as the reconstructed ancestral nodes. Copy-number events are also marked in the respective copy-number profiles where they appear.
+Apart from the file `_tree.pdf` which contains the inferred phylogeny, the main plot created by MEDICC is the copy-number plots named either `_cn_profiles.pdf` or `_cn_profiles_heatmap.pdf`.
+The left part consists of the inferred phylogenetic tree including the number of events in the branches. The right part is made up of the copy-number profiles of the samples (and potentially the reconstructed ancestral nodes).
 
-### Example
+There are two kinds of copy-number plots: the bars and the heatmap version. The bars version is most suitable for fewer samples (<50) as more details are visible while the heatmap version is most suitable many samples expected for example in single-cell experiments.
+You can toggle the kind of plot MEDICC2 creates with the `--plot` flag (see above).
+
+### Example bars copy-number plot
 Example from patient PTX011 from the Gundem et al. Nature 2015. The data can be found in `example/gundem_et_al_2015/`.
 
-![copy-number plot for PTX011 Gundem 2015](doc/MEDICC2_cn_plot_example.png)
+![copy-number bars plot for PTX011 Gundem 2015](doc/MEDICC2_cn_plot_example_bars.png)
 
-
-### Legend
+**Legend**
 
 ![legend of copy-number plot](doc/MEDICC2_cn_plot_legend.png)
+
+### Example heatmap copy-number plot
+Example from patient PTX011 from the Gundem et al. Nature 2015. The data can be found in `example/gundem_et_al_2015/`.
+
+![copy-number heatmap plot for PTX011 Gundem 2015](doc/MEDICC2_cn_plot_example_heatmap.png)
+
 
 ## Usage examples
 For first time users we recommend to have a look at `examples/simple_example` to get an idea of how input data should look like. Then run `medicc2 examples/simple_example/simple_example.tsv path/to/output/folder` as an example of a standard MEDICC run. Finally, the notebook `notebooks/example_workflows.py` shows how the individual functions in the workflow are used.
@@ -126,6 +135,9 @@ If MEDICC2 terminates with the following error `terminate called after throwing 
 Rerun MEDICC2 with the `-vv` flag to enable extended logging. If the error occurs during the ancestral reconstruction routine, the issue is related to OpenFST which is the FST library employed by MEDICC2 and cannot be easily solved by us.
 This issue can be related to small bin sizes (and therefore a large number of segments). Increasing the binsize (although decreasing accuracy) solves this issue most of the time.
 You can also try to remove the sample that led to the error (see the extended logs for this). 
+
+**The output plots are not like I expected**
+Maybe you need to set the `--plot` flag. By default, `--plot` is set to auto which means that it plots different figures depending on the number of samples in the data (threshold is 50); see above.
 
 # Contact
 Email questions, feature requests and bug reports to **Tom Kaufmann, tom.kaufmann@mdc-berlin.de**.

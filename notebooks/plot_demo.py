@@ -22,7 +22,7 @@ fig = medicc.plot.plot_tree(ptx011_tree,
 							show_branch_lengths=True,
 							
 							# only valid after performing bootstrapping
-							show_branch_support=False
+							show_branch_support=False,
 
 							# the following parameters are unchanged from the default
 							label_func=None,
@@ -64,9 +64,9 @@ labels = {'diploid':'Diploid',
 	}
 
 # Next we want to rescale the final output
-tree_width_scale=1,
-track_width_scale=0.6, 
-height_scale=2, 
+tree_width_scale = 1
+track_width_scale = 0.6
+height_scale = 2
 
 fig = medicc.plot.plot_cn_profiles(
 	ptx011_df,
@@ -101,3 +101,42 @@ fig = medicc.plot.plot_cn_profiles(
 	)
 
 fig.savefig(os.path.join(data_folder, 'output/PTX011_cn_profiles.pdf'), bbox_inches='tight')
+
+
+# %%
+# The alternative way to display the copy-number profiles is with the plot_cn_heatmap function
+# This is especially suitable for datasets with many samples (e.g. single-cell data)
+
+fig = medicc.plot.plot_cn_heatmap(
+        input_df=ptx011_df, 
+        final_tree=ptx011_tree,
+        alleles=['cn_a', 'cn_b'],
+		figsize=(15, 5),
+
+		# the following parameters are unchanged from the default
+		y_posns=None,
+		cmax=8,
+		total_copy_numbers=False,
+		tree_width_ratio=1,
+		cbar_width_ratio=0.05,
+		tree_line_width=0.5,
+		tree_marker_size=0,
+		tree_label_colors=None,
+		tree_label_func=None,
+		cmap='coolwarm'
+		)
+
+fig.savefig(os.path.join(data_folder, 'output/PTX011_cn_profiles_heatmap.pdf'), bbox_inches='tight')
+
+
+# %%
+# By setting show_internal_nodes=True, the internal nodes are also included
+
+fig = medicc.plot.plot_cn_heatmap(
+        input_df=ptx011_df, 
+        final_tree=ptx011_tree,
+        alleles=['cn_a', 'cn_b'],
+		show_internal_nodes=True
+		)
+
+fig.savefig(os.path.join(data_folder, 'output/PTX011_cn_profiles_heatmap_with_internal_nodes.pdf'), bbox_inches='tight')
