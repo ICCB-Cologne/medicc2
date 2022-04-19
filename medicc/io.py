@@ -134,6 +134,8 @@ def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
                 logger.warning("Integer CN > maxcn %d, capping.", maxcn)
                 input_file[c] = np.fmin(input_file[c], maxcn)
     input_file['chrom'] = tools.format_chromosomes(input_file['chrom'])
+    if input_file['chrom'].apply(lambda x: "Y" in str(x)).any():
+        logger.warn("Y chromosome detected in input. This might cause errors down the line!")
     input_file.set_index(['sample_id', 'chrom', 'start', 'end'], inplace=True)
     input_file.sort_index(inplace=True)
     input_file[allele_columns] = input_file[allele_columns].astype(str)

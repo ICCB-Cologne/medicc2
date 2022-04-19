@@ -47,8 +47,6 @@ def format_chromosomes(ds):
     """ Expects pandas Series with chromosome names. 
     The goal is to take recognisalbe chromosome names, i.e. chr4 or chrom3 and turn them into chr3 format.
     If the chromosomes names are not recognized, return them unchanged."""
-    if ds.apply(lambda x: "Y" in str(x)).any():
-        logger.warn("Y chromosome detected in input. This might cause errors down the line!")
 
     ds = ds.astype('str')
     pattern = re.compile(r"(chr|chrom)?(_)?(0)?((\d+)|X|Y)", flags=re.IGNORECASE)

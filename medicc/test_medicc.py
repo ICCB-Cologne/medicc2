@@ -20,7 +20,7 @@ def test_medicc_help_box():
     assert process.returncode == 0
 
 
-def test_medicc_with_example():
+def test_medicc_with_simple_example():
     "Testing small example"
     process = subprocess.Popen(['python', "medicc2", "examples/simple_example/simple_example.tsv", 
                                 "examples/test_output"],
@@ -95,7 +95,6 @@ def test_medicc_with_multiple_cores():
         np.array(expected_files)[~np.array(all_files_exist)])
 
 
-
 def test_medicc_with_bootstrap():
     "Testing bootstrap workflow"
     process = subprocess.Popen(['python', "medicc2",
@@ -114,6 +113,30 @@ def test_medicc_with_bootstrap():
 
     assert process.returncode == 0, 'Error while running MEDICC'
     assert support_tree_exists, "Support tree file was not created"
+
+
+def test_medicc_with_testing_example():
+    "Testing testing example"
+    process = subprocess.Popen(['python', "medicc2", "examples/testing_example/testing_example.tsv", 
+                                "examples/test_output"],
+                               stdout=subprocess.PIPE,
+                               cwd=pathlib.Path(__file__).parent.parent.absolute())
+
+    while process.poll() is None:
+        # Process hasn't exited yet
+        time.sleep(0.5)
+
+    expected_files = ['testing_example_cn_profiles.pdf', 'testing_example_final_cn_profiles.tsv',
+                      'testing_example_final_tree.new', 'testing_example_final_tree.png',
+                      'testing_example_final_tree.xml', 'testing_example_pairwise_distances.tsv',
+                      'testing_example_summary.tsv', 'testing_example_copynumber_events_df.tsv',
+                      'testing_example_events_overlap.tsv']
+    all_files_exist = [os.path.isfile(os.path.join('examples/test_output/', f)) for f in expected_files]
+    subprocess.Popen(["rm", "examples/test_output", "-rf"])
+
+    assert process.returncode == 0, 'Error while running MEDICC'
+    assert np.all(all_files_exist), "Some files were not created! \nMissing files are: {}".format(
+        np.array(expected_files)[~np.array(all_files_exist)])
 
 
 gundem_et_al_2015_patients = ['PTX004', 'PTX005', 'PTX006', 'PTX007', 'PTX008', 
