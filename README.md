@@ -13,7 +13,7 @@ Note that the notebooks and examples are not included when installing from conda
 Due to dependencies we recommend using Python version 3.7-3.9.
 
 ## Installation via conda (recommended)
-It is best to use a dedicated conda environment for your MEDICC2 installation with `conda create -n medicc_env python==3.9`.
+It is best to use a dedicated conda environment for your MEDICC2 installation with `conda create -n medicc_env python=3.9`.
 
 After activating the environment with `conda activate medicc_env` you can install MEDICC2 via `conda install -c bioconda -c conda-forge medicc2`.conda 
 
