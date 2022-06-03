@@ -807,9 +807,11 @@ def plot_tree(input_tree,
 
 def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_numbers=False,
                     alleles='total', tree_width_ratio=1, cbar_width_ratio=0.05, figsize=(20, 10),
-                    tree_line_width=0.5, tree_marker_size=0, show_internal_nodes=False,
-                    tree_label_colors=None, tree_label_func=None, cmap='coolwarm'):
+                    tree_line_width=0.5, tree_marker_size=0, show_internal_nodes=False, title='',
+                    tree_label_colors=None, tree_label_func=None, cmap='coolwarm',
+                    ignore_segment_lengths=False):
 
+    input_df = input_df[alleles].copy()
     if show_internal_nodes:
         cur_sample_labels = np.array([x.name for x in list(final_tree.find_clades()) if x.name is not None])
     else:
@@ -821,7 +823,9 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
         alleles = [alleles]
     nr_alleles = len(alleles)
 
-    cmax = min(cmax, np.max(input_df.values.astype(int)))
+    samples = input_df.index.get_level_values('sample_id').unique()
+
+    cmax = min(cmax, np.max(input_df[alleles].values.astype(int)))
 
     if final_tree is None:
         fig, axs = plt.subplots(figsize=figsize, ncols=1+nr_alleles, sharey=False,
@@ -843,7 +847,7 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
                       label_func=tree_label_func if tree_label_func is not None else lambda x: '',
                       hide_internal_nodes=(not show_internal_nodes), show_branch_lengths=False, show_events=False,
                       line_width=tree_line_width, marker_size=tree_marker_size,
-                      title='', label_colors=tree_label_colors)
+                      title=title, label_colors=tree_label_colors)
         tree_ax.set_axis_off()
         tree_ax.set_axis_off()
         fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=100)
@@ -857,10 +861,15 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
     chr_ends = input_df.loc[cur_sample_labels[0]].copy()
     chr_ends['end_pos'] = np.cumsum([1]*len(chr_ends))
     chr_ends = chr_ends.reset_index().groupby('chrom').max()['end_pos']
-    chr_ends.dropna(inplace=True)
+    chr_ends = chr_ends.dropna()
+    chr_ends = chr_ends.astype(int)
 
-    x_pos = np.append([0], np.cumsum(input_df.loc[cur_sample_labels].astype(int).unstack(
-        'sample_id').loc[:, (alleles[0])].loc[:, cur_sample_labels].eval('end-start').values))
+
+    if ignore_segment_lengths:
+        x_pos = np.arange(len(input_df.loc[cur_sample_labels].astype(int).unstack('sample_id'))+1)
+    else:
+        x_pos = np.append([0], np.cumsum(input_df.loc[cur_sample_labels].astype(int).unstack(
+            'sample_id').loc[:, (alleles[0])].loc[:, cur_sample_labels].eval('end-start').values))
     y_pos = np.arange(len(cur_sample_labels)+1)+0.5
 
     for ax, allele in zip(cn_axes, alleles):
