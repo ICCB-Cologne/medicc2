@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import scipy as sp
 import seaborn as sns
+from tqdm.auto import tqdm
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import fstlib
@@ -38,7 +39,7 @@ set_plotting_params()
 # https://github.com/PCAWG-11/Heterogeneity/raw/master/code_figures_paper/figure_1b/wgd.status.txt.gz
 
 #%%
-LOAD = False
+LOAD = True
 
 #%% FSTs
 T_wgd_asymm = medicc.io.read_fst()
@@ -210,7 +211,7 @@ else:
     for idx, df in dat.groupby('sample_id'):
         phasing_dict = medicc.create_phasing_fsa_dict_from_df(df, symbol_table, 'X')
         fsa_dict_a, fsa_dict_b, scores = medicc.phase_dict(phasing_dict, T_wgd_asymm, diploid_fsa)
-        phased = medicc.create_df_from_phasing_fsa(df, [fsa_dict_a, fsa_dict_b], 'X')
+        phased = medicc.core.create_df_from_phasing_fsa(df, [fsa_dict_a, fsa_dict_b], 'X')
         phased.columns = ['cn_a', 'cn_b']
         phased_dfs.append(phased)
         phasing_scores.update(scores)
@@ -281,7 +282,7 @@ else:
 
     bootstrap_distances = -1*np.ones((len(samples), 3, N_bootstrap))
 
-    for i in np.arange(N_bootstrap):
+    for i in tqdm(np.arange(N_bootstrap)):
         bootstrap_dat = medicc.bootstrap.chr_wise_bootstrap_df(dat)
 
         FSA_dict = medicc.create_standard_fsa_dict_from_data(
@@ -314,8 +315,10 @@ else:
 hdfstore.close()
 
 #%%
-result = meta.join(distances, how='inner').join(
-    wgd[['ploidy_pcawg', 'hom']]).join(bootstrap_results[['bootstrap_wgd', 'bootstrap_2_wgds']])
+# result = distances.join(
+#     wgd[['ploidy_pcawg', 'hom']]).join(bootstrap_results[['bootstrap_wgd', 'bootstrap_2_wgds']])
+result = meta[['wgd_status', 'wgd_uncertain', 'histology_useable', 'histology_abbreviation']].join(distances, how='inner').join(
+    wgd[['ploidy_pcawg', 'hom']]).join(bootstrap_results[['bootstrap_wgd', 'bootstrap_2_wgds', 'nr_bootstraps_with_wgd', 'nr_bootstraps_with_2_wgds']])
 result['pcawg_wgd'] = result['wgd_status'].map({'wgd': 'WGD', 'no_wgd': 'No WGD'})
 result['wgd_status_medicc'] = (result['dist_diff'] >= 1).map({True: 'WGD', False: 'No WGD'})
 result['wgd_status_medicc_bootstrap'] = (result['bootstrap_wgd']).map({
@@ -332,6 +335,21 @@ print(confusion_matrix)
 confusion_matrix = confusion_matrix.astype(int)
 print('Pure MEDICC2 results:\n{:.1f}% correct classification'.format(
     100*(confusion_matrix.iloc[0, 0] + confusion_matrix.iloc[1, 1]) / confusion_matrix.sum().sum()))
+#%% Overlap with PCAWG labels (with uncertain ones removed)
+confusion_matrix = pd.crosstab(result.loc[~result['wgd_uncertain'], 'pcawg_wgd'], result.loc[~result['wgd_uncertain'], 'wgd_status_medicc'])
+
+print(confusion_matrix)
+confusion_matrix = confusion_matrix.astype(int)
+print('Pure MEDICC2 results (uncertain ones removed):\n{:.1f}% correct classification'.format(
+    100*(confusion_matrix.iloc[0, 0] + confusion_matrix.iloc[1, 1]) / confusion_matrix.sum().sum()))
+
+#%% test for association with uncertainty
+uncertain = pd.crosstab(result.eval(
+    "pcawg_wgd != wgd_status_medicc"), result['wgd_uncertain'])
+print(uncertain)
+print("p-value for over-represenation of uncertain samples in false predictions: {:.1e}".format(
+    sp.stats.chi2_contingency(uncertain)[1]))
+# print(sp.stats.chi2_contingency(uncertain)[3])
 
 #%% Overlap with PCAWG labels from Bootstrap
 confusion_matrix_bootstrap = pd.crosstab(
@@ -340,12 +358,21 @@ print(confusion_matrix_bootstrap)
 confusion_matrix_bootstrap = confusion_matrix_bootstrap.astype(int)
 print('MEDICC2 bootstrap results:\n{:.1f}% correct classification'.format(
     100*(confusion_matrix_bootstrap.iloc[0, 0] + confusion_matrix_bootstrap.iloc[1, 1]) / confusion_matrix_bootstrap.sum().sum()))
+#%% Overlap with PCAWG labels from Bootstrap (with uncertain ones removed)
+confusion_matrix_bootstrap = pd.crosstab(
+    bootstrap_results.loc[~result['wgd_uncertain'], 'pcawg_wgd'], bootstrap_results.loc[~result['wgd_uncertain'], 'bootstrap_wgd'])
+print(confusion_matrix_bootstrap)
+confusion_matrix_bootstrap = confusion_matrix_bootstrap.astype(int)
+print('MEDICC2 bootstrap results (when uncertain ones are removed):\n{:.1f}% correct classification'.format(
+    100*(confusion_matrix_bootstrap.iloc[0, 0] + confusion_matrix_bootstrap.iloc[1, 1]) / confusion_matrix_bootstrap.sum().sum()))
 
 #%% test for association with uncertainty
 uncertain = pd.crosstab(result.eval(
     "pcawg_wgd != wgd_status_medicc_bootstrap"), result['wgd_uncertain'])
-print("p-value for over-represenation of uncertain samples in false predictions: {:.1e}".format(
+print(uncertain)
+print("Bootstrap: p-value for over-represenation of uncertain samples in false predictions: {:.1e}".format(
     sp.stats.chi2_contingency(uncertain)[1]))
+# print(sp.stats.chi2_contingency(uncertain)[3])
 
 # %% Figure with false MEDICC predictions
 fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']))
@@ -376,13 +403,15 @@ sns.boxplot(x='dist_diff', y='histology_abbreviation', palette=palette, data=plo
 ax.set_xlabel('MEDICC2 WGD score')
 ax.set_ylabel('PCAWG histology')
 
+
 #%% Save data for plotting
 result[['hom', 'ploidy_pcawg', 'pcawg_wgd', 'histology_abbreviation', 'wgd_status_medicc_bootstrap',
         'bootstrap_2_wgds', 'histology_useable', 'dist_diff', 'dist_wgd',
-        'wgd_uncertain']].to_csv(
+        'wgd_uncertain', 'nr_bootstraps_with_wgd', 'nr_bootstraps_with_2_wgds']].to_csv(
             os.path.join(figures_folder, 'Fig_2D_and_Supp_4.tsv'),
     sep='\t', index=False)
 
 tumour_types[['Hexadecimal']].to_csv(
     os.path.join(figures_folder, 'Supp_4_color_palette.tsv'),
     sep='\t', index=True)
+
