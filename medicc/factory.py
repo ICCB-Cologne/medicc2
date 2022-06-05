@@ -199,7 +199,7 @@ def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1, m
     if enable_wgd:
         W1step = create_1step_WGD_fst(symbol_table, sep, wgd_cost=wgd_cost,
                                       minimize=False)
-        n = min(max_num_wgds, np.floor(np.log2(n)))
+        n = int(min(max_num_wgds, np.floor(np.log2(n))))
         if n > 1:
             W = create_nstep_fst(n-1, W1step)
         else:
