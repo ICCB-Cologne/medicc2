@@ -39,23 +39,25 @@ def main(input_df,
     FSA_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
     sample_labels = input_df.index.get_level_values('sample_id').unique()
 
-    ## Calculate pairwise distances
-    logger.info("Calculating pairwise distance matrices")
-    if n_cores is not None and n_cores > 1:
-        pairwise_distances = parallelization_calc_pairwise_distance_matrix(sample_labels, 
-                                                                       asymm_fst,
-                                                                       FSA_dict,
-                                                                       n_cores)
-    else:
-        pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, FSA_dict)
-
     ## Reconstruct a tree
     if input_tree is None:
+        ## Calculate pairwise distances
+        logger.info("Calculating pairwise distance matrices")
+        if n_cores is not None and n_cores > 1:
+            pairwise_distances = parallelization_calc_pairwise_distance_matrix(sample_labels, 
+                                                                        asymm_fst,
+                                                                        FSA_dict,
+                                                                        n_cores)
+        else:
+            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, FSA_dict)
+
         logger.info("Inferring tree topology.")
         nj_tree = infer_tree_topology(
             pairwise_distances.values, pairwise_distances.index, normal_name=normal_name)
     else:
-        logger.info("Tree provided, using it.")
+        logger.info("Tree provided, using it. No pairwise distance matrix is calculated!")
+
+        pairwise_distances = pd.DataFrame(0, columns=FSA_dict.keys(), index=FSA_dict.keys())
 
         assert len([x for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name]) == \
             len(np.unique(input_df.index.get_level_values('sample_id'))), \
