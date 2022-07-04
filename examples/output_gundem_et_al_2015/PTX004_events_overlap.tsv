@@ -1,5 +1,5 @@
 branch	name	FractionOverlaps	event	final_name
-internal_3	chr17q	1.0	gain	17q +
+internal_3	chr17q	0.9439711764484273	gain	17q +
 internal_3	TACR1	1.0	gain	TACR1 +
 internal_3	RGPD4	1.0	gain	RGPD4 +
 internal_3	SULT1C3	1.0	gain	SULT1C3 +
@@ -356,7 +356,7 @@ internal_3	ZNF665	1.0	gain	ZNF665 +
 internal_3	ZNF845	1.0	gain	ZNF845 +
 internal_3	CNOT3	1.0	gain	CNOT3 +
 internal_3	TTYH1	1.0	gain	TTYH1 +
-internal_3	chr10	0.9992489509954058	loss	10 -
+internal_3	chr10	0.9992668991783713	loss	10 -
 internal_3	CSMD1	1.0	loss	CSMD1 -
 internal_3	DIP2C	1.0	loss	DIP2C -
 internal_3	LARP4B	1.0	loss	LARP4B -
@@ -675,7 +675,7 @@ internal_1	NUBP2	1.0	loss	NUBP2 -
 internal_1	HS3ST6	1.0	loss	HS3ST6 -
 internal_1	GFER	1.0	loss	GFER -
 internal_2	LDOC1L	1.0	gain	LDOC1L +
-internal_2	chr17q	0.9575397270955166	loss	17q -
+internal_2	chr17q	0.9254316399512833	loss	17q -
 internal_2	ANKRD44	1.0	loss	ANKRD44 -
 internal_2	SF3B1	1.0	loss	SF3B1 -
 internal_2	PLCL1	1.0	loss	PLCL1 -

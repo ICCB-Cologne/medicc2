@@ -1,5 +1,5 @@
 branch	name	FractionOverlaps	event	final_name
-internal_2	chr3	0.982193156526261	gain	3 +
+internal_2	chr3	0.9804658509775299	gain	3 +
 internal_2	CNTN6	1.0	gain	CNTN6 +
 internal_2	IL5RA	1.0	gain	IL5RA +
 internal_2	THUMPD3	1.0	gain	THUMPD3 +
@@ -130,7 +130,7 @@ internal_2	CCDC36	1.0	loss	CCDC36 -
 internal_2	RHOA	1.0	loss	RHOA -
 internal_2	NICN1	1.0	loss	NICN1 -
 internal_2	RBM5	1.0	loss	RBM5 -
-internal_2	chr20q	0.9378462459546926	gain	20q +
+internal_2	chr20q	0.9227107887766419	gain	20q +
 internal_2	DEFB115	1.0	gain	DEFB115 +
 internal_2	DEFB123	1.0	gain	DEFB123 +
 internal_2	TPX2	1.0	gain	TPX2 +
@@ -230,8 +230,8 @@ internal_2	CCDC144NL	1.0	loss	CCDC144NL -
 internal_2	PAX1	1.0	loss	PAX1 -
 internal_2	GGTLC1	1.0	loss	GGTLC1 -
 internal_2	PLAC4	1.0	loss	PLAC4 -
-RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	chr8q	0.9866490562036055	gain	8q +
-RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	chr14q	0.9673026504629629	gain	14q +
+RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	chr8q	0.9833998734983735	gain	8q +
+RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	chr14q	0.9641037673886114	gain	14q +
 RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	NBPF10	1.0	gain	NBPF10 +
 RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	NOTCH2NL	1.0	gain	NOTCH2NL +
 RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	BCL9	1.0	gain	BCL9 +
@@ -386,8 +386,8 @@ RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	TRPV5	1.0	gain	TRPV5 +
 RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	OR9A2	1.0	gain	OR9A2 +
 RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	CLCN1	1.0	gain	CLCN1 +
 RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	TPK1	1.0	gain	TPK1 +
-RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	chr9	0.9985067831149927	loss	9 -
-RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	chr14q	0.9673026504629629	loss	14q -
+RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	chr9	0.9985175156649947	loss	9 -
+RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	chr14q	0.9641037673886114	loss	14q -
 RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	BCL9	1.0	loss	BCL9 -
 RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	NBPF9	1.0	loss	NBPF9 -
 RPelvicLNMet_A12D-0020_CRUK_PC_0020_M3	HIST2H2BF	1.0	loss	HIST2H2BF -
@@ -578,7 +578,7 @@ internal_1	PDE10A	1.0	gain	PDE10A +
 internal_1	MLLT4	1.0	gain	MLLT4 +
 internal_1	KIF25	1.0	gain	KIF25 +
 internal_1	SMOC2	1.0	gain	SMOC2 +
-internal_1	chr6q	0.9909192077294686	loss	6q -
+internal_1	chr6q	0.9807230023168392	loss	6q -
 internal_1	COL9A1	1.0	loss	COL9A1 -
 internal_1	FAM135A	1.0	loss	FAM135A -
 internal_1	SMAP1	1.0	loss	SMAP1 -
@@ -647,8 +647,8 @@ internal_1	PDE10A	1.0	loss	PDE10A -
 internal_1	MLLT4	1.0	loss	MLLT4 -
 internal_1	KIF25	1.0	loss	KIF25 -
 internal_1	SMOC2	1.0	loss	SMOC2 -
-MediastinalLNMet_A12A-0020_CRUK_PC_0020_M1	chr6p	0.9736552640545145	gain	6p +
-MediastinalLNMet_A12A-0020_CRUK_PC_0020_M1	chr7	0.9994762282398453	gain	7 +
+MediastinalLNMet_A12A-0020_CRUK_PC_0020_M1	chr6p	0.9557452173913044	gain	6p +
+MediastinalLNMet_A12A-0020_CRUK_PC_0020_M1	chr7	0.9981172100282697	gain	7 +
 MediastinalLNMet_A12A-0020_CRUK_PC_0020_M1	FOXQ1	1.0	gain	FOXQ1 +
 MediastinalLNMet_A12A-0020_CRUK_PC_0020_M1	NEDD9	1.0	gain	NEDD9 +
 MediastinalLNMet_A12A-0020_CRUK_PC_0020_M1	MCUR1	1.0	gain	MCUR1 +
