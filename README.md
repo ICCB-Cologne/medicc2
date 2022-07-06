@@ -15,7 +15,7 @@ Due to dependencies we recommend using Python version 3.7-3.9.
 ## Installation via conda (recommended)
 It is best to use a dedicated conda environment for your MEDICC2 installation with `conda create -n medicc_env python=3.9`.
 
-After activating the environment with `conda activate medicc_env` you can install MEDICC2 via `conda install -c bioconda -c conda-forge medicc2`.conda 
+After activating the environment with `conda activate medicc_env` you can install MEDICC2 via `conda install -c bioconda -c conda-forge medicc2`.
 
 ## Installation via pip
 As MEDICC2 relies on OpenFST version 1.8.1 which is not packaged on PyPi you have to first install it using conda with `conda install -c conda-forge openfst=1.8.1`. Next you can install MEDICC2 via `pip install medicc2`.
@@ -59,6 +59,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--prune-weight`: Expert option: Prune weight in ancestor reconstruction. Values >0 might result in more accurate ancestors but will require more time and memory. Default: 0
 * `--fst`: Expert option: path to an alternative FST. Default: None
 * `--fst-chr-separator`: Expert option: character used to separate chromosomes in the FST. Default: 'X'
+* `--wgd_x2`: Expert option: Treat WGD as a x2 operation. Default: False
 
 
 ## Input files

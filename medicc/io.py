@@ -41,16 +41,20 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     return input_df
 
 
-def read_fst(user_fst=None, no_wgd=False, n_wgd=None):
+def read_fst(user_fst=None, no_wgd=False, n_wgd=None, total_copy_numbers=False, wgd_x2=False):
     """ Simple wrapper for loading the FST using the fstlib read function. """
 
     objects_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "objects")
 
     if user_fst is not None:
         fst_path = user_fst
+    elif no_wgd:
+        fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
+    elif wgd_x2:
+        fst_path = os.path.join(objects_dir, 'wgd_x2_asymm.fst')
     else:
-        if no_wgd:
-            fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
+        if total_copy_numbers:
+            fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
         elif n_wgd is not None and int(n_wgd) <= 3:
             fst_path = os.path.join(objects_dir, 'wgd_{}_asymm.fst'.format(int(n_wgd)))
         else:
