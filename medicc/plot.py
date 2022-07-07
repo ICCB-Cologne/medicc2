@@ -816,8 +816,8 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
         cur_sample_labels = np.array([x.name for x in list(final_tree.find_clades()) if x.name is not None])
     else:
         cur_sample_labels = np.array([x.name for x in final_tree.get_terminals()])
-    if len(np.intersect1d(cur_sample_labels, input_df.index.get_level_values('sample_id').unique())) != len(cur_sample_labels):
-        raise MEDICCPlotError("tree nodes and labels in dataframe are not the same")
+    # if len(np.intersect1d(cur_sample_labels, input_df.index.get_level_values('sample_id').unique())) != len(cur_sample_labels):
+    #     raise MEDICCPlotError("tree nodes and labels in dataframe are not the same")
 
     if not isinstance(alleles, list) and not isinstance(alleles, tuple):
         alleles = [alleles]
