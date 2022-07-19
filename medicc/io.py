@@ -52,6 +52,8 @@ def read_fst(user_fst=None, no_wgd=False, n_wgd=None, total_copy_numbers=False, 
         fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
     elif wgd_x2:
         fst_path = os.path.join(objects_dir, 'wgd_x2_asymm.fst')
+        if n_wgd == 1:
+            fst_path = os.path.join(objects_dir, 'wgd_x2_1_asymm.fst')
     else:
         if total_copy_numbers:
             fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
@@ -67,12 +69,13 @@ def load_main_fsts(return_symbol_table=False):
     asymm_fst = read_fst()
     asymm_fst_nowgd = read_fst(no_wgd=True)
     asymm_fst_1_wgd = read_fst(n_wgd=1)
+    asymm_fst_2_wgd = read_fst(n_wgd=2)
 
     if return_symbol_table:
         symbol_table = asymm_fst.input_symbols()
-        return asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, symbol_table
+        return asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, asymm_fst_2_wgd, symbol_table
     else:
-        return asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd
+        return asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, asymm_fst_2_wgd
 
 
 def validate_input(input_df, symbol_table):

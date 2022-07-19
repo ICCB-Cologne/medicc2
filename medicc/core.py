@@ -102,7 +102,12 @@ def main(input_df,
         output_df, events_df = calculate_all_cn_events(
             final_tree, output_df, allele_columns, normal_name)
         if len(events_df) != final_tree.total_branch_length():
-            logger.warn("Event recreation was faulty. Events in '_cn_events_df.tsv' might be incorrect")
+            faulty_nodes = []
+            for node in final_tree.find_clades():
+                if node.name is not None and node.name != 'diploid' and node.branch_length != len(events_df.loc[node.name]):
+                    faulty_nodes.append(node.name)
+            logger.warn("Event recreation was faulty. Events in '_cn_events_df.tsv' will be "
+                        f"incorrect for the following nodes: {faulty_nodes}")
     else:
         events_df = None
         output_df = input_df
@@ -348,7 +353,7 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
                 child.branch_length = brs
 
 
-def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name='diploid'):
+def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name='diploid', wgd_x2=False):
     """Create a DataFrame containing all copy-number events in the current data
 
     Args:
@@ -385,7 +390,7 @@ def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name=
                     continue
 
                 cur_df, cur_events = calculate_cn_events_per_branch(
-                    cur_df, clade.name, child.name, alleles=alleles)
+                    cur_df, clade.name, child.name, alleles=alleles, wgd_x2=wgd_x2)
 
                 events = pd.concat([events, cur_events])
 
@@ -414,7 +419,7 @@ def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name=
     return cur_df, events
 
 
-def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn_a', 'cn_b')):
+def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn_a', 'cn_b'), wgd_x2=False):
     """Calculate copy-number events for a single branch. Used in calculate_all_cn_events
 
     Args:
@@ -428,8 +433,12 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
         pandas.DataFrame: DataFrame of copy-number events
     """
 
-    asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, symbol_table = io.load_main_fsts(
+    asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, asymm_fst_2_wgd, symbol_table = io.load_main_fsts(
         return_symbol_table=True)
+    if wgd_x2:
+        asymm_fst = io.read_fst(wgd_x2=True)
+        asymm_fst_1_wgd = io.read_fst(wgd_x2=True, n_wgd=1)
+        asymm_fst_2_wgd = None
 
     events_df = pd.DataFrame(columns=['sample_id', 'chrom', 'start', 'end', 'allele', 'type', 'cn_child'])
 
@@ -504,6 +513,7 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
             cur_loh = cur_child_cn.loc[~parent_loh[allele], allele] == 0
 
         cur_parent_cn.loc[cur_parent_cn[allele] < 0, allele] = 0
+    loh_pos = (cur_parent_cn == 0)
 
     # 2. WGDs
     # only check if >30% of is gained
@@ -512,41 +522,76 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
     widths = cur_df.loc[[child_name]].eval('end-start')
     fraction_gain = ((cur_df.loc[child_name, alleles] > 1).astype(int).sum(axis=1) * widths.loc[child_name]
                         ).sum() / (2 * widths.loc[child_name].sum())
+    parent_fsa = fstlib.factory.from_string('X'.join(['X'.join(["".join(x.astype('str')) for _, x in cur_df.loc[parent_name, alleles][allele].groupby('chrom')]) for allele in alleles]),
+                                            arc_type="standard",
+                                            isymbols=symbol_table,
+                                            osymbols=symbol_table)
+    child_fsa = fstlib.factory.from_string('X'.join(['X'.join(["".join(x.astype('str')) for _, x in cur_df.loc[child_name, alleles][allele].groupby('chrom')]) for allele in alleles]),
+                                            arc_type="standard",
+                                            isymbols=symbol_table,
+                                            osymbols=symbol_table)
+
     if fraction_gain > wgd_candidate_threshold:
+        if wgd_x2:
+        
 
-        parent_fsa = fstlib.factory.from_string('X'.join(['X'.join(["".join(x.astype('str')) for _, x in cur_df.loc[parent_name, alleles][allele].groupby('chrom')]) for allele in alleles]),
-                                                arc_type="standard",
-                                                isymbols=symbol_table,
-                                                osymbols=symbol_table)
-        child_fsa = fstlib.factory.from_string('X'.join(['X'.join(["".join(x.astype('str')) for _, x in cur_df.loc[child_name, alleles][allele].groupby('chrom')]) for allele in alleles]),
-                                                arc_type="standard",
-                                                isymbols=symbol_table,
-                                                osymbols=symbol_table)
+            score_wgd = float(fstlib.score(asymm_fst, parent_fsa, child_fsa))
+            fraction_double_gain = (((cur_df.loc[child_name, alleles] > 2)
+                                    .astype(int)
+                                    .sum(axis=1)
+                                    * widths.loc[child_name]
+                                    ).sum() / widths.loc[child_name].sum())
 
-        score_wgd = float(fstlib.score(asymm_fst, parent_fsa, child_fsa))
-        fraction_double_gain = (((cur_df.loc[child_name, alleles] > 2)
-                                 .astype(int)
-                                 .sum(axis=1)
-                                 * widths.loc[child_name]
-                                 ).sum() / widths.loc[child_name].sum())
-
-        # double wgd
-        if fraction_double_gain and (float(fstlib.score(asymm_fst_1_wgd, parent_fsa, child_fsa)) != score_wgd):
-            cur_parent_cn = 4 * cur_parent_cn
-            events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
-                                             cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
-            events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+            # double wgd
+            if (fraction_double_gain > wgd_candidate_threshold) and (float(fstlib.score(asymm_fst_1_wgd, parent_fsa, child_fsa)) != score_wgd):
+                cur_parent_cn = 4 * cur_parent_cn
+                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
                                                 cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
-            cur_df.loc[child_name, 'is_wgd'] = True
-        # single wgd
-        elif float(fstlib.score(asymm_fst_nowgd, parent_fsa, child_fsa)) != score_wgd:
-            cur_parent_cn = 2 * cur_parent_cn
-            events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
-                                             cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
-            cur_df.loc[child_name, 'is_wgd'] = True
+                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+                                                    cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
+                cur_df.loc[child_name, 'is_wgd'] = True
+            # single wgd
+            elif float(fstlib.score(asymm_fst_nowgd, parent_fsa, child_fsa)) != score_wgd:
+                cur_parent_cn = 2 * cur_parent_cn
+                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+                                                cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
+                cur_df.loc[child_name, 'is_wgd'] = True
+
+        else:
+
+            score_wgd = float(fstlib.score(asymm_fst, parent_fsa, child_fsa))
+            fraction_double_gain = (((cur_df.loc[child_name, alleles] > 2)
+                                    .astype(int)
+                                    .sum(axis=1)
+                                    * widths.loc[child_name]
+                                    ).sum() / widths.loc[child_name].sum())
+
+            # triple wgd
+            if (fraction_double_gain > wgd_candidate_threshold) and (float(fstlib.score(asymm_fst_2_wgd, parent_fsa, child_fsa)) != score_wgd):
+                cur_parent_cn[~loh_pos] = cur_parent_cn[~loh_pos] + 3
+                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+                                                cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
+                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+                                                    cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
+                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+                                                    cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
+                cur_df.loc[child_name, 'is_wgd'] = True
+            # double wgd
+            elif (fraction_double_gain > wgd_candidate_threshold) and (float(fstlib.score(asymm_fst_1_wgd, parent_fsa, child_fsa)) != score_wgd):
+                cur_parent_cn[~loh_pos] = cur_parent_cn[~loh_pos] + 2
+                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+                                                cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
+                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+                                                    cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
+                cur_df.loc[child_name, 'is_wgd'] = True
+            # single wgd
+            elif float(fstlib.score(asymm_fst_nowgd, parent_fsa, child_fsa)) != score_wgd:
+                cur_parent_cn[~loh_pos] = cur_parent_cn[~loh_pos] + 1
+                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+                                                cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
+                cur_df.loc[child_name, 'is_wgd'] = True
 
     # 3. losses and gains
-    loh_pos = (cur_parent_cn == 0)
     for allele in alleles:
 
         cn_changes = (cur_child_cn[allele] - cur_parent_cn[allele]).values
