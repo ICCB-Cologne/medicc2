@@ -42,7 +42,7 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
 
 
 def read_fst(user_fst=None, no_wgd=False, n_wgd=None, total_copy_numbers=False, wgd_x2=False):
-    """ Simple wrapper for loading the FST using the fstlib read function. """
+    """Simple wrapper for loading the FST using the fstlib read function. """
 
     objects_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "objects")
 
@@ -147,7 +147,7 @@ def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
     return input_file
 
 def _read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns = ['cn_a','cn_b'], maxcn: int = 8):
-    """ Reads FASTA decriptor file (old MEDICC input format) and reads the corresponding FASTA files to generate
+    """Reads FASTA decriptor file (old MEDICC input format) and reads the corresponding FASTA files to generate
     a data frame with the same format as the refphase input (TSV) format. """
     logger.info("Reading FASTA dataset from description file %s.", infile)
     description_file = pd.read_csv(infile,
@@ -204,7 +204,7 @@ def _read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns =
     return result
 
 def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_copy_numbers=False):
-    """ Adds an artificial normal samples with the supplied name to the data frame.
+    """Adds an artificial normal samples with the supplied name to the data frame.
     The normal sample has CN=1 on all supplied alleles. """
     samples = df.index.get_level_values('sample_id').unique()
 
@@ -234,7 +234,7 @@ def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_cop
 
 
 def write_tree_files(tree, out_name: str, plot_tree=True, draw_ascii=False):
-    """ Writes a Newick, PhyloXML, Ascii graphic and PNG grahic file of the tree. """
+    """Writes a Newick, PhyloXML, Ascii graphic and PNG grahic file of the tree. """
     Bio.Phylo.write(tree, out_name + ".new", "newick")
     Bio.Phylo.write(tree, out_name + ".xml", "phyloxml")
 
@@ -248,8 +248,17 @@ def write_tree_files(tree, out_name: str, plot_tree=True, draw_ascii=False):
                        label_func=lambda x: x if 'internal' not in x else '',
                        show_branch_lengths=True)
 
+
+def write_branch_lengths(tree, out_name: str):
+    """Writes a file with the branch lengths of the tree."""
+    with open(out_name, "w") as f:
+        for node in tree.find_clades():
+            if node.name is not None and node.name != 'diploid':
+                f.write("{}\t{}\n".format(node.name, node.branch_length))
+
+
 def write_pairwise_distances(sample_labels, pairwise_distances, filename_prefix):
-    """ Write the pairwise distance matrix as a tsv."""
+    """Write the pairwise distance matrix as a tsv."""
 
     if not isinstance(pairwise_distances, pd.DataFrame):
         pairwise_distances = pd.DataFrame(pairwise_distances, columns=sample_labels, index=sample_labels)
@@ -257,7 +266,7 @@ def write_pairwise_distances(sample_labels, pairwise_distances, filename_prefix)
 
 
 def import_tree(tree_file, normal_name='diploid', file_format='newick'):
-    """ Loads a phylogenetic tree in the given format and roots it at the normal sample. """
+    """Loads a phylogenetic tree in the given format and roots it at the normal sample. """
     tree = Bio.Phylo.read(tree_file, file_format)
     input_tree = Bio.Phylo.BaseTree.copy.deepcopy(tree)
     tmpsearch = [c for c in input_tree.find_clades(name = normal_name)]

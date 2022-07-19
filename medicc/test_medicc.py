@@ -35,7 +35,7 @@ def test_medicc_with_simple_example():
                       'simple_example_final_tree.new', 'simple_example_final_tree.png',
                       'simple_example_final_tree.xml', 'simple_example_pairwise_distances.tsv',
                       'simple_example_summary.tsv', 'simple_example_copynumber_events_df.tsv',
-                      'simple_example_events_overlap.tsv']
+                      'simple_example_events_overlap.tsv', 'simple_example_branch_lengths.tsv']
     all_files_exist = [os.path.isfile(os.path.join('examples/test_output/', f)) for f in expected_files]
     subprocess.Popen(["rm", "examples/test_output", "-rf"])
 
@@ -60,7 +60,7 @@ def test_medicc_with_example_total_copy_numbers():
                       'simple_example_final_tree.new', 'simple_example_final_tree.png',
                       'simple_example_final_tree.xml', 'simple_example_pairwise_distances.tsv',
                       'simple_example_summary.tsv', 'simple_example_copynumber_events_df.tsv',
-                      'simple_example_events_overlap.tsv']
+                      'simple_example_events_overlap.tsv', 'simple_example_branch_lengths.tsv']
     all_files_exist = [os.path.isfile(os.path.join('examples/test_output_total_cn/', f))
                        for f in expected_files]
     subprocess.Popen(["rm", "examples/test_output_total_cn", "-rf"])
@@ -85,7 +85,7 @@ def test_medicc_with_multiple_cores():
                       'simple_example_final_tree.new', 'simple_example_final_tree.png',
                       'simple_example_final_tree.xml', 'simple_example_pairwise_distances.tsv',
                       'simple_example_summary.tsv', 'simple_example_copynumber_events_df.tsv',
-                      'simple_example_events_overlap.tsv']
+                      'simple_example_events_overlap.tsv', 'simple_example_branch_lengths.tsv']
     all_files_exist = [os.path.isfile(os.path.join('examples/test_output_multiple_cores/', f))
                        for f in expected_files]
     subprocess.Popen(["rm", "examples/test_output_multiple_cores", "-rf"])
@@ -130,7 +130,7 @@ def test_medicc_with_testing_example():
                       'testing_example_final_tree.new', 'testing_example_final_tree.png',
                       'testing_example_final_tree.xml', 'testing_example_pairwise_distances.tsv',
                       'testing_example_summary.tsv', 'testing_example_copynumber_events_df.tsv',
-                      'testing_example_events_overlap.tsv']
+                      'testing_example_events_overlap.tsv', 'testing_example_branch_lengths.tsv']
     all_files_exist = [os.path.isfile(os.path.join('examples/test_output/', f)) for f in expected_files]
     subprocess.Popen(["rm", "examples/test_output", "-rf"])
 
@@ -161,7 +161,7 @@ def test_gundem_et_al_2015(patient):
                       f'{patient}_input_df_final_tree.new', f'{patient}_input_df_final_tree.png',
                       f'{patient}_input_df_final_tree.xml', f'{patient}_input_df_pairwise_distances.tsv',
                       f'{patient}_input_df_summary.tsv', f'{patient}_input_df_copynumber_events_df.tsv',
-                      f'{patient}_input_df_events_overlap.tsv']
+                      f'{patient}_input_df_events_overlap.tsv', f'{patient}_input_df_branch_lengths.tsv']
 
     all_files_exist = [os.path.isfile(os.path.join(output_dir, f))
                        for f in expected_files]

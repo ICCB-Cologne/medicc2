@@ -82,6 +82,7 @@ MEDICC creates the following output files:
 * `_copynumber_events_df.tsv`: List of all copy-number events detected. Note that entries for WGD events have non-meaningful values for chrom, cn_child, ...
 * `_cn_profiles.pdf`: Combined plot of the phylogenetic tree as well as the copy-number profiles of all samples (including the internal nodes)
 * `_events_overlap.tsv`: Overlap of copy-number events with regions of interest (see below)
+* `_branch_lengths.tsv`: List of all branches and their corresponding lenghts of the final tree
 
 
 ## Output plots
