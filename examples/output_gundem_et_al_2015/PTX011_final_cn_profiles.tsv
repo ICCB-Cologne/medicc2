@@ -902,7 +902,7 @@ internal_1	chr4	176150780	190790246	1	1	False	False	False	False	False
 internal_1	chr5	859828	46098606	1	1	False	False	False	False	False
 internal_1	chr5	49441779	50699552	1	1	False	False	False	False	False
 internal_1	chr5	50700597	57309750	1	1	False	False	False	False	False
-internal_1	chr5	57318866	58367957	1	2	True	False	False	False	False
+internal_1	chr5	57318866	58367957	1	1	False	False	False	False	False
 internal_1	chr5	58382465	99928881	1	1	False	False	False	False	False
 internal_1	chr5	99929353	180685900	1	1	False	False	False	False	False
 internal_1	chr6	205696	6782298	1	1	False	False	False	False	False
@@ -1044,7 +1044,7 @@ internal_2	chr4	176150780	190790246	2	2	False	False	True	False	False
 internal_2	chr5	859828	46098606	2	2	False	False	True	False	False
 internal_2	chr5	49441779	50699552	2	2	False	False	True	False	False
 internal_2	chr5	50700597	57309750	2	2	False	False	True	False	False
-internal_2	chr5	57318866	58367957	2	4	False	False	True	False	False
+internal_2	chr5	57318866	58367957	2	4	True	False	True	False	False
 internal_2	chr5	58382465	99928881	2	2	False	False	True	False	False
 internal_2	chr5	99929353	180685900	2	2	False	False	True	False	False
 internal_2	chr6	205696	6782298	2	1	False	True	True	False	False
