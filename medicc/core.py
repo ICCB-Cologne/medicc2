@@ -25,6 +25,9 @@ def main(input_df,
          chr_separator='X',
          prune_weight=0,
          allele_columns=['cn_a', 'cn_b'],
+         wgd_x2=False,
+         no_wgd=False,
+         total_cn=False,
          n_cores=None):
     """ MEDICC Main Method """
 
@@ -100,7 +103,8 @@ def main(input_df,
 
     if ancestral_reconstruction:
         output_df, events_df = calculate_all_cn_events(
-            final_tree, output_df, allele_columns, normal_name)
+            final_tree, output_df, allele_columns, normal_name,
+            wgd_x2=wgd_x2, no_wgd=no_wgd, total_cn=total_cn)
         if len(events_df) != final_tree.total_branch_length():
             faulty_nodes = []
             for node in final_tree.find_clades():
@@ -353,7 +357,8 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
                 child.branch_length = brs
 
 
-def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name='diploid', wgd_x2=False):
+def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name='diploid',
+                            wgd_x2=False, no_wgd=False, total_cn=False):
     """Create a DataFrame containing all copy-number events in the current data
 
     Args:
@@ -390,7 +395,8 @@ def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name=
                     continue
 
                 cur_df, cur_events = calculate_cn_events_per_branch(
-                    cur_df, clade.name, child.name, alleles=alleles, wgd_x2=wgd_x2)
+                    cur_df, clade.name, child.name, alleles=alleles, wgd_x2=wgd_x2,
+                    total_cn=total_cn, no_wgd=no_wgd)
 
                 events = pd.concat([events, cur_events])
 
@@ -419,7 +425,8 @@ def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name=
     return cur_df, events
 
 
-def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn_a', 'cn_b'), wgd_x2=False):
+def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn_a', 'cn_b'),
+                                   wgd_x2=False, total_cn=False, no_wgd=False):
     """Calculate copy-number events for a single branch. Used in calculate_all_cn_events
 
     Args:
@@ -439,6 +446,11 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
         asymm_fst = io.read_fst(wgd_x2=True)
         asymm_fst_1_wgd = io.read_fst(wgd_x2=True, n_wgd=1)
         asymm_fst_2_wgd = None
+    if no_wgd:
+        asymm_fst = io.read_fst(no_wgd=True)
+        asymm_fst_1_wgd = None
+        asymm_fst_2_wgd = None
+
 
     events_df = pd.DataFrame(columns=['sample_id', 'chrom', 'start', 'end', 'allele', 'type', 'cn_child'])
 
@@ -531,17 +543,14 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
                                             isymbols=symbol_table,
                                             osymbols=symbol_table)
 
-    if fraction_gain > wgd_candidate_threshold:
+    score_wgd = float(fstlib.score(asymm_fst, parent_fsa, child_fsa))
+    fraction_double_gain = (((cur_df.loc[child_name, alleles] > 2)
+                            .astype(int)
+                            .sum(axis=1)
+                            * widths.loc[child_name]
+                            ).sum() / widths.loc[child_name].sum())
+    if not no_wgd and fraction_gain > wgd_candidate_threshold:
         if wgd_x2:
-        
-
-            score_wgd = float(fstlib.score(asymm_fst, parent_fsa, child_fsa))
-            fraction_double_gain = (((cur_df.loc[child_name, alleles] > 2)
-                                    .astype(int)
-                                    .sum(axis=1)
-                                    * widths.loc[child_name]
-                                    ).sum() / widths.loc[child_name].sum())
-
             # double wgd
             if (fraction_double_gain > wgd_candidate_threshold) and (float(fstlib.score(asymm_fst_1_wgd, parent_fsa, child_fsa)) != score_wgd):
                 cur_parent_cn = 4 * cur_parent_cn
@@ -557,15 +566,15 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
                                                 cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
                 cur_df.loc[child_name, 'is_wgd'] = True
 
+        elif total_cn:
+            # single wgd
+            if float(fstlib.score(asymm_fst_nowgd, parent_fsa, child_fsa)) != score_wgd:
+                cur_parent_cn[~loh_pos] = cur_parent_cn[~loh_pos] + 2
+                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
+                                                cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
+                cur_df.loc[child_name, 'is_wgd'] = True
+
         else:
-
-            score_wgd = float(fstlib.score(asymm_fst, parent_fsa, child_fsa))
-            fraction_double_gain = (((cur_df.loc[child_name, alleles] > 2)
-                                    .astype(int)
-                                    .sum(axis=1)
-                                    * widths.loc[child_name]
-                                    ).sum() / widths.loc[child_name].sum())
-
             # triple wgd
             if (fraction_double_gain > wgd_candidate_threshold) and (float(fstlib.score(asymm_fst_2_wgd, parent_fsa, child_fsa)) != score_wgd):
                 cur_parent_cn[~loh_pos] = cur_parent_cn[~loh_pos] + 3

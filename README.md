@@ -143,6 +143,12 @@ You can also try to remove the sample that led to the error (see the extended lo
 **The output plots are not like I expected**
 Maybe you need to set the `--plot` flag. By default, `--plot` is set to auto which means that it plots different figures depending on the number of samples in the data (threshold is 50); see above.
 
+**Faulty event reconstruction**
+Sometimes MEDICC2 will pass out the following warning: *Event recreation was faulty*. This means that the events in the
+`_cn_events_df.tsv` file will not be accurate. If you selected total copy number this will mainly be due to multiple WGDs
+in a single node. Please get in contact with us if the problem prevails even without the `--total-copy-numbers` flag.
+
+
 # Contact
 Email questions, feature requests and bug reports to **Tom Kaufmann, tom.kaufmann@mdc-berlin.de**.
 

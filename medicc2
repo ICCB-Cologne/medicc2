@@ -125,7 +125,7 @@ parser.add_argument("--fst", type=str, dest='fst', default=None,
                     help='Expert option: path to an alternative FST.')
 parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', default='X',
                     help = 'Expert option: character used to separate chromosomes in the FST (default: \"X\").')
-parser.add_argument("--wgd_x2", action='store_true', default=False,
+parser.add_argument("--wgd-x2", action='store_true', default=False, dest='wgd_x2',
                     help='Expert option: Treat WGD as a x2 operation (default: False).', required=False)
 args = parser.parse_args()
 
@@ -134,7 +134,6 @@ if args.verbose:
     logging.getLogger('medicc').setLevel(logging.INFO)
 if args.debug:
     logging.getLogger('medicc').setLevel(logging.DEBUG)
-
 if args.silent:
     logging.getLogger('medicc').setLevel(logging.CRITICAL)
     logger.setLevel(logging.CRITICAL)
@@ -203,6 +202,9 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = m
     chr_separator=args.fst_chr_separator.strip(),
     prune_weight=args.prune_weight,
     allele_columns=allele_columns,
+    no_wgd=args.no_wgd,
+    wgd_x2=args.wgd_x2,
+    total_cn=args.total_copy_numbers,
     n_cores=args.n_cores)
 
 
