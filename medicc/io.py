@@ -31,6 +31,20 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
         raise MEDICCIOError("You have set the --total-copy-numbers flag but provided more than one allele column. "
                             "Set allele columns with the flag --input-allele-columns")
 
+    input_df.columns.name = 'allele'
+    input_df_stacked = input_df.stack('allele').unstack('sample_id').T
+
+    duplicated_entries = input_df_stacked.duplicated(keep=False)
+    if duplicated_entries.any():
+        logger.warn("Duplicated entries found in input data: "
+                    f"{input_df_stacked.index[duplicated_entries]}")
+
+    normal_value = '2' if total_copy_numbers else '1'
+    normal_samples = np.setdiff1d(input_df_stacked.index[
+        (input_df_stacked == normal_value).all(axis=1)], normal_name)
+    if len(normal_samples) > 0:
+        logger.warn(f"Normal samples found in input data: {normal_samples}")
+    
     ## Add normal sample if needed
     input_df = add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 
                                     total_copy_numbers=total_copy_numbers)
@@ -54,13 +68,12 @@ def read_fst(user_fst=None, no_wgd=False, n_wgd=None, total_copy_numbers=False, 
         fst_path = os.path.join(objects_dir, 'wgd_x2_asymm.fst')
         if n_wgd == 1:
             fst_path = os.path.join(objects_dir, 'wgd_x2_1_asymm.fst')
+    elif total_copy_numbers:
+        fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
+    elif n_wgd is not None and int(n_wgd) <= 3:
+        fst_path = os.path.join(objects_dir, 'wgd_{}_asymm.fst'.format(int(n_wgd)))
     else:
-        if total_copy_numbers:
-            fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
-        elif n_wgd is not None and int(n_wgd) <= 3:
-            fst_path = os.path.join(objects_dir, 'wgd_{}_asymm.fst'.format(int(n_wgd)))
-        else:
-            fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
+        fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
 
     return fstlib.read(fst_path)
 
@@ -281,6 +294,11 @@ def import_tree(tree_file, normal_name='diploid', file_format='newick'):
         input_tree.root_with_outgroup(new_root)
     else:
         pass
+
+    # check that internal node names are unique
+    node_names = [c.name for c in input_tree.find_clades()]
+    if len(node_names) != len(np.unique(node_names)):
+        logger.warning("Internal node names are not unique. This will cause problems in MEDICC2.")
 
     return input_tree
 
