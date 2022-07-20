@@ -210,8 +210,7 @@ def test_medicc_with_bootstrap():
 
 gundem_et_al_2015_patients = ['PTX004', 'PTX005', 'PTX006', 'PTX007', 'PTX008', 
                               'PTX009', 'PTX010', 'PTX011', 'PTX012', 'PTX013']
-extra_condition = ['total_cn']
-# extra_condition = ['normal', 'no_wgd', 'total_cn', 'wgd_x2']
+extra_condition = ['normal', 'no_wgd', 'total_cn', 'wgd_x2']
 @pytest.mark.parametrize("patient", gundem_et_al_2015_patients)
 @pytest.mark.parametrize("extra_condition", extra_condition)
 def test_gundem_et_al_2015(patient, extra_condition):
