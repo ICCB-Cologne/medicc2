@@ -24,7 +24,7 @@ def test_medicc_with_simple_example():
     "Testing small example"
     output_dir = 'examples/test_output'
     process = subprocess.Popen(['python', "medicc2", "examples/simple_example/simple_example.tsv", 
-                                output_dir],
+                                output_dir, "--plot", "both"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -36,7 +36,8 @@ def test_medicc_with_simple_example():
                       'simple_example_final_tree.new', 'simple_example_final_tree.png',
                       'simple_example_final_tree.xml', 'simple_example_pairwise_distances.tsv',
                       'simple_example_summary.tsv', 'simple_example_copynumber_events_df.tsv',
-                      'simple_example_events_overlap.tsv', 'simple_example_branch_lengths.tsv']
+                      'simple_example_events_overlap.tsv', 'simple_example_branch_lengths.tsv',
+                      'simple_example_cn_profiles_heatmap.pdf']
     all_files_exist = [os.path.isfile(os.path.join('examples/test_output/', f)) for f in expected_files]
     nr_events, tree_size = get_number_of_events(output_dir, 'simple_example')
     subprocess.Popen(["rm", output_dir, "-rf"])

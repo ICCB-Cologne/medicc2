@@ -296,10 +296,6 @@ if 'bars' in plotting:
         label_func=None)
     p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'), bbox_inches='tight')
 
-# plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, 
-#                     alleles='total', tree_width_ratio=1, cbar_width_ratio=0.02, 
-#                     figsize=(20, 10), tree_line_width=0.5, tree_marker_size=0.5,
-#                     tree_label_colors=None, tree_label_func=None, cmap='coolwarm')
 
 if 'heatmap' in plotting:
     logger.info("Plotting copy-number profiles (heatmap).")
