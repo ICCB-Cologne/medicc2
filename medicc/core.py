@@ -425,7 +425,7 @@ def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name=
     return cur_df, events
 
 
-def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn_a', 'cn_b'),
+def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=['cn_a', 'cn_b'],
                                    wgd_x2=False, total_cn=False, no_wgd=False):
     """Calculate copy-number events for a single branch. Used in calculate_all_cn_events
 
@@ -439,6 +439,9 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=('cn
         pandas.DataFrame: Updated copy-number DataFrame
         pandas.DataFrame: DataFrame of copy-number events
     """
+
+    cur_df[['is_gain', 'is_loss', 'is_wgd']] = False
+    cur_df[alleles] = cur_df[alleles].astype(int)
 
     asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, asymm_fst_2_wgd, symbol_table = io.load_main_fsts(
         return_symbol_table=True)
@@ -850,6 +853,22 @@ def overlap_regions(region, cur_events_ranges, event, branch, overlap_threshold)
     cur_events_overlaps['branch'] = branch
 
     return cur_events_overlaps
+
+
+def detect_wgd(input_df, sample, total_cn=False, wgd_x2=False):
+    wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2)
+    no_wgd_fst = io.read_fst(no_wgd=True)
+
+    diploid_fsa = medicc.tools.create_diploid_fsa(no_wgd_fst)
+    symbol_table = no_wgd_fst.input_symbols()
+    fsa_dict = medicc.create_standard_fsa_dict_from_data(input_df.loc[[sample]],
+                                                         symbol_table, 'X')
+
+    distance_wgd = float(fstlib.score(wgd_fst, diploid_fsa, fsa_dict[sample]))
+    distance_no_wgd = float(fstlib.score(no_wgd_fst, diploid_fsa, fsa_dict[sample]))
+
+    return distance_wgd != distance_no_wgd
+
 
 
 class MEDICCError(Exception):
