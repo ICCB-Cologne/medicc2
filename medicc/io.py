@@ -296,7 +296,7 @@ def import_tree(tree_file, normal_name='diploid', file_format='newick'):
         pass
 
     # check that internal node names are unique
-    node_names = [c.name for c in input_tree.find_clades()]
+    node_names = [c.name for c in input_tree.find_clades() if c.name is not None]
     if len(node_names) != len(np.unique(node_names)):
         logger.warning("Internal node names are not unique. This will cause problems in MEDICC2.")
 
