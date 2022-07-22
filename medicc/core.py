@@ -440,9 +440,11 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=['cn
         pandas.DataFrame: DataFrame of copy-number events
     """
 
+    cur_df = cur_df.copy()
     cur_df[['is_gain', 'is_loss', 'is_wgd']] = False
     cur_df[alleles] = cur_df[alleles].astype(int)
 
+    # TODO: load these outside of the function so they are not loaded every time
     asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, asymm_fst_2_wgd, symbol_table = io.load_main_fsts(
         return_symbol_table=True)
     if wgd_x2:
@@ -496,9 +498,10 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=['cn
                 * cur_loh_and_parental_val) + 1)
                 * cur_loh_and_parental_val)
 
+            # Label events starting at 1
             event_labels = np.zeros_like(event_labels_)
-            for i, j in enumerate(np.unique(event_labels_)):
-                event_labels[event_labels_ == j] = i
+            for i, j in enumerate(np.setdiff1d(np.unique(event_labels_), [0])):
+                event_labels[event_labels_ == j] = i + 1
 
             cur_parent_cn.loc[parent_loh.loc[~parent_loh[allele],
                                                allele].index[cur_loh_and_parental_val], allele] -= 1
@@ -614,7 +617,8 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=['cn
         cur_df.loc[child_name, 'is_gain'] = np.logical_or(cur_df.loc[child_name, 'is_gain'].values,
                                                           cn_changes > 0)
 
-        all_cn_change_vals = np.setdiff1d(np.arange(np.min(all_cn_change_vals), np.max(all_cn_change_vals)+1), [0])
+        # enumerate over all possible change values
+        all_cn_change_vals = np.setdiff1d(np.arange(np.min([np.min(all_cn_change_vals), 0]), np.max(all_cn_change_vals)+1), [0])
         for cur_cn_change in all_cn_change_vals[np.argsort(np.abs(all_cn_change_vals))[::-1]]:
             cur_event = 'gain' if cur_cn_change > 0 else 'loss'
 
@@ -627,15 +631,17 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=['cn
                 * cur_change_location.values) + 1)
                 * cur_change_location.values)
 
+            # Label events starting at 1
             event_labels = np.zeros_like(event_labels_)
-            for i, j in enumerate(np.unique(event_labels_)):
-                event_labels[event_labels_ == j] = i
+            for i, j in enumerate(np.setdiff1d(np.unique(event_labels_), [0])):
+                event_labels[event_labels_ == j] = i + 1
 
             cur_events = (cur_child_cn
                           .loc[~loh_pos[allele]]
                           .reset_index()
                           .loc[np.array([np.argmax(event_labels == val) for val in np.setdiff1d(np.unique(event_labels), [0])])]
                           [['chrom', 'start', 'end', allele]].values)
+
             # adjust ends
             cur_events[:, 2] = (cur_child_cn
                                 .loc[~loh_pos[allele]]
