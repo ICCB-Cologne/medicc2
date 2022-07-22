@@ -1,15 +1,15 @@
 branch	name	FractionOverlaps	event	final_name
 internal_1	chr1q	1.0	gain	1q +
-internal_1	chr3	0.9996753146125845	gain	3 +
-internal_1	chr5	0.9951743657984145	gain	5 +
-internal_1	chr8	0.9988866547533953	gain	8 +
-internal_1	chr9	0.9981849272197962	gain	9 +
-internal_1	chr12	0.9742445707656613	gain	12 +
-internal_1	chr14q	0.9667073379629629	gain	14q +
-internal_1	chr15q	0.9528332075471698	gain	15q +
-internal_1	chr16p	0.9975271387283237	gain	16p +
-internal_1	chr17	0.9645425763612218	gain	17 +
-internal_1	chr21q	0.9294715986394558	gain	21q +
+internal_1	chr3	0.9972608463712493	gain	3 +
+internal_1	chr5	0.9906104310496885	gain	5 +
+internal_1	chr8	0.998926839852622	gain	8 +
+internal_1	chr9	0.9981979731206069	gain	9 +
+internal_1	chr12	0.9670330308519487	gain	12 +
+internal_1	chr14q	0.9635312732716604	gain	14q +
+internal_1	chr15q	0.954817372239359	gain	15q +
+internal_1	chr16p	0.997674972826087	gain	16p +
+internal_1	chr17	0.9287925387954213	gain	17 +
+internal_1	chr21q	0.905688948335123	gain	21q +
 internal_1	KIF1B	1.0	gain	KIF1B +
 internal_1	CASZ1	1.0	gain	CASZ1 +
 internal_1	MTOR	1.0	gain	MTOR +
@@ -999,9 +999,8 @@ internal_1	LRCH1	1.0	loss	LRCH1 -
 internal_1	NUDT15	1.0	loss	NUDT15 -
 internal_1	RB1	1.0	loss	RB1 -
 internal_1	SETDB2	1.0	loss	SETDB2 -
-internal_1	chr5p	0.9815139479392625	gain	5p +
-internal_1	chr8q	0.9525226511134677	gain	8q +
-internal_1	chr20q	0.9141121682847897	gain	20q +
+internal_1	chr5p	0.9825367418032787	gain	5p +
+internal_1	chr20q	0.9025319523762919	gain	20q +
 internal_1	CTSK	1.0	gain	CTSK +
 internal_1	SETDB1	1.0	gain	SETDB1 +
 internal_1	MLLT11	1.0	gain	MLLT11 +
@@ -1258,9 +1257,9 @@ internal_1	PPP1R3D	1.0	gain	PPP1R3D +
 internal_1	CDH4	1.0	gain	CDH4 +
 internal_1	TAF4	1.0	gain	TAF4 +
 internal_1	PSMA7	1.0	gain	PSMA7 +
-internal_1	chr8p	0.9963861484918793	loss	8p -
-internal_1	chr12p	0.9943215315315316	loss	12p -
-internal_1	chr16	0.999035388951522	loss	16 -
+internal_1	chr8p	0.9650922123893805	loss	8p -
+internal_1	chr12p	0.9757525070422535	loss	12p -
+internal_1	chr16	0.9951508741941198	loss	16 -
 internal_1	KLHL17	1.0	loss	KLHL17 -
 internal_1	TNFRSF18	1.0	loss	TNFRSF18 -
 internal_1	MXRA8	1.0	loss	MXRA8 -
@@ -1454,9 +1453,9 @@ internal_1	PAX1	1.0	loss	PAX1 -
 internal_1	GGTLC1	1.0	loss	GGTLC1 -
 internal_1	U2AF1	1.0	loss	U2AF1 -
 internal_1	KRTAP12-4	1.0	loss	KRTAP12-4 -
-internal_3	chr7	0.9994539007092199	gain	7 +
-internal_3	chr10p	0.9755097631578947	gain	10p +
-internal_3	chr19p	0.988965	gain	19p +
+internal_3	chr7	0.9980671554216184	gain	7 +
+internal_3	chr10p	0.9313912311557789	gain	10p +
+internal_3	chr19p	0.9252301145038168	gain	19p +
 internal_3	KLHL17	1.0	gain	KLHL17 +
 internal_3	TNFRSF18	1.0	gain	TNFRSF18 +
 internal_3	MXRA8	1.0	gain	MXRA8 +
@@ -1714,13 +1713,12 @@ internal_3	HLCS	1.0	gain	HLCS +
 internal_3	DYRK1A	1.0	gain	DYRK1A +
 internal_3	BRWD1	1.0	gain	BRWD1 +
 internal_3	PLAC4	1.0	gain	PLAC4 +
-ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	chr18p	0.9101903246753247	gain	18p +
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	TGIF1	1.0	gain	TGIF1 +
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	PTPRM	1.0	gain	PTPRM +
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	ANKRD12	1.0	gain	ANKRD12 +
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	PPP4R1	1.0	gain	PPP4R1 +
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	RNMT	1.0	gain	RNMT +
-ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	chr8q	0.9581379215270414	loss	8q -
+ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	chr8q	0.956497365043085	loss	8q -
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	TRDN	1.0	loss	TRDN -
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	RNF217	1.0	loss	RNF217 -
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	PTPRK	0.9880031745111397	loss	PTPRK -
@@ -1858,7 +1856,7 @@ ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	MARK3	1.0	loss	MARK3 -
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	PPP1R13B	1.0	loss	PPP1R13B -
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	AKT1	1.0	loss	AKT1 -
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	CDCA4	1.0	loss	CDCA4 -
-ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	chr7	0.9994539007092199	gain	7 +
+ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	chr7	0.9980671554216184	gain	7 +
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	HLA-B	1.0	gain	HLA-B +
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	BAG6	1.0	gain	BAG6 +
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	ABHD16A	1.0	gain	ABHD16A +
@@ -2055,7 +2053,7 @@ ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	HS3ST5	1.0	loss	HS3ST5 -
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	SLC35F1	1.0	loss	SLC35F1 -
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	PLN	1.0	loss	PLN -
 ApicalProstateCA_A22C-0016_CRUK_PC_0016_T1	FAM184A	1.0	loss	FAM184A -
-internal_9	chr11p	0.9961173837209303	gain	11p +
+internal_9	chr11p	0.9962482584269663	gain	11p +
 internal_9	IFITM1	1.0	gain	IFITM1 +
 internal_9	HRAS	1.0	gain	HRAS +
 internal_9	RASSF7	1.0	gain	RASSF7 +
@@ -2090,7 +2088,6 @@ internal_9	KBTBD4	1.0	gain	KBTBD4 +
 internal_9	TRIM48	1.0	gain	TRIM48 +
 internal_9	OR5I1	1.0	gain	OR5I1 +
 internal_9	OR5M3	1.0	gain	OR5M3 +
-internal_9	chr16p	0.9217345953757226	loss	16p -
 internal_9	BAMBI	1.0	loss	BAMBI -
 internal_9	ZEB1	1.0	loss	ZEB1 -
 internal_9	ARHGAP12	1.0	loss	ARHGAP12 -
@@ -2251,7 +2248,7 @@ internal_9	NALCN	1.0	gain	NALCN +
 internal_9	COL4A1	1.0	gain	COL4A1 +
 internal_9	COL4A2	1.0	gain	COL4A2 +
 internal_9	ING1	1.0	gain	ING1 +
-internal_9	chr8q	0.9062429586426299	loss	8q -
+internal_9	chr8q	0.9075303669343656	loss	8q -
 internal_9	SNTG1	1.0	loss	SNTG1 -
 internal_9	PCMTD1	1.0	loss	PCMTD1 -
 internal_9	SOX17	1.0	loss	SOX17 -
@@ -2396,8 +2393,8 @@ SeminalVesicleMet_A22D-0016_CRUK_PC_0016_M2	MLLT4	1.0	loss	MLLT4 -
 SeminalVesicleMet_A22D-0016_CRUK_PC_0016_M2	KIF25	1.0	loss	KIF25 -
 SeminalVesicleMet_A22D-0016_CRUK_PC_0016_M2	SMOC2	1.0	loss	SMOC2 -
 internal_7	NF2	1.0	gain	NF2 +
-internal_7	chr7q	1.0	gain	7q +
-internal_7	chr9	0.9981849272197962	gain	9 +
+internal_7	chr7q	0.9977501253375792	gain	7q +
+internal_7	chr9	0.9981979731206069	gain	9 +
 internal_7	POLM	1.0	gain	POLM +
 internal_7	PURB	1.0	gain	PURB +
 internal_7	ZPBP	1.0	gain	ZPBP +
@@ -2519,7 +2516,7 @@ internal_7	CEL	1.0	gain	CEL +
 internal_7	COL5A1	1.0	gain	COL5A1 +
 internal_7	NOTCH1	1.0	gain	NOTCH1 +
 internal_7	RABL6	1.0	gain	RABL6 +
-internal_8	chr14q	0.9667073379629629	loss	14q -
+internal_8	chr14q	0.9635312732716604	loss	14q -
 internal_8	COL9A1	1.0	loss	COL9A1 -
 internal_8	FAM135A	1.0	loss	FAM135A -
 internal_8	SMAP1	1.0	loss	SMAP1 -
@@ -2646,7 +2643,7 @@ LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	MAPK8	1.0	gain	MAPK8 +
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	TFAM	1.0	gain	TFAM +
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	ARID5B	1.0	gain	ARID5B +
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	JMJD1C	1.0	gain	JMJD1C +
-LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	chr9	0.9981849272197962	loss	9 -
+LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	chr9	0.9981979731206069	loss	9 -
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	ASCC3	1.0	loss	ASCC3 -
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	LIN28B	1.0	loss	LIN28B -
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	ATG5	1.0	loss	ATG5 -
@@ -2784,7 +2781,7 @@ LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	IFNGR2	1.0	loss	IFNGR2 -
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	ITSN1	1.0	loss	ITSN1 -
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	RUNX1	1.0	loss	RUNX1 -
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	SETD4	1.0	loss	SETD4 -
-LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	chr14q	0.9667073379629629	loss	14q -
+LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	chr14q	0.9635312732716604	loss	14q -
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	SUPT16H	1.0	loss	SUPT16H -
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	CHD8	1.0	loss	CHD8 -
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	METTL3	1.0	loss	METTL3 -
@@ -2840,7 +2837,7 @@ LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	MARK3	1.0	loss	MARK3 -
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	PPP1R13B	1.0	loss	PPP1R13B -
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	AKT1	1.0	loss	AKT1 -
 LPelvicLN8Met_A22I-0016_CRUK_PC_0016_M7	CDCA4	1.0	loss	CDCA4 -
-internal_6	chr19p	0.988965	loss	19p -
+internal_6	chr19p	0.9252301145038168	loss	19p -
 internal_6	STK11	1.0	loss	STK11 -
 internal_6	DAZAP1	1.0	loss	DAZAP1 -
 internal_6	GNA15	1.0	loss	GNA15 -
@@ -3140,7 +3137,6 @@ internal_2	SPPL3	1.0	loss	SPPL3 -
 internal_2	HNF1A	1.0	loss	HNF1A -
 internal_2	BCL7A	1.0	loss	BCL7A -
 internal_2	RSRC2	1.0	loss	RSRC2 -
-internal_4	chr16p	0.9217345953757226	gain	16p +
 internal_4	AXIN1	1.0	gain	AXIN1 +
 internal_4	CACNA1H	1.0	gain	CACNA1H +
 internal_4	NUBP2	1.0	gain	NUBP2 +
@@ -3222,7 +3218,7 @@ internal_4	TRIM48	1.0	loss	TRIM48 -
 internal_4	OR5I1	1.0	loss	OR5I1 -
 internal_4	OR5M3	1.0	loss	OR5M3 -
 internal_4	NF2	1.0	loss	NF2 -
-internal_4	chr7q	1.0	loss	7q -
+internal_4	chr7q	0.9977501253375792	loss	7q -
 internal_4	POLM	1.0	loss	POLM -
 internal_4	PURB	1.0	loss	PURB -
 internal_4	ZPBP	1.0	loss	ZPBP -
@@ -3466,7 +3462,7 @@ LHumerusBoneMarrowMet_A22A-0016_CRUK_PC_0016_M1	C10orf88	1.0	loss	C10orf88 -
 LHumerusBoneMarrowMet_A22A-0016_CRUK_PC_0016_M1	IKZF5	1.0	loss	IKZF5 -
 LHumerusBoneMarrowMet_A22A-0016_CRUK_PC_0016_M1	CPXM2	1.0	loss	CPXM2 -
 LHumerusBoneMarrowMet_A22A-0016_CRUK_PC_0016_M1	MKI67	1.0	loss	MKI67 -
-BladderMet_A22G-0016_CRUK_PC_0016_M5	chr19p	0.988965	gain	19p +
+BladderMet_A22G-0016_CRUK_PC_0016_M5	chr19p	0.9252301145038168	gain	19p +
 BladderMet_A22G-0016_CRUK_PC_0016_M5	ZNF485	1.0	gain	ZNF485 +
 BladderMet_A22G-0016_CRUK_PC_0016_M5	ZNF32	1.0	gain	ZNF32 +
 BladderMet_A22G-0016_CRUK_PC_0016_M5	C10orf25	1.0	gain	C10orf25 +
@@ -3644,7 +3640,7 @@ RPelvicLN12Met_A22J-0016_CRUK_PC_0016_M8	KIF25	1.0	loss	KIF25 -
 RPelvicLN12Met_A22J-0016_CRUK_PC_0016_M8	SMOC2	1.0	loss	SMOC2 -
 RPelvicLN12Met_A22J-0016_CRUK_PC_0016_M8	FBXL3	1.0	loss	FBXL3 -
 RPelvicLN12Met_A22J-0016_CRUK_PC_0016_M8	RNF219	1.0	loss	RNF219 -
-LPelvicLN5Met_A22K-0016_CRUK_PC_0016_M9	chr19p	0.988965	loss	19p -
+LPelvicLN5Met_A22K-0016_CRUK_PC_0016_M9	chr19p	0.9252301145038168	loss	19p -
 LPelvicLN5Met_A22K-0016_CRUK_PC_0016_M9	MCUR1	1.0	loss	MCUR1 -
 LPelvicLN5Met_A22K-0016_CRUK_PC_0016_M9	ASCC3	1.0	loss	ASCC3 -
 LPelvicLN5Met_A22K-0016_CRUK_PC_0016_M9	LIN28B	1.0	loss	LIN28B -
@@ -3776,9 +3772,7 @@ LPelvicLN5Met_A22K-0016_CRUK_PC_0016_M9	SETD4	1.0	loss	SETD4 -
 LPelvicLN5Met_A22K-0016_CRUK_PC_0016_M9	HLCS	1.0	loss	HLCS -
 LPelvicLN5Met_A22K-0016_CRUK_PC_0016_M9	DYRK1A	1.0	loss	DYRK1A -
 LPelvicLN5Met_A22K-0016_CRUK_PC_0016_M9	BRWD1	1.0	loss	BRWD1 -
-PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	chr14q	0.9210490393518519	gain	14q +
-PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	chr16p	0.9975271387283237	gain	16p +
-PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	chr18p	0.9101903246753247	gain	18p +
+PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	chr16p	0.997674972826087	gain	16p +
 PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	COL9A1	1.0	gain	COL9A1 +
 PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	FAM135A	1.0	gain	FAM135A +
 PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	SMAP1	1.0	gain	SMAP1 +
@@ -3929,7 +3923,7 @@ PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	MYB	1.0	gain	MYB +
 PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	PDE7B	1.0	gain	PDE7B +
 PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	BCLAF1	1.0	gain	BCLAF1 +
 PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	IFNGR1	1.0	gain	IFNGR1 +
-PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	chr18	0.9982849384404925	loss	18 -
+PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	chr18	0.9665941239057232	loss	18 -
 PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	ASCC3	1.0	loss	ASCC3 -
 PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	LIN28B	1.0	loss	LIN28B -
 PelvicLN7Met_A22H-0016_CRUK_PC_0016_M6	ATG5	1.0	loss	ATG5 -

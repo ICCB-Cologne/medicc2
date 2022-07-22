@@ -1,8 +1,7 @@
 branch	name	FractionOverlaps	event	final_name
-internal_1	chr3	0.9502689183567342	gain	3 +
-internal_1	chr7p	0.9985746896551724	gain	7p +
-internal_1	chr8p	0.9963877726218098	gain	8p +
-internal_1	chr16p	0.9218450578034683	gain	16p +
+internal_1	chr3	0.9215370930218362	gain	3 +
+internal_1	chr7p	0.9636827287853578	gain	7p +
+internal_1	chr8p	0.9965555973451328	gain	8p +
 internal_1	NRP2	1.0	gain	NRP2 +
 internal_1	EEF1B2	1.0	gain	EEF1B2 +
 internal_1	CNTN6	1.0	gain	CNTN6 +
@@ -374,8 +373,7 @@ internal_1	IDH2	1.0	gain	IDH2 +
 internal_1	ZNF774	1.0	gain	ZNF774 +
 internal_1	CHD2	1.0	gain	CHD2 +
 internal_1	CERS3	1.0	gain	CERS3 +
-internal_1	chr4p	0.9985567012448133	loss	4p -
-internal_1	chr17p	0.9986943693693694	loss	17p -
+internal_1	chr4p	0.98046218	loss	4p -
 internal_1	TNNI3K	1.0	loss	TNNI3K -
 internal_1	NEXN	1.0	loss	NEXN -
 internal_1	FUBP1	1.0	loss	FUBP1 -
@@ -712,11 +710,11 @@ RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	CMAS	1.0	gain	CMAS +
 RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	C2CD5	1.0	gain	C2CD5 +
 RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	SOX5	1.0	gain	SOX5 +
 RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	KRAS	1.0	gain	KRAS +
-RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	chr1p	0.9228670946502058	loss	1p -
-RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	chr3q	0.9375415992102666	loss	3q -
-RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	chr4q	0.9831701682516459	loss	4q -
-RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	chr5p	0.9815275054229935	loss	5p -
-RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	chr21q	0.9292804761904762	loss	21q -
+RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	chr1p	0.9086576337115073	loss	1p -
+RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	chr3q	0.9369032103087243	loss	3q -
+RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	chr4q	0.9807392463642594	loss	4q -
+RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	chr5p	0.9825495491803279	loss	5p -
+RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	chr21q	0.9055270640726041	loss	21q -
 RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	KLHL17	1.0	loss	KLHL17 -
 RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	TNFRSF18	1.0	loss	TNFRSF18 -
 RAxillaryLNMet_A24A-0021_CRUK_PC_0021_M1	MXRA8	1.0	loss	MXRA8 -

@@ -1,7 +1,6 @@
 sample_id	chrom	start	end	allele	type	cn_child
 internal_1	chr1	212354412	213356494	cn_a	loh	0
 internal_1	chr2	58309374	77420661	cn_b	loh	0
-internal_1	chr5	57318866	58367957	cn_b	gain	2
 internal_1	chr8	164050	29184507	cn_b	loh	0
 internal_1	chr9	117124519	118244782	cn_b	loh	0
 internal_1	chr10	86767662	88421457	cn_b	loh	0
@@ -19,6 +18,8 @@ internal_2	chr10	97390533	99667593	cn_a	gain	3
 internal_2	chr19	6516492	8079591	cn_a	loh	0
 internal_2	chr19	8081543	59097308	cn_a	loss	1
 internal_2	chr1	770085	249216384	cn_b	loss	1
+internal_2	chr5	57318866	58367957	cn_b	gain	3
+internal_2	chr5	57318866	58367957	cn_b	gain	4
 internal_2	chr6	205696	170847498	cn_b	loss	1
 internal_2	chr11	197337	134942926	cn_b	loss	1
 internal_2	chr13	19455253	114989973	cn_b	loss	1
@@ -38,7 +39,6 @@ Prostate1-1-2CA_A31C-0018_CRUK_PC_0018_T1	chr2	11761422	47368754	cn_b	loh	0
 Prostate1-1-2CA_A31C-0018_CRUK_PC_0018_T1	chr3	70688829	73887945	cn_b	loh	0
 Prostate1-1-2CA_A31C-0018_CRUK_PC_0018_T1	chr4	174109622	176134061	cn_b	loh	0
 Prostate1-1-2CA_A31C-0018_CRUK_PC_0018_T1	chr5	49441779	99928881	cn_b	loh	0
-Prostate1-1-2CA_A31C-0018_CRUK_PC_0018_T1	chr5	57318866	58367957	cn_b	loh	0
 Prostate1-1-2CA_A31C-0018_CRUK_PC_0018_T1	chr6	205696	170847498	cn_b	loh	0
 Prostate1-1-2CA_A31C-0018_CRUK_PC_0018_T1	chr9	24891933	38773520	cn_b	loh	0
 Prostate1-1-2CA_A31C-0018_CRUK_PC_0018_T1	chr10	31094499	36754332	cn_b	loh	0

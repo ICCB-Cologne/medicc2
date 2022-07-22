@@ -125,6 +125,8 @@ parser.add_argument("--fst", type=str, dest='fst', default=None,
                     help='Expert option: path to an alternative FST.')
 parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', default='X',
                     help = 'Expert option: character used to separate chromosomes in the FST (default: \"X\").')
+parser.add_argument("--wgd-x2", action='store_true', default=False, dest='wgd_x2',
+                    help='Expert option: Treat WGD as a x2 operation (default: False).', required=False)
 args = parser.parse_args()
 
 
@@ -132,7 +134,6 @@ if args.verbose:
     logging.getLogger('medicc').setLevel(logging.INFO)
 if args.debug:
     logging.getLogger('medicc').setLevel(logging.DEBUG)
-
 if args.silent:
     logging.getLogger('medicc').setLevel(logging.CRITICAL)
     logger.setLevel(logging.CRITICAL)
@@ -153,7 +154,9 @@ else:
 # Read in symbol table and transducers
 logger.info("Reading FST.")
 fst = medicc.io.read_fst(user_fst=args.fst, 
-                         no_wgd=args.no_wgd)
+                         no_wgd=args.no_wgd,
+                         total_copy_numbers=args.total_copy_numbers,
+                         wgd_x2=args.wgd_x2)
 
 if args.user_tree is not None:
     logger.info("Importing user tree.")
@@ -199,6 +202,9 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = m
     chr_separator=args.fst_chr_separator.strip(),
     prune_weight=args.prune_weight,
     allele_columns=allele_columns,
+    no_wgd=args.no_wgd,
+    wgd_x2=args.wgd_x2,
+    total_cn=args.total_copy_numbers,
     n_cores=args.n_cores)
 
 
@@ -228,6 +234,8 @@ logger.info("Writing trees.")
 #     output_dir, output_prefix + "_nj_tree"))
 medicc.io.write_tree_files(tree=final_tree, out_name=os.path.join(
     output_dir, output_prefix + "_final_tree"))
+medicc.io.write_branch_lengths(tree=final_tree, out_name=os.path.join(
+    output_dir, output_prefix + "_branch_lengths.tsv"))
 
 # Write ouput table
 output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.tsv"), sep='\t')
@@ -288,10 +296,6 @@ if 'bars' in plotting:
         label_func=None)
     p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'), bbox_inches='tight')
 
-# plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, 
-#                     alleles='total', tree_width_ratio=1, cbar_width_ratio=0.02, 
-#                     figsize=(20, 10), tree_line_width=0.5, tree_marker_size=0.5,
-#                     tree_label_colors=None, tree_label_func=None, cmap='coolwarm')
 
 if 'heatmap' in plotting:
     logger.info("Plotting copy-number profiles (heatmap).")

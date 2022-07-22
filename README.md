@@ -15,7 +15,7 @@ Due to dependencies we recommend using Python version 3.7-3.9.
 ## Installation via conda (recommended)
 It is best to use a dedicated conda environment for your MEDICC2 installation with `conda create -n medicc_env python=3.9`.
 
-After activating the environment with `conda activate medicc_env` you can install MEDICC2 via `conda install -c bioconda -c conda-forge medicc2`.conda 
+After activating the environment with `conda activate medicc_env` you can install MEDICC2 via `conda install -c bioconda -c conda-forge medicc2`.
 
 ## Installation via pip
 As MEDICC2 relies on OpenFST version 1.8.1 which is not packaged on PyPi you have to first install it using conda with `conda install -c conda-forge openfst=1.8.1`. Next you can install MEDICC2 via `pip install medicc2`.
@@ -59,6 +59,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--prune-weight`: Expert option: Prune weight in ancestor reconstruction. Values >0 might result in more accurate ancestors but will require more time and memory. Default: 0
 * `--fst`: Expert option: path to an alternative FST. Default: None
 * `--fst-chr-separator`: Expert option: character used to separate chromosomes in the FST. Default: 'X'
+* `--wgd_x2`: Expert option: Treat WGD as a x2 operation. Default: False
 
 
 ## Input files
@@ -81,6 +82,7 @@ MEDICC creates the following output files:
 * `_copynumber_events_df.tsv`: List of all copy-number events detected. Note that entries for WGD events have non-meaningful values for chrom, cn_child, ...
 * `_cn_profiles.pdf`: Combined plot of the phylogenetic tree as well as the copy-number profiles of all samples (including the internal nodes)
 * `_events_overlap.tsv`: Overlap of copy-number events with regions of interest (see below)
+* `_branch_lengths.tsv`: List of all branches and their corresponding lenghts of the final tree
 
 
 ## Output plots
@@ -117,6 +119,10 @@ MEDICC2 compares the detected copy-number events to regions of interest. These r
 Users can specify regions of interest of their own in BED format by providing the `--chromosomes-bed` or `--regions-bed` flags.
 
 
+## Single sample WGD detection
+If you are interested in the WGD status of individual samples in your data, have a look at the notebook `notebooks/single_sample_wgd_detection.py`. By replacing the input data with your data you can easily calculate the WGD status of any copy-number input.
+
+
 # Issues
 If you experience problems with MEDICC2 please [file an issue directly on Bitbucket](https://bitbucket.org/schwarzlab/medicc2/issues/new) or [contact us directly](tom.kaufmann@mdc-berlin.de). 
 
@@ -140,6 +146,12 @@ You can also try to remove the sample that led to the error (see the extended lo
 
 **The output plots are not like I expected**
 Maybe you need to set the `--plot` flag. By default, `--plot` is set to auto which means that it plots different figures depending on the number of samples in the data (threshold is 50); see above.
+
+**Faulty event reconstruction**
+Sometimes MEDICC2 will pass out the following warning: *Event recreation was faulty*. This means that the events in the
+`_cn_events_df.tsv` file will not be accurate. If you selected total copy number this will mainly be due to multiple WGDs
+in a single node. Please get in contact with us if the problem prevails even without the `--total-copy-numbers` flag.
+
 
 # Contact
 Email questions, feature requests and bug reports to **Tom Kaufmann, tom.kaufmann@mdc-berlin.de**.

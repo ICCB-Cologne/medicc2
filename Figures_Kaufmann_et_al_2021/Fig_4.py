@@ -28,16 +28,12 @@ WGD_results = pd.DataFrame(index=patients, columns=['nr_wgds', 'type'])
 WGD_results['type'] = 'No WGD'
 
 for patient in patients:
-    cur_df = medicc.io.read_and_parse_input_data(
-        os.path.join(data_folder, "{}_final_cn_profiles.tsv".format(patient)))
-
+    output_df = pd.read_csv(os.path.join(data_folder, "{}_final_cn_profiles.tsv".format(patient)),
+                            sep='\t')
     cur_tree = medicc.io.import_tree(os.path.join(data_folder, "{}_final_tree.new".format(patient)),
                                      'diploid', file_format='newick')
 
-    output_df, events_df = medicc.core.calculate_all_cn_events(
-        cur_tree, cur_df[['cn_a', 'cn_b']], ['cn_a', 'cn_b'], 'diploid')
-
-    WGD_nodes = np.unique(output_df.loc[output_df['is_wgd']].index.get_level_values('sample_id'))
+    WGD_nodes = np.unique(output_df.loc[output_df['is_wgd'], 'sample_id'])
     WGD_results.loc[patient, 'nr_wgds'] = len(WGD_nodes)
     if len(WGD_nodes):
         if list(cur_tree.find_clades(WGD_nodes[0]))[0] in cur_tree.root.clades:
@@ -55,7 +51,7 @@ figwidth_panel1 = plotting_params['WIDTH_HALF']/2
 plt.figure(figsize=(figwidth_panel1, plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
 ax = sns.countplot(y='type', data=WGD_results)
 for p in ax.patches:
-    ax.annotate('{:d}'.format(p.get_width()), (p.get_width()-0.5, (p.get_y()+p.get_height()/2)), 
+    ax.annotate('{:d}'.format(int(p.get_width())), (p.get_width()-0.5, (p.get_y()+p.get_height()/2)), 
         va='center', 
         c='white', 
         fontsize=plotting_params['FONTSIZE_LARGE'])

@@ -123,6 +123,8 @@ fig = medicc.plot.plot_cn_heatmap(
 		tree_marker_size=0,
 		tree_label_colors=None,
 		tree_label_func=None,
+		ignore_segment_lengths=False,
+		title='',
 		cmap='coolwarm'
 		)
 

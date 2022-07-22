@@ -126,7 +126,13 @@ def create_loh_fst(symbol_table, separator='X'):
     return myfst
 
 
-def create_1step_WGD_fst(symbol_table, separator='X', wgd_cost=1, minimize=True):
+def create_1step_WGD_fst(symbol_table, separator='X', wgd_cost=1, minimize=True, wgd_x2=False,
+                         total_cn=False):
+
+    if total_cn:
+        wgd_distance = 2.
+    else:
+        wgd_distance = 1.
 
     cns = _get_int_cns_from_symbol_table(symbol_table, separator)
 
@@ -138,11 +144,20 @@ def create_1step_WGD_fst(symbol_table, separator='X', wgd_cost=1, minimize=True)
     W.set_final(0, 0)
     W.set_final(1, 0)
     W.set_final(2, 0)
-    W.add_arcs(0, [(s, t, wgd_cost, 1) for s in cns.keys()
-                   for t in cns.keys() if (s != '0') and ((cns[t]/cns[s]) == 2.)])
+    if wgd_x2:
+        W.add_arcs(0, [(s, t, wgd_cost, 1) for s in cns.keys()
+                    for t in cns.keys() if (s != '0') and ((cns[t]/cns[s]) == 2.)])
+    else:
+        W.add_arcs(0, [(s, t, wgd_cost, 1) for s in cns.keys()
+                    for t in cns.keys() if (s != '0') and ((cns[t]-cns[s]) == wgd_distance)])
+
     W.add_arc(1, ('0', '0', 0, 1))
-    W.add_arcs(1, [(s, t, 0, 1) for s in cns.keys()
-                   for t in cns.keys() if (s != '0') and ((cns[t]/cns[s]) == 2.)])
+    if wgd_x2:
+        W.add_arcs(1, [(s, t, 0, 1) for s in cns.keys()
+                    for t in cns.keys() if (s != '0') and ((cns[t]/cns[s]) == 2.)])
+    else:
+        W.add_arcs(1, [(s, t, 0, 1) for s in cns.keys()
+                    for t in cns.keys() if (s != '0') and ((cns[t]-cns[s]) == wgd_distance)])
     W.add_arc(0, ('0', '0', 0, 0))
     if separator is not None and separator != '':
         W.add_arc(0, (separator, separator, 0, 0))
@@ -188,7 +203,8 @@ def create_nstep_fst(n, one_step_fst, minimize=True):
     return nstep_fst
 
 
-def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1, max_num_wgds=3):
+def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1, max_num_wgds=3,
+                          wgd_x2=False, total_cn=False):
     """ Creates the tree FST T which computes the asymmetric MED. """
     n = len(_get_int_cns_from_symbol_table(symbol_table, sep))
     X1step = create_1step_del_fst(symbol_table, sep, exclude_zero=True)

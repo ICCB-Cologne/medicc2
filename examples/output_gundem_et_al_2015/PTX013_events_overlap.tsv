@@ -259,7 +259,7 @@ internal_2	SYNPO2L	1.0	gain	SYNPO2L +
 internal_2	FUT11	1.0	gain	FUT11 +
 internal_2	ZSWIM8	1.0	gain	ZSWIM8 +
 internal_2	KAT6B	1.0	gain	KAT6B +
-internal_2	chr4p	0.9983132157676349	loss	4p -
+internal_2	chr4p	0.99837394	loss	4p -
 internal_2	KLHL17	1.0	loss	KLHL17 -
 internal_2	TNFRSF18	1.0	loss	TNFRSF18 -
 internal_2	MXRA8	1.0	loss	MXRA8 -

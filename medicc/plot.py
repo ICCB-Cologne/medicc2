@@ -806,7 +806,7 @@ def plot_tree(input_tree,
 
 
 def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_numbers=False,
-                    alleles='total', tree_width_ratio=1, cbar_width_ratio=0.05, figsize=(20, 10),
+                    alleles=('cn_a', 'cn_b'), tree_width_ratio=1, cbar_width_ratio=0.05, figsize=(20, 10),
                     tree_line_width=0.5, tree_marker_size=0, show_internal_nodes=False, title='',
                     tree_label_colors=None, tree_label_func=None, cmap='coolwarm',
                     ignore_segment_lengths=False):
@@ -816,8 +816,8 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
         cur_sample_labels = np.array([x.name for x in list(final_tree.find_clades()) if x.name is not None])
     else:
         cur_sample_labels = np.array([x.name for x in final_tree.get_terminals()])
-    if len(np.intersect1d(cur_sample_labels, input_df.index.get_level_values('sample_id').unique())) != len(cur_sample_labels):
-        raise MEDICCPlotError("tree nodes and labels in dataframe are not the same")
+    # if len(np.intersect1d(cur_sample_labels, input_df.index.get_level_values('sample_id').unique())) != len(cur_sample_labels):
+    #     raise MEDICCPlotError("tree nodes and labels in dataframe are not the same")
 
     if not isinstance(alleles, list) and not isinstance(alleles, tuple):
         alleles = [alleles]

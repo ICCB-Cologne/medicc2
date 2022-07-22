@@ -31,6 +31,20 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
         raise MEDICCIOError("You have set the --total-copy-numbers flag but provided more than one allele column. "
                             "Set allele columns with the flag --input-allele-columns")
 
+    input_df.columns.name = 'allele'
+    input_df_stacked = input_df.stack('allele').unstack('sample_id').T
+
+    duplicated_entries = input_df_stacked.duplicated(keep=False)
+    if duplicated_entries.any():
+        logger.warn("Duplicated entries found in input data: "
+                    f"{input_df_stacked.index[duplicated_entries]}")
+
+    normal_value = '2' if total_copy_numbers else '1'
+    normal_samples = np.setdiff1d(input_df_stacked.index[
+        (input_df_stacked == normal_value).all(axis=1)], normal_name)
+    if len(normal_samples) > 0:
+        logger.warn(f"Normal samples found in input data: {normal_samples}")
+    
     ## Add normal sample if needed
     input_df = add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 
                                     total_copy_numbers=total_copy_numbers)
@@ -41,20 +55,25 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     return input_df
 
 
-def read_fst(user_fst=None, no_wgd=False, n_wgd=None):
-    """ Simple wrapper for loading the FST using the fstlib read function. """
+def read_fst(user_fst=None, no_wgd=False, n_wgd=None, total_copy_numbers=False, wgd_x2=False):
+    """Simple wrapper for loading the FST using the fstlib read function. """
 
     objects_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "objects")
 
     if user_fst is not None:
         fst_path = user_fst
+    elif no_wgd:
+        fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
+    elif wgd_x2:
+        fst_path = os.path.join(objects_dir, 'wgd_x2_asymm.fst')
+        if n_wgd == 1:
+            fst_path = os.path.join(objects_dir, 'wgd_x2_1_asymm.fst')
+    elif total_copy_numbers:
+        fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
+    elif n_wgd is not None and int(n_wgd) <= 3:
+        fst_path = os.path.join(objects_dir, 'wgd_{}_asymm.fst'.format(int(n_wgd)))
     else:
-        if no_wgd:
-            fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
-        elif n_wgd is not None and int(n_wgd) <= 3:
-            fst_path = os.path.join(objects_dir, 'wgd_{}_asymm.fst'.format(int(n_wgd)))
-        else:
-            fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
+        fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
 
     return fstlib.read(fst_path)
 
@@ -63,12 +82,13 @@ def load_main_fsts(return_symbol_table=False):
     asymm_fst = read_fst()
     asymm_fst_nowgd = read_fst(no_wgd=True)
     asymm_fst_1_wgd = read_fst(n_wgd=1)
+    asymm_fst_2_wgd = read_fst(n_wgd=2)
 
     if return_symbol_table:
         symbol_table = asymm_fst.input_symbols()
-        return asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, symbol_table
+        return asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, asymm_fst_2_wgd, symbol_table
     else:
-        return asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd
+        return asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, asymm_fst_2_wgd
 
 
 def validate_input(input_df, symbol_table):
@@ -143,7 +163,7 @@ def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
     return input_file
 
 def _read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns = ['cn_a','cn_b'], maxcn: int = 8):
-    """ Reads FASTA decriptor file (old MEDICC input format) and reads the corresponding FASTA files to generate
+    """Reads FASTA decriptor file (old MEDICC input format) and reads the corresponding FASTA files to generate
     a data frame with the same format as the refphase input (TSV) format. """
     logger.info("Reading FASTA dataset from description file %s.", infile)
     description_file = pd.read_csv(infile,
@@ -200,7 +220,7 @@ def _read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns =
     return result
 
 def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_copy_numbers=False):
-    """ Adds an artificial normal samples with the supplied name to the data frame.
+    """Adds an artificial normal samples with the supplied name to the data frame.
     The normal sample has CN=1 on all supplied alleles. """
     samples = df.index.get_level_values('sample_id').unique()
 
@@ -230,7 +250,7 @@ def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_cop
 
 
 def write_tree_files(tree, out_name: str, plot_tree=True, draw_ascii=False):
-    """ Writes a Newick, PhyloXML, Ascii graphic and PNG grahic file of the tree. """
+    """Writes a Newick, PhyloXML, Ascii graphic and PNG grahic file of the tree. """
     Bio.Phylo.write(tree, out_name + ".new", "newick")
     Bio.Phylo.write(tree, out_name + ".xml", "phyloxml")
 
@@ -244,8 +264,17 @@ def write_tree_files(tree, out_name: str, plot_tree=True, draw_ascii=False):
                        label_func=lambda x: x if 'internal' not in x else '',
                        show_branch_lengths=True)
 
+
+def write_branch_lengths(tree, out_name: str):
+    """Writes a file with the branch lengths of the tree."""
+    with open(out_name, "w") as f:
+        for node in tree.find_clades():
+            if node.name is not None and node.name != 'diploid':
+                f.write("{}\t{}\n".format(node.name, node.branch_length))
+
+
 def write_pairwise_distances(sample_labels, pairwise_distances, filename_prefix):
-    """ Write the pairwise distance matrix as a tsv."""
+    """Write the pairwise distance matrix as a tsv."""
 
     if not isinstance(pairwise_distances, pd.DataFrame):
         pairwise_distances = pd.DataFrame(pairwise_distances, columns=sample_labels, index=sample_labels)
@@ -253,7 +282,7 @@ def write_pairwise_distances(sample_labels, pairwise_distances, filename_prefix)
 
 
 def import_tree(tree_file, normal_name='diploid', file_format='newick'):
-    """ Loads a phylogenetic tree in the given format and roots it at the normal sample. """
+    """Loads a phylogenetic tree in the given format and roots it at the normal sample. """
     tree = Bio.Phylo.read(tree_file, file_format)
     input_tree = Bio.Phylo.BaseTree.copy.deepcopy(tree)
     tmpsearch = [c for c in input_tree.find_clades(name = normal_name)]
@@ -265,6 +294,11 @@ def import_tree(tree_file, normal_name='diploid', file_format='newick'):
         input_tree.root_with_outgroup(new_root)
     else:
         pass
+
+    # check that internal node names are unique
+    node_names = [c.name for c in input_tree.find_clades() if c.name is not None]
+    if len(node_names) != len(np.unique(node_names)):
+        logger.warning("Internal node names are not unique. This will cause problems in MEDICC2.")
 
     return input_tree
 
