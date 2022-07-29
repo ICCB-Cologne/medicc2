@@ -5,5 +5,4 @@ mean_branch_length	1.75
 median_branch_length	2.0
 min_branch_length	1.0
 max_branch_length	2.0
-p_star	0.8135817797836478
-p_clock	0.5543450652647466
+wgd_status	no WGD

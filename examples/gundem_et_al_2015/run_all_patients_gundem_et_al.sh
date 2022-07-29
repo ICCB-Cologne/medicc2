@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 output_dir="../output_gundem_et_al_2015"
 

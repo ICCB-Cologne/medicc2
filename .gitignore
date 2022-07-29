@@ -9,7 +9,6 @@ test
 *.png
 examples/output_gundem_et_al_2015/*nj*
 examples/output_gundem_et_al_2015/*pdm*
-examples/output_gundem_et_al_2015/*summary*
 examples/output_gundem_et_al_2015/*tree.txt
 *.code-workspace
 *.pyc

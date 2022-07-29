@@ -1,5 +1,8 @@
 # MEDICC2 - Whole-genome doubling-aware copy number phylogenies for cancer evolution
 
+[![PyPI](https://img.shields.io/pypi/v/medicc2?color=green)](https://pypi.org/project/medicc2/)
+[![Conda](https://img.shields.io/conda/v/bioconda/medicc2?color=green)](https://anaconda.org/bioconda/medicc2)
+
 For more information see the accompanying  paper [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://www.biorxiv.org/content/10.1101/2021.02.28.433227v2).
 
 # Installation
@@ -7,11 +10,15 @@ Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was develop
 
 Note that the notebooks and examples are not included when installing from conda or pip. When installing from pip or source, you need to make sure to have a working version of `gcc` and `gxx` installed.
 
+Due to dependencies we recommend using Python version 3.7-3.9.
+
 ## Installation via conda (recommended)
-MEDICC2 can be installed via `conda install -c bioconda -c conda-forge medicc2`.
+It is best to use a dedicated conda environment for your MEDICC2 installation with `conda create -n medicc_env python=3.9`.
+
+After activating the environment with `conda activate medicc_env` you can install MEDICC2 via `conda install -c bioconda -c conda-forge medicc2`.
 
 ## Installation via pip
-As MEDICC2 relies on OpenFST version 1.8.1 which is not packaged on PyPi you have to first install it using conda with `conda install -c conda-forge openfst`. Next you can install MEDICC2 via `pip install medicc2`.
+As MEDICC2 relies on OpenFST version 1.8.1 which is not packaged on PyPi you have to first install it using conda with `conda install -c conda-forge openfst=1.8.1`. Next you can install MEDICC2 via `pip install medicc2`.
 
 ## Installation from source
 Clone the MEDICC2 repository and its submodules using `git clone --recursive https://bitbucket.org/schwarzlab/medicc2.git`. It is important to use the `--recursive` flag to also download the modified OpenFST submodule.
@@ -41,16 +48,18 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--bootstrap-nr`: Number of bootstrap runs to perform. Default: None
 * `--prefix`, '-p': Output prefix to be used. None uses input filename. Default: None
 * `--no-wgd`: Disable whole-genome doubling events. Default: False
-* `--no-plot`: Disable plotting. Default: False
-* `--legacy-version`: Use legacy version in which alleles are treated separately. Default: False
+* `--plot`: Type of copy-number plot to save. 'bars' is recommended for <50 samples, heatmap for more samples, 'auto' will decide based on the number of samples, 'both' will plot both and 'none' will plot neither. (default: auto).
 * `--total-copy-numbers`: Run for total copy number data instead of allele-specific data. Default: False
 * `-j`, `--n-cores`: Number of cores to run on. Default: None
+* `--chromosomes-bed`: BED file for chromosome regions to compare copy-number events to
+* `--regions-bed`: BED file for regions of interest to compare copy-number events to
 * `-v`, `--verbose`: Enable verbose output. Default: False
 * `-vv`, `--debug`: Enable more verbose output Default: False
 * `--maxcn`: Expert option: maximum CN at which the input is capped. Does not change FST. Default: 8
 * `--prune-weight`: Expert option: Prune weight in ancestor reconstruction. Values >0 might result in more accurate ancestors but will require more time and memory. Default: 0
 * `--fst`: Expert option: path to an alternative FST. Default: None
 * `--fst-chr-separator`: Expert option: character used to separate chromosomes in the FST. Default: 'X'
+* `--wgd_x2`: Expert option: Treat WGD as a x2 operation. Default: False
 
 
 ## Input files
@@ -63,10 +72,56 @@ MEDICC2 follows the BED convention for segment coordinates, i.e. segment start i
 The folder `examples/simple_example` contains a simple example input both in fasta and tsv format.
 The folder `examples/OV03-04` contains a larger example consisting of multiple fasta files. If you want to run MEDICC on this data run `medicc2 examples/OV03-04/OV03-04_descr.txt path/to/output/folder --input-type fasta`.
 
+
+## Output files
+MEDICC creates the following output files:
+
+* `_final_tree.new`, `_final_tree.xml`, `_final_tree.png`: The final phylogenetic tree in Newick and XML format as well as an image
+* `_pairwise_distances.tsv`: A NxN matrix (N being the number of samples) of pairwise distances calculated with the symmetric MEDICC2 distance
+* `_final_cn_profiles.tsv`: Copy-number profiles of the input as well as the newly internal nodes. Also includes additional information such as whether a gain or loss has happened
+* `_copynumber_events_df.tsv`: List of all copy-number events detected. Note that entries for WGD events have non-meaningful values for chrom, cn_child, ...
+* `_cn_profiles.pdf`: Combined plot of the phylogenetic tree as well as the copy-number profiles of all samples (including the internal nodes)
+* `_events_overlap.tsv`: Overlap of copy-number events with regions of interest (see below)
+* `_branch_lengths.tsv`: List of all branches and their corresponding lenghts of the final tree
+
+
+## Output plots
+Apart from the file `_tree.pdf` which contains the inferred phylogeny, the main plot created by MEDICC is the copy-number plots named either `_cn_profiles.pdf` or `_cn_profiles_heatmap.pdf`.
+The left part consists of the inferred phylogenetic tree including the number of events in the branches. The right part is made up of the copy-number profiles of the samples (and potentially the reconstructed ancestral nodes).
+
+There are two kinds of copy-number plots: the bars and the heatmap version. The bars version is most suitable for fewer samples (<50) as more details are visible while the heatmap version is most suitable many samples expected for example in single-cell experiments.
+You can toggle the kind of plot MEDICC2 creates with the `--plot` flag (see above).
+
+### Example bars copy-number plot
+Example from patient PTX011 from the Gundem et al. Nature 2015. The data can be found in `example/gundem_et_al_2015/`.
+
+![copy-number bars plot for PTX011 Gundem 2015](doc/MEDICC2_cn_plot_example_bars.png)
+
+**Legend**
+
+![legend of copy-number plot](doc/MEDICC2_cn_plot_legend.png)
+
+### Example heatmap copy-number plot
+Example from patient PTX011 from the Gundem et al. Nature 2015. The data can be found in `example/gundem_et_al_2015/`.
+
+![copy-number heatmap plot for PTX011 Gundem 2015](doc/MEDICC2_cn_plot_example_heatmap.png)
+
+
 ## Usage examples
 For first time users we recommend to have a look at `examples/simple_example` to get an idea of how input data should look like. Then run `medicc2 examples/simple_example/simple_example.tsv path/to/output/folder` as an example of a standard MEDICC run. Finally, the notebook `notebooks/example_workflows.py` shows how the individual functions in the workflow are used.
 
 The notebook `notebooks/bootstrap_demo.py` demonstrates how to use the bootstrapping routine and `notebooks/plot_demo.py` shows how to use the main plotting functions.
+
+
+## Regions of interest
+MEDICC2 compares the detected copy-number events to regions of interest. These regions are chromosome-boundaries and known oncogenes and tumor-suppressor genes. By default MEDICC2 uses hg38 chromosome-arms and a list of genes taken from Davoli et al. Cell 2013. This data is present as BED files in the `medicc/objects` folder.
+
+Users can specify regions of interest of their own in BED format by providing the `--chromosomes-bed` or `--regions-bed` flags.
+
+
+## Single sample WGD detection
+If you are interested in the WGD status of individual samples in your data, have a look at the notebook `notebooks/single_sample_wgd_detection.py`. By replacing the input data with your data you can easily calculate the WGD status of any copy-number input.
+
 
 # Issues
 If you experience problems with MEDICC2 please [file an issue directly on Bitbucket](https://bitbucket.org/schwarzlab/medicc2/issues/new) or [contact us directly](tom.kaufmann@mdc-berlin.de). 
@@ -88,6 +143,15 @@ If MEDICC2 terminates with the following error `terminate called after throwing 
 Rerun MEDICC2 with the `-vv` flag to enable extended logging. If the error occurs during the ancestral reconstruction routine, the issue is related to OpenFST which is the FST library employed by MEDICC2 and cannot be easily solved by us.
 This issue can be related to small bin sizes (and therefore a large number of segments). Increasing the binsize (although decreasing accuracy) solves this issue most of the time.
 You can also try to remove the sample that led to the error (see the extended logs for this). 
+
+**The output plots are not like I expected**
+Maybe you need to set the `--plot` flag. By default, `--plot` is set to auto which means that it plots different figures depending on the number of samples in the data (threshold is 50); see above.
+
+**Faulty event reconstruction**
+Sometimes MEDICC2 will pass out the following warning: *Event recreation was faulty*. This means that the events in the
+`_cn_events_df.tsv` file will not be accurate. If you selected total copy number this will mainly be due to multiple WGDs
+in a single node. Please get in contact with us if the problem prevails even without the `--total-copy-numbers` flag.
+
 
 # Contact
 Email questions, feature requests and bug reports to **Tom Kaufmann, tom.kaufmann@mdc-berlin.de**.

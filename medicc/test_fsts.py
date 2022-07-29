@@ -34,11 +34,11 @@ PAIR_TESTS = [
 
 def _run_pair_test(pair_test: PairTest, is_wgd: bool, is_sym: bool, is_total_cn: bool) -> bool:
     """Runs individual pair test"""
-    maxcn = 8  # alphabet = 012345678; maxcn losses, maxcn-1 gains
-    sep = "X"
-    symbol_table = medicc.create_symbol_table(maxcn, sep)
-    fst = medicc.create_copynumber_fst(
-        symbol_table, sep, enable_wgd=is_wgd, total_copy_numbers=is_total_cn)
+    # maxcn = 8  # alphabet = 012345678; maxcn losses, maxcn-1 gains
+    # sep = "X"
+    # symbol_table = medicc.create_symbol_table(maxcn, sep)
+    # fst = medicc.create_copynumber_fst(symbol_table, sep, enable_wgd=is_wgd)
+    fst = medicc.io.read_fst(no_wgd=(not is_wgd), total_copy_numbers=is_total_cn, wgd_x2=False)
 
     td = fstlib.factory.from_string(pair_test.seq_in, isymbols=fst.input_symbols(), osymbols=fst.output_symbols(), arc_type=fst.arc_type())
     tg = fstlib.factory.from_string(pair_test.seq_out, isymbols=fst.input_symbols(), osymbols=fst.output_symbols(), arc_type=fst.arc_type())

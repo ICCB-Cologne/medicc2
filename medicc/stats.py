@@ -70,36 +70,6 @@ def molecular_clock_test(D, normal_index=0):
     prob = stats.chi2.cdf(res, len(p))
     return 1-prob ## the p-value
 
-def wgd_test(d_wgd, d_no_wgd, nchr, chr_length):
-    """ Tests whether there is sufficient difference between the distances with and without WGD to assume
-    that a WGD event actually happened. """
-    
-    if d_wgd > d_no_wgd:
-        raise MEDICCStatsError("WGD distance must not be larger than distance without WGD.")
-    elif d_wgd == d_no_wgd:
-        pval = 1
-    else:
-        #res = d_no_wgd - d_wgd
-        #res = res / np.sqrt(res)
-        #res = res * (nchr-1)
-        
-        #p = np.array([d_wgd, d_no_wgd])
-        #res = (np.mean(p) - p) / np.sqrt(p)
-        #res = np.matmul(res.T, res) #* chr_length / nchr
-        #prob = sp.stats.chi2.cdf(res, 1)
-
-        from statsmodels.stats.proportion import binom_test
-
-        #y1, n1, y2, n2 = 20, 150.0, 30, 500.0
-        y1, y2 = d_wgd, d_no_wgd
-        n1 = 1
-        n2 = 1
-        y_total = y1 + y2
-        prop = n1 / (n1 + n2)
-        #pval = 2*min(binom_test(y1, y_total, prop, 'smaller'), binom_test(y1, y_total, prop, 'larger'))        
-        pval = binom_test(y1, y_total, prop, 'smaller')
-
-    return pval ## the p-value
 
 def MEDICCStatsError(Exception):
     pass
