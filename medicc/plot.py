@@ -113,7 +113,7 @@ def plot_cn_profiles(
 
     if nsamp > 20:
         logger.warn('More than 20 samples were provided. Creating the copy number tracks will take '
-                    'a long time to process and might crash.\nBest to use plot_cn_heatmap instead')
+                    'a long time to process and might crash. Best to use plot_cn_heatmap instead')
 
     df.reset_index(['start','end'], inplace=True)
 

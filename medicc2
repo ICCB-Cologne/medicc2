@@ -244,7 +244,7 @@ output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.ts
 logger.info("Writing patient summary.")
 summary = medicc.summarize_patient(
     final_tree, pairwise_distances.values, sample_labels, normal_name, events_df)
-logger.info("Final tree length %d", summary.tree_length)
+logger.info("Final tree length %d.", summary.tree_length)
 summary.to_csv(os.path.join(output_dir, output_prefix + "_summary.tsv"),
                index=True, header=False, sep='\t')
 
@@ -307,3 +307,5 @@ if 'heatmap' in plotting:
     p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles_heatmap.pdf'), bbox_inches='tight')
 if 'none' in plotting:
     logger.info("Skipped plotting of copy-number profiles (change --plot if this is undesired)")
+
+logger.info("Done.")
