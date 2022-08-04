@@ -106,7 +106,6 @@ fig.savefig(os.path.join(data_folder, 'output/PTX011_cn_profiles.pdf'), bbox_inc
 # %%
 # The alternative way to display the copy-number profiles is with the plot_cn_heatmap function
 # This is especially suitable for datasets with many samples (e.g. single-cell data)
-
 fig = medicc.plot.plot_cn_heatmap(
         input_df=ptx011_df, 
         final_tree=ptx011_tree,
