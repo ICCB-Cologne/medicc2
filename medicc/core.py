@@ -441,7 +441,8 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=['cn
     """
 
     cur_df = cur_df.copy()
-    cur_df[['is_gain', 'is_loss', 'is_wgd']] = False
+    if len(np.setdiff1d(['is_gain', 'is_loss', 'is_wgd'], cur_df.columns)) > 0:
+        cur_df[['is_gain', 'is_loss', 'is_wgd']] = False
     cur_df[alleles] = cur_df[alleles].astype(int)
 
     # TODO: load these outside of the function so they are not loaded every time

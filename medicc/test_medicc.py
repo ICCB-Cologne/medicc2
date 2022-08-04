@@ -4,6 +4,7 @@ import subprocess
 import time
 
 import numpy as np
+import pandas as pd
 import pytest
 
 
@@ -40,6 +41,7 @@ def test_medicc_with_simple_example():
                       'simple_example_cn_profiles_heatmap.pdf']
     all_files_exist = [os.path.isfile(os.path.join('examples/test_output/', f)) for f in expected_files]
     nr_events, tree_size = get_number_of_events(output_dir, 'simple_example')
+    output_df = pd.read_csv(os.path.join(output_dir, "simple_example_final_cn_profiles.tsv"), sep='\t')
     subprocess.Popen(["rm", output_dir, "-rf"])
 
     assert process.returncode == 0, 'Error while running MEDICC'
@@ -47,6 +49,8 @@ def test_medicc_with_simple_example():
         np.array(expected_files)[~np.array(all_files_exist)])
     assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
 
+    assert output_df['is_gain'].sum() == 7, "Number of gains in output_df is not 7"
+    assert output_df['is_loss'].sum() == 4, "Number of losses in output_df is not 4"
 
 def test_medicc_with_testing_example():
     "Testing testing example"
@@ -67,6 +71,7 @@ def test_medicc_with_testing_example():
                       'testing_example_events_overlap.tsv', 'testing_example_branch_lengths.tsv']
     all_files_exist = [os.path.isfile(os.path.join('examples/test_output/', f)) for f in expected_files]
     nr_events, tree_size = get_number_of_events(output_dir, 'testing_example')
+    output_df = pd.read_csv(os.path.join(output_dir, "testing_example_final_cn_profiles.tsv"), sep='\t')
     subprocess.Popen(["rm", output_dir, "-rf"])
 
     assert process.returncode == 0, 'Error while running MEDICC'
@@ -74,6 +79,8 @@ def test_medicc_with_testing_example():
         np.array(expected_files)[~np.array(all_files_exist)])
     assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
 
+    assert output_df['is_gain'].sum() == 192, "Number of gains in output_df is not 192"
+    assert output_df['is_loss'].sum() == 173, "Number of losses in output_df is not 173"
 
 def test_medicc_with_testing_example_total_copy_numbers():
     "Testing small example"
