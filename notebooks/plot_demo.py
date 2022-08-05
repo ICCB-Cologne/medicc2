@@ -10,8 +10,8 @@ data_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../exam
 
 #%%
 # Load the output copy-numbers and the final trees
-ptx011_df = medicc.io.read_and_parse_input_data(os.path.join(data_folder, 'output/PTX011_final_cn_profiles.tsv'))
-ptx011_tree = medicc.io.import_tree(os.path.join(data_folder, 'output/PTX011_final_tree.new'), 'diploid')
+ptx011_df = medicc.io.read_and_parse_input_data(os.path.join(data_folder, 'output_gundem_et_al_2015/PTX011_final_cn_profiles.tsv'))
+ptx011_tree = medicc.io.import_tree(os.path.join(data_folder, 'output_gundem_et_al_2015/PTX011_final_tree.new'), 'diploid')
 
 
 # %%
@@ -39,7 +39,7 @@ fig = medicc.plot.plot_tree(ptx011_tree,
 							line_width=None,
 							)
 
-fig.savefig(os.path.join(data_folder, 'output/PTX011_tree.pdf'), bbox_inches='tight')
+# fig.savefig(os.path.join(data_folder, 'output/PTX011_tree.pdf'), bbox_inches='tight')
 
 
 # %%
@@ -49,19 +49,6 @@ fig.savefig(os.path.join(data_folder, 'output/PTX011_tree.pdf'), bbox_inches='ti
 plotdat = ptx011_df.reset_index()
 plotdat['chrom'] = plotdat.chrom.str.replace('chr','')
 plotdat.set_index(['sample_id', 'chrom', 'start', 'end'], inplace=True)
-
-# Next we want to replace the original labels
-labels = {'diploid':'Diploid', 
-	'Primary':'Primary', 
-	'LAdrenalMet':'Left\nAdrenal\nMetast.',
-	'RRib7Met':'Right\nRib7\nMetast.',
-	'RIngLNMet':'Right\nIngLN\nMetast.',
-	'RSubduralMet':'Right\nSubdural\nMetast.',
-	'internal_1':'MRCA\nAll',
-	'internal_2':'MRCA\nMetast.',
-	'internal_3':'',
-	'internal_4':'MRCA\nRight\nside',
-	}
 
 # Next we want to rescale the final output
 tree_width_scale = 1
@@ -79,9 +66,9 @@ fig = medicc.plot.plot_cn_profiles(
 	hide_normal_chromosomes=True,
 	plot_clonal_summary=True,
 	ignore_segment_lengths=False,
-	label_func = lambda x:labels[x],
 	
 	# the following parameters are unchanged from the default
+	label_func=None,
 	mincn='auto',
 	maxcn='auto',
 	allele_columns=['cn_a', 'cn_b'],
@@ -100,13 +87,12 @@ fig = medicc.plot.plot_cn_profiles(
 	clonal_transparant=False,	
 	)
 
-fig.savefig(os.path.join(data_folder, 'output/PTX011_cn_profiles.pdf'), bbox_inches='tight')
+# fig.savefig(os.path.join(data_folder, 'output/PTX011_cn_profiles.pdf'), bbox_inches='tight')
 
 
 # %%
 # The alternative way to display the copy-number profiles is with the plot_cn_heatmap function
 # This is especially suitable for datasets with many samples (e.g. single-cell data)
-
 fig = medicc.plot.plot_cn_heatmap(
         input_df=ptx011_df, 
         final_tree=ptx011_tree,
@@ -128,7 +114,7 @@ fig = medicc.plot.plot_cn_heatmap(
 		cmap='coolwarm'
 		)
 
-fig.savefig(os.path.join(data_folder, 'output/PTX011_cn_profiles_heatmap.pdf'), bbox_inches='tight')
+# fig.savefig(os.path.join(data_folder, 'output/PTX011_cn_profiles_heatmap.pdf'), bbox_inches='tight')
 
 
 # %%
@@ -141,4 +127,4 @@ fig = medicc.plot.plot_cn_heatmap(
 		show_internal_nodes=True
 		)
 
-fig.savefig(os.path.join(data_folder, 'output/PTX011_cn_profiles_heatmap_with_internal_nodes.pdf'), bbox_inches='tight')
+# fig.savefig(os.path.join(data_folder, 'output/PTX011_cn_profiles_heatmap_with_internal_nodes.pdf'), bbox_inches='tight')

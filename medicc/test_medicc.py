@@ -82,6 +82,36 @@ def test_medicc_with_testing_example():
     assert output_df['is_gain'].sum() == 192, "Number of gains in output_df is not 192"
     assert output_df['is_loss'].sum() == 173, "Number of losses in output_df is not 173"
 
+
+def test_medicc_with_OV03_04():
+    "Testing testing example"
+    output_dir = 'examples/test_output'
+    process = subprocess.Popen(['python', "medicc2", "examples/OV03-04/OV03-04_descr.txt", 
+                                output_dir, "-i", "fasta", "--normal-name", "OV03-04_diploid",
+                                "--plot", "both"],
+                               stdout=subprocess.PIPE,
+                               cwd=pathlib.Path(__file__).parent.parent.absolute())
+
+    while process.poll() is None:
+        # Process hasn't exited yet
+        time.sleep(0.5)
+
+    expected_files = ['OV03-04_descr_cn_profiles.pdf', 'OV03-04_descr_final_cn_profiles.tsv',
+                      'OV03-04_descr_final_tree.new', 'OV03-04_descr_final_tree.png',
+                      'OV03-04_descr_final_tree.xml', 'OV03-04_descr_pairwise_distances.tsv',
+                      'OV03-04_descr_summary.tsv', 'OV03-04_descr_copynumber_events_df.tsv',
+                      'OV03-04_descr_events_overlap.tsv', 'OV03-04_descr_branch_lengths.tsv',
+                      'OV03-04_descr_cn_profiles_heatmap.pdf']
+    all_files_exist = [os.path.isfile(os.path.join('examples/test_output/', f)) for f in expected_files]
+    nr_events, tree_size = get_number_of_events(output_dir, 'OV03-04_descr')
+    subprocess.Popen(["rm", output_dir, "-rf"])
+
+    assert process.returncode == 0, 'Error while running MEDICC'
+    assert np.all(all_files_exist), "Some files were not created! \nMissing files are: {}".format(
+        np.array(expected_files)[~np.array(all_files_exist)])
+    assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
+
+
 def test_medicc_with_testing_example_total_copy_numbers():
     "Testing small example"
     output_dir = 'examples/test_output_total_cn'
