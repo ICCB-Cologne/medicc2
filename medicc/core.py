@@ -108,7 +108,7 @@ def main(input_df,
         if len(events_df) != final_tree.total_branch_length():
             faulty_nodes = []
             for node in final_tree.find_clades():
-                if node.name is not None and node.name != 'diploid' and node.branch_length != len(events_df.loc[node.name]):
+                if node.name is not None and node.name != 'diploid' and node.branch_length != 0 and node.branch_length != len(events_df.loc[node.name]):
                     faulty_nodes.append(node.name)
             logger.warn("Event recreation was faulty. Events in '_cn_events_df.tsv' will be "
                         f"incorrect for the following nodes: {faulty_nodes}")
@@ -402,14 +402,14 @@ def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name=
                 continue
             if clade.name is None:
                 clade = copy.deepcopy(clade)
-                clade.name = 'diploid'
+                clade.name = normal_name
             for child in clade.clades:
                 if child.branch_length == 0:
                     continue
 
                 cur_df, cur_events = calculate_cn_events_per_branch(
                     cur_df, clade.name, child.name, alleles=alleles, wgd_x2=wgd_x2,
-                    total_cn=total_cn, no_wgd=no_wgd)
+                    total_cn=total_cn, no_wgd=no_wgd, normal_name=normal_name)
 
                 events = pd.concat([events, cur_events])
 
@@ -439,7 +439,7 @@ def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name=
 
 
 def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=['cn_a', 'cn_b'],
-                                   wgd_x2=False, total_cn=False, no_wgd=False):
+                                   wgd_x2=False, total_cn=False, no_wgd=False, normal_name='diploid'):
     """Calculate copy-number events for a single branch. Used in calculate_all_cn_events
 
     Args:
@@ -454,7 +454,8 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=['cn
     """
 
     cur_df = cur_df.copy()
-    cur_df[['is_gain', 'is_loss', 'is_wgd']] = False
+    if len(np.setdiff1d(['is_gain', 'is_loss', 'is_wgd'], cur_df.columns)) > 0:
+        cur_df[['is_gain', 'is_loss', 'is_wgd']] = False
     cur_df[alleles] = cur_df[alleles].astype(int)
 
     # TODO: load these outside of the function so they are not loaded every time
@@ -483,7 +484,7 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=['cn
         else:
             return int(x.split('chr')[-1])
 
-    cur_chroms = cur_df.loc['diploid'].index.get_level_values(
+    cur_chroms = cur_df.loc[normal_name].index.get_level_values(
         'chrom').map(get_int_chrom).values.astype(int)
 
     # 1. find total loss (loh)

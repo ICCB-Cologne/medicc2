@@ -1,7 +1,0 @@
-sample_id	LAdrenalMet	Primary	RIngLNMet	RRib7Met	RSubduralMet	diploid
-LAdrenalMet	0.0	36.0	6.0	7.0	10.0	29.0
-Primary	36.0	0.0	34.0	35.0	36.0	27.0
-RIngLNMet	6.0	34.0	0.0	1.0	4.0	27.0
-RRib7Met	7.0	35.0	1.0	0.0	5.0	28.0
-RSubduralMet	10.0	36.0	4.0	5.0	0.0	30.0
-diploid	29.0	27.0	27.0	28.0	30.0	0.0

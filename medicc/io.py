@@ -92,16 +92,27 @@ def load_main_fsts(return_symbol_table=False):
 
 
 def validate_input(input_df, symbol_table):
+    ## Check the index
+    # is it the right index?
+    if input_df.index.names != ['sample_id', 'chrom', 'start', 'end']:
+        raise MEDICCIOError("DataFrame must be indexed by ['sample_id', 'chrom', 'start', 'end'].")
+
+    # does it have the right dtypes?
+    if not pd.api.types.is_categorical_dtype(input_df.index.dtypes['chrom']):
+        raise MEDICCIOError("""
+            Chromosome index 'chrom' must be of type pd.Categorical. 
+            You can use medicc.tools.format_chromosomes() or create it yourself.""")
+
+    # is it sorted?
+    if not input_df.index.is_monotonic_increasing:
+        raise MEDICCIOError("DataFrame index must be sorted.")
+
     # Check the number of alleles
     if len(input_df.columns)>2:
         raise MEDICCIOError("More than 2 alleles are currently not supported.")
 
     if len(input_df.columns)==0:
         raise MEDICCIOError("No alleles found.")
-
-    # Check if index of dataframe is sorted
-    if not input_df.index.is_monotonic_increasing:
-        raise MEDICCIOError("DataFrame index must be sorted.")
 
     # Check if all samples have same number of segments
     if input_df.unstack('sample_id').isna().sum().sum() != 0:
@@ -123,10 +134,6 @@ def validate_input(input_df, symbol_table):
     # Check data type payload columns - these should all be of type str (object)
     if not np.all([pd.api.types.is_string_dtype(x) for x in input_df.dtypes]):
         raise MEDICCIOError("Payload columns must be of type: string.")
-
-    # Check if index of dataframe is sorted
-    if not input_df.index.is_monotonic_increasing:
-        raise MEDICCIOError("DataFrame index must be sorted.")
 
     logger.info('Input data is valid!')
 
@@ -249,7 +256,7 @@ def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_cop
     return tmp
 
 
-def write_tree_files(tree, out_name: str, plot_tree=True, draw_ascii=False):
+def write_tree_files(tree, out_name: str, plot_tree=True, draw_ascii=False, normal_name='diploid'):
     """Writes a Newick, PhyloXML, Ascii graphic and PNG grahic file of the tree. """
     Bio.Phylo.write(tree, out_name + ".new", "newick")
     Bio.Phylo.write(tree, out_name + ".xml", "phyloxml")
@@ -261,6 +268,7 @@ def write_tree_files(tree, out_name: str, plot_tree=True, draw_ascii=False):
     if plot_tree:
         plot.plot_tree(tree,
                        output_name=out_name,
+                       normal_name=normal_name,
                        label_func=lambda x: x if 'internal' not in x else '',
                        show_branch_lengths=True)
 
