@@ -69,14 +69,7 @@ else:
 
 ## Read in symbol table and transducers
 logger.info("Reading FST.")
-if args.fst is not None:
-    fst_path = args.fst
-else:
-    if args.wgd:
-        fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
-    else:
-        fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
-fst = medicc.io.read_fst(fst_path)
+fst = medicc.io.read_fst(user_fst=args.fst, no_wgd=not args.wgd)
 
 ## Load data
 logger.info("Reading and parsing input data.")

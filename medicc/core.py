@@ -182,6 +182,19 @@ def phase(input_df: pd.DataFrame, model_fst: fstlib.Fst, reference_sample='diplo
     fsa_dict_a, fsa_dict_b, _ = phase_dict(phasing_dict, model_fst, diploid_fsa)
     output_df = medicc.create_df_from_phasing_fsa(input_df, [fsa_dict_a, fsa_dict_b], separator)
 
+    # Phasing across chromosomes is random, so we need to swap haplotype assignment per chromosome
+    # so that the higher ploidy haplotype is always cn_a
+    output_df['width'] = output_df.eval('end-start')
+    output_df['cn_a_width'] = output_df['cn_a'].astype(float) * output_df['width']
+    output_df['cn_b_width'] = output_df['cn_b'].astype(float) * output_df['width']
+
+    swap_haplotypes_ind = output_df.groupby(['sample_id', 'chrom'])[
+    ['cn_a_width', 'cn_b_width']].mean().diff(axis=1).iloc[:, 1] > 0
+
+    output_df = output_df.join(swap_haplotypes_ind.rename('swap_haplotypes_ind'), on=['sample_id', 'chrom'])
+    output_df.loc[output_df['swap_haplotypes_ind'], ['cn_a', 'cn_b']] = output_df.loc[output_df['swap_haplotypes_ind'], ['cn_b', 'cn_a']].values
+    output_df = output_df.drop(['width', 'cn_a_width', 'cn_b_width', 'swap_haplotypes_ind'], axis=1)
+
     return output_df
 
 def phase_dict(phasing_dict, model_fst, reference_fst):
