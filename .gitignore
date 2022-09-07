@@ -7,6 +7,7 @@ test
 *.so
 *.xml
 *.png
+*.DS_Store
 examples/output_gundem_et_al_2015/*nj*
 examples/output_gundem_et_al_2015/*pdm*
 examples/output_gundem_et_al_2015/*tree.txt
