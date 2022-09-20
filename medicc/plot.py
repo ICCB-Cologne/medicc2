@@ -813,10 +813,6 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
                     ignore_segment_lengths=False):
 
     input_df = input_df[alleles].copy()
-    if show_internal_nodes:
-        cur_sample_labels = np.array([x.name for x in list(final_tree.find_clades()) if x.name is not None])
-    else:
-        cur_sample_labels = np.array([x.name for x in final_tree.get_terminals()])
     # if len(np.intersect1d(cur_sample_labels, input_df.index.get_level_values('sample_id').unique())) != len(cur_sample_labels):
     #     raise MEDICCPlotError("tree nodes and labels in dataframe are not the same")
 
@@ -830,8 +826,9 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
         fig, axs = plt.subplots(figsize=figsize, ncols=1+nr_alleles, sharey=False,
                                 gridspec_kw={'width_ratios': nr_alleles*[1] + [cbar_width_ratio]})
 
+        cur_sample_labels = (input_df.index.get_level_values('sample_id').unique())
         if y_posns is None:
-            y_posns = {s: i for i, s in enumerate(np.sort(cur_sample_labels))}
+            y_posns = {s: i for i, s in enumerate(cur_sample_labels)}
 
         cn_axes = axs[:-1]
     else:
@@ -839,6 +836,11 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
                                 gridspec_kw={'width_ratios': [tree_width_ratio] + nr_alleles*[1] + [cbar_width_ratio]})
         tree_ax = axs[0]
         cn_axes = axs[1:-1]
+
+        if show_internal_nodes:
+            cur_sample_labels = np.array([x.name for x in list(final_tree.find_clades()) if x.name is not None])
+        else:
+            cur_sample_labels = np.array([x.name for x in final_tree.get_terminals()])
 
         y_posns = {k.name:v for k, v in _get_y_positions(final_tree, adjust=show_internal_nodes, normal_name=normal_name).items()}
         
