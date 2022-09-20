@@ -54,6 +54,13 @@ def main(input_df,
         else:
             pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, FSA_dict)
 
+        if (pairwise_distances == np.inf).any().any():
+            affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
+                              for s1, s2 in zip(*np.where((pairwise_distances == np.inf)))]
+            raise MEDICCError("Evolutionary distances could not be calculated for some sample "
+                              "pairings. Please check the input data. The affected pairs are: "
+                              f"{affected_pairs}")
+
         logger.info("Inferring tree topology.")
         nj_tree = infer_tree_topology(
             pairwise_distances.values, pairwise_distances.index, normal_name=normal_name)
