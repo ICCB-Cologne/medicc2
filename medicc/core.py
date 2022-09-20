@@ -58,7 +58,7 @@ def main(input_df,
             affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
                               for s1, s2 in zip(*np.where((pairwise_distances == np.inf)))]
             raise MEDICCError("Evolutionary distances could not be calculated for some sample "
-                              "pairings. Please check the input data. The affected pairs are: "
+                              "pairings. Please check the input data.\n\nThe affected pairs are: "
                               f"{affected_pairs}")
 
         logger.info("Inferring tree topology.")
