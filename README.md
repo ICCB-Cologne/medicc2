@@ -128,6 +128,12 @@ If you experience problems with MEDICC2 please [file an issue directly on Bitbuc
 
 ## Known Issues
 
+**Phasing**
+We do recommend to phase your input data before using MEDICC2. MEDICC2's own phasing algorithm is only to be used when looking at single samples and should not be used in the case of multiple samples! Here we recommend using Refphase ([Bitbucket](https://bitbucket.org/schwarzlab/refphase/)).
+If phasing is not possible for you, working on major/minor configuration works reasonably well in most cases.
+For very noisy data, where accurate phasing cannot be guaranteed, you can also try to create total copy numbers and run MEDICC2 with the `--total-copy-numbers` flag.
+
+
 **Noisy segments**
 Small faulty or noisy segments can have a strong effect on the distances MEDICC2 calculates between samples and therefore the resulting tree.
 This is because MEDICC2 counts all segments equally in order appropriatlely take focal events into account. 
