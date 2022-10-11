@@ -368,9 +368,12 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
         if len(children) != 0:
             for child in children:
                 if child.name == normal_name:  # exception: evolution goes from diploid to internal node
+                    logger.debug(f'Updating MRCA branch length from {child.name} to {clade.name}')
                     brs = _distance_to_child(fst, ancestor_fsa, child.name, clade.name)
                 else:
+                    logger.debug(f'Updating branch length from {clade.name} to {child.name}')
                     brs = _distance_to_child(fst, ancestor_fsa, clade.name, child.name)
+                logger.debug(f'branch length: {brs}')
                 child.branch_length = brs
 
 
@@ -869,7 +872,7 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
 
 def overlap_regions(region, cur_events_ranges, event, branch, overlap_threshold):
 
-    cur_events_overlaps = region.coverage(cur_events_ranges).as_df()
+    cur_events_overlaps = region.coverage().as_df()
     cur_events_overlaps = cur_events_overlaps.loc[cur_events_overlaps['FractionOverlaps']
                                                 > overlap_threshold]
     cur_events_overlaps = cur_events_overlaps.set_index(['Chromosome', 'Start', 'End'])
