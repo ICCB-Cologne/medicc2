@@ -872,7 +872,7 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
 
 def overlap_regions(region, cur_events_ranges, event, branch, overlap_threshold):
 
-    cur_events_overlaps = region.coverage().as_df()
+    cur_events_overlaps = region.coverage(cur_events_ranges).as_df()
     cur_events_overlaps = cur_events_overlaps.loc[cur_events_overlaps['FractionOverlaps']
                                                 > overlap_threshold]
     cur_events_overlaps = cur_events_overlaps.set_index(['Chromosome', 'Start', 'End'])
