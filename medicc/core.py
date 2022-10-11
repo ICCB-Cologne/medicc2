@@ -84,8 +84,6 @@ def main(input_df,
         nj_tree = input_tree
 
 
-    tools.set_sequences_on_tree_from_df(nj_tree, input_df)
-
     final_tree = copy.deepcopy(nj_tree)
 
     if ancestral_reconstruction:
@@ -102,7 +100,6 @@ def main(input_df,
 
         ## Update branch lengths with ancestors
         logger.info("Updating branch lengths of final tree using ancestors.")
-        tools.set_sequences_on_tree_from_df(final_tree, output_df)
         update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
 
     nj_tree.root_with_outgroup(normal_name)
