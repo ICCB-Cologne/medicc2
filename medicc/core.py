@@ -112,7 +112,7 @@ def main(input_df,
         if len(events_df) != final_tree.total_branch_length():
             faulty_nodes = []
             for node in final_tree.find_clades():
-                if node.name is not None and node.name != 'diploid' and node.branch_length != 0 and node.branch_length != len(events_df.loc[node.name]):
+                if node.name is not None and node.name != normal_name and node.branch_length != 0 and node.branch_length != len(events_df.loc[node.name]):
                     faulty_nodes.append(node.name)
             logger.warn("Event recreation was faulty. Events in '_cn_events_df.tsv' will be "
                         f"incorrect for the following nodes: {faulty_nodes}")

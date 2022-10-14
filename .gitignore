@@ -22,3 +22,4 @@ Figures_Kaufmann_et_al_2021/final_figures
 dist
 build
 medicc2.egg-info
+.DS_Store
