@@ -183,7 +183,7 @@ def plot_cn_profiles(
     plotheight = 4 * 0.2 * nrows * height_scale
     plotwidth = tree_width + track_width
     tree_width_ratio = tree_width / plotwidth
-    fig = plt.figure(figsize=(plotwidth, plotheight), constrained_layout=True)
+    fig = plt.figure(figsize=(min(250, plotwidth), min(250, plotheight)), constrained_layout=True)
     if input_tree is None:
         gs = fig.add_gridspec(nrows, 1)
         cn_axes = [fig.add_subplot(gs[i]) for i in range(0, nrows)]
@@ -543,7 +543,8 @@ def plot_tree(input_tree,
                             for leaf in input_tree.get_terminals()])
         plot_width = 5 + np.max([0, width_scale * np.log10(max_leaf_to_root_distances / 100) * 5])
 
-        fig, ax = plt.subplots(figsize=(plot_width, plot_height))
+        # maximum figure size is 250x250 inches
+        fig, ax = plt.subplots(figsize=(min(250, plot_width), min(250, plot_height)))
 
     label_func=label_func if label_func is not None else lambda x: x
 
