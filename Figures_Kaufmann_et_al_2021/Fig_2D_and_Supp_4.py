@@ -8,7 +8,7 @@ from plotting_params import plotting_params, set_plotting_params
 
 set_plotting_params()
 
-# Run the notebook 'pcawg.py' in the folder 'notebooks' to recreate the data from scratch
+# Run the notebook 'pcawg.ipynb' in the folder 'notebooks' to recreate the data from scratch
 plotting_data = pd.read_csv('data/Fig_2D_and_Supp_4.tsv', index_col=None, sep='\t')
 pcawg_color_palette = pd.read_csv('data/Supp_4_color_palette.tsv', index_col=0, sep='\t')
 linex = np.linspace(0, plotting_data['hom'].max())
