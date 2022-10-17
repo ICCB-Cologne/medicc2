@@ -388,7 +388,7 @@ def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
     chr_label_pos = chr_ends
     chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
     chr_label_pos.iloc[0] = seg_bound_first
-    for chrom, pos in chr_label_pos.iteritems():
+    for chrom, pos in chr_label_pos.items():
         if chr_label_func is not None:
             chromtxt = chr_label_func(chrom)
         else:
@@ -881,7 +881,7 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
                         cmap=cmap,
                         norm=color_norm)
 
-        for _, line in chr_ends.iteritems():
+        for _, line in chr_ends.items():
             ax.axvline(x_pos[line], color='black', linewidth=0.75)
         
         xtick_pos = np.append([0], x_pos[chr_ends.values][:-1])
