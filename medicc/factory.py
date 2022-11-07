@@ -28,7 +28,7 @@ def _get_int_cns_from_symbol_table(symbol_table, separator='X'):
     return cns
 
 
-def create_1step_amp_fst(symbol_table, separator='X'):
+def create_1step_del_fst(symbol_table, separator='X', exclude_zero=False, w_stay=0, w_open=1, w_extend=0):
 
     cns = _get_int_cns_from_symbol_table(symbol_table, separator)
 
@@ -41,57 +41,28 @@ def create_1step_amp_fst(symbol_table, separator='X'):
     myfst.set_final(0, 0)
     myfst.set_final(1, 0)
 
-    myfst.add_arcs(0, [(s, s, 0, 0) for s in cns.keys()])
-    if separator is not None and separator != '':
-        myfst.add_arc(0, (separator, separator, 0, 0))  # add separator
-    myfst.add_arcs(0, [(s, t, 1, 1) for s in cns.keys() for t in cns.keys()
-                       if ((cns[t]-cns[s]) == 1) & (s != '0')])  # transitions from 0->1
-    myfst.add_arcs(1, [(s, t, 0, 1) for s in cns.keys() for t in cns.keys() if (
-        (cns[t]-cns[s]) == 1) & (s != '0')])  # extension of an open window
-    if '0' in cns.keys():
-        myfst.add_arc(1, ('0', '0', 0, 1))
-    myfst.add_arcs(1, [(s, s, 0, 0) for s in cns.keys() if s != '0'])  # return
-    if separator is not None and separator != '':
-        myfst.add_arc(1, (separator, separator, 0, 0))
-
-    return myfst
-
-
-def create_1step_del_fst(symbol_table, separator='X', exclude_zero=False):
-
-    cns = _get_int_cns_from_symbol_table(symbol_table, separator)
-
-    myfst = fstlib.Fst(arc_type='standard')
-    myfst.set_input_symbols(symbol_table)
-    myfst.set_output_symbols(symbol_table)
-
-    myfst.add_states(2)
-    myfst.set_start(0)
-    myfst.set_final(0, 0)
-    myfst.set_final(1, 0)
-
-    myfst.add_arcs(0, [(s, s, 0, 0) for s in cns.keys()])
+    myfst.add_arcs(0, [(s, s, w_stay, 0) for s in cns.keys()])
     if separator is not None and separator != '':
         myfst.add_arc(0, (separator, separator, 0, 0))  # add separator
     if exclude_zero:
-        myfst.add_arcs(0, [(s, t, 1, 1) for s in cns.keys()
+        myfst.add_arcs(0, [(s, t, w_open, 1) for s in cns.keys()
                            for t in cns.keys() if (cns[s]-cns[t]) == 1 and t != '0'])  # 0->1
-        myfst.add_arcs(1, [(s, t, 0, 1) for s in cns.keys() for t in cns.keys()
+        myfst.add_arcs(1, [(s, t, w_extend, 1) for s in cns.keys() for t in cns.keys()
                            if (cns[s]-cns[t]) == 1 and t != '0'])  # extend an open window
     else:
-        myfst.add_arcs(0, [(s, t, 1, 1) for s in cns.keys()
+        myfst.add_arcs(0, [(s, t, w_open, 1) for s in cns.keys()
                            for t in cns.keys() if (cns[s]-cns[t]) == 1])  # 0->1
-        myfst.add_arcs(1, [(s, t, 0, 1) for s in cns.keys()
+        myfst.add_arcs(1, [(s, t, w_extend, 1) for s in cns.keys()
                            for t in cns.keys() if (cns[s]-cns[t]) == 1])  # extend an open window
     if '0' in cns.keys():
         myfst.add_arc(1, ('0', '0', 0, 1))
-    myfst.add_arcs(1, [(s, s, 0, 0) for s in cns.keys() if s != '0'])  # return
+    myfst.add_arcs(1, [(s, s, w_stay, 0) for s in cns.keys() if s != '0'])  # return
     if separator is not None and separator != '':
         myfst.add_arc(1, (separator, separator, 0, 0))
 
     return myfst
 
-
+## this is not the right LOH fst
 def create_loh_fst(symbol_table, separator='X'):
 
     cns = _get_int_cns_from_symbol_table(symbol_table, separator)
@@ -176,19 +147,6 @@ def create_1step_WGD_fst(symbol_table, separator='X', wgd_cost=1, minimize=True,
     return W
 
 
-def create_filter_fst(allowed_symbols, symbol_table, separator='X'):
-    F = fstlib.Fst()
-    F.set_input_symbols(symbol_table)
-    F.set_output_symbols(symbol_table)
-    F.add_states(1)
-    F.set_start(0)
-    F.set_final(0, 0)
-    F.add_arcs(0, [(s, s, 0, 0) for s in allowed_symbols])
-    F.add_arc(0, (separator, separator, 0, 0))
-
-    return F
-
-
 def create_nstep_fst(n, one_step_fst, minimize=True):
     # Extend 1step FST
     nstep_fst = one_step_fst
@@ -204,7 +162,7 @@ def create_nstep_fst(n, one_step_fst, minimize=True):
 
 
 def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1, max_num_wgds=3,
-                          wgd_x2=False, total_cn=False):
+                          wgd_x2=False, total_cn=False, output_all=False):
     """ Creates the tree FST T which computes the asymmetric MED. """
     n = len(_get_int_cns_from_symbol_table(symbol_table, sep))
     X1step = create_1step_del_fst(symbol_table, sep, exclude_zero=True)
@@ -224,7 +182,10 @@ def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1, m
     else:
         T = LOH * XX
 
-    return T
+    if output_all:
+        return T, LOH, W, ~X, X
+    else:
+        return T
 
 
 def create_phasing_fsa_from_strings(allele_a, allele_b, symbol_table, sep='X'):

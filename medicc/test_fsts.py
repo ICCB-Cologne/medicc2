@@ -29,8 +29,13 @@ PAIR_TESTS = [
     PairTest('1111111X11X11X1111X1111', '3322112X22X23X2222X2200', 5, 9, 8, 5, 9, 8),
     PairTest('1111111111X111X111', '3332222221X333X333', 4, 6, 3, 4, 6, 3),
     PairTest('22222X222X222', '44444X444X444', 2, 6, 1, 2, 6, 1),
+    PairTest('2222222222', '2211001122', 2, 2, 2, 2, 2, 2), ## new test for deep loh before WGD
+    PairTest('11X11X11X11', '22X33X33X33', 3, 7, 4, 3, 7, 4) ## unsure about correct scores, please check
 ]
 
+FST_ASYMM_WGD = medicc.io.read_fst(no_wgd=False, total_copy_numbers=False, wgd_x2=False)
+FST_ASYMM_NOWGD = medicc.io.read_fst(no_wgd=True, total_copy_numbers=False, wgd_x2=False)
+FST_ASYMM_TOTAL = medicc.io.read_fst(no_wgd=False, total_copy_numbers=True, wgd_x2=False)
 
 def _run_pair_test(pair_test: PairTest, is_wgd: bool, is_sym: bool, is_total_cn: bool) -> bool:
     """Runs individual pair test"""
@@ -38,7 +43,14 @@ def _run_pair_test(pair_test: PairTest, is_wgd: bool, is_sym: bool, is_total_cn:
     # sep = "X"
     # symbol_table = medicc.create_symbol_table(maxcn, sep)
     # fst = medicc.create_copynumber_fst(symbol_table, sep, enable_wgd=is_wgd)
-    fst = medicc.io.read_fst(no_wgd=(not is_wgd), total_copy_numbers=is_total_cn, wgd_x2=False)
+    #fst = medicc.io.read_fst(no_wgd=(not is_wgd), total_copy_numbers=is_total_cn, wgd_x2=False)
+    if is_wgd:
+        if is_total_cn:
+            fst = FST_ASYMM_TOTAL
+        else:
+            fst = FST_ASYMM_WGD
+    else:
+        fst = FST_ASYMM_NOWGD
 
     td = fstlib.factory.from_string(pair_test.seq_in, isymbols=fst.input_symbols(), osymbols=fst.output_symbols(), arc_type=fst.arc_type())
     tg = fstlib.factory.from_string(pair_test.seq_out, isymbols=fst.input_symbols(), osymbols=fst.output_symbols(), arc_type=fst.arc_type())
