@@ -172,7 +172,7 @@ def plot_cn_profiles(
         if sample == normal_name:
             clade_colors[sample] = COL_MARKER_NORMAL
 
-    # %% define plot width and height and create figure
+    # define plot width and height and create figure
     track_width = nsegs.sum() * 0.2 * track_width_scale
     if input_tree is not None:
         tree_width = 2.5 * tree_width_scale ## in figsize
@@ -535,7 +535,6 @@ def plot_tree(input_tree,
             ) from None
 
     import matplotlib.collections as mpcollections
-
     if ax is None:
         nsamp = len(list(input_tree.find_clades()))
         plot_height = height_scale * nsamp * 0.25
@@ -699,7 +698,7 @@ def plot_tree(input_tree,
                 ax.scatter(x_here, y_here, s=marker_size, c=marker_col, zorder=3)
 
         # Add node/taxon labels
-        label = label_func(str(clade))
+        label = label_func(str(clade.name))
         ax_scale = ax.get_xlim()[1] - ax.get_xlim()[0]
 
         if label not in (None, clade.__class__.__name__) and \
