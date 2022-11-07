@@ -62,41 +62,6 @@ def create_1step_del_fst(symbol_table, separator='X', exclude_zero=False, w_stay
 
     return myfst
 
-## this is not the right LOH fst
-def create_loh_fst(symbol_table, separator='X'):
-
-    cns = _get_int_cns_from_symbol_table(symbol_table, separator)
-
-    myfst = fstlib.Fst(arc_type='standard')
-    myfst.set_input_symbols(symbol_table)
-    myfst.set_output_symbols(symbol_table)
-
-    myfst.add_states(9)
-    myfst.set_start(0)
-    for i in range(9):
-        myfst.set_final(i, 0)
-
-    ## match 0 -> 0
-    myfst.add_arcs(0, [(s, s, 0, 0) for s in cns.keys()])
-    if separator is not None and separator != '':
-        myfst.add_arc(0, (separator, separator, 0, 0))  # add separator
-
-    ## others
-    for state in range(1, 9):
-        cost = state
-        myfst.add_arcs(0, [(s, t, cost, state) for s in cns.keys()
-                           for t in cns.keys() if (cns[s]-cns[t]) == cost and t == '0'])
-        myfst.add_arcs(state, [(s, t, 0, state) for s in cns.keys()
-                               for t in cns.keys() if (cns[s]-cns[t]) <= cost and t == '0'])
-        myfst.add_arcs(state, [(s, t, cns[s]-cns[t]-cost, cns[s]-cns[t]) for s in cns.keys()
-                               for t in cns.keys() if (cns[s]-cns[t]) > cost and t == '0'])
-        myfst.add_arcs(state, [(s, s, 0, 0) for s in cns.keys()])
-        if separator is not None and separator != '':
-            myfst.add_arc(state, (separator, separator, 0, 0))
-
-    return myfst
-
-
 def create_1step_WGD_fst(symbol_table, separator='X', wgd_cost=1, minimize=True, wgd_x2=False,
                          total_cn=False):
 
@@ -168,7 +133,10 @@ def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1, m
     X1step = create_1step_del_fst(symbol_table, sep, exclude_zero=True)
     X = create_nstep_fst(n-1, X1step)
     XX = fstlib.encode_determinize_minimize(X*~X)
-    LOH = create_loh_fst(symbol_table, sep)
+    
+    L1step_loh = create_1step_del_fst(symbol_table, sep, exclude_zero=False)
+    LOH = create_nstep_fst(n-1, L1step_loh)
+
 
     if enable_wgd:
         W1step = create_1step_WGD_fst(symbol_table, sep, wgd_cost=wgd_cost,
@@ -181,6 +149,7 @@ def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1, m
         T = LOH * W * XX
     else:
         T = LOH * XX
+        W = None
 
     if output_all:
         return T, LOH, W, ~X, X
