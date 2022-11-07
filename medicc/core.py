@@ -54,6 +54,13 @@ def main(input_df,
         else:
             pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, FSA_dict)
 
+        if (pairwise_distances == np.inf).any().any():
+            affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
+                              for s1, s2 in zip(*np.where((pairwise_distances == np.inf)))]
+            raise MEDICCError("Evolutionary distances could not be calculated for some sample "
+                              "pairings. Please check the input data.\n\nThe affected pairs are: "
+                              f"{affected_pairs}")
+
         logger.info("Inferring tree topology.")
         nj_tree = infer_tree_topology(
             pairwise_distances.values, pairwise_distances.index, normal_name=normal_name)
@@ -77,8 +84,6 @@ def main(input_df,
         nj_tree = input_tree
 
 
-    tools.set_sequences_on_tree_from_df(nj_tree, input_df)
-
     final_tree = copy.deepcopy(nj_tree)
 
     if ancestral_reconstruction:
@@ -95,7 +100,6 @@ def main(input_df,
 
         ## Update branch lengths with ancestors
         logger.info("Updating branch lengths of final tree using ancestors.")
-        tools.set_sequences_on_tree_from_df(final_tree, output_df)
         update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
 
     nj_tree.root_with_outgroup(normal_name)
@@ -108,7 +112,7 @@ def main(input_df,
         if len(events_df) != final_tree.total_branch_length():
             faulty_nodes = []
             for node in final_tree.find_clades():
-                if node.name is not None and node.name != 'diploid' and node.branch_length != 0 and node.branch_length != len(events_df.loc[node.name]):
+                if node.name is not None and node.name != normal_name and node.branch_length != 0 and node.branch_length != len(events_df.loc[node.name]):
                     faulty_nodes.append(node.name)
             logger.warn("Event recreation was faulty. Events in '_cn_events_df.tsv' will be "
                         f"incorrect for the following nodes: {faulty_nodes}")
@@ -181,6 +185,19 @@ def phase(input_df: pd.DataFrame, model_fst: fstlib.Fst, reference_sample='diplo
     phasing_dict = medicc.create_phasing_fsa_dict_from_df(input_df, model_fst.input_symbols(), separator)
     fsa_dict_a, fsa_dict_b, _ = phase_dict(phasing_dict, model_fst, diploid_fsa)
     output_df = medicc.create_df_from_phasing_fsa(input_df, [fsa_dict_a, fsa_dict_b], separator)
+
+    # Phasing across chromosomes is random, so we need to swap haplotype assignment per chromosome
+    # so that the higher ploidy haplotype is always cn_a
+    output_df['width'] = output_df.eval('end-start')
+    output_df['cn_a_width'] = output_df['cn_a'].astype(float) * output_df['width']
+    output_df['cn_b_width'] = output_df['cn_b'].astype(float) * output_df['width']
+
+    swap_haplotypes_ind = output_df.groupby(['sample_id', 'chrom'])[
+    ['cn_a_width', 'cn_b_width']].mean().diff(axis=1).iloc[:, 1] > 0
+
+    output_df = output_df.join(swap_haplotypes_ind.rename('swap_haplotypes_ind'), on=['sample_id', 'chrom'])
+    output_df.loc[output_df['swap_haplotypes_ind'], ['cn_a', 'cn_b']] = output_df.loc[output_df['swap_haplotypes_ind'], ['cn_b', 'cn_a']].values
+    output_df = output_df.drop(['width', 'cn_a_width', 'cn_b_width', 'swap_haplotypes_ind'], axis=1)
 
     return output_df
 
@@ -351,9 +368,12 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
         if len(children) != 0:
             for child in children:
                 if child.name == normal_name:  # exception: evolution goes from diploid to internal node
+                    logger.debug(f'Updating MRCA branch length from {child.name} to {clade.name}')
                     brs = _distance_to_child(fst, ancestor_fsa, child.name, clade.name)
                 else:
+                    logger.debug(f'Updating branch length from {clade.name} to {child.name}')
                     brs = _distance_to_child(fst, ancestor_fsa, clade.name, child.name)
+                logger.debug(f'branch length: {brs}')
                 child.branch_length = brs
 
 

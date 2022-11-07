@@ -10,7 +10,7 @@ from medicc import tools
 
 logger = logging.getLogger(__name__)
 
-def evolve(cnstr, mu=5, plen=0.2, pwgd=0.05, pgain=0.5, maxcn=8, mincn=0, verbose=True, seed=None):
+def evolve(cnstr, mu=5, plen=0.2, pwgd=0.05, pgain=0.5, maxcn=8, mincn=0, verbose=True, seed=None, maxwgd=3):
     """ Evolves a copy-number string, e.g. 11111X11111 with the given parameters. """
     nevents = sp.stats.poisson.rvs(mu, size=1)[0]
     cnstr_new = np.array(list(cnstr))
@@ -18,7 +18,7 @@ def evolve(cnstr, mu=5, plen=0.2, pwgd=0.05, pgain=0.5, maxcn=8, mincn=0, verbos
     if seed is not None:
         np.random.seed(seed)
     for i in range(nevents):
-        if np.random.uniform() <= pwgd: ## WGD
+        if nwgd < maxwgd and np.random.uniform() <= pwgd: ## WGD
             nwgd += 1
             _mutate(cnstr_new, 'gain', 0, len(cnstr_new), maxcn, mincn, ignore_chr_boundaries=True, verbose=verbose)
         else:

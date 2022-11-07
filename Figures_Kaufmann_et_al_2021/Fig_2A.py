@@ -21,7 +21,7 @@ CALC_NEW = False
 DATA_FILE = 'data/Fig_2A.tsv'
 
 #%% read fsts
-T_no_wgd_asymm = medicc.io.read_fst(no_wgd=False)
+T_no_wgd_asymm = medicc.io.read_fst(no_wgd=True)
 T_no_wgd_symm = ~T_no_wgd_asymm * T_no_wgd_asymm
 T_wgd_asymm = medicc.io.read_fst()
 
@@ -90,6 +90,7 @@ if CALC_NEW or not os.path.isfile(DATA_FILE):
     timing.loc['wgd_kernel', 'WGD'] = 'WGD'
     timing.loc['no_wgd_kernel', 'WGD'] = 'No WGD'
 
+    timing = timing.reset_index()
     timing.to_csv(DATA_FILE, sep='\t')
 else:
     print('Loading data')

@@ -172,7 +172,7 @@ def plot_cn_profiles(
         if sample == normal_name:
             clade_colors[sample] = COL_MARKER_NORMAL
 
-    # %% define plot width and height and create figure
+    # define plot width and height and create figure
     track_width = nsegs.sum() * 0.2 * track_width_scale
     if input_tree is not None:
         tree_width = 2.5 * tree_width_scale ## in figsize
@@ -183,7 +183,7 @@ def plot_cn_profiles(
     plotheight = 4 * 0.2 * nrows * height_scale
     plotwidth = tree_width + track_width
     tree_width_ratio = tree_width / plotwidth
-    fig = plt.figure(figsize=(plotwidth, plotheight), constrained_layout=True)
+    fig = plt.figure(figsize=(min(250, plotwidth), min(250, plotheight)), constrained_layout=True)
     if input_tree is None:
         gs = fig.add_gridspec(nrows, 1)
         cn_axes = [fig.add_subplot(gs[i]) for i in range(0, nrows)]
@@ -388,7 +388,7 @@ def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
     chr_label_pos = chr_ends
     chr_label_pos.loc[:] = np.roll(chr_label_pos.values, 1)
     chr_label_pos.iloc[0] = seg_bound_first
-    for chrom, pos in chr_label_pos.iteritems():
+    for chrom, pos in chr_label_pos.items():
         if chr_label_func is not None:
             chromtxt = chr_label_func(chrom)
         else:
@@ -535,7 +535,6 @@ def plot_tree(input_tree,
             ) from None
 
     import matplotlib.collections as mpcollections
-
     if ax is None:
         nsamp = len(list(input_tree.find_clades()))
         plot_height = height_scale * nsamp * 0.25
@@ -543,7 +542,8 @@ def plot_tree(input_tree,
                             for leaf in input_tree.get_terminals()])
         plot_width = 5 + np.max([0, width_scale * np.log10(max_leaf_to_root_distances / 100) * 5])
 
-        fig, ax = plt.subplots(figsize=(plot_width, plot_height))
+        # maximum figure size is 250x250 inches
+        fig, ax = plt.subplots(figsize=(min(250, plot_width), min(250, plot_height)))
 
     label_func=label_func if label_func is not None else lambda x: x
 
@@ -698,7 +698,7 @@ def plot_tree(input_tree,
                 ax.scatter(x_here, y_here, s=marker_size, c=marker_col, zorder=3)
 
         # Add node/taxon labels
-        label = label_func(str(clade))
+        label = label_func(str(clade.name))
         ax_scale = ax.get_xlim()[1] - ax.get_xlim()[0]
 
         if label not in (None, clade.__class__.__name__) and \
@@ -813,10 +813,6 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
                     ignore_segment_lengths=False):
 
     input_df = input_df[alleles].copy()
-    if show_internal_nodes:
-        cur_sample_labels = np.array([x.name for x in list(final_tree.find_clades()) if x.name is not None])
-    else:
-        cur_sample_labels = np.array([x.name for x in final_tree.get_terminals()])
     # if len(np.intersect1d(cur_sample_labels, input_df.index.get_level_values('sample_id').unique())) != len(cur_sample_labels):
     #     raise MEDICCPlotError("tree nodes and labels in dataframe are not the same")
 
@@ -830,8 +826,9 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
         fig, axs = plt.subplots(figsize=figsize, ncols=1+nr_alleles, sharey=False,
                                 gridspec_kw={'width_ratios': nr_alleles*[1] + [cbar_width_ratio]})
 
+        cur_sample_labels = (input_df.index.get_level_values('sample_id').unique())
         if y_posns is None:
-            y_posns = {s: i for i, s in enumerate(np.sort(cur_sample_labels))}
+            y_posns = {s: i for i, s in enumerate(cur_sample_labels)}
 
         cn_axes = axs[:-1]
     else:
@@ -839,6 +836,11 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
                                 gridspec_kw={'width_ratios': [tree_width_ratio] + nr_alleles*[1] + [cbar_width_ratio]})
         tree_ax = axs[0]
         cn_axes = axs[1:-1]
+
+        if show_internal_nodes:
+            cur_sample_labels = np.array([x.name for x in list(final_tree.find_clades()) if x.name is not None])
+        else:
+            cur_sample_labels = np.array([x.name for x in final_tree.get_terminals()])
 
         y_posns = {k.name:v for k, v in _get_y_positions(final_tree, adjust=show_internal_nodes, normal_name=normal_name).items()}
         
@@ -878,7 +880,7 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
                         cmap=cmap,
                         norm=color_norm)
 
-        for _, line in chr_ends.iteritems():
+        for _, line in chr_ends.items():
             ax.axvline(x_pos[line], color='black', linewidth=0.75)
         
         xtick_pos = np.append([0], x_pos[chr_ends.values][:-1])

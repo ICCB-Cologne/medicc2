@@ -9,14 +9,16 @@ import pandas as pd
 logger = logging.getLogger('medicc.io')
 
 def set_sequences_on_tree_from_df(tree: Bio.Phylo.BaseTree, df: pd.DataFrame, clear_before=True):
-    """Set sequences on tree from dataframe
+    """DEPRECATED!
+    
+    Set sequences on tree from dataframe
 
     Args:
         tree (Bio.Phylo.BaseTree): Tree to set sequences on
         df (pd.DataFrame): DataFrame with copy number information
         clear_before (bool, optional): Clear old sequences. Defaults to True.
     """
-
+    raise DeprecationWarning("This function is deprecated and is not used anymore. ")
 
     if not hasattr(tree.root, 'sequences'):
         tree = tree.as_phyloxml()

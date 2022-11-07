@@ -8,9 +8,9 @@ from plotting_params import plotting_params, set_plotting_params
 
 set_plotting_params()
 
-# Run the notebook 'pcawg.py' in the folder 'notebooks' to recreate the data from scratch
-plotting_data = pd.read_csv('data/Fig_2D_and_Supp_4.tsv', index_col=None, sep='\t')
-pcawg_color_palette = pd.read_csv('data/Supp_4_color_palette.tsv', index_col=0, sep='\t')
+# Run the notebook 'pcawg.ipynb' in the folder 'notebooks' to recreate the data from scratch
+plotting_data = pd.read_csv('data/Fig_2D_and_Supp_10.tsv', index_col=None, sep='\t')
+pcawg_color_palette = pd.read_csv('data/Supp_10_color_palette.tsv', index_col=0, sep='\t')
 linex = np.linspace(0, plotting_data['hom'].max())
 linea = -2
 linec = 2.9
@@ -21,10 +21,10 @@ sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data, hue='pcawg_wgd', 
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data['bootstrap_2_wgds']],
                 color='C2', label='2 WGDs')
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data.eval('pcawg_wgd != wgd_status_medicc_bootstrap')],
-                color='black', label='False Predictions')
+                color='black', label='False predictions')
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data.eval('pcawg_wgd != wgd_status_medicc_bootstrap') &
                                                            plotting_data['wgd_uncertain']],
-                color='grey', label='False Predictions (uncertain)')
+                color='grey', label='False predictions\n(uncertain)')
 #ax.set_title('False Predictions')
 ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
@@ -43,8 +43,8 @@ sns.boxplot(x='dist_wgd', y='histology_abbreviation', palette=palette, data=cur_
 ax.set_xlabel('MED (WGD) from diploid normal')
 ax.set_ylabel('PCAWG histology')
 
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4A.pdf', bbox_inches='tight')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4A.png',
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_10A.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_10A.png',
             bbox_inches='tight', dpi=600)
 
 #%% Supp 4B: MEDICC2 WGD score distributions
@@ -56,8 +56,8 @@ sns.boxplot(x='dist_diff', y='histology_abbreviation', palette=palette, data=cur
 ax.set_xlabel('MEDICC2 WGD score')
 ax.set_ylabel('')
 
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4B.pdf', bbox_inches='tight')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4B.png',
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_10B.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_10B.png',
             bbox_inches='tight', dpi=600)
 
 #%% Supp 4C: MEDICC2 WGD score distributions
@@ -73,6 +73,6 @@ sns.barplot(x='has_wgd', y=cur_plotting_data.index, orient='h', data=cur_plottin
 ax.set_xlabel('Fraction of samples exhibiting WGD')
 ax.set_ylabel('')
 
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4C.pdf', bbox_inches='tight')
-fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_4C.png',
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_10C.pdf', bbox_inches='tight')
+fig.savefig('../Figures_Kaufmann_et_al_2021/final_figures/Supp_10C.png',
             bbox_inches='tight', dpi=600)
