@@ -87,7 +87,6 @@ for ax in fig.get_axes():
 
 #%% Basic CN tracks for all patients
 for patient in patients:
-# for patient in ['PTX008']:
     print('Plotting CN track for patient {}'.format(patient))
     cur_output_df = medicc.io.read_and_parse_input_data(
         os.path.join(results_folder, "{}_final_cn_profiles.tsv".format(patient)))

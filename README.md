@@ -128,6 +128,21 @@ If you experience problems with MEDICC2 please [file an issue directly on Bitbuc
 
 ## Known Issues
 
+**Phasing**
+We do recommend to phase your input data before using MEDICC2. MEDICC2's own phasing algorithm is only to be used when looking at single samples and should not be used in the case of multiple samples! Here we recommend using Refphase ([Bitbucket](https://bitbucket.org/schwarzlab/refphase/)).
+If phasing is not possible for you, working on major/minor configuration works reasonably well in most cases.
+For very noisy data, where accurate phasing cannot be guaranteed, you can also try to create total copy numbers and run MEDICC2 with the `--total-copy-numbers` flag.
+
+**long runtime**
+MEDICC2 tries to solve an NP-hard problem by inferring a symmetric distance between samples and therefore has a higher runtime than other tools than only compute the asymmetric (and less accurate) distance between samples.
+
+In order to improve runtime, you should first run MEDICC2 with multiple cores using the `--n-cores` flag. Using multiple cores will roughly lead to a decrease in runtime linear w.r.t. numbers of cores used (depending on your system architecture).
+
+Next, you can remove duplicate and diploid cells. Especially in the case of 100s to 1000s single-cell samples, there are oftentimes multiple copies of cells with the same copy-number profiles as well as cells that are (almost) purely diploid. Removing those will (in most cases) not alter the results but decrease runtime.
+
+Finally, MEDICC2's runtime scales with the number of segments used. If you use copy-number bins, try to increase the bin-size for decreased runtime as well as merge neighboring bins that are equal in copy-number states across all samples. (For example a chromosome that is purely diploid in all samples should be represented as a single segment rather than multiple bins).
+If you instead create a minimum consistent segmentation, be aware of individual samples with many breakpoints that will drive up your total number of breakpoints and therefore number of segments. If individual samples have an excessive amount of breakpoints, it is best to remove them before creating a minimum consistent segmentation.
+
 **Noisy segments**
 Small faulty or noisy segments can have a strong effect on the distances MEDICC2 calculates between samples and therefore the resulting tree.
 This is because MEDICC2 counts all segments equally in order appropriatlely take focal events into account. 

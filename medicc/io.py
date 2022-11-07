@@ -114,9 +114,9 @@ def validate_input(input_df, symbol_table):
     if len(input_df.columns)==0:
         raise MEDICCIOError("No alleles found.")
 
-    # Check if all samples have same number of segments
+    # Check if all samples have same segments
     if input_df.unstack('sample_id').isna().sum().sum() != 0:
-        raise MEDICCIOError("The samples have different number of segments!\n"
+        raise MEDICCIOError("The samples have different segments!\n"
                             "Total number of unique segments: {}\n".format(len(input_df.unstack('sample_id'))))
 
     # Check if symbols are in symbol table
