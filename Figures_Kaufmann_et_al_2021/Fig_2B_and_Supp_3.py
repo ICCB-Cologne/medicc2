@@ -118,8 +118,6 @@ for i, method in enumerate(['MEDICC2', 'Euclidean Min. Ev.', 'Euclidean NJ', 'Ha
     nr = cur_method_results.groupby('Number of Leaves').count().iloc[0, 0]
     ax.plot(n_leaves, cur_method_results.groupby('Number of Leaves')['Distance'].mean().values)
 
-    if method == 'Euclidean Min. Ev.':
-        method = 'Euclidean/Manhattan Min. Ev.'
     ax.errorbar(x=n_leaves,
                 y=cur_method_results.groupby('Number of Leaves')['Distance'].mean().values.astype(float),
                 yerr=cur_method_results.groupby('Number of Leaves')['Distance'].std() / np.sqrt(nr),
