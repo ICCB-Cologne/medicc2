@@ -22,3 +22,29 @@
 * Supp 5-13: Gundem trees
 * Supp 14: Gundem SV validation (`Fig_2C_and_Supp_3_Supp_14.py`)
 * Supp 15: SC (`Fig_5_and_Supp_15.py`)
+
+
+
+* Supp 1:
+* Supp 2:
+* Supp 3:
+* Supp 4:
+* Supp 5:
+* Supp 6:
+* Supp 7:
+* Supp 8:
+* Supp 9:
+* Supp 10:
+* Supp 11:
+* Supp 12:
+* Supp 13:
+* Supp 14:
+* Supp 15:
+* Supp 16:
+* Supp 17:
+* Supp 18:
+* Supp 19:
+* Supp 20:
+* Supp 21:
+* Supp 22:
+* Supp 23: 

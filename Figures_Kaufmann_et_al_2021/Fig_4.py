@@ -126,7 +126,10 @@ linear_model = np.polyfit(arm_results['score'], arm_results['gain_loss_diff'], 1
 linear_model_fn = np.poly1d(linear_model)
 plt.plot(x, linear_model_fn(x), color="grey", lw=3, label='_nolegend_') # label was: "linear fit"
 
-r = pearsonr(arm_results['score'], arm_results['gain_loss_diff'])[0]
+corr = pearsonr(arm_results['score'], arm_results['gain_loss_diff'])
+r = corr[0]
+p = corr[1]
+print(f'correlation: r = {r}, p = {p}')
 plt.text(0.98, 0.02, "$r = {:.2f}$".format(r), transform=plt.gca().transAxes, 
         ha='right', va='bottom', fontsize=plotting_params['FONTSIZE_MEDIUM'])
 
@@ -208,7 +211,10 @@ ax.plot(x, linear_model_fn(x), color="grey", lw=3, label='linear fit')
     
 ax.set_xlabel('signed log10 p-value for OG-TSG score')
 
-r = pearsonr(np.append(x1, x2), np.append(y1, y2))[0]
+corr = pearsonr(np.append(x1, x2), np.append(y1, y2))
+r = corr[0]
+p = corr[1]
+print(f'correlation: r = {r}, p = {p}')
 ax.text(0.98, 0.02, "$r = {:.2f}$".format(r), transform=ax.transAxes, 
         ha='right', va='bottom', fontsize=plotting_params['FONTSIZE_MEDIUM'])
 

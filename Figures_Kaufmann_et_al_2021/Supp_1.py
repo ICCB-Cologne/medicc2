@@ -1,101 +1,70 @@
-#%% imports and configurations
+#%% imports
 import os
 import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-import scipy as sp
-import seaborn as sns
-
-from plotting_params import plotting_params, set_plotting_params
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import fstlib
 import medicc
 
-set_plotting_params()
-SEED = 42
-# %matplotlib inline
-#%%
-def fst_dist(row, fst, seq_in='in', seq_out='out', kernel=False):
-    fsa_in = fstlib.factory.from_string(row[seq_in], isymbols=fst.input_symbols(
-    ), osymbols=fst.output_symbols(), arc_type=fst.arc_type())
-    fsa_out = fstlib.factory.from_string(row[seq_out], isymbols=fst.input_symbols(
-    ), osymbols=fst.output_symbols(), arc_type=fst.arc_type())
-    if kernel:
-        dist = float(fstlib.kernel_score(fst, fsa_in, fsa_out))
-    else:
-        dist = float(fstlib.score(fst, fsa_in, fsa_out))
-    return dist
+#%% example FST (Supp Fig 1a)
+symbols = ['a','b'] 
+st = fstlib.SymbolTable()
+st.add_symbol('-')
+for s in symbols:
+        st.add_symbol(s)
+fst = fstlib.Fst(arc_type='standard')
+fst.set_input_symbols(st)
+fst.set_output_symbols(st)
+fst.add_states(2)
+fst.set_start(0)
+fst.set_final(0,0)
+fst.set_final(1,0)
+fst.add_arc(0, ('a', 'a', 0, 0))
+fst.add_arc(0, ('a', 'b', 1, 1))
+fst.add_arc(1, ('a', 'b', 1, 1))
+fst
 
+#%% manually create the fst for the example to keep it small
+sep='X'
+symbol_table = medicc.create_symbol_table(3, separator=sep)
+n = len(medicc.factory._get_int_cns_from_symbol_table(symbol_table))
+X1step = medicc.create_1step_del_fst(symbol_table, sep, exclude_zero=True)
+X = medicc.create_nstep_fst(2, X1step)
+XX = fstlib.encode_determinize_minimize(X*~X)
+LOH = fstlib.encode_determinize_minimize(medicc.create_loh_fst(symbol_table, sep))
+W1step = medicc.create_1step_WGD_fst(symbol_table, sep)
+W = medicc.create_nstep_fst(3, W1step)
+T = LOH * W * XX
+T.info()
 
-def euclidean_dist(row, seq_in='in', seq_out='out'):
-    chrs_in = row[seq_in].split('X')
-    chrs_out = row[seq_out].split('X')
-    dist = 0
-    for pair in zip(chrs_in, chrs_out):
-        vec1 = np.array(list(pair[0])).astype('int')
-        vec2 = np.array(list(pair[1])).astype('int')
-        dist += np.sum((vec1-vec2)**2)
-    dist = np.sqrt(dist)
-    return dist
+#%% Create genomes
+g1 = fstlib.factory.from_string("1111X1111", arc_type="standard", isymbols=symbol_table, osymbols=symbol_table)
+g2 = fstlib.factory.from_string("2033X2112", arc_type="standard", isymbols=symbol_table, osymbols=symbol_table)
+# U is shown in Supp Fig 1h
+U = g1 * T * g2
+U
 
+#%% final plotting
+def fst_to_pdf(fst, acceptor=False, ranksep=0.4, nodesep=0.25, fontsize=14):
+    g = fst.to_graphviz(ranksep=ranksep, nodesep=nodesep, acceptor=acceptor, fontsize=fontsize)
+    g.format='pdf'
+    return g.pipe()
 
-def plot_variables(df, variables):
+with open('../Figures_Kaufmann_et_al_2021/final_figures/Supp_1_method_example_fst_gainloss.pdf', 'wb') as f:
+    f.write(fst_to_pdf(XX, ranksep=0.25, nodesep=0.1, fontsize=12))
+with open('../Figures_Kaufmann_et_al_2021/final_figures/Supp_1_method_example_fst_loh.pdf', 'wb') as f:
+    f.write(fst_to_pdf(LOH, fontsize=12))
+with open('../Figures_Kaufmann_et_al_2021/final_figures/Supp_1_method_example_fst_wgd.pdf', 'wb') as f:
+    f.write(fst_to_pdf(W1step, fontsize=12))
+with open('../Figures_Kaufmann_et_al_2021/final_figures/Supp_1_method_example_fsa1.pdf', 'wb') as f:
+    f.write(fst_to_pdf(g1, acceptor=True, fontsize=10))
+with open('../Figures_Kaufmann_et_al_2021/final_figures/Supp_1_method_example_fsa2.pdf', 'wb') as f:
+    f.write(fst_to_pdf(g2, acceptor=True, fontsize=10))
+with open('../Figures_Kaufmann_et_al_2021/final_figures/Supp_1_method_example_composition.pdf', 'wb') as f:
+    f.write(fst_to_pdf(U, fontsize=12))
+with open('../Figures_Kaufmann_et_al_2021/final_figures/Supp_1_method_example_simple_fst.pdf', 'wb') as f:
+    f.write(fst_to_pdf(fst, fontsize=12))
 
-    descr = {'dist_fst_wgd_asymm': 'MED (with WGD)',
-             'dist_fst_no_wgd_asymm': 'MED (without WGD)',
-             'dist_euclidean': 'Euclidean Distance',
-             'nevents': 'True distance'}
-
-    fig, ax = plt.subplots(figsize=(plotting_params['WIDTH_HALF'], plotting_params['WIDTH_HALF']/plotting_params['ASPECT_RATIO']))
-
-    xname, yname = variables
-    plotdat = df.groupby([xname, yname, 'is_wgd']).sum()['Count'].reset_index()
-    plotdat.rename({'is_wgd': 'WGD'}, axis=1, inplace=True)
-    sns.scatterplot(x=xname, y=yname, size="Count", sizes=(50, 250),
-                    alpha=0.5, hue='WGD', data=plotdat, axes=ax)
-    ax.set_xlabel(descr[xname])
-    ax.set_ylabel(descr[yname])
-    ax.axline((0, 0), slope=1, alpha=0.5, ls='--', color='grey')
-    r2 = sp.stats.pearsonr(df[xname], df[yname])[0]**2
-    ax.text(0.98, 0.02, "$r^2 = {:.2f}$".format(r2), transform=ax.transAxes, 
-            ha='right', va='bottom', fontsize=plotting_params['FONTSIZE_MEDIUM'])
-    return fig
-
-
-#%% Load FSTs
-T_wgd_asymm = medicc.io.read_fst()
-T_no_wgd_asymm = medicc.io.read_fst(no_wgd=True)
-
-# %% generate samples
-chr_length = 10
-nchr = 5
-nsamples = 1000
-diploid = "X".join(['1' * chr_length, ] * nchr)
-results = pd.DataFrame([(diploid,) +
-                     medicc.sim.evolve(diploid, mu=10, verbose=False, mincn=0, seed=i) +
-                     medicc.sim.evolve(diploid, mu=5, verbose=False, mincn=0, seed=i) for i in range(nsamples)],
-                    columns=['in', 'out', 'nloss', 'ngain', 'nwgd', 'out2', 'nloss2', 'ngain2', 'nwgd2'])
-results['nevents'] = results['ngain'] + results['nloss'] + results['nwgd']
-results['is_wgd'] = results['nwgd']>0
-#%% annotate
-results['dist_fst_wgd_asymm'] = results.apply(fst_dist, fst=T_wgd_asymm, axis=1)
-results['dist_fst_no_wgd_asymm'] = results.apply(fst_dist, fst=T_no_wgd_asymm, axis=1)
-results['dist_euclidean'] = results.apply(euclidean_dist, axis=1)
-results['Count'] = 1
-
-
-#%% Create Figures
-fig_main = plot_variables(results, ('nevents', 'dist_fst_wgd_asymm'))
-fig_main.savefig('final_figures/Supp_1A.pdf', bbox_inches='tight')
-fig_main.savefig('final_figures/Supp_1A.png', bbox_inches='tight', dpi=600)
-
-fig_main = plot_variables(results, ('nevents', 'dist_fst_no_wgd_asymm'))
-fig_main.savefig('final_figures/Supp_1B.pdf', bbox_inches='tight')
-fig_main.savefig('final_figures/Supp_1B.png', bbox_inches='tight', dpi=600)
-
-fig_main = plot_variables(results, ('nevents', 'dist_euclidean'))
-fig_main.savefig('final_figures/Supp_1C.pdf', bbox_inches='tight')
-fig_main.savefig('final_figures/Supp_1C.png', bbox_inches='tight', dpi=600)
