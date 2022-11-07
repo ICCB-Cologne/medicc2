@@ -8,8 +8,8 @@ plotting_params = {
     'ASPECT_RATIO': 4/3,
     'FONTSIZE_LARGE': 12,
     'FONTSIZE_MEDIUM': 10,
-    'FONTSIZE_SMALL': 10,
-    'FONTSIZE_TINY': 8,
+    'FONTSIZE_SMALL': 10, # was 8
+    'FONTSIZE_TINY': 8, # was 5
     'LINEWIDTH': 3,
     'MARKERSIZE_SMALL': 3,
     'MARKERSIZE_MEDIUM': 5,
