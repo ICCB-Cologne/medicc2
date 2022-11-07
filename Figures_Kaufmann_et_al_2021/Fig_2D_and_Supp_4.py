@@ -21,10 +21,10 @@ sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data, hue='pcawg_wgd', 
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data['bootstrap_2_wgds']],
                 color='C2', label='2 WGDs')
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data.eval('pcawg_wgd != wgd_status_medicc_bootstrap')],
-                color='black', label='False Predictions')
+                color='black', label='False predictions')
 sns.scatterplot(x='hom', y='ploidy_pcawg', data=plotting_data.loc[plotting_data.eval('pcawg_wgd != wgd_status_medicc_bootstrap') &
                                                            plotting_data['wgd_uncertain']],
-                color='grey', label='False Predictions (uncertain)')
+                color='grey', label='False predictions\n(uncertain)')
 #ax.set_title('False Predictions')
 ax.set_xlabel('Fraction of genome with LOH')
 ax.set_ylabel('Ploidy')
