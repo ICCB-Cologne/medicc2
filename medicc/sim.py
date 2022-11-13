@@ -64,7 +64,7 @@ def _mutate(cnstr, event, start, end, maxcn, mincn, ignore_chr_boundaries=False,
             newcn = oldcn
         cnstr[i] = tools.int2hex(newcn)
 
-def rcoal(n, tips = None, uniform_branch_length=False):
+def rcoal(n, tips = None, uniform_branch_length=False, normal_name='diploid'):
     """As in rcoal function in R package Ape, function generates a random tree and random branch lengths."""
     x = np.divide(2*np.random.exponential(size = n-1),np.multiply(np.array(list(reversed(range(2,n+1)))), np.array(list(reversed(range(1, n))))))
     if (n == 2):
@@ -155,7 +155,7 @@ def rcoal(n, tips = None, uniform_branch_length=False):
     reordered = reordered[['a','b','name_a', 'name_b', 'edge_length']]
     if uniform_branch_length:
         reordered['edge_length'] = 1
-    return _edgelist_to_tree(reordered)
+    return _edgelist_to_tree(reordered, add_normal=normal_name is not None, normal_name=normal_name)
 
 
 def _edgelist_to_tree(el, add_normal=True, normal_name='diploid'):
