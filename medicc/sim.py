@@ -109,11 +109,11 @@ def rcoal(n, tips = None, uniform_branch_length=False):
         edge.columns = ['a','b']
 
 
-        reordered = pd.DataFrame()
+        reordered = pd.DataFrame(columns=['a','b'])
         root = edge.index[-2]
         parent = [edge.iloc[root][0]] #stack
         child = edge.iloc[root][1]
-        reordered = reordered.append(edge.iloc[root])
+        reordered = pd.concat([reordered, edge.iloc[[root]]])
         edge.drop(edge.index[root], inplace = True)
         while  not edge.empty:
             if (set (edge.a.isin([parent[-1]]))) == {False}:#checks if both occurences took place, and value can be popped out of stack
@@ -121,7 +121,7 @@ def rcoal(n, tips = None, uniform_branch_length=False):
             if child <= n :
                 root = edge.a.isin([parent[-1]]).idxmax()
                 child = int(edge.iloc[edge.index==root]['b'])
-                reordered = reordered.append(edge.iloc[edge.index==root])
+                reordered = pd.concat([reordered, edge.iloc[edge.index==root]])
                 edge.drop(root, inplace = True)
                 if child < n:
                     if (set (edge.a.isin([parent[-1]]))) == {False}:
@@ -130,7 +130,7 @@ def rcoal(n, tips = None, uniform_branch_length=False):
                 parent.append(child)
                 root =  edge.a.isin([child]).idxmax()
                 child = int(edge.iloc[edge.index==root]['b'])
-                reordered = reordered.append(edge.iloc[edge.index==root])
+                reordered = pd.concat([reordered, edge.iloc[edge.index==root]])
                 edge.drop(root, inplace = True)
                 if child < n:
                     if (set (edge.a.isin([parent[-1]]))) == {False}:
@@ -146,10 +146,10 @@ def rcoal(n, tips = None, uniform_branch_length=False):
             reordered['name_b'] = [tips[reordered.b[i]] if (reordered.b[i] < n)  else '' for i in reordered.index]
         else:
             reordered['name_b'] = ["sp_{0:04d}".format(reordered.b[i] +1) if (reordered.b[i] < n)  else '' for i in reordered.index]
-        reordered.at[reordered.name_b=='', 'name_b'] = ["internal_{0:d}".format(i +1) for i in range(len(reordered[reordered.name_b=='']))]
+        reordered.loc[reordered.name_b=='', 'name_b'] = ["internal_{0:d}".format(i +1) for i in range(len(reordered[reordered.name_b=='']))]
         internal_names =  reordered[reordered.b>n][['b','name_b']].copy()
         internal_names.set_index(['b'], inplace = True)
-        internal_names = internal_names.append(pd.DataFrame(data = ['mrca'], index= [n], columns = ['name_b']))
+        internal_names = pd.concat([internal_names, pd.DataFrame(data = ['mrca'], index= [n], columns = ['name_b'])])
         reordered['name_a'] = [internal_names.name_b .loc[i]for i in reordered.a]
 
     reordered = reordered[['a','b','name_a', 'name_b', 'edge_length']]
