@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/medicc2?color=green)](https://pypi.org/project/medicc2/)
 [![Conda](https://img.shields.io/conda/v/bioconda/medicc2?color=green)](https://anaconda.org/bioconda/medicc2)
 
-For more information see the accompanying  paper [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://www.biorxiv.org/content/10.1101/2021.02.28.433227v2).
+For more information see the accompanying publication [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-022-02794-9).
 
 # Installation
 Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was developed and tested on unix-built systems (Linux and MacOS). For Windows users we recommended WSL2.
@@ -175,9 +175,9 @@ Email questions, feature requests and bug reports to **Tom Kaufmann, tom.kaufman
 MEDICC2 is available under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html). It contains modified code of the *pywrapfst* Python module from [OpenFST](http://www.openfst.org/) as permitted by the [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) license.
 
 # Please cite
-Kaufmann TL, Petkovic M, Watkins TBK, Colliver EC, Laskina S, Thapa N, Minussi DC, Navin N, Swanton C, Van Loo P, Haase K, Tarabichi M, Schwarz RF.
-**MEDICC2: whole-genome doubling aware copy-number phylogenies for cancer evolution**  
-bioRxiv 2021 Sep 6; doi: 10.1101/2021.02.28.433227 
+Kaufmann, T.L., Petkovic, M., Watkins, T.B.K. et al.  
+**MEDICC2: whole-genome doubling aware copy-number phylogenies for cancer evolution**.  
+Genome Biol 23, 241 (2022). https://doi.org/10.1186/s13059-022-02794-9
 
 Schwarz RF, Trinh A, Sipos B, Brenton JD, Goldman N, Markowetz F.  
 **Phylogenetic quantification of intra-tumour heterogeneity.**  
