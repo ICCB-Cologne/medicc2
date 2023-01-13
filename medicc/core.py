@@ -872,6 +872,9 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
 
 def overlap_regions(region, cur_events_ranges, event, branch, overlap_threshold):
 
+    # Workaround for bug in PyRanges for numpy version 1.20 and higher
+    np.long = np.int_
+
     cur_events_overlaps = region.coverage(cur_events_ranges).as_df()
     cur_events_overlaps = cur_events_overlaps.loc[cur_events_overlaps['FractionOverlaps']
                                                 > overlap_threshold]

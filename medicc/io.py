@@ -15,6 +15,13 @@ logger = logging.getLogger(__name__)
 
 def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv', separator='X', 
                               allele_columns=['cn_a', 'cn_b'], maxcn=8, total_copy_numbers=False):
+
+    if len(allele_columns) == 1 and not total_copy_numbers:
+        logger.warn('You have provided only one allele column but the --total-copy-numbers flag was not set')
+    if total_copy_numbers and not len(allele_columns) == 1:
+        raise MEDICCIOError("You have set the --total-copy-numbers flag but provided more than one allele column. "
+                            "Set allele columns with the flag --input-allele-columns")
+
     ## Read in input data
     if input_type.lower() == "fasta" or input_type.lower() == 'f':
         logger.info("Reading FASTA input.")
@@ -24,12 +31,6 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
         input_df = _read_tsv_as_dataframe(filename, allele_columns=allele_columns, maxcn=maxcn)
     else:
         raise MEDICCIOError("Unknown input type, possible options are 'fasta' or 'tsv'.")
-
-    if len(allele_columns) == 1 and not total_copy_numbers:
-        logger.warn('You have provided only one allele column but the --total-copy-numbers flag was not set')
-    if total_copy_numbers and not len(allele_columns) == 1:
-        raise MEDICCIOError("You have set the --total-copy-numbers flag but provided more than one allele column. "
-                            "Set allele columns with the flag --input-allele-columns")
 
     input_df.columns.name = 'allele'
     input_df_stacked = input_df.stack('allele').unstack('sample_id').T
@@ -127,8 +128,8 @@ def validate_input(input_df, symbol_table):
         raise MEDICCIOError("Not all input symbols are contained in symbol table. Offending symbols: %s" % str(not_in_set))
 
     # Check data type start and end columns
-    if (input_df.index.get_level_values('start').dtype != np.int or 
-        input_df.index.get_level_values('end').dtype != np.int):
+    if (input_df.index.get_level_values('start').dtype != int or 
+        input_df.index.get_level_values('end').dtype != int):
         raise MEDICCIOError("Start and end columns must be of type: integer.")
 
     # Check data type payload columns - these should all be of type str (object)
