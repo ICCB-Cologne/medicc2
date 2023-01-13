@@ -128,8 +128,8 @@ def validate_input(input_df, symbol_table):
         raise MEDICCIOError("Not all input symbols are contained in symbol table. Offending symbols: %s" % str(not_in_set))
 
     # Check data type start and end columns
-    if (input_df.index.get_level_values('start').dtype != np.int or 
-        input_df.index.get_level_values('end').dtype != np.int):
+    if (input_df.index.get_level_values('start').dtype != int or 
+        input_df.index.get_level_values('end').dtype != int):
         raise MEDICCIOError("Start and end columns must be of type: integer.")
 
     # Check data type payload columns - these should all be of type str (object)
