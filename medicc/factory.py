@@ -126,8 +126,8 @@ def create_nstep_fst(n, one_step_fst, minimize=True):
     return nstep_fst
 
 
-def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1, max_num_wgds=3,
-                          wgd_x2=False, total_cn=False, output_all=False):
+def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1, 
+        max_num_wgds=3, max_pre_wgd_losses=3, output_all=False):
     """ Creates the tree FST T which computes the asymmetric MED. """
     n = len(_get_int_cns_from_symbol_table(symbol_table, sep))
     X1step = create_1step_del_fst(symbol_table, sep, exclude_zero=True)
@@ -135,8 +135,7 @@ def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1, m
     XX = fstlib.encode_determinize_minimize(X*~X)
     
     L1step_loh = create_1step_del_fst(symbol_table, sep, exclude_zero=False)
-    LOH = create_nstep_fst(n-1, L1step_loh)
-
+    LOH = create_nstep_fst(max_pre_wgd_losses-1, L1step_loh)
 
     if enable_wgd:
         W1step = create_1step_WGD_fst(symbol_table, sep, wgd_cost=wgd_cost,

@@ -5,6 +5,7 @@ import Bio
 import numpy as np
 import pandas as pd
 import scipy as sp
+import copy
 
 from medicc import tools
 
@@ -63,6 +64,50 @@ def _mutate(cnstr, event, start, end, maxcn, mincn, ignore_chr_boundaries=False,
             logger.error('unknown event')
             newcn = oldcn
         cnstr[i] = tools.int2hex(newcn)
+
+def evolve_along_tree(tree, normal_sequence, normal_name='diploid', rate_multiplier=1, 
+    plen=0.2, pwgd=0.05, pgain=0.5, maxcn=8, mincn=0, maxwgd=3, 
+    verbose=True, seed=None, inplace=True):
+    """ Mutates one allele along a given tree starting from the normal sample with name indicated
+    and normal sequence as given. All event rates are globally multiplied by rate_multiplier. """
+    if not inplace:
+        tree = copy.deepcopy(tree)
+    stack = []
+    child_counter = {}
+    finished = False
+    current_clade = tree.root
+    child_counter[current_clade]=0
+    for clade in tree.root.clades:
+        if clade.name == normal_name: 
+            clade.seq = normal_sequence
+            diploid_bl = clade.branch_length
+            current_clade.seq = evolve(normal_sequence, mu=diploid_bl*rate_multiplier, 
+                plen=plen, pwgd=pwgd, pgain=pgain, maxcn=maxcn, mincn=mincn, maxwgd=maxwgd,
+                verbose=verbose, seed=seed)[0]
+            break
+
+    while not finished:
+        i = child_counter[current_clade]
+        if i < len(current_clade.clades):
+            if current_clade.clades[i].name == normal_name:
+                child_counter[current_clade]+=1
+            else:
+                child_clade = current_clade.clades[i]
+                child_clade.seq = evolve(current_clade.seq, mu=child_clade.branch_length*rate_multiplier, 
+                    plen=plen, pwgd=pwgd, pgain=pgain, maxcn=maxcn, mincn=mincn, maxwgd=maxwgd,
+                    verbose=verbose, seed=seed)[0]
+                stack.append(current_clade)
+                child_counter[current_clade]+=1
+                current_clade = child_clade
+                child_counter[current_clade]=0
+        else:
+            try:
+                current_clade = stack.pop()
+            except IndexError:
+                finished = True
+
+    return tree
+    
 
 def rcoal(n, tips = None, uniform_branch_length=False, normal_name='diploid'):
     """As in rcoal function in R package Ape, function generates a random tree and random branch lengths."""
