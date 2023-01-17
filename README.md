@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/medicc2?color=green)](https://pypi.org/project/medicc2/)
 [![Conda](https://img.shields.io/conda/v/bioconda/medicc2?color=green)](https://anaconda.org/bioconda/medicc2)
 
-For more information see the accompanying  paper [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://www.biorxiv.org/content/10.1101/2021.02.28.433227v2).
+For more information see the accompanying publication [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-022-02794-9).
 
 # Installation
 Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was developed and tested on unix-built systems (Linux and MacOS). For Windows users we recommended WSL2.
@@ -79,11 +79,17 @@ MEDICC creates the following output files:
 * `_final_tree.new`, `_final_tree.xml`, `_final_tree.png`: The final phylogenetic tree in Newick and XML format as well as an image
 * `_pairwise_distances.tsv`: A NxN matrix (N being the number of samples) of pairwise distances calculated with the symmetric MEDICC2 distance
 * `_final_cn_profiles.tsv`: Copy-number profiles of the input as well as the newly internal nodes. Also includes additional information such as whether a gain or loss has happened
-* `_copynumber_events_df.tsv`: List of all copy-number events detected. Note that entries for WGD events have non-meaningful values for chrom, cn_child, ...
+* `_copynumber_events_df.tsv`: List of all copy-number events detected. The entries for WGD events have non-meaningful values for chrom, cn_child, etc. Note that the events derived are not unambiguous (see below).
 * `_cn_profiles.pdf`: Combined plot of the phylogenetic tree as well as the copy-number profiles of all samples (including the internal nodes)
 * `_events_overlap.tsv`: Overlap of copy-number events with regions of interest (see below)
 * `_branch_lengths.tsv`: List of all branches and their corresponding lenghts of the final tree
 
+
+### Copy-number events
+MEDICC2 creates a list of copy-number events in the file `_copynumber_events_df.tsv` which are also displayed in the final copy-number barplot. Note however, that these events are not unambigous but just one possible solution. In some cases there are multiple possible paths that can result in the same final copy-number state in the same number of steps. Without additional information, MEDICC2 cannot determine which possible path is the right one and thus opts for a path that creates the longest consecutive gains. 
+Even though the events inferred by MEDICC2 are not unambigous they are minimal (as in there are no solutions with fewer number of steps) and deterministic (as in multiple runs of MEDICC2 will always return the same events).
+
+Minimal example: *111 -> 232* which can be explained by *gain-gain-gain* + *x-gain-x* or *gain-gain-x* + *x-gain-gain*. MEDICC2 would select the first option.
 
 ## Output plots
 Apart from the file `_tree.pdf` which contains the inferred phylogeny, the main plot created by MEDICC is the copy-number plots named either `_cn_profiles.pdf` or `_cn_profiles_heatmap.pdf`.
@@ -175,9 +181,9 @@ Email questions, feature requests and bug reports to **Tom Kaufmann, tom.kaufman
 MEDICC2 is available under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html). It contains modified code of the *pywrapfst* Python module from [OpenFST](http://www.openfst.org/) as permitted by the [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) license.
 
 # Please cite
-Kaufmann TL, Petkovic M, Watkins TBK, Colliver EC, Laskina S, Thapa N, Minussi DC, Navin N, Swanton C, Van Loo P, Haase K, Tarabichi M, Schwarz RF.
-**MEDICC2: whole-genome doubling aware copy-number phylogenies for cancer evolution**  
-bioRxiv 2021 Sep 6; doi: 10.1101/2021.02.28.433227 
+Kaufmann, T.L., Petkovic, M., Watkins, T.B.K. et al.  
+**MEDICC2: whole-genome doubling aware copy-number phylogenies for cancer evolution**.  
+Genome Biol 23, 241 (2022). https://doi.org/10.1186/s13059-022-02794-9
 
 Schwarz RF, Trinh A, Sipos B, Brenton JD, Goldman N, Markowetz F.  
 **Phylogenetic quantification of intra-tumour heterogeneity.**  
