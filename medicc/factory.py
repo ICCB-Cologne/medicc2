@@ -125,18 +125,46 @@ def create_nstep_fst(n, one_step_fst, minimize=True):
 
     return nstep_fst
 
-
 def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1, 
-        max_num_wgds=3, max_pre_wgd_losses=3, output_all=False):
+        max_num_wgds=3, wgd_x2=False, output_all=False):
     """ Creates the tree FST T which computes the asymmetric MED. """
     n = len(_get_int_cns_from_symbol_table(symbol_table, sep))
-    X1step = create_1step_del_fst(symbol_table, sep, exclude_zero=True)
-    X = create_nstep_fst(n-1, X1step)
-    XX = fstlib.encode_determinize_minimize(X*~X)
+    L1step = create_1step_del_fst(symbol_table, sep, exclude_zero=True)
+    L = create_nstep_fst(n-1, L1step)
+    LG = fstlib.encode_determinize_minimize(L*~L)
     
-    L1step_loh = create_1step_del_fst(symbol_table, sep, exclude_zero=False)
-    LOH = create_nstep_fst(max_pre_wgd_losses-1, L1step_loh)
+    #L1step_loh = create_1step_del_fst(symbol_table, sep, exclude_zero=False)
+    #LOH = create_nstep_fst(max_pre_wgd_losses-1, L1step_loh)
+    LOH = create_loh_fst(symbol_table, sep)
 
+    if enable_wgd:
+        W1step = create_1step_WGD_fst(symbol_table, sep, wgd_cost=wgd_cost,
+                                      minimize=False, wgd_x2=wgd_x2)
+        n = int(min(max_num_wgds, np.floor(np.log2(n))))
+        if n > 1:
+            W = create_nstep_fst(n-1, W1step)
+        else:
+            W = W1step
+        T = LOH * W * LG
+    else:
+        T = LOH * LG
+        W = None
+
+    if output_all:
+        return T, LOH, W, L, ~L
+    else:
+        return T
+
+def create_copynumber_fst_exact(symbol_table, sep='X', enable_wgd=False, wgd_cost=1, 
+        max_num_wgds=3, output_all=False):
+    """ Creates the exact tree FST T which computes the asymmetric MED. """
+    n = len(_get_int_cns_from_symbol_table(symbol_table, sep))
+    G1step = ~create_1step_del_fst(symbol_table, sep, exclude_zero=True)
+    G = create_nstep_fst(n-2, G1step)
+    L1step = create_1step_del_fst(symbol_table, sep, exclude_zero=False)
+    L = create_nstep_fst(n-1, L1step)
+    LG = fstlib.encode_determinize_minimize(~G*G)
+    
     if enable_wgd:
         W1step = create_1step_WGD_fst(symbol_table, sep, wgd_cost=wgd_cost,
                                       minimize=False)
@@ -145,13 +173,13 @@ def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1,
             W = create_nstep_fst(n-1, W1step)
         else:
             W = W1step
-        T = LOH * W * XX
+        T = L * W * LG
     else:
-        T = LOH * XX
+        T = LG
         W = None
 
     if output_all:
-        return T, LOH, W, ~X, X
+        return T, L, W, ~G, G
     else:
         return T
 
@@ -169,4 +197,37 @@ def create_phasing_fsa_from_strings(allele_a, allele_b, symbol_table, sep='X'):
         prev_state = curr_state
 
     myfst.set_final(prev_state, 0)
+    return myfst
+
+def create_loh_fst(symbol_table, separator='X'):
+
+    cns = _get_int_cns_from_symbol_table(symbol_table, separator)
+
+    myfst = fstlib.Fst(arc_type='standard')
+    myfst.set_input_symbols(symbol_table)
+    myfst.set_output_symbols(symbol_table)
+
+    myfst.add_states(9)
+    myfst.set_start(0)
+    for i in range(9):
+        myfst.set_final(i, 0)
+
+    ## match 0 -> 0
+    myfst.add_arcs(0, [(s, s, 0, 0) for s in cns.keys()])
+    if separator is not None and separator != '':
+        myfst.add_arc(0, (separator, separator, 0, 0))  # add separator
+
+    ## others
+    for state in range(1, 9):
+        cost = state
+        myfst.add_arcs(0, [(s, t, cost, state) for s in cns.keys()
+                           for t in cns.keys() if (cns[s]-cns[t]) == cost and t == '0'])
+        myfst.add_arcs(state, [(s, t, 0, state) for s in cns.keys()
+                               for t in cns.keys() if (cns[s]-cns[t]) <= cost and t == '0'])
+        myfst.add_arcs(state, [(s, t, cns[s]-cns[t]-cost, cns[s]-cns[t]) for s in cns.keys()
+                               for t in cns.keys() if (cns[s]-cns[t]) > cost and t == '0'])
+        myfst.add_arcs(state, [(s, s, 0, 0) for s in cns.keys()])
+        if separator is not None and separator != '':
+            myfst.add_arc(state, (separator, separator, 0, 0))
+
     return myfst
