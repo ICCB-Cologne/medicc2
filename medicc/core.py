@@ -135,14 +135,14 @@ def create_standard_fsa_dict_from_data(input_data,
     if isinstance(input_data, pd.DataFrame):
         logger.info('Creating FSA for pd.DataFrame with the following data columns:\n{}'.format(
             input_data.columns))
-        def aggregate_copy_number_profile(copy_number_profile):
+        def aggregate_copy_number_profile(cnp):
             return separator.join([separator.join(["".join(x.astype('str'))
-                                                   for _, x in cnp[allele].groupby('chrom')]) for allele in copy_number_profile.columns])
+                                                   for _, x in cnp[allele].groupby('chrom')]) for allele in cnp.columns])
 
     elif isinstance(input_data, pd.Series):
         logger.info('Creating FSA for pd.Series with the name {}'.format(input_data.name))
-        def aggregate_copy_number_profile(copy_number_profile):
-            return separator.join(["".join(x.astype('str')) for _, x in copy_number_profile.groupby('chrom')])
+        def aggregate_copy_number_profile(cnp):
+            return separator.join(["".join(x.astype('str')) for _, x in cnp.groupby('chrom')])
 
     else:
         raise MEDICCError("Input to function create_standard_fsa_dict_from_data has to be either"
