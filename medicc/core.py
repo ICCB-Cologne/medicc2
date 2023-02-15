@@ -8,7 +8,6 @@ import fstlib
 import numpy as np
 import pandas as pd
 import pyranges as pr
-from joblib import Parallel, delayed
 
 import medicc
 from medicc import io, nj, tools
@@ -292,6 +291,11 @@ def create_df_from_phasing_fsa(input_df: pd.DataFrame, fsas, separator: str = 'X
 
 
 def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_dict, n_cores):
+    try:
+        from joblib import Parallel, delayed
+    except ImportError:
+        raise ImportError("joblib must be installed for parallelization")
+
     parallelization_groups = medicc.tools.create_parallelization_groups(len(sample_labels))
     parallelization_groups = [sample_labels[group] for group in parallelization_groups]
     logger.info("Running {} parallel runs on {} cores".format(len(parallelization_groups), n_cores))
