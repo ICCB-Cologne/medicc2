@@ -807,7 +807,7 @@ def plot_tree(input_tree,
 
 
 def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_numbers=False,
-                    alleles=('cn_a', 'cn_b'), tree_width_ratio=1, cbar_width_ratio=0.05, figsize=(20, 10),
+                    alleles=['cn_a', 'cn_b'], tree_width_ratio=1, cbar_width_ratio=0.05, figsize=(20, 10),
                     tree_line_width=0.5, tree_marker_size=0, show_internal_nodes=False, title='',
                     tree_label_colors=None, tree_label_func=None, cmap='coolwarm', normal_name='diploid',
                     ignore_segment_lengths=False):
@@ -831,6 +831,8 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
             y_posns = {s: i for i, s in enumerate(cur_sample_labels)}
 
         cn_axes = axs[:-1]
+        cn_axes[0].set_title(title, x=0, y=1, ha='left', va='bottom', pad=20,
+                             fontweight='bold', fontsize=16, zorder=10)
     else:
         fig, axs = plt.subplots(figsize=figsize, ncols=2+nr_alleles, sharey=False,
                                 gridspec_kw={'width_ratios': [tree_width_ratio] + nr_alleles*[1] + [cbar_width_ratio]})
