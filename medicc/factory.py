@@ -230,4 +230,6 @@ def create_loh_fst(symbol_table, separator='X'):
         if separator is not None and separator != '':
             myfst.add_arc(state, (separator, separator, 0, 0))
 
+    myfst = fstlib.encode_determinize_minimize(myfst)
+    
     return myfst
