@@ -187,12 +187,12 @@ def phase(input_df: pd.DataFrame, model_fst: fstlib.Fst, reference_sample='diplo
 
     # Phasing across chromosomes is random, so we need to swap haplotype assignment per chromosome
     # so that the higher ploidy haplotype is always cn_a
-    output_df['width'] = output_df.eval('end-start')
+    output_df['width'] = output_df.eval('end+1-start')
     output_df['cn_a_width'] = output_df['cn_a'].astype(float) * output_df['width']
     output_df['cn_b_width'] = output_df['cn_b'].astype(float) * output_df['width']
 
     swap_haplotypes_ind = output_df.groupby(['sample_id', 'chrom'])[
-    ['cn_a_width', 'cn_b_width']].mean().diff(axis=1).iloc[:, 1] > 0
+        ['cn_a_width', 'cn_b_width']].mean().diff(axis=1).iloc[:, 1] > 0
 
     output_df = output_df.join(swap_haplotypes_ind.rename('swap_haplotypes_ind'), on=['sample_id', 'chrom'])
     output_df.loc[output_df['swap_haplotypes_ind'], ['cn_a', 'cn_b']] = output_df.loc[output_df['swap_haplotypes_ind'], ['cn_b', 'cn_a']].values
@@ -562,7 +562,7 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=['cn
     # only check if >30% of is gained
     wgd_candidate_threshold = 0.3
 
-    widths = cur_df.loc[[child_name]].eval('end-start')
+    widths = cur_df.loc[[child_name]].eval('end+1-start')
     fraction_gain = ((cur_df.loc[child_name, alleles] > 1).astype(int).sum(axis=1) * widths.loc[child_name]
                         ).sum() / (2 * widths.loc[child_name].sum())
     parent_fsa = fstlib.factory.from_string('X'.join(['X'.join(["".join(x.astype('str')) for _, x in cur_df.loc[parent_name, alleles][allele].groupby('chrom')]) for allele in alleles]),

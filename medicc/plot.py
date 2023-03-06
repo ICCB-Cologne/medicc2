@@ -872,7 +872,7 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
         x_pos = np.arange(len(input_df.loc[cur_sample_labels].astype(int).unstack('sample_id'))+1)
     else:
         x_pos = np.append([0], np.cumsum(input_df.loc[cur_sample_labels].astype(int).unstack(
-            'sample_id').loc[:, (alleles[0])].loc[:, cur_sample_labels].eval('end-start').values))
+            'sample_id').loc[:, (alleles[0])].loc[:, cur_sample_labels].eval('end+1-start').values))
     y_pos = np.arange(len(cur_sample_labels)+1)+0.5
 
     for ax, allele in zip(cn_axes, alleles):

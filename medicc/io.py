@@ -144,7 +144,7 @@ def validate_input(input_df, symbol_table=None):
 
 
 def filter_by_segment_length(input_df, filter_size):
-    segment_length = input_df.eval('end-start')
+    segment_length = input_df.eval('end+1-start')
     return input_df.loc[segment_length > float(filter_size)]
 
 
