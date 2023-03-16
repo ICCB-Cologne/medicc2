@@ -190,6 +190,10 @@ Sometimes MEDICC2 will pass out the following warning: *Event recreation was fau
 in a single node. Please get in contact with us if the problem prevails even without the `--total-copy-numbers` flag.
 
 
+# Simulation Validation
+The simulated copy-number profiles used in the MEDICC2 publication were created using our simulation framework [Simphyni](https://bitbucket.org/schwarzlab/simphyni/src/main/). The Simphyni repository contains a notebook to recreate the exact data used in the publication.
+
+
 # Contact
 Email questions, feature requests and bug reports to **Tom Kaufmann, tom.kaufmann@mdc-berlin.de**.
 
