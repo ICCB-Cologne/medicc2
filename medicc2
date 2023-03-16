@@ -98,6 +98,8 @@ parser.add_argument("-j", "--n-cores",
                     default=None,
                     required=False,
                     help="Number of cores to run on")
+parser.add_argument("--events", action='store_true', default=False, dest='events',
+                    help='Whether to infer copy-number events (default: False).', required=False)
 parser.add_argument("--chromosomes-bed",
                     type=str,
                     dest='chromosomes_bed',
@@ -205,7 +207,8 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = m
     no_wgd=args.no_wgd,
     wgd_x2=args.wgd_x2,
     total_cn=args.total_copy_numbers,
-    n_cores=args.n_cores)
+    n_cores=args.n_cores,
+    event_reconstruction=args.events)
 
 
 # Write events table and overlap events with chromosome and oncogenes
@@ -214,7 +217,7 @@ if events_df is not None:
                      sep='\t', index=True)
 
     logger.info("Overlapping copy-number events with chromosomes and known oncogenes.")
-    overlaps = medicc.core.overlap_events(events_df=events_df, alleles=allele_columns, 
+    overlaps = medicc.event_reconstruction.overlap_events(events_df=events_df, alleles=allele_columns, 
                                           normal_name=normal_name,
                                           chromosome_bed=args.chromosomes_bed, 
                                           regions_bed=args.regions_bed)

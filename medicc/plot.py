@@ -72,6 +72,7 @@ def plot_cn_profiles(
         label_func=None):
     
     df = input_df.copy()
+    df[allele_columns] = df[allele_columns].astype(int)
     if len(allele_columns) > 2:
         logger.warn("More than two allels were provided ({})\n"
                     "Copy number tracks can only be plotted for 1 or 2 alleles".format(allele_columns))
@@ -80,7 +81,8 @@ def plot_cn_profiles(
                     "These are: {}".format(np.setdiff1d(allele_columns, df.columns)))
 
     if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd'], df.columns).size > 0:
-        df, _ = core.calculate_all_cn_events(input_tree, df, allele_columns, normal_name)
+        # TODO: Fix
+        df[['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd']] = False
 
     if hide_normal_chromosomes:
         df = df.join(df.groupby('chrom')['is_normal'].all().to_frame('hide'))
@@ -145,10 +147,10 @@ def plot_cn_profiles(
     df = df.reset_index().set_index(['sample_id', 'chrom', 'start', 'end'])
 
     if plot_summary or plot_subclonal_summary:
-        agg_events = core.compute_cn_change(df=df, tree=input_tree, normal_name=normal_name)
+        agg_events = compute_cn_change(df=df[allele_columns], tree=input_tree, normal_name=normal_name)
         agg_events = agg_events.groupby(["chrom", "start", "end"], observed=True).sum()
 
-        agg_events.loc[:, ['start_pos', 'end_pos', 'small_segment']
+        agg_events[['start_pos', 'end_pos', 'small_segment']
                        ] = df.loc[samples[0], ['start_pos', 'end_pos', 'small_segment']]
 
         mrca = [x for x in input_tree.root.clades if x.name != normal_name][0].name
@@ -233,9 +235,11 @@ def plot_cn_profiles(
                          show_events_in_cn=show_events_in_cn)
 
     if plot_clonal_summary:
+        cur = mrca_df.copy()
+        cur[['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd']] = False
         _plot_cn_profile(ax=cn_axes[nsamp],
                          label='clonal\nchanges',
-                         data=mrca_df.copy(),
+                         data=cur,
                          mincn=mrca_df[allele_columns].min().min()-1,
                          maxcn=mrca_df[allele_columns].max().max()+1,
                          alleles=allele_columns,
@@ -246,9 +250,11 @@ def plot_cn_profiles(
         cn_axes[nsamp].get_xaxis().set_visible(not (plot_summary or plot_subclonal_summary))
 
     if plot_summary:
+        cur = agg_events.copy()
+        cur[['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd']] = False
         _plot_cn_profile(ax=cn_axes[-1],
                          label='all\nchanges',
-                         data=agg_events.copy(),
+                         data=cur,
                          mincn=agg_events[allele_columns].min().min()-1,
                          maxcn=agg_events[allele_columns].max().max()+1,
                          alleles=allele_columns,
@@ -259,9 +265,12 @@ def plot_cn_profiles(
 
     if plot_subclonal_summary:
         agg_events.loc[:, allele_columns] = agg_events[allele_columns] - mrca_df[allele_columns]
+        cur = agg_events.copy()
+        cur[['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd']] = False
+
         _plot_cn_profile(ax=cn_axes[-1 - int(plot_summary)],
                          label='subclonal\nchanges',
-                         data=agg_events.copy(),
+                         data=cur,
                          type='summary',
                          mincn=agg_events[allele_columns].min().min()-1,
                          maxcn=agg_events[allele_columns].max().max()+1,
@@ -913,6 +922,32 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
         ax.set_ylim(len(cur_sample_labels)+0.5, 0.5)
 
     return fig
+
+
+def compute_cn_change(df, tree, normal_name='diploid'):
+    """Compute the copy-number changes per segment in all branches
+
+    Args:
+        df (pandas.DataFrame): DataFrame containing the copy-numbers of samples and internal nodes
+        tree (Bio.Phylo.Tree): Phylogenetic tree
+        normal_name (str, optional): Name of normal sample. Defaults to 'diploid'.
+
+    Returns:
+        pandas.DataFrame: DataFrame containing the copy-number changes
+    """    
+    cn_change = df.copy()
+    alleles = cn_change.columns
+    for allele in alleles:
+        cn_change[allele] = cn_change[allele].astype('int')
+
+    clades = [clade for clade in tree.find_clades(order = "postorder") if clade.name is not None and clade.name != normal_name]
+    for clade in clades:
+        for child in clade.clades:
+            cn_change.loc[child.name, alleles] = cn_change.loc[child.name, alleles].values - cn_change.loc[clade.name, alleles].values
+    cn_change.loc[clades[-1].name, alleles] = cn_change.loc[clades[-1].name, alleles].values - cn_change.loc[normal_name, alleles].values
+    cn_change.loc[normal_name, alleles] = 0
+
+    return cn_change
 
 
 class MEDICCPlotError(Exception):

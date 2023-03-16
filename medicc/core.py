@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 import medicc
-from medicc import io, nj, tools, event_detection
+from medicc import io, nj, tools, event_reconstruction
 
 # prepare logger 
 logger = logging.getLogger(__name__)
@@ -26,7 +26,8 @@ def main(input_df,
          wgd_x2=False,
          no_wgd=False,
          total_cn=False,
-         n_cores=None):
+         n_cores=None,
+         event_reconstruction=False):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
@@ -103,8 +104,9 @@ def main(input_df,
     nj_tree.root_with_outgroup(normal_name)
     final_tree.root_with_outgroup(normal_name)
 
-    if ancestral_reconstruction:
-        output_df, events_df = event_detection.calculate_all_cn_events(
+    if ancestral_reconstruction and event_reconstruction:
+        from medicc.event_reconstruction import calculate_all_cn_events
+        output_df, events_df = calculate_all_cn_events(
             final_tree, output_df, allele_columns, normal_name,
             wgd_x2=wgd_x2, no_wgd=no_wgd, total_cn=total_cn)
         if len(events_df) != final_tree.total_branch_length():
@@ -116,8 +118,6 @@ def main(input_df,
                         f"incorrect for the following nodes: {faulty_nodes}")
     else:
         events_df = None
-        output_df = input_df
-
 
     return sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df
 
@@ -447,7 +447,6 @@ def detect_wgd(input_df, sample, total_cn=False, wgd_x2=False):
     distance_no_wgd = float(fstlib.score(no_wgd_fst, diploid_fsa, fsa_dict[sample]))
 
     return distance_wgd != distance_no_wgd
-
 
 
 class MEDICCError(Exception):

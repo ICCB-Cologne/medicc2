@@ -2,11 +2,13 @@ import copy
 import logging
 import os
 
-import Bio
 import fstlib
 import numpy as np
 import pandas as pd
-import pyranges as pr
+try:
+    import pyranges as pr
+except ImportError:
+    raise ImportError("You have to install pyranges for the event reconstruction") from None
 
 from medicc import io, tools
 
@@ -379,31 +381,6 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=['cn
 
     return cur_df, events_df
 
-
-def compute_cn_change(df, tree, normal_name='diploid'):
-    """Compute the copy-number changes per segment in all branches
-
-    Args:
-        df (pandas.DataFrame): DataFrame containing the copy-numbers of samples and internal nodes
-        tree (Bio.Phylo.Tree): Phylogenetic tree
-        normal_name (str, optional): Name of normal sample. Defaults to 'diploid'.
-
-    Returns:
-        pandas.DataFrame: DataFrame containing the copy-number changes
-    """    
-    cn_change = df.copy()
-    alleles = cn_change.columns
-    for allele in alleles:
-        cn_change[allele] = cn_change[allele].astype('int')
-
-    clades = [clade for clade in tree.find_clades(order = "postorder") if clade.name is not None and clade.name != normal_name]
-    for clade in clades:
-        for child in clade.clades:
-            cn_change.loc[child.name, alleles] = cn_change.loc[child.name, alleles].values - cn_change.loc[clade.name, alleles].values
-    cn_change.loc[clades[-1].name, alleles] = cn_change.loc[clades[-1].name, alleles].values - cn_change.loc[normal_name, alleles].values
-    cn_change.loc[normal_name, alleles] = 0
-
-    return cn_change
 
 def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=0.9,
                    chromosome_bed='default', regions_bed='default',

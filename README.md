@@ -51,6 +51,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--plot`: Type of copy-number plot to save. 'bars' is recommended for <50 samples, heatmap for more samples, 'auto' will decide based on the number of samples, 'both' will plot both and 'none' will plot neither. (default: auto).
 * `--total-copy-numbers`: Run for total copy number data instead of allele-specific data. Default: False
 * `-j`, `--n-cores`: Number of cores to run on. Default: None
+* `--events`: Whether to infer copy-number events. See section "Event Detection" below
 * `--chromosomes-bed`: BED file for chromosome regions to compare copy-number events to
 * `--regions-bed`: BED file for regions of interest to compare copy-number events to
 * `-v`, `--verbose`: Enable verbose output. Default: False
@@ -120,7 +121,21 @@ For first time users we recommend to have a look at `examples/simple_example` to
 The notebook `notebooks/bootstrap_demo.py` demonstrates how to use the bootstrapping routine and `notebooks/plot_demo.py` shows how to use the main plotting functions.
 
 
+## Event Detection
+TODO
+trigger with --event-detection flag
+
+
+
 ## Regions of interest
+Requires pyranges version XX (incompatible with python 3.11?)
+
+TODO: turn off by default
+
+TODO:
+run with `--chromosomes-bed "default"` and/or`--regions-bed "default"`
+
+
 MEDICC2 compares the detected copy-number events to regions of interest. These regions are chromosome-boundaries and known oncogenes and tumor-suppressor genes. By default MEDICC2 uses hg38 chromosome-arms and a list of genes taken from Davoli et al. Cell 2013. This data is present as BED files in the `medicc/objects` folder.
 
 Users can specify regions of interest of their own in BED format by providing the `--chromosomes-bed` or `--regions-bed` flags.
