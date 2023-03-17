@@ -20,17 +20,18 @@ class PairTest:
 
 
 PAIR_TESTS = [
-    PairTest('11111X1111', '22022X1111', 2, 2, 2, 2, 2, 2),
-    PairTest('11111X1111', '22022X2222', 2, 3, 3, 2, 3, 3),
-    PairTest('11101X1111', '10111X1111', np.inf, np.inf, np.inf, 2, 2, 2),
-    PairTest('33233X1111', '00000X1111', 3, 3, 3, 3, 3, 3),
-    PairTest('1111111111X1111111111', '2212222222X2222222222', 2, 3, 3, 2, 3, 3),
-    PairTest('2222222222X2222222222', '3323333333X3333323333', 3, 4, 4, 3, 4, 4),
-    PairTest('1111111X11X11X1111X1111', '3322112X22X23X2222X2200', 5, 9, 8, 5, 9, 8),
-    PairTest('1111111111X111X111', '3332222221X333X333', 4, 6, 3, 4, 6, 3),
-    PairTest('22222X222X222', '44444X444X444', 2, 6, 1, 2, 6, 1),
-    PairTest('2222222222', '2211001122', 2, 2, 2, 2, 2, 2),
-    PairTest('11X11X11X11', '22X33X33X33', 3, 7, 2, 3, 7, 2)
+    PairTest('11111X1111', '22022X1111', 2, 2, 2, 2, 2, 2), # pair 0
+    PairTest('11111X1111', '22022X2222', 2, 3, 3, 2, 3, 3), # pair 1
+    PairTest('11101X1111', '10111X1111', np.inf, np.inf, np.inf, 2, 2, 2), # pair 2
+    PairTest('33233X1111', '00000X1111', 3, 3, 3, 3, 3, 3), # pair 3
+    PairTest('1111111111X1111111111', '2212222222X2222222222', 2, 3, 3, 2, 3, 3), # pair 4
+    PairTest('2222222222X2222222222', '3323333333X3333323333', 3, 4, 4, 3, 4, 4), # pair 5
+    PairTest('1111111X11X11X1111X1111', '3322112X22X23X2222X2200', 5, 9, 8, 5, 9, 8), # pair 6
+    PairTest('1111111111X111X111', '3332222221X333X333', 4, 6, 3, 4, 6, 3), # pair 7
+    PairTest('22222X222X222', '44444X444X444', 2, 6, 1, 2, 6, 1), # pair 8
+    PairTest('2222222222', '2211001122', 2, 2, 2, 2, 2, 2), # pair 9
+    PairTest('11X11X11X11', '22X33X33X33', 3, 7, 2, 3, 7, 2), # pair 10
+    # PairTest('22X1X1X1', '10X2X2X2', 4, 5, 5, 4, 5, 5) # pair 11: Does not pass currently with WGD
 ]
 
 FST_ASYMM_WGD = medicc.io.read_fst(no_wgd=False, total_copy_numbers=False, wgd_x2=False)
@@ -77,34 +78,34 @@ def _run_pair_test(pair_test: PairTest, is_wgd: bool, is_sym: bool, is_total_cn:
 def test_fstlib_sym_with_wgd(pair: PairTest):
 
     test_score, expected_score = _run_pair_test(pair, is_wgd=True, is_sym=True, is_total_cn=False)
-    assert test_score == expected_score
+    assert expected_score == test_score, f"expected: {expected_score}, test: {test_score}"
 
 @pytest.mark.parametrize("pair", PAIR_TESTS)
 def test_fstlib_sym_without_wgd(pair: PairTest):
 
     test_score, expected_score = _run_pair_test(pair, is_wgd=False, is_sym=True, is_total_cn=False)
-    assert test_score == expected_score
+    assert expected_score == test_score, f"expected: {expected_score}, test: {test_score}"
 
 @pytest.mark.parametrize("pair", PAIR_TESTS)
 def test_fstlib_asym_with_wgd(pair: PairTest):
 
     test_score, expected_score = _run_pair_test(pair, is_wgd=True, is_sym=False, is_total_cn=False)
-    assert test_score == expected_score
+    assert expected_score == test_score, f"expected: {expected_score}, test: {test_score}"
 
 @pytest.mark.parametrize("pair", PAIR_TESTS)
 def test_fstlib_asym_without_wgd(pair: PairTest):
 
     test_score, expected_score = _run_pair_test(pair, is_wgd=False, is_sym=False, is_total_cn=False)
-    assert test_score == expected_score
+    assert expected_score == test_score, f"expected: {expected_score}, test: {test_score}"
 
 @pytest.mark.parametrize("pair", PAIR_TESTS)
 def test_fstlib_asym_total_cn(pair: PairTest):
 
     test_score, expected_score = _run_pair_test(pair, is_wgd=True, is_sym=False, is_total_cn=True)
-    assert test_score == expected_score
+    assert expected_score == test_score, f"expected: {expected_score}, test: {test_score}"
 
 @pytest.mark.parametrize("pair", PAIR_TESTS)
 def test_fstlib_sym_total_cn(pair: PairTest):
 
     test_score, expected_score = _run_pair_test(pair, is_wgd=True, is_sym=True, is_total_cn=True)
-    assert test_score == expected_score
+    assert expected_score == test_score, f"expected: {expected_score}, test: {test_score}"
