@@ -5,16 +5,11 @@ import os
 import fstlib
 import numpy as np
 import pandas as pd
-try:
-    import pyranges as pr
-except ImportError:
-    raise ImportError("You have to install pyranges for the event reconstruction") from None
 
 from medicc import io, tools
 
 # prepare logger 
 logger = logging.getLogger(__name__)
-
 
 
 def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name='diploid',
@@ -393,8 +388,8 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
         output_df (pandas.DataFrame, optional): DataFrame containing all copy-numbers. Defaults to None.
         tree (Bio.Phylo.Tree, optional): Phylogenetic tree. Defaults to None.
         overlap_threshold (float, optional): Threshold above which an overlap is considered. Defaults to 0.9.
-        chromosome_bed (str, optional): Name of BED file containing chromosome arm information. Defaults to 'default'.
-        regions_bed (str, optional): Name of BED file containing regions of interest. Defaults to 'default'.
+        chromosome_bed (str, optional): Name of BED file containing chromosome arm information. Defaults to 'none'.
+        regions_bed (str, optional): Name of BED file containing regions of interest. Defaults to 'none'.
         replace_loh_with_loss (bool, optional): If True, loh is considered like a normal loss. Defaults to True.
         alleles (list, optional): List of alleles. Defaults to ['cn_a', 'cn_b'].
         replace_both_arms_with_chrom (bool, optional): If True, an event in the p- and q-arm of a chromosome will be displayed as a single event. Defaults to True.
@@ -402,12 +397,20 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
 
     Returns:
         pandas.DataFrame: DataFrame with events concerning the regions of interest
-    """                   
+    """
+    try:
+        import pyranges as pr
+    except ImportError:
+        raise ImportError("You have to install pyranges to overlap events with regions of interest") from None       
 
-    if chromosome_bed == 'default':
+    if chromosome_bed == 'none':
+        chromosome_bed = None
+    elif chromosome_bed == 'default':
         chromosome_bed = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                       "objects", "hg38_chromosome_arms.bed")
-    if regions_bed == 'default':
+    if regions_bed == 'none':
+        regions_bed = None
+    elif regions_bed == 'default':
         regions_bed = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                    "objects", "Davoli_2013_TSG_OG_genes.bed")
 

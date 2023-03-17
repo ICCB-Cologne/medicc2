@@ -27,7 +27,7 @@ def main(input_df,
          no_wgd=False,
          total_cn=False,
          n_cores=None,
-         event_reconstruction=False):
+         reconstruct_events=False):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
@@ -104,9 +104,9 @@ def main(input_df,
     nj_tree.root_with_outgroup(normal_name)
     final_tree.root_with_outgroup(normal_name)
 
-    if ancestral_reconstruction and event_reconstruction:
-        from medicc.event_reconstruction import calculate_all_cn_events
-        output_df, events_df = calculate_all_cn_events(
+    if ancestral_reconstruction and reconstruct_events:
+        logger.info("Reconstructing events.")
+        output_df, events_df = event_reconstruction.calculate_all_cn_events(
             final_tree, output_df, allele_columns, normal_name,
             wgd_x2=wgd_x2, no_wgd=no_wgd, total_cn=total_cn)
         if len(events_df) != final_tree.total_branch_length():
