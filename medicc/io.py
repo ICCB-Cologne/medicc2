@@ -53,6 +53,14 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     nchr = input_df.index.get_level_values('chrom').unique().shape[0]
     nsegs = input_df.loc[normal_name,:].shape[0]
     logger.info("Read %d samples, %d chromosomes, %d segments per sample", nsamples, nchr, nsegs)
+
+    gaps = (input_df.loc[normal_name].eval('start') - 
+            np.roll(input_df.loc[normal_name].eval('end'), 1)).values
+    total_gaps = gaps[gaps>0].sum()
+    if total_gaps > 1e8:
+        logger.warn(f"Total of {total_gaps:.1e} bp gaps in the segmentation. Large gaps might "
+                    "affect the performance of MEDICC2.")
+
     return input_df
 
 

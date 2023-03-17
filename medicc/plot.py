@@ -863,8 +863,14 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
         tree_ax.set_axis_off()
         tree_ax.set_axis_off()
         fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=100)
-
     cax = axs[-1]
+
+    gaps = (input_df.loc[cur_sample_labels[0]].eval('start') - 
+            np.roll(input_df.loc[cur_sample_labels[0]].eval('end'), 1)).values
+    total_gaps = gaps[gaps>0].sum()
+    if total_gaps > 1e8:
+        logger.warn(f"Total of {total_gaps:.1e} bp gaps in the segmentation. These missing "
+                    "segments are not reflected in the plot!")
 
     ind = [y_posns.get(x, -1) for x in cur_sample_labels]
     cur_sample_labels = cur_sample_labels[np.argsort(ind)]

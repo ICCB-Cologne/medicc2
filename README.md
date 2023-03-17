@@ -189,6 +189,8 @@ Sometimes MEDICC2 will pass out the following warning: *Event recreation was fau
 `_cn_events_df.tsv` file will not be accurate. If you selected total copy number this will mainly be due to multiple WGDs
 in a single node. Please get in contact with us if the problem prevails even without the `--total-copy-numbers` flag.
 
+**missing segments / gaps in the segmentation**
+MEDICC2 will assume that the segmentation is gap-less, i.e. that gaps between neighboring segments are neglible. If your data contains large gaps this might affect the performance of MEDICC2 as it might incorrectly jointly mutate segments that are actually separated.
 
 # Simulation Validation
 The simulated copy-number profiles used in the MEDICC2 publication were created using our simulation framework [Simphyni](https://bitbucket.org/schwarzlab/simphyni/src/main/). The Simphyni repository contains a notebook to recreate the exact data used in the publication.
