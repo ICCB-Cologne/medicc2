@@ -25,7 +25,7 @@ def test_medicc_with_simple_example():
     "Testing small example"
     output_dir = 'examples/test_output'
     process = subprocess.Popen(['python', "medicc2", "examples/simple_example/simple_example.tsv", 
-                                output_dir, "--plot", "both"],
+                                output_dir, "--plot", "both", "--events"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -56,7 +56,7 @@ def test_medicc_with_testing_example():
     "Testing testing example"
     output_dir = 'examples/test_output'
     process = subprocess.Popen(['python', "medicc2", "examples/testing_example/testing_example.tsv", 
-                                output_dir],
+                                output_dir, "--events"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -88,7 +88,7 @@ def test_medicc_with_OV03_04():
     output_dir = 'examples/test_output'
     process = subprocess.Popen(['python', "medicc2", "examples/OV03-04/OV03-04_descr.txt", 
                                 output_dir, "-i", "fasta", "--normal-name", "OV03-04_diploid",
-                                "--plot", "both"],
+                                "--plot", "both", "--events"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -117,7 +117,7 @@ def test_medicc_with_testing_example_total_copy_numbers():
     output_dir = 'examples/test_output_total_cn'
     process = subprocess.Popen(['python', "medicc2", "examples/testing_example/testing_example.tsv", 
                                 output_dir, "--total-copy-numbers", 
-                                "--input-allele-columns", "cn_a"],
+                                "--input-allele-columns", "cn_a", "--events"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -145,7 +145,7 @@ def test_medicc_with_testing_example_parallelization():
     "Testing small example"
     output_dir = 'examples/test_output_parallelization'
     process = subprocess.Popen(['python', "medicc2", "examples/testing_example/testing_example.tsv", 
-                                output_dir, "--n-cores", "4"],
+                                output_dir, "--n-cores", "4", "--events"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -173,7 +173,7 @@ def test_medicc_with_testing_example_nowgd():
     "Testing small example"
     output_dir = 'examples/test_output_nowgd'
     process = subprocess.Popen(['python', "medicc2", "examples/testing_example/testing_example.tsv", 
-                                output_dir, "--no-wgd"],
+                                output_dir, "--no-wgd", "--events"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -201,7 +201,7 @@ def test_medicc_with_testing_example_WGD_x2():
     "Testing small example"
     output_dir = 'examples/test_output_wgd_x2'
     process = subprocess.Popen(['python', "medicc2", "examples/testing_example/testing_example.tsv", 
-                                output_dir, "--wgd-x2"],
+                                output_dir, "--wgd-x2", "--events"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -229,7 +229,7 @@ def test_medicc_with_multiple_cores():
     "Testing small example"
     output_dir = 'examples/test_output_multiple_cores'
     process = subprocess.Popen(['python', "medicc2", "examples/simple_example/simple_example.tsv", 
-                                output_dir, "-j 4"],
+                                output_dir, "-j 4", "--events"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -292,6 +292,8 @@ def test_gundem_et_al_2015(patient, extra_condition):
         command += ['--total-copy-numbers', '--input-allele-columns', 'cn_a']
     elif extra_condition == 'wgd_x2':
         command.append('--wgd-x2')
+
+    command.append("--events")
         
     process = subprocess.Popen(command,
                                stdout=subprocess.PIPE,
