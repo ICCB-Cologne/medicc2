@@ -212,17 +212,18 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = m
 
 
 # Write events table and overlap events with chromosome and oncogenes
-if events_df is not None and (args.chromosomes_bed != 'none' or args.regions_bed != 'none'):
+if events_df is not None:
     events_df.to_csv(os.path.join(output_dir, output_prefix + "_copynumber_events_df.tsv"),
                      sep='\t', index=True)
 
-    logger.info("Overlapping copy-number events with chromosomes and known oncogenes.")
-    overlaps = medicc.event_reconstruction.overlap_events(events_df=events_df, alleles=allele_columns, 
-                                          normal_name=normal_name,
-                                          chromosome_bed=args.chromosomes_bed, 
-                                          regions_bed=args.regions_bed)
-    overlaps.to_csv(os.path.join(output_dir, output_prefix + "_events_overlap.tsv"),
-                     sep='\t', index=True)
+    if args.chromosomes_bed != 'none' or args.regions_bed != 'none':
+        logger.info("Overlapping copy-number events with chromosomes and known oncogenes.")
+        overlaps = medicc.event_reconstruction.overlap_events(events_df=events_df, alleles=allele_columns, 
+                                            normal_name=normal_name,
+                                            chromosome_bed=args.chromosomes_bed, 
+                                            regions_bed=args.regions_bed)
+        overlaps.to_csv(os.path.join(output_dir, output_prefix + "_events_overlap.tsv"),
+                        sep='\t', index=True)
 
 logger.info(f"Output is saved as {output_dir}/{output_prefix}...")
 
