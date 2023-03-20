@@ -360,26 +360,6 @@ def test_all_ipynb_notebooks(notebook):
     assert process.returncode == 0, f'Error while running notebook {notebook}: {process.stderr.read()}'
 
 
-all_files = [x for x in os.listdir('Figures_Kaufmann_et_al_2021') if '.py' in x]
-@pytest.mark.parametrize("cur_file", all_files)
-def test_figures_for_publication(cur_file):
-    "Testing if all Figure scripts work"
-    print(os.path.join(pathlib.Path(__file__).parent.parent.absolute(),
-                       "Figures_Kaufmann_et_al_2021"))
-
-    process = subprocess.Popen(['python',
-                                f"{cur_file}"],
-                                stdout=subprocess.PIPE,
-                                cwd=os.path.join(pathlib.Path(__file__).parent.parent.absolute(),
-                                                 "Figures_Kaufmann_et_al_2021"))
-
-    while process.poll() is None:
-        # Process hasn't exited yet
-        time.sleep(0.5)
-
-    assert process.returncode == 0, f'Error while running {cur_file}'
-
-
 def get_number_of_events(output_dir, file_prefix):
     with open(os.path.join(output_dir, f"{file_prefix}_copynumber_events_df.tsv"), 'r') as f:
         events = f.readlines()

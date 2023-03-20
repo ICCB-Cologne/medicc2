@@ -187,17 +187,25 @@ in a single node. Please get in contact with us if the problem prevails even wit
 **missing segments / gaps in the segmentation**
 MEDICC2 will assume that the segmentation is gap-less, i.e. that gaps between neighboring segments are neglible. If your data contains large gaps this might affect the performance of MEDICC2 as it might incorrectly jointly mutate segments that are actually separated.
 
-# Simulation Validation
-The simulated copy-number profiles used in the MEDICC2 publication were created using our simulation framework [Simphyni](https://bitbucket.org/schwarzlab/simphyni/src/main/). The Simphyni repository contains a notebook to recreate the exact data used in the publication.
 
+# Bugs, feature requests and contact
+You can report bugs and request features directly in [Bitbucket](https://bitbucket.org/schwarzlab/medicc2/issues) or contact us via at *tom.kaufmann@mdc-berlin.de*.
 
-# Contact
-Email questions, feature requests and bug reports to **Tom Kaufmann, tom.kaufmann@mdc-berlin.de**.
 
 # License
 MEDICC2 is available under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html). It contains modified code of the *pywrapfst* Python module from [OpenFST](http://www.openfst.org/) as permitted by the [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) license.
 
-# Please cite
+
+# Kaufmann et al. 2022 Puplication
+The MEDICC2 model has been published in 2022 with Genome Biology: [MEDICC2: whole-genome doubling aware copy-number phylogenies for cancer evolution](https://doi.org/10.1186/s13059-022-02794-9).
+
+## Figures
+Both the required data and the scripts to create all Figures from the publication are stored in the commit version *9b400ef* of the MEDICC2 repository available on [Zenodo](https://zenodo.org/record/7300106) in the folder `Figures_Kaufmann_et_al_2021/`.
+
+## Simulation Validation
+The simulated copy-number profiles used in the MEDICC2 publication were created using our simulation framework [Simphyni](https://bitbucket.org/schwarzlab/simphyni/src/main/). The Simphyni repository contains a notebook to recreate the exact data used in the publication.
+
+## Please cite
 Kaufmann, T.L., Petkovic, M., Watkins, T.B.K. et al.  
 **MEDICC2: whole-genome doubling aware copy-number phylogenies for cancer evolution**.  
 Genome Biol 23, 241 (2022). https://doi.org/10.1186/s13059-022-02794-9
