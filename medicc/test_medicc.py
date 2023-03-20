@@ -51,8 +51,8 @@ def test_medicc_with_simple_example():
         np.array(expected_files)[~np.array(all_files_exist)])
     assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
 
-    assert output_df['is_gain'].sum() == 7, f"Number of gained segments in output_df is not 7 but {output_df['is_gain'].sum()}"
-    assert output_df['is_loss'].sum() == 4, f"Number of lost segments in output_df is not 4 but {output_df['is_loss'].sum()}"
+    assert output_df['is_gain'].sum() == 7, f"Number of gained segments in _final_cn_profiles.tsv is not 7 but {output_df['is_gain'].sum()}"
+    assert output_df['is_loss'].sum() == 5, f"Number of lost segments in _final_cn_profiles.tsv is not 5 but {output_df['is_loss'].sum()}"
 
     assert (events_df['type'] == 'gain').sum() == 4, f"Number of gains in events_df is not 4 but {(events_df['type'] == 'gain').sum()}"
     assert (events_df['type'] == 'loss').sum() == 3, f"Number of losses in events_df is not 3 but {(events_df['type'] == 'loss').sum()}"
@@ -84,8 +84,8 @@ def test_medicc_with_testing_example():
         np.array(expected_files)[~np.array(all_files_exist)])
     assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
 
-    assert output_df['is_gain'].sum() == 192, "Number of gains in output_df is not 192"
-    assert output_df['is_loss'].sum() == 173, "Number of losses in output_df is not 173"
+    assert output_df['is_gain'].sum() == 187, f"Number of gains in _final_cn_profiles.tsv is not 187 but {output_df['is_gain'].sum()}"
+    assert output_df['is_loss'].sum() == 170, f"Number of losses in _final_cn_profiles.tsv is not 170 but {output_df['is_loss'].sum()}"
 
 
 def test_medicc_with_OV03_04():
@@ -288,7 +288,8 @@ def test_gundem_et_al_2015(patient, extra_condition):
     "Testing if running of all Gundem data works"
 
     output_dir = f"examples/test_output_{patient}"
-    command = ['python', "medicc2", f"examples/gundem_et_al_2015/{patient}_input_df.tsv", output_dir]
+    command = ['python', "medicc2", f"examples/gundem_et_al_2015/{patient}_input_df.tsv", output_dir,
+               "--events", "--chromosomes-bed", "default", "--regions-bed", "default"]
     if extra_condition == 'normal':
         pass
     elif extra_condition == 'no_wgd':

@@ -75,7 +75,7 @@ for patient in patients:
     cur_tree = medicc.io.import_tree(os.path.join(data_folder, "{}_final_tree.new".format(patient)),
                                      'diploid', file_format='newick')
 
-    cur_overlap = medicc.core.overlap_events(output_df=cur_df[['cn_a', 'cn_b']],
+    cur_overlap = medicc.event_reconstruction.overlap_events(output_df=cur_df[['cn_a', 'cn_b']],
                                             tree=cur_tree,
                                             chromosome_bed='../medicc/objects/hg19_chromosome_arms.bed',
                                             regions_bed='../medicc/objects/Davoli_2013_TSG_OG_genes.bed',

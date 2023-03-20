@@ -47,9 +47,9 @@ _, support_tree = medicc.bootstrap.run_bootstrap(cur_input_df,
 
 
 #%% Event detection
-output_df, events_df = medicc.core.calculate_all_cn_events(
+output_df, events_df = medicc.event_reconstruction.calculate_all_cn_events(
     cur_tree, cur_output_df[['cn_a', 'cn_b']], ['cn_a', 'cn_b'], 'diploid')
-overlaps = medicc.core.overlap_events(events_df=events_df, regions_bed=None)
+overlaps = medicc.event_reconstruction.overlap_events(events_df=events_df, regions_bed=None)
 
 changed_branches = set(overlaps.index)
 for clade in support_tree.find_clades():
