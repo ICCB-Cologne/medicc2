@@ -34,7 +34,7 @@ def main(input_df,
 
     ## Validate input
     logger.info("Validating input.")
-    io.validate_input(input_df, symbol_table)
+    io.validate_input(input_df, symbol_table, normal_name=normal_name)
 
     ## Compile input data into FSAs stored in dictionaries
     logger.info("Compiling input sequences into FSAs.")
