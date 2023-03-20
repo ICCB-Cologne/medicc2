@@ -53,6 +53,14 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     nchr = input_df.index.get_level_values('chrom').unique().shape[0]
     nsegs = input_df.loc[normal_name,:].shape[0]
     logger.info("Read %d samples, %d chromosomes, %d segments per sample", nsamples, nchr, nsegs)
+
+    gaps = (input_df.loc[normal_name].eval('start') - 
+            np.roll(input_df.loc[normal_name].eval('end'), 1)).values
+    total_gaps = gaps[gaps>0].sum()
+    if total_gaps > 1e8:
+        logger.warn(f"Total of {total_gaps:.1e} bp gaps in the segmentation. Large gaps might "
+                    "affect the performance of MEDICC2.")
+
     return input_df
 
 
@@ -71,6 +79,8 @@ def read_fst(user_fst=None, no_wgd=False, n_wgd=None, total_copy_numbers=False, 
             fst_path = os.path.join(objects_dir, 'wgd_x2_1_asymm.fst')
     elif total_copy_numbers:
         fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
+        if n_wgd == 1:
+            fst_path = os.path.join(objects_dir, 'wgd_total_cn_1_asymm.fst')
     elif n_wgd is not None and int(n_wgd) <= 3:
         fst_path = os.path.join(objects_dir, 'wgd_{}_asymm.fst'.format(int(n_wgd)))
     else:
@@ -92,19 +102,25 @@ def load_main_fsts(return_symbol_table=False):
         return asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, asymm_fst_2_wgd
 
 
-def validate_input(input_df, symbol_table):
-    ## Check the index
-    # is it the right index?
+def validate_input(input_df, symbol_table=None, normal_name='diploid'):
+    """Validate the input DataFrame."""
+
+    # Check that normal sample is present
+    if normal_name not in input_df.index.get_level_values('sample_id').unique():
+        raise MEDICCIOError(f"Normal sample '{normal_name}' not found in input data. Specify a "
+                            "different name using the --normal-name flag.")
+
+    # Check if the index names are correct
     if input_df.index.names != ['sample_id', 'chrom', 'start', 'end']:
         raise MEDICCIOError("DataFrame must be indexed by ['sample_id', 'chrom', 'start', 'end'].")
 
-    # does it have the right dtypes?
+    # Check if the chromosome is categorical
     if not pd.api.types.is_categorical_dtype(input_df.index.dtypes['chrom']):
         raise MEDICCIOError("""
             Chromosome index 'chrom' must be of type pd.Categorical. 
             You can use medicc.tools.format_chromosomes() or create it yourself.""")
 
-    # is it sorted?
+    # Check if the index is sorted
     if not input_df.index.is_monotonic_increasing:
         raise MEDICCIOError("DataFrame index must be sorted.")
 
@@ -112,35 +128,40 @@ def validate_input(input_df, symbol_table):
     if len(input_df.columns)>2:
         raise MEDICCIOError("More than 2 alleles are currently not supported.")
 
+    # Check if there are any alleles
     if len(input_df.columns)==0:
         raise MEDICCIOError("No alleles found.")
-
-    # Check if all samples have same segments
-    if input_df.unstack('sample_id').isna().sum().sum() != 0:
-        raise MEDICCIOError("The samples have different segments!\n"
-                            "Total number of unique segments: {}\n".format(len(input_df.unstack('sample_id'))))
-
-    # Check if symbols are in symbol table
-    alphabet = {x[1] for x in symbol_table}
-    data_chars = set(input_df.values.flatten())
-    if not data_chars.issubset(alphabet):
-        not_in_set = data_chars.difference(alphabet)
-        raise MEDICCIOError("Not all input symbols are contained in symbol table. Offending symbols: %s" % str(not_in_set))
+    
+    # Check data type allele columns - these should all be of type str (object)
+    if not np.all([pd.api.types.is_string_dtype(x) for x in input_df.dtypes]):
+        raise MEDICCIOError("Allele columns must be of type: string.")
 
     # Check data type start and end columns
     if (input_df.index.get_level_values('start').dtype != int or 
         input_df.index.get_level_values('end').dtype != int):
         raise MEDICCIOError("Start and end columns must be of type: integer.")
 
-    # Check data type payload columns - these should all be of type str (object)
-    if not np.all([pd.api.types.is_string_dtype(x) for x in input_df.dtypes]):
-        raise MEDICCIOError("Payload columns must be of type: string.")
+    # Check if all samples have same segments
+    if input_df.unstack('sample_id').isna().sum().sum() != 0:
+        raise MEDICCIOError("The samples have different segments!\n"
+                            "Total number of unique segments: {}\n".format(len(input_df.unstack('sample_id'))))
+
+    if symbol_table is not None:
+        # Check if symbols are in symbol table
+        alphabet = {x[1] for x in symbol_table}
+        data_chars = set(input_df.values.flatten())
+        if not data_chars.issubset(alphabet):
+            not_in_set = data_chars.difference(alphabet)
+            raise MEDICCIOError("Not all input symbols are contained in symbol table. Offending symbols: %s" % str(not_in_set))
+
 
     logger.info('Input data is valid!')
 
+
 def filter_by_segment_length(input_df, filter_size):
-    segment_length = input_df.eval('end-start')
+    segment_length = input_df.eval('end+1-start')
     return input_df.loc[segment_length > float(filter_size)]
+
 
 def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
     logger.info("Reading TSV file %s", path)
@@ -169,6 +190,7 @@ def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
     input_file[allele_columns] = input_file[allele_columns].astype(str)
 
     return input_file
+
 
 def _read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns = ['cn_a','cn_b'], maxcn: int = 8):
     """Reads FASTA decriptor file (old MEDICC input format) and reads the corresponding FASTA files to generate

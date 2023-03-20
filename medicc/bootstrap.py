@@ -1,11 +1,9 @@
 import copy
 import logging
-import os
 
 import numpy as np
 import pandas as pd
 from Bio.Phylo.Consensus import _BitString, get_support
-from joblib.parallel import Parallel, delayed
 
 from medicc import io, tools
 from medicc.core import main
@@ -198,6 +196,10 @@ def run_bootstrap(input_df,
 
     # Run the actual bootstrapping steps
     if n_cores is not None and n_cores > 1:
+        try:
+            from joblib import Parallel, delayed
+        except ImportError:
+            raise ImportError("joblib must be installed for parallelization")
         initial_trees = Parallel(n_jobs=n_cores)(delayed(_single_bootstrap_run)(
             input_df, fst, bootstrap_method, i, N_bootstrap, normal_name)
             for i in range(N_bootstrap))

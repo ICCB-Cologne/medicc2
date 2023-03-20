@@ -36,6 +36,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 
 * `input_file`: path to the input file
 * `output_dir`: path to the output folder
+* `--version`: Print version information
 * `--input-type`, `-i`: Choose the type of input: f for FASTA, t for TSV. Default: 'TSV'
 * `--input-allele-columns`, `-a`: Name of the CN columns (comma separated) if using TSV input format. This also adjusts the number of alleles considered (min. 1, max. 2). Default: 'cn_a, cn_b'
 * `--input-chr-separator`: Character used to separate chromosomes in the input data (condensed FASTA only). Default: 'X'
@@ -51,6 +52,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--plot`: Type of copy-number plot to save. 'bars' is recommended for <50 samples, heatmap for more samples, 'auto' will decide based on the number of samples, 'both' will plot both and 'none' will plot neither. (default: auto).
 * `--total-copy-numbers`: Run for total copy number data instead of allele-specific data. Default: False
 * `-j`, `--n-cores`: Number of cores to run on. Default: None
+* `--events`: Whether to infer copy-number events. See section "Event Detection" below
 * `--chromosomes-bed`: BED file for chromosome regions to compare copy-number events to
 * `--regions-bed`: BED file for regions of interest to compare copy-number events to
 * `-v`, `--verbose`: Enable verbose output. Default: False
@@ -80,17 +82,14 @@ MEDICC creates the following output files:
 * `_final_tree.new`, `_final_tree.xml`, `_final_tree.png`: The final phylogenetic tree in Newick and XML format as well as an image
 * `_pairwise_distances.tsv`: A NxN matrix (N being the number of samples) of pairwise distances calculated with the symmetric MEDICC2 distance
 * `_final_cn_profiles.tsv`: Copy-number profiles of the input as well as the newly internal nodes. Also includes additional information such as whether a gain or loss has happened
-* `_copynumber_events_df.tsv`: List of all copy-number events detected. The entries for WGD events have non-meaningful values for chrom, cn_child, etc. Note that the events derived are not unambiguous (see below).
 * `_cn_profiles.pdf`: Combined plot of the phylogenetic tree as well as the copy-number profiles of all samples (including the internal nodes)
-* `_events_overlap.tsv`: Overlap of copy-number events with regions of interest (see below)
 * `_branch_lengths.tsv`: List of all branches and their corresponding lenghts of the final tree
 
+*optional (see "Event Reconstruction" below)*
 
-### Copy-number events
-MEDICC2 creates a list of copy-number events in the file `_copynumber_events_df.tsv` which are also displayed in the final copy-number barplot. Note however, that these events are not unambigous but just one possible solution. In some cases there are multiple possible paths that can result in the same final copy-number state in the same number of steps. Without additional information, MEDICC2 cannot determine which possible path is the right one and thus opts for a path that creates the longest consecutive gains. 
-Even though the events inferred by MEDICC2 are not unambigous they are minimal (as in there are no solutions with fewer number of steps) and deterministic (as in multiple runs of MEDICC2 will always return the same events).
+* `_copynumber_events_df.tsv`: List of all copy-number events detected. The entries for WGD events have non-meaningful values for chrom, cn_child, etc. Note that the events derived are not unambiguous.
+* `_events_overlap.tsv`: Overlap of copy-number events with regions of interest
 
-Minimal example: *111 -> 232* which can be explained by *gain-gain-gain* + *x-gain-x* or *gain-gain-x* + *x-gain-gain*. MEDICC2 would select the first option.
 
 ## Output plots
 Apart from the file `_tree.pdf` which contains the inferred phylogeny, the main plot created by MEDICC is the copy-number plots named either `_cn_profiles.pdf` or `_cn_profiles_heatmap.pdf`.
@@ -120,9 +119,21 @@ For first time users we recommend to have a look at `examples/simple_example` to
 The notebook `notebooks/bootstrap_demo.py` demonstrates how to use the bootstrapping routine and `notebooks/plot_demo.py` shows how to use the main plotting functions.
 
 
-## Regions of interest
-MEDICC2 compares the detected copy-number events to regions of interest. These regions are chromosome-boundaries and known oncogenes and tumor-suppressor genes. By default MEDICC2 uses hg38 chromosome-arms and a list of genes taken from Davoli et al. Cell 2013. This data is present as BED files in the `medicc/objects` folder.
+## Event Detection
+MEDICC2 can create a list of copy-number events in the file `_copynumber_events_df.tsv` which are also displayed in the final copy-number barplot.
+These are disabled by default and are enabled using the `--events` flag.
 
+Note, that the inferred events are not unambigous but just one possible solution. In some cases there are multiple possible paths that can result in the same final copy-number state in the same number of steps. Without additional information, MEDICC2 cannot determine which possible path is the right one and thus opts for a path that creates the longest consecutive gains. 
+Even though the events inferred by MEDICC2 are not unambigous they are minimal (as in there are no solutions with fewer number of steps) and deterministic (as in multiple runs of MEDICC2 will always return the same events).
+
+Minimal example: *111 -> 232* which can be explained by *gain-gain-gain* + *x-gain-x* or *gain-gain-x* + *x-gain-gain*. MEDICC2 would select the first option.
+In order to infer the events that  
+
+
+### Regions of interest
+MEDICCC2 can overlap the inferred events with regions of interest such as chromosome arms or oncogenes. 
+This process requires the installation of `pyranges` which might be incompatible with newer version of python and/or numpy.
+The overlap is turned off by default. You can turn on the overlapping with the ``--chromosomes-bed` and `--regions-bed` flag by providing bed-files with regions of interest. By default MEDICC2 uses hg38 chromosome-arms and a list of genes taken from Davoli et al. Cell 2013. This data is present as BED files in the `medicc/objects` folder. Invoke these using the flags `--chromosomes-bed "default"` and/or `--regions-bed "default"`.
 Users can specify regions of interest of their own in BED format by providing the `--chromosomes-bed` or `--regions-bed` flags.
 
 
@@ -174,14 +185,28 @@ Sometimes MEDICC2 will pass out the following warning: *Event recreation was fau
 `_cn_events_df.tsv` file will not be accurate. If you selected total copy number this will mainly be due to multiple WGDs
 in a single node. Please get in contact with us if the problem prevails even without the `--total-copy-numbers` flag.
 
+**missing segments / gaps in the segmentation**
+MEDICC2 will assume that the segmentation is gap-less, i.e. that gaps between neighboring segments are neglible. If your data contains large gaps this might affect the performance of MEDICC2 as it might incorrectly jointly mutate segments that are actually separated.
 
-# Contact
-Email questions, feature requests and bug reports to **Tom Kaufmann, tom.kaufmann@mdc-berlin.de**.
+
+# Bugs, feature requests and contact
+You can report bugs and request features directly in [Bitbucket](https://bitbucket.org/schwarzlab/medicc2/issues) or contact us via at *tom.kaufmann@mdc-berlin.de*.
+
 
 # License
 MEDICC2 is available under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html). It contains modified code of the *pywrapfst* Python module from [OpenFST](http://www.openfst.org/) as permitted by the [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) license.
 
-# Please cite
+
+# Kaufmann et al. 2022 Puplication
+The MEDICC2 model has been published in 2022 with Genome Biology: [MEDICC2: whole-genome doubling aware copy-number phylogenies for cancer evolution](https://doi.org/10.1186/s13059-022-02794-9).
+
+## Figures
+Both the required data and the scripts to create all Figures from the publication are stored in the commit version *9b400ef* of the MEDICC2 repository available on [Zenodo](https://zenodo.org/record/7300106) in the folder `Figures_Kaufmann_et_al_2021/`.
+
+## Simulation Validation
+The simulated copy-number profiles used in the MEDICC2 publication were created using our simulation framework [Simphyni](https://bitbucket.org/schwarzlab/simphyni/src/main/). The Simphyni repository contains a notebook to recreate the exact data used in the publication.
+
+## Please cite
 Kaufmann, T.L., Petkovic, M., Watkins, T.B.K. et al.  
 **MEDICC2: whole-genome doubling aware copy-number phylogenies for cancer evolution**.  
 Genome Biol 23, 241 (2022). https://doi.org/10.1186/s13059-022-02794-9

@@ -4,6 +4,7 @@ import argparse
 import logging
 import os
 import pickle
+import sys
 
 import numpy as np
 
@@ -11,11 +12,15 @@ import medicc
 
 logger = logging.getLogger('medicc-main')
 
+version_string = f'medicc {medicc.__version__} from {os.path.dirname(medicc.__file__)} ' + \
+                 f'(python {sys.version.split(" ")[0]})'
+
 parser = argparse.ArgumentParser()
 parser.add_argument("input_file",
                     help="a path to the input file")
 parser.add_argument("output_dir",
                     help="a path to the output folder")
+parser.add_argument('--version', action='version', version=version_string)
 parser.add_argument("--input-type", "-i", type=str, dest="input_type", default="t",
                     choices=["f", "t", "fasta", "tsv"], required=False,
                     help="Choose the type of input: f for FASTA, t for TSV (default: TSV)")
@@ -98,16 +103,18 @@ parser.add_argument("-j", "--n-cores",
                     default=None,
                     required=False,
                     help="Number of cores to run on")
+parser.add_argument("--events", action='store_true', default=False, dest='events',
+                    help='Whether to infer copy-number events (default: False).', required=False)
 parser.add_argument("--chromosomes-bed",
                     type=str,
                     dest='chromosomes_bed',
-                    default='default',
+                    default='none',
                     required=False,
                     help="BED file for chromosome regions")
 parser.add_argument("--regions-bed",
                     type=str,
                     dest='regions_bed',
-                    default='default',
+                    default='none',
                     required=False,
                     help="BED file for regions of interests")
 parser.add_argument("-v", "--verbose", action='store_true', default=False,
@@ -205,7 +212,8 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = m
     no_wgd=args.no_wgd,
     wgd_x2=args.wgd_x2,
     total_cn=args.total_copy_numbers,
-    n_cores=args.n_cores)
+    n_cores=args.n_cores,
+    reconstruct_events=args.events)
 
 
 # Write events table and overlap events with chromosome and oncogenes
@@ -213,13 +221,14 @@ if events_df is not None:
     events_df.to_csv(os.path.join(output_dir, output_prefix + "_copynumber_events_df.tsv"),
                      sep='\t', index=True)
 
-    logger.info("Overlapping copy-number events with chromosomes and known oncogenes.")
-    overlaps = medicc.core.overlap_events(events_df=events_df, alleles=allele_columns, 
-                                          normal_name=normal_name,
-                                          chromosome_bed=args.chromosomes_bed, 
-                                          regions_bed=args.regions_bed)
-    overlaps.to_csv(os.path.join(output_dir, output_prefix + "_events_overlap.tsv"),
-                     sep='\t', index=True)
+    if args.chromosomes_bed != 'none' or args.regions_bed != 'none':
+        logger.info("Overlapping copy-number events with chromosomes and known oncogenes.")
+        overlaps = medicc.event_reconstruction.overlap_events(events_df=events_df, alleles=allele_columns, 
+                                            normal_name=normal_name,
+                                            chromosome_bed=args.chromosomes_bed, 
+                                            regions_bed=args.regions_bed)
+        overlaps.to_csv(os.path.join(output_dir, output_prefix + "_events_overlap.tsv"),
+                        sep='\t', index=True)
 
 logger.info(f"Output is saved as {output_dir}/{output_prefix}...")
 

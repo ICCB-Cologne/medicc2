@@ -1,6 +1,7 @@
 import logging.config
 import os
 
+import pkg_resources
 import yaml
 
 import medicc.bootstrap
@@ -18,3 +19,5 @@ from medicc.factory import *
 with open(os.path.join(os.path.dirname(__file__), 'logging_conf.yaml'), 'rt') as f:
     config = yaml.safe_load(f.read())
 logging.config.dictConfig(config)
+
+__version__ = pkg_resources.require("medicc2")[0].version
