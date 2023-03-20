@@ -6,6 +6,11 @@ from setuptools import Extension, setup
 
 sys.path.append('fstlib/cext')
 
+extra_compile_args = ['-std=c++17']
+if sys.platform.startswith("darwin"):
+  extra_compile_args.append("-stdlib=libc++")
+  extra_compile_args.append("-mmacosx-version-min=10.12")
+
 setup(
     name='medicc2',
     version='0.9.1',
@@ -43,14 +48,14 @@ setup(
                   ["fstlib/cext/pywrapfst.pyx"],
                   include_dirs=['fstlib/cext'],
                   libraries=["fst", "fstfar", "fstscript", "fstfarscript"],
-                  extra_compile_args=['-std=c++17'],
+                  extra_compile_args=extra_compile_args,
                   language = "c++"),
 
         Extension("fstlib.cext.ops", 
                   ["fstlib/cext/ops.pyx"],
                   include_dirs=['fstlib/cext'],
                   libraries=["fst", "fstfar", "fstscript", "fstfarscript"],
-                  extra_compile_args=['-std=c++17'],
+                  extra_compile_args=extra_compile_args,
                   language = "c++")
     ])
 )
