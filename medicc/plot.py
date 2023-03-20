@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from medicc import core
-
 logger = logging.getLogger(__name__)
 
 COL_ALLELE_A = mpl.colors.to_rgba('orange')
@@ -81,8 +79,32 @@ def plot_cn_profiles(
                     "These are: {}".format(np.setdiff1d(allele_columns, df.columns)))
 
     if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd'], df.columns).size > 0:
-        # TODO: Fix
-        df[['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd']] = False
+        df[['is_gain', 'is_loss', 'is_wgd']] = False
+        if input_tree is not None:
+            cn_change = compute_cn_change(df=df[allele_columns], tree=input_tree, normal_name=normal_name)
+            
+            df.loc[(cn_change < 0).any(axis=1), 'is_loss'] = True
+            df.loc[(cn_change > 0).any(axis=1), 'is_gain'] = True
+
+            is_normal = ~df.unstack('sample_id')[['is_loss', 'is_gain', 'is_wgd']].any(axis=1)
+            is_normal.name = 'is_normal'
+            mrca = [x for x in input_tree.root.clades if x.name != normal_name][0].name
+            is_clonal = ~df.loc[df.index.get_level_values('sample_id')!=mrca].unstack('sample_id')[['is_loss', 'is_gain', 'is_wgd']].any(axis=1)
+            is_clonal.name = 'is_clonal'
+
+            df = df.drop(['is_normal', 'is_clonal'], axis=1, errors='ignore')
+            df = (df
+                    .join(is_normal, how='inner')
+                    .reorder_levels(['sample_id', 'chrom', 'start', 'end'])
+                    .sort_index()
+                    .join(is_clonal, how='inner')
+                    .reset_index())
+            df = (df
+                    .set_index(['sample_id', 'chrom', 'start', 'end'])
+                    .sort_index())
+
+
+
 
     if hide_normal_chromosomes:
         df = df.join(df.groupby('chrom')['is_normal'].all().to_frame('hide'))
