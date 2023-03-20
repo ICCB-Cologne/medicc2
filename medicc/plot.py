@@ -79,8 +79,10 @@ def plot_cn_profiles(
                     "These are: {}".format(np.setdiff1d(allele_columns, df.columns)))
 
     if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd'], df.columns).size > 0:
-        df[['is_gain', 'is_loss', 'is_wgd']] = False
-        if input_tree is not None:
+        if input_tree is None:
+            df[['is_normal', 'is_clonal', 'is_gain', 'is_loss', 'is_wgd']] = False
+        else:
+            df[['is_gain', 'is_loss', 'is_wgd']] = False
             cn_change = compute_cn_change(df=df[allele_columns], tree=input_tree, normal_name=normal_name)
             
             df.loc[(cn_change < 0).any(axis=1), 'is_loss'] = True
