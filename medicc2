@@ -4,6 +4,7 @@ import argparse
 import logging
 import os
 import pickle
+import sys
 
 import numpy as np
 
@@ -11,11 +12,15 @@ import medicc
 
 logger = logging.getLogger('medicc-main')
 
+version_string = f'medicc {medicc.__version__} from {os.path.dirname(medicc.__file__)} ' + \
+                 f'(python {sys.version.split(" ")[0]})'
+
 parser = argparse.ArgumentParser()
 parser.add_argument("input_file",
                     help="a path to the input file")
 parser.add_argument("output_dir",
                     help="a path to the output folder")
+parser.add_argument('--version', action='version', version=version_string)
 parser.add_argument("--input-type", "-i", type=str, dest="input_type", default="t",
                     choices=["f", "t", "fasta", "tsv"], required=False,
                     help="Choose the type of input: f for FASTA, t for TSV (default: TSV)")
