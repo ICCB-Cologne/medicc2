@@ -36,6 +36,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 
 * `input_file`: path to the input file
 * `output_dir`: path to the output folder
+* `--version`: Print version information
 * `--input-type`, `-i`: Choose the type of input: f for FASTA, t for TSV. Default: 'TSV'
 * `--input-allele-columns`, `-a`: Name of the CN columns (comma separated) if using TSV input format. This also adjusts the number of alleles considered (min. 1, max. 2). Default: 'cn_a, cn_b'
 * `--input-chr-separator`: Character used to separate chromosomes in the input data (condensed FASTA only). Default: 'X'
