@@ -104,11 +104,15 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=['cn
     # TODO: load these outside of the function so they are not loaded every time
     asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, asymm_fst_2_wgd, symbol_table = io.load_main_fsts(
         return_symbol_table=True)
-    if wgd_x2:
+    if total_cn:
+        asymm_fst = io.read_fst(total_copy_numbers=True)
+        asymm_fst_1_wgd = io.read_fst(total_copy_numbers=True, n_wgd=1)
+        asymm_fst_2_wgd = None
+    elif wgd_x2:
         asymm_fst = io.read_fst(wgd_x2=True)
         asymm_fst_1_wgd = io.read_fst(wgd_x2=True, n_wgd=1)
         asymm_fst_2_wgd = None
-    if no_wgd:
+    elif no_wgd:
         asymm_fst = io.read_fst(no_wgd=True)
         asymm_fst_1_wgd = None
         asymm_fst_2_wgd = None
@@ -131,115 +135,59 @@ def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=['cn
         'chrom').map(get_int_chrom).values.astype(int)
 
     # 1. find total loss (loh)
-    # for allele in alleles:
-    #     parent_loh = cur_parent_cn[allele].values == 0
-    #     cur_loh = cur_child_cn.loc[~parent_loh, allele] == 0
-    #     if cur_loh.sum() == 0:
-    #         continue
-    #     max_previous_cn = np.max(
-    #         np.unique(cur_parent_cn.loc[~parent_loh, allele].loc[cur_loh]))
-    #     for loh_height in np.arange(max_previous_cn):
-    #         parent_loh = cur_parent_cn[allele].values == 0
-    #         cur_loh = cur_child_cn.loc[~parent_loh, allele] == 0
-    #         cn_changes = (cur_child_cn.loc[~parent_loh, allele] - 
-    #                     cur_parent_cn.loc[~parent_loh, allele])
-
-    #         # LOH detection
-    #         cur_change_location = (cn_changes < 0)
-
-    #         # + cur_chroms enables detection of chromosome boundaries
-    #         cur_loss_labels_ = ((np.cumsum(np.concatenate([[0], np.diff(
-    #             (cur_change_location.values + cur_chroms[~parent_loh]))])
-    #             * cur_change_location.values) + 1)
-    #             * cur_change_location.values)
-
-    #         cur_loss_labels = np.zeros_like(cur_loss_labels_)
-    #         for i, j in enumerate(np.setdiff1d(np.unique(cur_loss_labels_), [0])):
-    #             cur_loss_labels[cur_loss_labels_ == j] = i + 1
-
-    #         loh_regions = np.unique(cur_loss_labels[cur_loh])
-
-    #         cur_events = (cur_child_cn
-    #                         .loc[~parent_loh]
-    #                         .reset_index()
-    #                         .loc[np.array([np.argmax(cur_loss_labels == val) for val in np.setdiff1d(np.unique(loh_regions), [0])])]
-    #                         [['chrom', 'start', 'end', allele]].values)
-
-    #         # adjust ends
-    #         cur_events[:, 2] = (cur_child_cn
-    #                             .loc[~parent_loh]
-    #                             .reset_index()
-    #                             .loc[np.array([len(cur_loss_labels) - np.argmax(cur_loss_labels[::-1] == val) - 1 for val in np.setdiff1d(np.unique(loh_regions), [0])])]
-    #                             ['end'].values)
-            
-    #         cur_ind = np.arange(len(events_df), len(events_df)+len(cur_events))
-    #         events_df = pd.concat([events_df, pd.DataFrame(index=cur_ind)])
-    #         events_df.loc[cur_ind, 'sample_id'] = child_name
-    #         events_df.loc[cur_ind, 'allele'] = allele
-    #         events_df.loc[cur_ind, 'type'] = 'loss'
-    #         events_df.loc[cur_ind, 'cn_child'] = max_previous_cn - loh_height - 1
-    #         events_df.loc[cur_ind, ['chrom', 'start', 'end']] = cur_events[:, :3]
-
-    #         cur_parent_cn.loc[cn_changes.loc[np.stack([cur_loss_labels == val for val in loh_regions]).any(axis=0)].index, allele] -= 1
-    # loh_pos = (cur_parent_cn == 0)
-
-    # OLD LOH DETECTION
-    parent_loh = cur_parent_cn == 0
     for allele in alleles:
-        cur_loh = cur_child_cn.loc[~parent_loh[allele], allele] == 0
+        parent_loh = cur_parent_cn[allele].values == 0
+        cur_loh = cur_child_cn.loc[~parent_loh, allele] == 0
         if cur_loh.sum() == 0:
             continue
-
-        cur_df.loc[child_name, 'is_loss'] = (cur_df.loc[child_name, 'is_loss'].values 
-                                             + np.logical_and(cur_child_cn[allele] == 0, 
-                                                              cur_parent_cn[allele] != 0).values)
-
         max_previous_cn = np.max(
-            np.unique(cur_parent_cn.loc[~parent_loh[allele], allele].loc[cur_loh]))
+            np.unique(cur_parent_cn.loc[~parent_loh, allele].loc[cur_loh]))
+        for loh_height in np.arange(max_previous_cn):
+            parent_loh = cur_parent_cn[allele].values == 0
+            cur_loh = cur_child_cn.loc[~parent_loh, allele] == 0
+            cn_changes = (cur_child_cn.loc[~parent_loh, allele] - 
+                        cur_parent_cn.loc[~parent_loh, allele])
 
-        for _ in np.arange(max_previous_cn):
-            cur_loh_and_parental_val = np.logical_and(cur_loh.values, 
-                                                        cur_parent_cn.loc[~parent_loh[allele], allele] > 0).values
+            # LOH detection
+            cur_change_location = (cn_changes < 0)
 
             # + cur_chroms enables detection of chromosome boundaries
-            event_labels_ = ((np.cumsum(np.concatenate([[0], np.diff(
-                (cur_loh_and_parental_val + cur_chroms[~parent_loh[allele]]))])
-                * cur_loh_and_parental_val) + 1)
-                * cur_loh_and_parental_val)
+            cur_loss_labels_ = ((np.cumsum(np.concatenate([[0], np.diff(
+                (cur_change_location.values + cur_chroms[~parent_loh]))])
+                * cur_change_location.values) + 1)
+                * cur_change_location.values)
 
-            # Label events starting at 1
-            event_labels = np.zeros_like(event_labels_)
-            for i, j in enumerate(np.setdiff1d(np.unique(event_labels_), [0])):
-                event_labels[event_labels_ == j] = i + 1
+            cur_loss_labels = np.zeros_like(cur_loss_labels_)
+            for i, j in enumerate(np.setdiff1d(np.unique(cur_loss_labels_), [0])):
+                cur_loss_labels[cur_loss_labels_ == j] = i + 1
 
-            cur_parent_cn.loc[parent_loh.loc[~parent_loh[allele],
-                                               allele].index[cur_loh_and_parental_val], allele] -= 1
+            loh_regions = np.unique(cur_loss_labels[cur_loh])
 
-            cur_events = (cur_parent_cn
-                        .loc[~parent_loh[allele]]
-                        .reset_index()
-                        .loc[np.array([np.argmax(event_labels == ind) for ind in np.setdiff1d(np.unique(event_labels), [0])])]
-                        [['chrom', 'start', 'end']].values)
+            cur_events = (cur_child_cn
+                            .loc[~parent_loh]
+                            .reset_index()
+                            .loc[np.array([np.argmax(cur_loss_labels == val) for val in np.setdiff1d(np.unique(loh_regions), [0])])]
+                            [['chrom', 'start', 'end', allele]].values)
+
             # adjust ends
-            cur_events[:, 2] = (cur_parent_cn
-                                .loc[~parent_loh[allele]]
+            cur_events[:, 2] = (cur_child_cn
+                                .loc[~parent_loh]
                                 .reset_index()
-                                .loc[np.array([len(event_labels) - np.argmax(event_labels[::-1] == ind) - 1 for ind in np.setdiff1d(np.unique(event_labels), [0])])]
+                                .loc[np.array([len(cur_loss_labels) - np.argmax(cur_loss_labels[::-1] == val) - 1 for val in np.setdiff1d(np.unique(loh_regions), [0])])]
                                 ['end'].values)
-
+            
             cur_ind = np.arange(len(events_df), len(events_df)+len(cur_events))
             events_df = pd.concat([events_df, pd.DataFrame(index=cur_ind)])
             events_df.loc[cur_ind, 'sample_id'] = child_name
             events_df.loc[cur_ind, 'allele'] = allele
-            events_df.loc[cur_ind, 'type'] = 'loh'
-            events_df.loc[cur_ind, 'cn_child'] = 0
+            events_df.loc[cur_ind, 'type'] = 'loss'
+            events_df.loc[cur_ind, 'cn_child'] = max_previous_cn - loh_height - 1
             events_df.loc[cur_ind, ['chrom', 'start', 'end']] = cur_events[:, :3]
 
-            # recalculate parental_loss and cur_loh for next iteration
-            parent_loh = cur_parent_cn <= 0
-            cur_loh = cur_child_cn.loc[~parent_loh[allele], allele] == 0
+            cur_parent_cn.loc[cn_changes.loc[np.stack([cur_loss_labels == val for val in loh_regions]).any(axis=0)].index, allele] -= 1
 
-        cur_parent_cn.loc[cur_parent_cn[allele] < 0, allele] = 0
+            cur_df.loc[cur_df.loc[[child_name]].loc[~parent_loh].loc[cur_change_location.values].index, 'is_loss'] = True
+
     loh_pos = (cur_parent_cn == 0)
 
     # 2. WGDs
