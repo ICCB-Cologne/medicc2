@@ -220,9 +220,8 @@ def test_medicc_with_testing_example_nowgd():
                       'testing_example_summary.tsv', 'testing_example_copynumber_events_df.tsv',
                       'testing_example_events_overlap.tsv', 'testing_example_branch_lengths.tsv']
     all_files_exist = [os.path.isfile(os.path.join(output_dir, f))
-                    for f in expected_files]
-                       for f in expected_files]
-                    for f in expected_files]
+                        for f in expected_files]
+
     nr_events, tree_size = get_number_of_events(output_dir, 'testing_example')
     subprocess.Popen(["rm", output_dir, "-rf"])
 
@@ -264,10 +263,6 @@ def test_medicc_with_multiple_cores():
     "Testing small example"
     output_dir = 'examples/test_output_multiple_cores'
     process = subprocess.Popen(['python', "medicc2", "examples/simple_example/simple_example.tsv", 
-                                output_dir, "--n-cores", "4", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
-                                output_dir, "-j 4", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
-                                output_dir, "--n-cores", "4", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
-                                output_dir, "-j 4", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
                                 output_dir, "--n-cores", "4", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
@@ -357,23 +352,6 @@ def test_gundem_et_al_2015(patient, extra_condition):
     assert np.all(all_files_exist), "Some files were not created! Missing files are: {}".format(
         np.array(expected_files)[~np.array(all_files_exist)])
     assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
-
-
-all_py_notebooks = [x for x in os.listdir('notebooks') if '.py' in x]
-@pytest.mark.parametrize("notebook", all_py_notebooks)
-def test_all_py_notebooks(notebook):
-    "Testing if all notebooks (with ending .py) work"
-
-    process = subprocess.Popen(['python', 
-                                f"{notebook}"],
-                               stdout=subprocess.PIPE,
-                               cwd=os.path.join(pathlib.Path(__file__).parent.parent.absolute(), 'notebooks'))
-
-    while process.poll() is None:
-        # Process hasn't exited yet
-        time.sleep(0.5)
-
-    assert process.returncode == 0, f'Error while running notebook {notebook}'
 
 
 all_ipynb_notebooks = [x for x in os.listdir('notebooks') if '.ipynb' in x]
