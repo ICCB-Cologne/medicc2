@@ -250,7 +250,9 @@ def create_df_from_fsa(input_df: pd.DataFrame, fsa, separator: str = 'X'):
             cn = list(''.join(cns[(i*nr_chroms):((i+1)*nr_chroms)]))
             internal_cns[(allele, node)] = cn
 
-    output_df = (pd.concat([output_df, pd.DataFrame(internal_cns, index=output_df.index)], axis=1)
+    internal_cns_df = pd.DataFrame(internal_cns, index=output_df.index)
+    internal_cns_df.columns.names = ['allele', 'sample_id']
+    output_df = (pd.concat([output_df, internal_cns_df], axis=1)
                  .stack('sample_id')
                  .reorder_levels(['sample_id', 'chrom', 'start', 'end'])
                  .sort_index())
