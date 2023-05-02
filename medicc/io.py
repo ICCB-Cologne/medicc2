@@ -13,8 +13,9 @@ matplotlib.use("Agg")
 logger = logging.getLogger(__name__)
 
 
-def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv', separator='X', 
-                              allele_columns=['cn_a', 'cn_b'], maxcn=8, total_copy_numbers=False):
+def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv', separator='X',
+                              chrom_column='chrom', allele_columns=['cn_a', 'cn_b'], maxcn=8,
+                              total_copy_numbers=False):
 
     if len(allele_columns) == 1 and not total_copy_numbers:
         logger.warn('You have provided only one allele column but the --total-copy-numbers flag was not set')
@@ -28,7 +29,8 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
         input_df = _read_fasta_as_dataframe(filename, separator=separator, allele_columns=allele_columns, maxcn=maxcn)
     elif input_type.lower() == "tsv" or input_type.lower() == 't':
         logger.info("Reading Refphase TSV input.")
-        input_df = _read_tsv_as_dataframe(filename, allele_columns=allele_columns, maxcn=maxcn)
+        input_df = _read_tsv_as_dataframe(
+            filename, allele_columns=allele_columns, maxcn=maxcn, chrom_column=chrom_column)
     else:
         raise MEDICCIOError("Unknown input type, possible options are 'fasta' or 'tsv'.")
 
@@ -48,9 +50,9 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     
     ## Add normal sample if needed
     input_df = add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 
-                                    total_copy_numbers=total_copy_numbers)
+                                    total_copy_numbers=total_copy_numbers, chrom_column=chrom_column)
     nsamples = input_df.index.get_level_values('sample_id').unique().shape[0]
-    nchr = input_df.index.get_level_values('chrom').unique().shape[0]
+    nchr = input_df.index.get_level_values(chrom_column).unique().shape[0]
     nsegs = input_df.loc[normal_name,:].shape[0]
     logger.info("Read %d samples, %d chromosomes, %d segments per sample", nsamples, nchr, nsegs)
 
@@ -163,10 +165,10 @@ def filter_by_segment_length(input_df, filter_size):
     return input_df.loc[segment_length > float(filter_size)]
 
 
-def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
+def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8, chrom_column='chrom'):
     logger.info("Reading TSV file %s", path)
     input_file = pd.read_csv(path, sep = "\t")
-    columnn_names = ['sample_id', 'chrom', 'start', 'end'] + allele_columns
+    columnn_names = ['sample_id', chrom_column, 'start', 'end'] + allele_columns
     if len(np.setdiff1d(columnn_names, input_file.columns)) > 0:
         raise MEDICCIOError(f"TSV file needs the following columns: sample_id, chrom, start, end and the allele columns ({allele_columns})"
                             "\nMissing columns are: {}".format(
@@ -182,10 +184,10 @@ def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8):
             if np.any(input_file[c]>maxcn):
                 logger.warning("Integer CN > maxcn %d, capping.", maxcn)
                 input_file[c] = np.fmin(input_file[c], maxcn)
-    input_file['chrom'] = tools.format_chromosomes(input_file['chrom'])
-    if input_file['chrom'].apply(lambda x: "Y" in str(x)).any():
+    input_file[chrom_column] = tools.format_chromosomes(input_file[chrom_column])
+    if input_file[chrom_column].apply(lambda x: "Y" in str(x)).any():
         logger.warn("Y chromosome detected in input. This might cause errors down the line!")
-    input_file.set_index(['sample_id', 'chrom', 'start', 'end'], inplace=True)
+    input_file.set_index(['sample_id', chrom_column, 'start', 'end'], inplace=True)
     input_file.sort_index(inplace=True)
     input_file[allele_columns] = input_file[allele_columns].astype(str)
 
@@ -249,7 +251,8 @@ def _read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns =
 
     return result
 
-def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_copy_numbers=False):
+def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_copy_numbers=False,
+                      chrom_column='chrom'):
     """Adds an artificial normal samples with the supplied name to the data frame.
     The normal sample has CN=1 on all supplied alleles. """
     samples = df.index.get_level_values('sample_id').unique()
@@ -265,7 +268,7 @@ def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_cop
         for col in allele_columns:
             tmp.loc[:, (col, normal_name)] = normal_value
         tmp = tmp.stack('sample_id')
-        tmp = tmp.reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
+        tmp = tmp.reorder_levels(['sample_id', chrom_column, 'start', 'end']).sort_index()
     else:
         logger.info("Sample '%s' was found in data is is used as normal", normal_name)
         if np.any(df.loc[normal_name] == '0'):
