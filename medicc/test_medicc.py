@@ -220,9 +220,8 @@ def test_medicc_with_testing_example_nowgd():
                       'testing_example_summary.tsv', 'testing_example_copynumber_events_df.tsv',
                       'testing_example_events_overlap.tsv', 'testing_example_branch_lengths.tsv']
     all_files_exist = [os.path.isfile(os.path.join(output_dir, f))
-                    for f in expected_files]
-                       for f in expected_files]
-                    for f in expected_files]
+                        for f in expected_files]
+
     nr_events, tree_size = get_number_of_events(output_dir, 'testing_example')
     subprocess.Popen(["rm", output_dir, "-rf"])
 
@@ -264,10 +263,6 @@ def test_medicc_with_multiple_cores():
     "Testing small example"
     output_dir = 'examples/test_output_multiple_cores'
     process = subprocess.Popen(['python', "medicc2", "examples/simple_example/simple_example.tsv", 
-                                output_dir, "--n-cores", "4", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
-                                output_dir, "-j 4", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
-                                output_dir, "--n-cores", "4", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
-                                output_dir, "-j 4", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
                                 output_dir, "--n-cores", "4", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
