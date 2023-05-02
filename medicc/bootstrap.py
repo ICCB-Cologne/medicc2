@@ -33,6 +33,7 @@ def chr_wise_bootstrap_df(input_df):
         bootstrap_df = pd.concat([bootstrap_df, cur_data])
 
     bootstrap_df['chrom'] = tools.format_chromosomes(bootstrap_df['chrom'])
+    bootstrap_df[['start', 'end']] = bootstrap_df[['start', 'end']].astype(int)
     bootstrap_df.set_index(['sample_id', 'chrom', 'start', 'end'], inplace=True)
     bootstrap_df.sort_index(inplace=True)
 
