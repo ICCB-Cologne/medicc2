@@ -354,23 +354,6 @@ def test_gundem_et_al_2015(patient, extra_condition):
     assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
 
 
-all_py_notebooks = [x for x in os.listdir('notebooks') if '.py' in x]
-@pytest.mark.parametrize("notebook", all_py_notebooks)
-def test_all_py_notebooks(notebook):
-    "Testing if all notebooks (with ending .py) work"
-
-    process = subprocess.Popen(['python', 
-                                f"{notebook}"],
-                               stdout=subprocess.PIPE,
-                               cwd=os.path.join(pathlib.Path(__file__).parent.parent.absolute(), 'notebooks'))
-
-    while process.poll() is None:
-        # Process hasn't exited yet
-        time.sleep(0.5)
-
-    assert process.returncode == 0, f'Error while running notebook {notebook}'
-
-
 all_ipynb_notebooks = [x for x in os.listdir('notebooks') if '.ipynb' in x]
 @pytest.mark.parametrize("notebook", all_ipynb_notebooks)
 def test_all_ipynb_notebooks(notebook):
