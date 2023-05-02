@@ -20,4 +20,7 @@ with open(os.path.join(os.path.dirname(__file__), 'logging_conf.yaml'), 'rt') as
     config = yaml.safe_load(f.read())
 logging.config.dictConfig(config)
 
-__version__ = pkg_resources.require("medicc2")[0].version
+try:
+    __version__ = pkg_resources.require("medicc2")[0].version
+except pkg_resources.DistributionNotFound:
+    __version__ = 'not installed'
