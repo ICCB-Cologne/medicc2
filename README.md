@@ -24,7 +24,10 @@ Clone the MEDICC2 repository and its submodules using `git clone --recursive htt
 
 All dependencies including OpenFST (v1.8.2) should be directly installable via conda. A yaml file with a suggested MEDICC2 conda environment is provided in 'doc/medicc2.yml'. You can create a new conda environment with all requirements using `conda env create -f doc/medicc2.yml -n medicc_env`.
 
-Then, inside the `medicc2` folder, run `pip install .` to install MEDICC2 to your environment. 
+Then, inside the `medicc2` folder, run `pip install .` to install MEDICC2 to your environment.
+
+## Development mode
+If you want to make changes to the MEDICC2 source code, install MEDICC2 as explained above in "Installation from source" but install in editable mode (with `pip install -e .`). Any changes to the local files will now be reflected in your environment.
 
 # Usage
 After installing MEDICC2, you can use MEDICC2 functions in python scripts (through `import medicc`) and from the command line. General usage from the command line is `medicc2 path/to/input/file path/to/output/folder`. Run `medicc2 --help` for information on optional arguments.
