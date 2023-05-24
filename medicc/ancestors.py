@@ -9,7 +9,7 @@ import medicc
 
 logger = logging.getLogger(__name__)
 
-def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0):
+def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0, fst_forced=None):
 
     if len(samples_dict) == 2:
         return samples_dict
@@ -34,8 +34,11 @@ def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0):
 
     logger.debug("Ancestor reconstruction for root")
     # root node is calculated separately w.r.t. normal node
-    root_name = clade_list[0].name 
-    sp = fstlib.align(fst, fsa_dict[normal_name], fsa_dict[root_name])
+    root_name = clade_list[0].name
+    if fst_forced is None:
+        sp = fstlib.align(fst, fsa_dict[normal_name], fsa_dict[root_name])
+    else:
+        sp = fstlib.align(fst_forced, fsa_dict[normal_name], fsa_dict[root_name])
     fsa_dict[root_name] = fstlib.arcmap(sp.copy().project('output'), map_type='rmweight')
 
     logger.info("Ancestor reconstruction: Down the tree")

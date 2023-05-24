@@ -100,7 +100,7 @@ def create_loh_fst(symbol_table, separator='X'):
 
 
 def create_1step_WGD_fst(symbol_table, separator='X', wgd_cost=1, minimize=True, wgd_x2=False,
-                         total_cn=False):
+                         total_cn=False, force_wgd=False):
 
     if total_cn:
         wgd_distance = 2.
@@ -112,11 +112,12 @@ def create_1step_WGD_fst(symbol_table, separator='X', wgd_cost=1, minimize=True,
     W = fstlib.Fst()
     W.set_input_symbols(symbol_table)
     W.set_output_symbols(symbol_table)
-    W.add_states(3)
+    W.add_states(3 - int(force_wgd))
     W.set_start(0)
     W.set_final(0, 0)
     W.set_final(1, 0)
-    W.set_final(2, 0)
+    if not force_wgd:
+        W.set_final(2, 0)
     if wgd_x2:
         W.add_arcs(0, [(s, t, wgd_cost, 1) for s in cns.keys()
                     for t in cns.keys() if (s != '0') and ((cns[t]/cns[s]) == 2.)])
@@ -137,11 +138,13 @@ def create_1step_WGD_fst(symbol_table, separator='X', wgd_cost=1, minimize=True,
         W.add_arc(1, (separator, separator, 0, 1))
     W.add_arc(1, ('0', '0', 0, 1))
 
-    W.add_arcs(0, [(s, s, 0, 2) for s in cns.keys() if s != '0'])
-    W.add_arcs(2, [(s, s, 0, 2) for s in cns.keys()])
-    W.add_arc(2, ('0', '0', 0, 2))
-    if separator is not None and separator != '':
-        W.add_arc(2, (separator, separator, 0, 2))
+    if not force_wgd:
+        W.add_arcs(0, [(s, s, 0, 2) for s in cns.keys() if s != '0'])
+        W.add_arcs(2, [(s, s, 0, 2) for s in cns.keys()])
+        W.add_arc(2, ('0', '0', 0, 2))
+        if separator is not None and separator != '':
+            W.add_arc(2, (separator, separator, 0, 2))
+
     W.arcsort('olabel')
     if minimize:
         W = fstlib.encode_determinize_minimize(W)
@@ -165,7 +168,7 @@ def create_nstep_fst(n, one_step_fst, minimize=True):
 
 def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1, 
                           max_num_wgds=3, wgd_x2=False, output_all=False, total_cn=False,
-                          exact=True, max_pre_wgd_losses=8, exact_wgd=False):
+                          exact=True, max_pre_wgd_losses=8, exact_wgd=False, force_wgd=False):
     """ Creates the tree FST T which computes the asymmetric MED.
     The current creation is based on a trade-off. In the absence of WGDs, the FST is exact wr.t.
     combined LOH-losses (i.e 21 -> 10 is counted as one event), however, in the presence of WGDs, 
@@ -188,7 +191,7 @@ def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1,
     LOH = create_loh_fst(symbol_table, sep)
     
     if enable_wgd:
-        W1step = create_1step_WGD_fst(symbol_table, sep, wgd_cost=wgd_cost,
+        W1step = create_1step_WGD_fst(symbol_table, sep, wgd_cost=wgd_cost, force_wgd=force_wgd,
                                       minimize=False, wgd_x2=wgd_x2, total_cn=total_cn)
         n = int(min(max_num_wgds, np.floor(np.log2(n))))
         if n > 1:
@@ -197,7 +200,7 @@ def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1,
             W = W1step
         if exact_wgd:
             T = L_LOH * W * LG
-        elif exact:
+        elif exact and not force_wgd:
             T = ((LOH * W * LG) + fstlib.encode_determinize_minimize(L_LOH * G)).rmepsilon()
         else:
             # legacy version

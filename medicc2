@@ -21,6 +21,11 @@ parser.add_argument("input_file",
 parser.add_argument("output_dir",
                     help="a path to the output folder")
 parser.add_argument('--version', action='version', version=version_string)
+parser.add_argument("--force-clonal-wgd",
+                    action="store_true",
+                    dest="force_clonal_wgd",
+                    help="Force a clonal WGD (default: False).",
+                    required=False)
 parser.add_argument("--input-type", "-i", type=str, dest="input_type", default="t",
                     choices=["f", "t", "fasta", "tsv"], required=False,
                     help="Choose the type of input: f for FASTA, t for TSV (default: TSV)")
@@ -163,7 +168,18 @@ logger.info("Reading FST.")
 fst = medicc.io.read_fst(user_fst=args.fst, 
                          no_wgd=args.no_wgd,
                          total_copy_numbers=args.total_copy_numbers,
-                         wgd_x2=args.wgd_x2)
+                         wgd_x2=args.wgd_x2, 
+                         force_wgd=False)
+if args.force_clonal_wgd:
+    if args.fst is not None:
+        raise ValueError("Cannot use --force-clonal-wgd and --fst at the same time.")
+    fst_forced = medicc.io.read_fst(user_fst=args.fst, 
+                                    no_wgd=args.no_wgd,
+                                    total_copy_numbers=args.total_copy_numbers,
+                                    wgd_x2=args.wgd_x2, 
+                                    force_wgd=True)
+else:
+    fst_forced = fst
 
 if args.user_tree is not None:
     logger.info("Importing user tree.")
@@ -213,7 +229,8 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = m
     wgd_x2=args.wgd_x2,
     total_cn=args.total_copy_numbers,
     n_cores=args.n_cores,
-    reconstruct_events=args.events)
+    reconstruct_events=args.events,
+    fst_forced=fst_forced)
 
 
 # Write events table and overlap events with chromosome and oncogenes

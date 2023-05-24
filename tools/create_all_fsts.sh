@@ -8,3 +8,10 @@ python ../tools/medicc-create-cn-fst.py ../medicc/objects --max-cn 8 --sep X --w
 python ../tools/medicc-create-cn-fst.py ../medicc/objects --max-cn 8 --sep X --prefix no_wgd
 python ../tools/medicc-create-cn-fst.py ../medicc/objects --max-cn 8 --sep X --wgd --max-num-wgds 1 --prefix wgd_1
 python ../tools/medicc-create-cn-fst.py ../medicc/objects --max-cn 8 --sep X --wgd --max-num-wgds 2 --prefix wgd_2
+
+python ../tools/medicc-create-cn-fst.py ../medicc/objects --max-cn 8 --sep X --wgd --wgd_x2 --max-num-wgds 1 --prefix forced_1_wgd_x2 --force-wgd
+python ../tools/medicc-create-cn-fst.py ../medicc/objects --max-cn 8 --sep X --wgd --wgd_x2 --max-num-wgds 2 --prefix forced_2_wgd_x2 --force-wgd
+python ../tools/medicc-create-cn-fst.py ../medicc/objects --max-cn 8 --sep X --wgd --total_cn --max-num-wgds 1 --prefix forced_1_wgd_total_cn --force-wgd
+python ../tools/medicc-create-cn-fst.py ../medicc/objects --max-cn 8 --sep X --wgd --total_cn --max-num-wgds 2 --prefix forced_2_wgd_total_cn --force-wgd
+python ../tools/medicc-create-cn-fst.py ../medicc/objects --max-cn 8 --sep X --wgd --max-num-wgds 1 --prefix forced_1_wgd --force-wgd
+python ../tools/medicc-create-cn-fst.py ../medicc/objects --max-cn 8 --sep X --wgd --max-num-wgds 2 --prefix forced_2_wgd --force-wgd

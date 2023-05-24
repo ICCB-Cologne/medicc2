@@ -66,27 +66,51 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     return input_df
 
 
-def read_fst(user_fst=None, no_wgd=False, n_wgd=None, total_copy_numbers=False, wgd_x2=False):
+def read_fst(user_fst=None, no_wgd=False, n_wgd=None, total_copy_numbers=False, wgd_x2=False,
+             force_wgd=False):
     """Simple wrapper for loading the FST using the fstlib read function. """
 
     objects_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "objects")
 
+    fst_paths = {
+        (True, None, False, False, False): os.path.join(objects_dir, 'no_wgd_asymm.fst'),
+        (True, None, True, False, False): os.path.join(objects_dir, 'no_wgd_asymm.fst'),
+        (False, None, False, False, False): os.path.join(objects_dir, 'wgd_asymm.fst'),
+        (False, None, False, True, False): os.path.join(objects_dir, 'wgd_x2_asymm.fst'),
+        (False, None, True, False, False): os.path.join(objects_dir, 'wgd_total_cn_asymm.fst'),
+        (False, 1, False, False, False): os.path.join(objects_dir, 'wgd_1_asymm.fst'),
+        (False, 2, False, False, False): os.path.join(objects_dir, 'wgd_2_asymm.fst'),
+        (False, 3, False, False, False): os.path.join(objects_dir, 'wgd_3_asymm.fst'),
+        (False, 1, False, True, False): os.path.join(objects_dir, 'wgd_x2_1_asymm.fst'),
+        (False, 1, True, False, False): os.path.join(objects_dir, 'wgd_total_cn_1_asymm.fst'),
+        (False, None, False, False, True): os.path.join(objects_dir, 'forced_1_wgd_asymm.fst'),
+        (False, None, True, False, True): os.path.join(objects_dir, 'forced_1_wgd_total_cn_asymm.fst'),
+        (False, None, False, True, True): os.path.join(objects_dir, 'forced_1_wgd_x2_asymm.fst'),
+    }
+
     if user_fst is not None:
         fst_path = user_fst
-    elif no_wgd:
-        fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
-    elif wgd_x2:
-        fst_path = os.path.join(objects_dir, 'wgd_x2_asymm.fst')
-        if n_wgd == 1:
-            fst_path = os.path.join(objects_dir, 'wgd_x2_1_asymm.fst')
-    elif total_copy_numbers:
-        fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
-        if n_wgd == 1:
-            fst_path = os.path.join(objects_dir, 'wgd_total_cn_1_asymm.fst')
-    elif n_wgd is not None and int(n_wgd) <= 3:
-        fst_path = os.path.join(objects_dir, 'wgd_{}_asymm.fst'.format(int(n_wgd)))
     else:
-        fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
+        fst_key = (no_wgd, n_wgd, total_copy_numbers, wgd_x2, force_wgd)
+        if fst_key not in fst_paths:
+            raise MEDICCIOError("Invalid combination of the following parameters for loading the FST: "
+                                "no_wgd, n_wgd, total_copy_numbers, wgd_x2, force_wgd")
+        fst_path = fst_paths[fst_key]
+    
+    # elif no_wgd:
+    #     fst_path = os.path.join(objects_dir, 'no_wgd_asymm.fst')
+    # elif wgd_x2:
+    #     fst_path = os.path.join(objects_dir, 'wgd_x2_asymm.fst')
+    #     if n_wgd == 1:
+    #         fst_path = os.path.join(objects_dir, 'wgd_x2_1_asymm.fst')
+    # elif total_copy_numbers:
+    #     fst_path = os.path.join(objects_dir, 'wgd_total_cn_asymm.fst')
+    #     if n_wgd == 1:
+    #         fst_path = os.path.join(objects_dir, 'wgd_total_cn_1_asymm.fst')
+    # elif n_wgd is not None and int(n_wgd) <= 3:
+    #     fst_path = os.path.join(objects_dir, 'wgd_{}_asymm.fst'.format(int(n_wgd)))
+    # else:
+    #     fst_path = os.path.join(objects_dir, 'wgd_asymm.fst')
 
     return fstlib.read(fst_path)
 

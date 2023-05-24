@@ -20,6 +20,7 @@ parser.add_argument("--total_cn", action='store_true', required=False, default=F
 parser.add_argument("--max-num-wgds", type=int, required=False, default=3, help="Maximum number of WGD events (Default: 3)")
 parser.add_argument("--prefix", "-p", action='store', required=False, default='fst')
 parser.add_argument("--write-symbol-table", action='store_true', required=False, default=False)
+parser.add_argument("--force-wgd", action='store_true', required=False, default=False)
 args = parser.parse_args()
 
 separator = args.sep
@@ -31,7 +32,7 @@ logger.info('Symbol table: %s', str(list(symbol_table)))
 logger.info('Creating FSTs.')
 fst = medicc.create_copynumber_fst(symbol_table=symbol_table, sep=separator, 
                                    enable_wgd=args.wgd, max_num_wgds=args.max_num_wgds,
-                                   wgd_x2=args.wgd_x2, total_cn=args.total_cn)
+                                   wgd_x2=args.wgd_x2, total_cn=args.total_cn, force_wgd=args.force_wgd)
 logger.info('FST: %d states.', fst.num_states())
 
 logger.info('Writing.')

@@ -27,7 +27,8 @@ def main(input_df,
          no_wgd=False,
          total_cn=False,
          n_cores=None,
-         reconstruct_events=False):
+         reconstruct_events=False,
+         fst_forced=None):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
@@ -46,12 +47,11 @@ def main(input_df,
         ## Calculate pairwise distances
         logger.info("Calculating pairwise distance matrices")
         if n_cores is not None and n_cores > 1:
-            pairwise_distances = parallelization_calc_pairwise_distance_matrix(sample_labels, 
-                                                                        asymm_fst,
-                                                                        FSA_dict,
-                                                                        n_cores)
+            pairwise_distances = parallelization_calc_pairwise_distance_matrix(
+                sample_labels, asymm_fst, FSA_dict, n_cores, fst_forced=fst_forced, normal_name=normal_name)
         else:
-            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, FSA_dict)
+            pairwise_distances = calc_pairwise_distance_matrix(
+                asymm_fst, FSA_dict, normal_name=normal_name, fst_forced=fst_forced)
 
         if (pairwise_distances == np.inf).any().any():
             affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
@@ -82,7 +82,6 @@ def main(input_df,
 
         nj_tree = input_tree
 
-
     final_tree = copy.deepcopy(nj_tree)
 
     if ancestral_reconstruction:
@@ -91,7 +90,8 @@ def main(input_df,
                                                  samples_dict=FSA_dict,
                                                  fst=asymm_fst,
                                                  normal_name=normal_name,
-                                                 prune_weight=prune_weight)
+                                                 prune_weight=prune_weight,
+                                                 fst_forced=fst_forced)
 
         ## Create and write output data frame with ancestors
         logger.info("Creating output copynumbers.")
@@ -99,7 +99,7 @@ def main(input_df,
 
         ## Update branch lengths with ancestors
         logger.info("Updating branch lengths of final tree using ancestors.")
-        update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
+        update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name, fst_forced=fst_forced)
     else:
         output_df = None
 
@@ -110,7 +110,7 @@ def main(input_df,
         logger.info("Reconstructing events.")
         output_df, events_df = event_reconstruction.calculate_all_cn_events(
             final_tree, output_df, allele_columns, normal_name,
-            wgd_x2=wgd_x2, no_wgd=no_wgd, total_cn=total_cn)
+            wgd_x2=wgd_x2, no_wgd=no_wgd, total_cn=total_cn, force_clonal_wgd=fst_forced is not None)
         if len(events_df) != final_tree.total_branch_length():
             faulty_nodes = []
             for node in final_tree.find_clades():
@@ -293,7 +293,8 @@ def create_df_from_phasing_fsa(input_df: pd.DataFrame, fsas, separator: str = 'X
     return output_df
 
 
-def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_dict, n_cores):
+def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_dict, n_cores,
+                                                  fst_forced=None, normal_name='diploid'):
     try:
         from joblib import Parallel, delayed
     except ImportError:
@@ -304,7 +305,7 @@ def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_
     logger.info("Running {} parallel runs on {} cores".format(len(parallelization_groups), n_cores))
 
     parallel_pairwise_distances = Parallel(n_jobs=n_cores)(delayed(calc_pairwise_distance_matrix)(
-        asymm_fst, {key: val for key, val in FSA_dict.items() if key in cur_group}, True)
+        asymm_fst, {key: val for key, val in FSA_dict.items() if key in cur_group}, False, normal_name, fst_forced)
             for cur_group in parallelization_groups)
 
     pdm = medicc.tools.total_pdm_from_parallel_pdms(sample_labels, parallel_pairwise_distances)
@@ -312,7 +313,8 @@ def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_
     return pdm
 
 
-def calc_pairwise_distance_matrix(model_fst, fsa_dict, parallel_run=True):
+def calc_pairwise_distance_matrix(model_fst, fsa_dict, log_updates=True,
+                                  normal_name='diploid', fst_forced=None):
     '''Given a symmetric model FST and input FSAs in a form of a dictionary, output pairwise distance matrix'''
 
     samples = list(fsa_dict.keys())
@@ -321,11 +323,15 @@ def calc_pairwise_distance_matrix(model_fst, fsa_dict, parallel_run=True):
     ncombs = len(combs)
 
     for i, (sample_a, sample_b) in enumerate(combs):
-        cur_dist = float(fstlib.kernel_score(model_fst, fsa_dict[sample_a], fsa_dict[sample_b]))
+        if fst_forced is not None and (sample_a == normal_name or sample_b == normal_name):
+            cur_fst = fst_forced
+        else:
+            cur_fst = model_fst
+        cur_dist = float(fstlib.kernel_score(cur_fst, fsa_dict[sample_a], fsa_dict[sample_b]))
         pdm[sample_a][sample_b] = cur_dist
         pdm[sample_b][sample_a] = cur_dist
 
-        if not parallel_run and (100*(i+1)/ncombs) % 10 == 0:  # log every 10%
+        if log_updates and (100*(i+1)/ncombs) % 10 == 0:  # log every 10%
             logger.info('%.2f%%', (i+1)/ncombs * 100)
 
     return pdm
@@ -353,7 +359,7 @@ def infer_tree_topology(pairwise_distances, labels, normal_name):
     return tree
 
 
-def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
+def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid', fst_forced=None):
     """ Updates the branch lengths in the tree using the internal nodes supplied in the FSA dict 
     """
     if len(ancestor_fsa) == 2:
@@ -376,7 +382,10 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
             for child in children:
                 if child.name == normal_name:  # exception: evolution goes from diploid to internal node
                     logger.debug(f'Updating MRCA branch length from {child.name} to {clade.name}')
-                    brs = _distance_to_child(fst, ancestor_fsa, child.name, clade.name)
+                    if fst_forced is not None:
+                        brs = _distance_to_child(fst_forced, ancestor_fsa, child.name, clade.name)
+                    else:
+                        brs = _distance_to_child(fst, ancestor_fsa, child.name, clade.name)
                 else:
                     logger.debug(f'Updating branch length from {clade.name} to {child.name}')
                     brs = _distance_to_child(fst, ancestor_fsa, clade.name, child.name)
