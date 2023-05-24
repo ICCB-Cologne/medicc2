@@ -10,20 +10,19 @@ Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was develop
 
 Note that the notebooks and examples are not included when installing from conda or pip. When installing from pip or source, you need to make sure to have a working version of `gcc` and `gxx` installed.
 
-Due to dependencies we recommend using Python version 3.7-3.9.
 
 ## Installation via conda (recommended)
-It is best to use a dedicated conda environment for your MEDICC2 installation with `conda create -n medicc_env python=3.9`.
+It is best to use a dedicated conda environment for your MEDICC2 installation with `conda create -n medicc_env`.
 
 After activating the environment with `conda activate medicc_env` you can install MEDICC2 via `conda install -c bioconda -c conda-forge medicc2`.
 
 ## Installation via pip
-As MEDICC2 relies on OpenFST version 1.8.1 which is not packaged on PyPi you have to first install it using conda with `conda install -c conda-forge openfst=1.8.1`. Next you can install MEDICC2 via `pip install medicc2`.
+As MEDICC2 relies on OpenFST version 1.8.2 which is not packaged on PyPi you have to first install it using conda with `conda install -c conda-forge openfst=1.8.2`. Next you can install MEDICC2 via `pip install medicc2`.
 
 ## Installation from source
 Clone the MEDICC2 repository and its submodules using `git clone --recursive https://bitbucket.org/schwarzlab/medicc2.git`. It is important to use the `--recursive` flag to also download the modified OpenFST submodule.
 
-All dependencies including OpenFST (v1.8.1) should be directly installable via conda. A yaml file with a suggested MEDICC2 conda environment is provided in 'doc/medicc2.yml'. You can create a new conda environment with all requirements using `conda env create -f doc/medicc2.yml -n medicc_env`.
+All dependencies including OpenFST (v1.8.2) should be directly installable via conda. A yaml file with a suggested MEDICC2 conda environment is provided in 'doc/medicc2.yml'. You can create a new conda environment with all requirements using `conda env create -f doc/medicc2.yml -n medicc_env`.
 
 Then, inside the `medicc2` folder, run `pip install .` to install MEDICC2 to your environment. 
 
