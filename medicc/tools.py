@@ -36,7 +36,7 @@ def set_sequences_on_tree_from_df(tree: Bio.Phylo.BaseTree, df: pd.DataFrame, cl
 
 
 def fsa_to_string(fsa):
-    fsa_string = fstlib.tools.strings(fsa).string[0]
+    fsa_string = fstlib.tools.strings(fsa)['input'].values[0]
     return fsa_string
 
 def hex2int(x):
