@@ -28,7 +28,8 @@ def main(input_df,
          total_cn=False,
          n_cores=None,
          reconstruct_events=False,
-         fst_forced=None):
+         fst_forced=None,
+         force_clonal_wgd=False):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
@@ -48,10 +49,12 @@ def main(input_df,
         logger.info("Calculating pairwise distance matrices")
         if n_cores is not None and n_cores > 1:
             pairwise_distances = parallelization_calc_pairwise_distance_matrix(
-                sample_labels, asymm_fst, FSA_dict, n_cores, fst_forced=fst_forced, normal_name=normal_name)
+                sample_labels, asymm_fst, FSA_dict, n_cores, normal_name=normal_name,
+                fst_forced=fst_forced if force_clonal_wgd else None)
         else:
             pairwise_distances = calc_pairwise_distance_matrix(
-                asymm_fst, FSA_dict, normal_name=normal_name, fst_forced=fst_forced)
+                asymm_fst, FSA_dict, normal_name=normal_name,
+                fst_forced=fst_forced if force_clonal_wgd else None)
 
         if (pairwise_distances == np.inf).any().any():
             affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
@@ -91,7 +94,7 @@ def main(input_df,
                                                  fst=asymm_fst,
                                                  normal_name=normal_name,
                                                  prune_weight=prune_weight,
-                                                 fst_forced=fst_forced)
+                                                 fst_forced=fst_forced if force_clonal_wgd else None)
 
         ## Create and write output data frame with ancestors
         logger.info("Creating output copynumbers.")
@@ -99,7 +102,8 @@ def main(input_df,
 
         ## Update branch lengths with ancestors
         logger.info("Updating branch lengths of final tree using ancestors.")
-        update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name, fst_forced=fst_forced)
+        branch_lengths = update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name,
+                                               fst_forced=fst_forced, force_clonal_wgd=force_clonal_wgd)
     else:
         output_df = None
 
@@ -110,7 +114,7 @@ def main(input_df,
         logger.info("Reconstructing events.")
         output_df, events_df = event_reconstruction.calculate_all_cn_events(
             final_tree, output_df, allele_columns, normal_name,
-            wgd_x2=wgd_x2, no_wgd=no_wgd, total_cn=total_cn, force_clonal_wgd=fst_forced is not None)
+            wgd_x2=wgd_x2, no_wgd=no_wgd, total_cn=total_cn, force_clonal_wgd=force_clonal_wgd)
         if len(events_df) != final_tree.total_branch_length():
             faulty_nodes = []
             for node in final_tree.find_clades():
@@ -121,7 +125,7 @@ def main(input_df,
     else:
         events_df = None
 
-    return sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df
+    return sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df, branch_lengths
 
 
 def create_standard_fsa_dict_from_data(input_data,
@@ -359,20 +363,25 @@ def infer_tree_topology(pairwise_distances, labels, normal_name):
     return tree
 
 
-def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid', fst_forced=None):
+def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid', fst_forced=None,
+                          force_clonal_wgd=False):
     """ Updates the branch lengths in the tree using the internal nodes supplied in the FSA dict 
     """
+    fst_nowgd = medicc.io.read_fst(no_wgd=True)
+
+    def _distance_to_child(fst, ancestor_fsa, sample_1, sample_2):
+        return float(fstlib.score(fst, ancestor_fsa[sample_1], ancestor_fsa[sample_2]))
+
+    branch_lengths = pd.DataFrame(index=ancestor_fsa.keys(),
+                                  columns=['nowgd', 'optional_wgd', 'forced_wgd'])
+
     if len(ancestor_fsa) == 2:
         child_clade = [x for x in tree.find_clades() if x.name is not None and x.name != normal_name][0]
-        child_clade.branch_length = float(fstlib.score(
-            fst, ancestor_fsa[normal_name], ancestor_fsa[child_clade.name]))
+        child_clade.branch_length = _distance_to_child(fst, ancestor_fsa, normal_name, child_clade.name)
 
     if not isinstance(ancestor_fsa, dict):
         raise MEDICCError("input ancestor_fsa to function update_branch_lengths has to be either a dict"
                           "provided type is {}".format(type(ancestor_fsa)))
-
-    def _distance_to_child(fst, ancestor_fsa, sample_1, sample_2):
-        return float(fstlib.score(fst, ancestor_fsa[sample_1], ancestor_fsa[sample_2]))
 
     for clade in tree.find_clades():
         if clade.name is None:
@@ -382,15 +391,27 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid', fst_fo
             for child in children:
                 if child.name == normal_name:  # exception: evolution goes from diploid to internal node
                     logger.debug(f'Updating MRCA branch length from {child.name} to {clade.name}')
-                    if fst_forced is not None:
-                        brs = _distance_to_child(fst_forced, ancestor_fsa, child.name, clade.name)
-                    else:
-                        brs = _distance_to_child(fst, ancestor_fsa, child.name, clade.name)
+                    distance = _distance_to_child(fst, ancestor_fsa, child.name, clade.name)
+                    distance_forced = _distance_to_child(fst_forced, ancestor_fsa, child.name, clade.name)
+                    distance_nowgd = _distance_to_child(fst_nowgd, ancestor_fsa, child.name, clade.name)
                 else:
                     logger.debug(f'Updating branch length from {clade.name} to {child.name}')
-                    brs = _distance_to_child(fst, ancestor_fsa, clade.name, child.name)
-                logger.debug(f'branch length: {brs}')
-                child.branch_length = brs
+                    distance = _distance_to_child(fst, ancestor_fsa, clade.name, child.name)
+                    distance_forced = _distance_to_child(fst_forced, ancestor_fsa, clade.name, child.name)
+                    distance_nowgd = _distance_to_child(fst_nowgd, ancestor_fsa, clade.name, child.name)
+                logger.debug(f'branch length: {distance}')
+
+                if force_clonal_wgd and child.name == normal_name:
+                    child.branch_length = distance_forced
+                else:
+                    child.branch_length = distance
+
+                if child.name == normal_name:
+                    branch_lengths.loc[clade.name] = [distance_nowgd, distance, distance_forced]
+                else:
+                    branch_lengths.loc[child.name] = [distance_nowgd, distance, distance_forced]
+
+    return branch_lengths
 
 
 def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df=None):

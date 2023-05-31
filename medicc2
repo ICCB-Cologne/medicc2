@@ -170,16 +170,13 @@ fst = medicc.io.read_fst(user_fst=args.fst,
                          total_copy_numbers=args.total_copy_numbers,
                          wgd_x2=args.wgd_x2, 
                          force_wgd=False)
-if args.force_clonal_wgd:
-    if args.fst is not None:
-        raise ValueError("Cannot use --force-clonal-wgd and --fst at the same time.")
-    fst_forced = medicc.io.read_fst(user_fst=args.fst, 
-                                    no_wgd=args.no_wgd,
-                                    total_copy_numbers=args.total_copy_numbers,
-                                    wgd_x2=args.wgd_x2, 
-                                    force_wgd=True)
-else:
-    fst_forced = fst
+
+fst_forced = medicc.io.read_fst(user_fst=args.fst, 
+                                no_wgd=args.no_wgd,
+                                total_copy_numbers=args.total_copy_numbers,
+                                wgd_x2=args.wgd_x2, 
+                                force_wgd=True)
+
 
 if args.user_tree is not None:
     logger.info("Importing user tree.")
@@ -216,7 +213,7 @@ if args.n_cores is not None:
 
 # Run main method
 logger.info("Running main reconstruction routine.")
-sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = medicc.main(
+sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df, branch_lengths = medicc.main(
     input_df, 
     fst, 
     normal_name, 
@@ -230,7 +227,8 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = m
     total_cn=args.total_copy_numbers,
     n_cores=args.n_cores,
     reconstruct_events=args.events,
-    fst_forced=fst_forced)
+    fst_forced=fst_forced,
+    force_clonal_wgd=args.force_clonal_wgd)
 
 
 # Write events table and overlap events with chromosome and oncogenes
@@ -260,8 +258,9 @@ logger.info("Writing trees.")
 #     output_dir, output_prefix + "_nj_tree"))
 medicc.io.write_tree_files(tree=final_tree, normal_name=normal_name, out_name=os.path.join(
     output_dir, output_prefix + "_final_tree"))
-medicc.io.write_branch_lengths(tree=final_tree, out_name=os.path.join(
-    output_dir, output_prefix + "_branch_lengths.tsv"))
+# medicc.io.write_branch_lengths(tree=final_tree, out_name=os.path.join(
+#     output_dir, output_prefix + "_branch_lengths.tsv"))
+branch_lengths.to_csv(os.path.join(output_dir, output_prefix + "_branch_lengths.tsv"), sep='\t')
 
 # Write ouput table
 output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.tsv"), sep='\t')
