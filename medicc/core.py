@@ -7,7 +7,6 @@ import Bio
 import fstlib
 import numpy as np
 import pandas as pd
-import pyranges as pr
 import pickle
 import sys
 
