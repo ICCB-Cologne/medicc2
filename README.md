@@ -8,9 +8,7 @@ For more information see the accompanying publication [Whole-genome doubling-awa
 # Installation
 Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was developed and tested on unix-built systems (Linux and MacOS). For Windows users we recommended WSL2.
 
-Note that the notebooks and examples are not included when installing from conda or pip.
-
-For all installation methods you need to make sure to have a working version of the GNU Compiler Collection (`gcc`, `gxx` as well as related packages such as `libgcc-ng`) installed.
+Note that the notebooks and examples are not included when installing from conda or pip. When installing from pip or source, you need to make sure to have a working version of `gcc` and `gxx` installed.
 
 
 ## Installation via conda (recommended)
