@@ -124,6 +124,16 @@ parser.add_argument("--regions-bed",
                     default='none',
                     required=False,
                     help="BED file for regions of interests")
+parser.add_argument("--start-external-parallel", action='store_true', dest='start_external_parallel', default=False,
+                    help='Start a run with external parallel computation of the distance matrix', required=False)
+parser.add_argument("--finish-external-parallel", action='store_true', dest='finish_external_parallel', default=False,
+                    help='Finish a run with external parallel computation of the distance matrix', required=False)
+parser.add_argument("--task-dir",
+                    type=str,
+                    dest='task_dir',
+                    default='./tasks',
+                    required=False,
+                    help="Directory for externally run distance computation tasks")
 parser.add_argument("-v", "--verbose", action='store_true', default=False,
                     help='Enable verbose output (default: False).', required=False)
 parser.add_argument("-vv", "--debug", action='store_true', default=False,
@@ -230,7 +240,10 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df, br
     n_cores=args.n_cores,
     reconstruct_events=args.events,
     fst_forced=fst_forced,
-    force_clonal_wgd=args.force_clonal_wgd)
+    force_clonal_wgd=args.force_clonal_wgd,
+    start_external_parallel=args.start_external_parallel,
+    finish_external_parallel=args.finish_external_parallel,
+    task_dir=args.task_dir)
 
 
 # Write events table and overlap events with chromosome and oncogenes
