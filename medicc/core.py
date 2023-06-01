@@ -72,7 +72,9 @@ def main(input_df,
                 sample_labels, asymm_fst, FSA_dict, n_cores, normal_name=normal_name,
                 fst_forced=fst_forced if force_clonal_wgd else None)
         else:
-            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, FSA_dict)
+            pairwise_distances = calc_pairwise_distance_matrix(
+                asymm_fst, FSA_dict, normal_name=normal_name,
+                fst_forced=fst_forced if force_clonal_wgd else None)
 
         if (pairwise_distances == np.inf).any().any():
             affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
