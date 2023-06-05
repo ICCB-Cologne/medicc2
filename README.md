@@ -54,6 +54,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--prefix`, '-p': Output prefix to be used. None uses input filename. Default: None
 * `--no-wgd`: Disable whole-genome doubling events. Default: False
 * `--plot`: Type of copy-number plot to save. 'bars' is recommended for <50 samples, heatmap for more samples, 'auto' will decide based on the number of samples, 'both' will plot both and 'none' will plot neither. (default: auto).
+* `--no-plot-tree`: Disable plotting of tree figures. Default: False
 * `--total-copy-numbers`: Run for total copy number data instead of allele-specific data. Default: False
 * `-j`, `--n-cores`: Number of cores to run on. Default: None
 * `--events`: Whether to infer copy-number events. See section "Event Reconstruction" below
