@@ -7,6 +7,8 @@ import Bio
 import fstlib
 import numpy as np
 import pandas as pd
+import pickle
+import sys
 
 import medicc
 from medicc import io, nj, tools, event_reconstruction
@@ -29,8 +31,14 @@ def main(input_df,
          n_cores=None,
          reconstruct_events=False,
          fst_forced=None,
-         force_clonal_wgd=False):
+         force_clonal_wgd=False,
+         start_external_parallel=False,
+         finish_external_parallel=False,
+         task_dir=None):
     """ MEDICC Main Method """
+
+    # Required for deep copy of large trees
+    sys.setrecursionlimit(10000)
 
     symbol_table = asymm_fst.input_symbols()
 
@@ -47,7 +55,18 @@ def main(input_df,
     if input_tree is None:
         ## Calculate pairwise distances
         logger.info("Calculating pairwise distance matrices")
-        if n_cores is not None and n_cores > 1:
+        if start_external_parallel:
+            external_parallelization_calc_pairwise_distance_matrix(
+                sample_labels, asymm_fst, FSA_dict, n_cores, normal_name=normal_name,
+                fst_forced=fst_forced if force_clonal_wgd else None)
+            logger.info(f"Ready for external parallel distance calculation of tasks at {task_dir}")
+            sys.exit(0)
+
+        elif finish_external_parallel:
+            logger.info(f"Resuming external parallel distance calculation of tasks at {task_dir}")
+            pairwise_distances = resume_external_calc_pairwise_distance_matrix(task_dir)
+
+        elif n_cores is not None and n_cores > 1:
             pairwise_distances = parallelization_calc_pairwise_distance_matrix(
                 sample_labels, asymm_fst, FSA_dict, n_cores, normal_name=normal_name,
                 fst_forced=fst_forced if force_clonal_wgd else None)
@@ -315,6 +334,46 @@ def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_
     pdm = medicc.tools.total_pdm_from_parallel_pdms(sample_labels, parallel_pairwise_distances)
 
     return pdm
+
+
+def external_parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_dict, n_cores, task_dir,
+                                                           fst_forced=None, normal_name='diploid'):
+    parallelization_groups = medicc.tools.create_parallelization_groups(len(sample_labels))
+    parallelization_groups = [sample_labels[group] for group in parallelization_groups]
+    logger.info("Outputting {} parallel external runs for {} cores".format(len(parallelization_groups), n_cores))
+
+    with open(os.path.join(task_dir, f'sample_labels.pickle'), 'wb') as f:
+        pickle.dump(sample_labels, f)
+
+    task_idxs = []
+    for idx, cur_group in enumerate(parallelization_groups):
+        task = delayed(calc_pairwise_distance_matrix)(
+            asymm_fst, {key: val for key, val in FSA_dict.items() if key in cur_group}, False, normal_name, fst_forced)
+        with open(os.path.join(task_dir, f'task_{idx}.pickle'), 'wb') as f:
+            pickle.dump(task, f)
+        task_idxs.append(idx)
+
+    with open(os.path.join(task_dir, f'tasks.pickle'), 'wb') as f:
+        pickle.dump(task_idxs, f)
+
+
+def resume_external_calc_pairwise_distance_matrix(task_dir):
+    with open(os.path.join(task_dir, f'sample_labels.pickle'), 'rb') as f:
+        sample_labels = pickle.load(f)
+
+    with open(os.path.join(task_dir, f'tasks.pickle'), 'rb') as f:
+        task_idxs = pickle.load(f)
+
+    parallel_pairwise_distances = []
+    for idx in task_idxs:
+        with open(os.path.join(task_dir, f'task_{idx}_result.pickle'), 'rb') as f:
+            result = pickle.load(f)
+            parallel_pairwise_distances.append(result)
+
+    pdm = medicc.tools.total_pdm_from_parallel_pdms(sample_labels, parallel_pairwise_distances)
+
+    return pdm
+
 
 
 def calc_pairwise_distance_matrix(model_fst, fsa_dict, log_updates=True,

@@ -96,6 +96,8 @@ parser.add_argument('--plot',
                     help="""Type of copy-number plot to save. 'bars' is recommended for <50 samples, 
                          heatmap for more samples, 'auto' will decide based on the number of samples, 
                          'both' will plot both and 'none' will plot neither. (default: auto).""")
+parser.add_argument("--no-plot-tree", action='store_true', default=False, dest='no_plot_tree',
+                    help='Disable plotting of tree (default: False).', required=False)
 parser.add_argument("--total-copy-numbers",
                     dest="total_copy_numbers",
                     action='store_true',
@@ -122,6 +124,16 @@ parser.add_argument("--regions-bed",
                     default='none',
                     required=False,
                     help="BED file for regions of interests")
+parser.add_argument("--start-external-parallel", action='store_true', dest='start_external_parallel', default=False,
+                    help='Start a run with external parallel computation of the distance matrix', required=False)
+parser.add_argument("--finish-external-parallel", action='store_true', dest='finish_external_parallel', default=False,
+                    help='Finish a run with external parallel computation of the distance matrix', required=False)
+parser.add_argument("--task-dir",
+                    type=str,
+                    dest='task_dir',
+                    default='./tasks',
+                    required=False,
+                    help="Directory for externally run distance computation tasks")
 parser.add_argument("-v", "--verbose", action='store_true', default=False,
                     help='Enable verbose output (default: False).', required=False)
 parser.add_argument("-vv", "--debug", action='store_true', default=False,
@@ -228,7 +240,10 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df, br
     n_cores=args.n_cores,
     reconstruct_events=args.events,
     fst_forced=fst_forced,
-    force_clonal_wgd=args.force_clonal_wgd)
+    force_clonal_wgd=args.force_clonal_wgd,
+    start_external_parallel=args.start_external_parallel,
+    finish_external_parallel=args.finish_external_parallel,
+    task_dir=args.task_dir)
 
 
 # Write events table and overlap events with chromosome and oncogenes
@@ -257,7 +272,7 @@ logger.info("Writing trees.")
 # medicc.io.write_tree_files(tree=nj_tree, out_name=os.path.join(
 #     output_dir, output_prefix + "_nj_tree"))
 medicc.io.write_tree_files(tree=final_tree, normal_name=normal_name, out_name=os.path.join(
-    output_dir, output_prefix + "_final_tree"))
+    output_dir, output_prefix + "_final_tree"), plot_tree=(not args.no_plot_tree))
 # medicc.io.write_branch_lengths(tree=final_tree, out_name=os.path.join(
 #     output_dir, output_prefix + "_branch_lengths.tsv"))
 branch_lengths.to_csv(os.path.join(output_dir, output_prefix + "_branch_lengths.tsv"), sep='\t')
