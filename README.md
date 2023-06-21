@@ -65,7 +65,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--prune-weight`: Expert option: Prune weight in ancestor reconstruction. Values >0 might result in more accurate ancestors but will require more time and memory. Default: 0
 * `--fst`: Expert option: path to an alternative FST. Default: None
 * `--fst-chr-separator`: Expert option: character used to separate chromosomes in the FST. Default: 'X'
-* `--wgd_x2`: Expert option: Treat WGD as a x2 operation. Default: False
+* `--wgd-x2`: Expert option: Treat WGD as a x2 operation. Default: False
 
 
 ## Input files
