@@ -142,7 +142,7 @@ Users can specify regions of interest of their own in BED format by providing th
 
 
 ## Single sample WGD detection
-If you are interested in the WGD status of individual samples in your data, have a look at the notebook `notebooks/single_sample_wgd_detection.py`. By replacing the input data with your data you can easily calculate the WGD status of any copy-number input.
+If you are interested in the WGD status of individual samples in your data, have a look at the notebook `notebooks/WGD_detection.ipynb`. By replacing the input data with your data you can easily calculate the WGD status of any copy-number input.
 
 
 # Issues
