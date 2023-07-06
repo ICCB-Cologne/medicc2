@@ -131,7 +131,7 @@ def total_pdm_from_parallel_pdms(sample_labels, parallel_pdms):
     return total_pdm
 
 
-def create_diploid_fsa(fst, total_copy_numbers=False):
+def create_diploid_fsa(fst, total_copy_numbers=False, value=None):
 
     # Create diploid FSA
     diploid_fsa = fstlib.Fst()
@@ -140,7 +140,9 @@ def create_diploid_fsa(fst, total_copy_numbers=False):
     diploid_fsa.add_state()
     diploid_fsa.set_start(0)
     diploid_fsa.set_final(0, 0)
-    if total_copy_numbers:
+    if value is not None:
+        diploid_fsa.add_arc(0, (str(value), str(value), 0, 0))
+    elif total_copy_numbers:
         diploid_fsa.add_arc(0, ('2', '2', 0, 0))
     else:
         diploid_fsa.add_arc(0, ('1', '1', 0, 0))
