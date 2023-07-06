@@ -66,7 +66,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--prune-weight`: Expert option: Prune weight in ancestor reconstruction. Values >0 might result in more accurate ancestors but will require more time and memory. Default: 0
 * `--fst`: Expert option: path to an alternative FST. Default: None
 * `--fst-chr-separator`: Expert option: character used to separate chromosomes in the FST. Default: 'X'
-* `--wgd_x2`: Expert option: Treat WGD as a x2 operation. Default: False
+* `--wgd-x2`: Expert option: Treat WGD as a x2 operation. Default: False
 
 
 ## Input files
@@ -143,7 +143,7 @@ Users can specify regions of interest of their own in BED format by providing th
 
 
 ## Single sample WGD detection
-If you are interested in the WGD status of individual samples in your data, have a look at the notebook `notebooks/single_sample_wgd_detection.py`. By replacing the input data with your data you can easily calculate the WGD status of any copy-number input.
+If you are interested in the WGD status of individual samples in your data, have a look at the notebook `notebooks/WGD_detection.ipynb`. By replacing the input data with your data you can easily calculate the WGD status of any copy-number input.
 
 
 # Issues
