@@ -57,8 +57,8 @@ def main(input_df,
         logger.info("Calculating pairwise distance matrices")
         if start_external_parallel:
             external_parallelization_calc_pairwise_distance_matrix(
-                sample_labels, asymm_fst, FSA_dict, n_cores, normal_name=normal_name,
-                fst_forced=fst_forced if force_clonal_wgd else None)
+                sample_labels, asymm_fst, FSA_dict, n_cores, normal_name=normal_name, 
+                task_dir=task_dir, fst_forced=fst_forced if force_clonal_wgd else None)
             logger.info(f"Ready for external parallel distance calculation of tasks at {task_dir}")
             sys.exit(0)
 
@@ -338,6 +338,11 @@ def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_
 
 def external_parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_dict, n_cores, task_dir,
                                                            fst_forced=None, normal_name='diploid'):
+    try:
+        from joblib import delayed
+    except ImportError:
+        raise ImportError("joblib must be installed for parallelization")
+
     parallelization_groups = medicc.tools.create_parallelization_groups(len(sample_labels))
     parallelization_groups = [sample_labels[group] for group in parallelization_groups]
     logger.info("Outputting {} parallel external runs for {} cores".format(len(parallelization_groups), n_cores))
