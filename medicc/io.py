@@ -54,7 +54,7 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     nsamples = input_df.index.get_level_values('sample_id').unique().shape[0]
     nchr = input_df.index.get_level_values(chrom_column).unique().shape[0]
     nsegs = input_df.loc[normal_name,:].shape[0]
-    logger.info("Read %d samples, %d chromosomes, %d segments per sample", nsamples, nchr, nsegs)
+    logger.infof(f"Read {nsamples} samples, {nchr} chromosomes, {nsegs} segments per sample")
 
     gaps = (input_df.loc[normal_name].eval('start') - 
             np.roll(input_df.loc[normal_name].eval('end'), 1)).values
@@ -178,7 +178,7 @@ def validate_input(input_df, symbol_table=None, normal_name='diploid'):
         data_chars = set(input_df.values.flatten())
         if not data_chars.issubset(alphabet):
             not_in_set = data_chars.difference(alphabet)
-            raise MEDICCIOError("Not all input symbols are contained in symbol table. Offending symbols: %s" % str(not_in_set))
+            raise MEDICCIOError(f"Not all input symbols are contained in symbol table. Offending symbols: {str(not_in_set)}")
 
 
     logger.info('Input data is valid!')
@@ -190,7 +190,7 @@ def filter_by_segment_length(input_df, filter_size):
 
 
 def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8, chrom_column='chrom'):
-    logger.info("Reading TSV file %s", path)
+    logger.info(f"Reading TSV file {path}")
     input_file = pd.read_csv(path, sep = "\t")
     columnn_names = ['sample_id', chrom_column, 'start', 'end'] + allele_columns
     if len(np.setdiff1d(columnn_names, input_file.columns)) > 0:
@@ -198,7 +198,7 @@ def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8, chrom_
                             "\nMissing columns are: {}".format(
                                 np.setdiff1d(columnn_names, input_file.columns)))
 
-    logger.info("Successfully read input file. Using columns {%s}" % ', '.join(columnn_names))
+    logger.info(f"Successfully read input file. Using columns: {', '.join(columnn_names)}")
     input_file = input_file[columnn_names]
     for c in allele_columns:
         if input_file[c].dtype in [np.dtype('float64'), np.dtype('float32')]:
@@ -206,7 +206,7 @@ def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8, chrom_
             input_file[c] = input_file[c].round().astype('int')
         if input_file[c].dtype in [np.dtype('int64'), np.dtype('int32')]:
             if np.any(input_file[c]>maxcn):
-                logger.warning("Integer CN > maxcn %d, capping.", maxcn)
+                logger.warning(f"Integer CN > maxcn {maxcn}, capping.")
                 input_file[c] = np.fmin(input_file[c], maxcn)
     input_file[chrom_column] = tools.format_chromosomes(input_file[chrom_column])
     if input_file[chrom_column].apply(lambda x: "Y" in str(x)).any():
@@ -221,7 +221,7 @@ def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8, chrom_
 def _read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns = ['cn_a','cn_b'], maxcn: int = 8):
     """Reads FASTA decriptor file (old MEDICC input format) and reads the corresponding FASTA files to generate
     a data frame with the same format as the input TSV format. """
-    logger.info("Reading FASTA dataset from description file %s.", infile)
+    logger.info(f"Reading FASTA dataset from description file {infile}.")
     description_file = pd.read_csv(infile,
                                     delim_whitespace = True,
                                     header = None,
@@ -247,7 +247,7 @@ def _read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns =
     if payload.shape[1]>1: ## multiple columns
         payload.columns.name='id'
         payload=payload.unstack('chrom').reorder_levels(['chrom','id'],axis=1)
-        payload.columns = ["%s%d" % (c,i+1) for c,i in payload.columns]
+        payload.columns = [f"{c}{i+1}" for c,i in payload.columns]
         payload.columns.name = 'chrom'
         payload = payload.stack()
         payload = payload.reorder_levels([1,2,0]).sort_index()
@@ -259,7 +259,7 @@ def _read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns =
     paylong = pd.concat(payexpand, keys=payload.index, names=payload.index.names + ['segment'])
     paylong['cn'] = paylong['cn'].apply(tools.hex2int)
     if np.any(paylong['cn'] > maxcn):
-        logger.warning("Integer CN > maxcn %d, capping.", maxcn)
+        logger.warning(f"Integer CN > maxcn {maxcn}, capping.")
         paylong['cn'] = np.fmin(paylong['cn'], maxcn)
     paylong['cn'] = paylong['cn'].astype(str)
     result = paylong.unstack(['allele'])
@@ -287,14 +287,14 @@ def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_cop
         normal_value = '1'
 
     if normal_name is not None and normal_name not in samples:
-        logger.info("Normal sample '%s' not found, adding artifical normal by the name: '%s'.", normal_name, normal_name)
+        logger.info(f"Normal sample '{normal_name}' not found, adding artifical normal by the name: '{normal_name}'.")
         tmp = df.unstack('sample_id')
         for col in allele_columns:
             tmp.loc[:, (col, normal_name)] = normal_value
         tmp = tmp.stack('sample_id')
         tmp = tmp.reorder_levels(['sample_id', chrom_column, 'start', 'end']).sort_index()
     else:
-        logger.info("Sample '%s' was found in data is is used as normal", normal_name)
+        logger.info(f"Sample '{normal_name}' was found in data is is used as normal")
         if np.any(df.loc[normal_name] == '0'):
             logger.warn("The provided normal sample contains segments with copy number 0. "
                         "If any other sample has non-zero values in these segments, MEDICC will crash")
