@@ -135,6 +135,9 @@ def validate_input(input_df, symbol_table=None, normal_name='diploid'):
     if normal_name not in input_df.index.get_level_values('sample_id').unique():
         raise MEDICCIOError(f"Normal sample '{normal_name}' not found in input data. Specify a "
                             "different name using the --normal-name flag.")
+    
+    if input_df.index.get_level_values('sample_id').nunique() <= 2:
+        raise MEDICCIOError("MEDICC2 requires at least 2 non-diploid samples to run.")
 
     # Check if the index names are correct
     if input_df.index.names != ['sample_id', 'chrom', 'start', 'end']:
