@@ -55,11 +55,11 @@ def format_chromosomes(ds):
     matches = ds.apply(pattern.match)
     matchable = ~matches.isnull().any()
     if matchable:
-        newchr = matches.apply(lambda x:"chr%s" % x[4].upper())
+        newchr = matches.apply(lambda x:f"chr{x[4].upper():s}")
         numchr = matches.apply(lambda x:int(x[5]) if x[5] is not None else -1)
         chrlevels = np.sort(numchr.unique())
         chrlevels = np.setdiff1d(chrlevels, [-1])
-        chrcats = ["chr%d" % i for i in chrlevels]
+        chrcats = [f"chr{i}" for i in chrlevels]
         if 'chrX' in list(newchr):
             chrcats += ['chrX',]
         if 'chrY' in list(newchr):

@@ -54,7 +54,7 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     nsamples = input_df.index.get_level_values('sample_id').unique().shape[0]
     nchr = input_df.index.get_level_values(chrom_column).unique().shape[0]
     nsegs = input_df.loc[normal_name,:].shape[0]
-    logger.infof(f"Read {nsamples} samples, {nchr} chromosomes, {nsegs} segments per sample")
+    logger.info(f"Read {nsamples} samples, {nchr} chromosomes, {nsegs} segments per sample")
 
     gaps = (input_df.loc[normal_name].eval('start') - 
             np.roll(input_df.loc[normal_name].eval('end'), 1)).values

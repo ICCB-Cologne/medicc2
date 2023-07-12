@@ -739,7 +739,7 @@ def plot_tree(input_tree,
             ax.text(
                 x_here + min(0.02*ax_scale, 1),
                 y_here,
-                " %s" % label,
+                f" {label}",
                 verticalalignment="center",
                 color=get_label_color(label),
             )
@@ -822,9 +822,9 @@ def plot_tree(input_tree,
             list(value)
         except TypeError:
             raise ValueError(
-                'Keyword argument "%s=%s" is not in the format '
-                "pyplot_option_name=(tuple), pyplot_option_name=(tuple, dict),"
-                " or pyplot_option_name=(dict) " % (key, value)
+                f'Keyword argument "{key}={value}" is not in the format '
+                'pyplot_option_name=(tuple), pyplot_option_name=(tuple, dict),'
+                ' or pyplot_option_name=(dict) '
             ) from None
         if isinstance(value, dict):
             getattr(plt, str(key))(**dict(value))

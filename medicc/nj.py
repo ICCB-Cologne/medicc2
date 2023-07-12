@@ -45,12 +45,11 @@ class NeighbourJoining(object):
             (left, right) = self._nj_nearest_neighbours(q_matrix)
             left_name = sequence_files[left]
             right_name = sequence_files[right]
-            self.log.debug("Choosing %s with distance %f" % ((left_name, right_name), distances[left,right]))
+            self.log.debug(f"Choosing {(left_name, right_name)} with distance {distances[left,right]}")
             new_distances = self._nj_get_distances_to_new_node((left, right), distances)
             distances = self._nj_forge_new_distance_matrix((left, right), distances, new_distances)
-            ## ancestor_filename = "(%s-%s)" % (left_name, right_name)
             internal_node_count = len(internal_node_list) + 1
-            ancestor_filename = "internal_%d" % internal_node_count
+            ancestor_filename = f"internal{internal_node_count}"
         
             clade_ancestor = Bio.Phylo.PhyloXML.Clade(branch_length=0)
             clade_ancestor.name = ancestor_filename
@@ -81,7 +80,7 @@ class NeighbourJoining(object):
             sequence_files.remove(right_name)
             sequence_files.append(ancestor_filename)
             
-            self.log.debug("Remaining number of sequences: %d" % len(sequence_files))
+            self.log.debug(f"Remaining number of sequences: {len(sequence_files)}")
         
         ## here we have exactly 2 sequences left
         last_index = (sequence_files.index(ancestor_filename) + 1) % 2

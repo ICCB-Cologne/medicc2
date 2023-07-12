@@ -194,7 +194,7 @@ if args.filter_segment_length is not None:
 
 if args.exclude_samples is not None:
     exclude_samples = np.array([x.strip() for x in args.exclude_samples.split(',')])
-    logger.info("Excluding samples {%s}." % ', '.join(exclude_samples))
+    logger.info(f"Excluding samples {', '.join(exclude_samples)}.")
     input_df = input_df.loc[~np.in1d(input_df.index.get_level_values('sample_id'), exclude_samples), :]
 
 if args.n_cores is not None:
@@ -255,7 +255,7 @@ output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.ts
 logger.info("Writing patient summary.")
 summary = medicc.summarize_patient(
     final_tree, pairwise_distances.values, sample_labels, normal_name, events_df)
-logger.info("Final tree length %d.", summary.tree_length)
+logger.info(f"Final tree length {summary.tree_length}.")
 summary.to_csv(os.path.join(output_dir, output_prefix + "_summary.tsv"),
                index=True, header=False, sep='\t')
 

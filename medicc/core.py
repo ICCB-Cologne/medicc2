@@ -326,7 +326,7 @@ def calc_pairwise_distance_matrix(model_fst, fsa_dict, parallel_run=True):
         pdm[sample_b][sample_a] = cur_dist
 
         if not parallel_run and (100*(i+1)/ncombs) % 10 == 0:  # log every 10%
-            logger.info('%.2f%%', (i+1)/ncombs * 100)
+            logger.info(f'{(i+1)/ncombs * 100:.2f}')
 
     return pdm
 

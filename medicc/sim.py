@@ -40,7 +40,7 @@ def evolve(cnstr, mu=5, plen=0.2, pwgd=0.05, pgain=0.5, maxcn=8, mincn=0, verbos
 def _mutate(cnstr, event, start, end, maxcn, mincn, ignore_chr_boundaries=False, verbose=True):
     """ Mutates an individual copy-number string, e.g. 1111X111111. """
     if verbose:
-        logger.info("%s event from %d to %d", event, start, end)
+        logger.info(f"{event} event from {start} to {end}")
     for i in range(start, end):
         if cnstr[i]=='X':
             if ignore_chr_boundaries:
