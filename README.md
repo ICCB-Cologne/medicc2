@@ -88,6 +88,7 @@ MEDICC creates the following output files:
 * `_final_cn_profiles.tsv`: Copy-number profiles of the input as well as the newly internal nodes. Also includes additional information such as whether a gain or loss has happened
 * `_cn_profiles.pdf`: Combined plot of the phylogenetic tree as well as the copy-number profiles of all samples (including the internal nodes)
 * `_branch_lengths.tsv`: List of all branches and their corresponding lenghts of the final tree
+* `_summary.tsv`: Contains summary information about the created tree. If the `--events` flag was set, this includes the WGD status.
 
 *optional (see "Event Reconstruction" below)*
 
