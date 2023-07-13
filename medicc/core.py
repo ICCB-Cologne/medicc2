@@ -413,7 +413,7 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
     # p_clock = stats.molecular_clock_test(pdm,
     #                                      np.flatnonzero(np.array(sample_labels) == normal_name)[0])
     if events_df is None:
-        wgd_status = "unknown"
+        wgd_status = "unknown (run with --events flag to detect WGDs)"
     else:
         if "wgd" in events_df['type'].values:
             wgd_status = "WGD on branch " + \
