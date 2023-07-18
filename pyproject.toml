@@ -1,2 +1,2 @@
 [build-system]
-requires = ["cython", "setuptools", "wheel", "pathlib"]
+requires = ["cython ~= 0.29", "setuptools", "wheel", "pathlib"]
