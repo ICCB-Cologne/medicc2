@@ -79,6 +79,9 @@ MEDICC2 follows the BED convention for segment coordinates, i.e. segment start i
 The folder `examples/simple_example` contains a simple example input both in fasta and tsv format.
 The folder `examples/OV03-04` contains a larger example consisting of multiple fasta files. If you want to run MEDICC on this data run `medicc2 examples/OV03-04/OV03-04_descr.txt path/to/output/folder --input-type fasta`.
 
+**Note that MEDICC2 requires a consistent segmentation across all samples**. That means that all segments must have the exact same segments.
+If you don't want or cannot create a consistent segmentation yourself, we recommend the use of our simulation tool [SimChA](https://bitbucket.org/schwarzlab/simcha). Follow the installation detailed in the README and run `dotnet run --project SimChA -O path/to/output -P /path/to/raw_copynumbers.tsv -S` to create the descired consistent segmentation.
+
 
 ## Output files
 MEDICC creates the following output files:
