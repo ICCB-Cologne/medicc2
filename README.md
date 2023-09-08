@@ -62,7 +62,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--regions-bed`: BED file for regions of interest to compare copy-number events to
 * `-v`, `--verbose`: Enable verbose output. Default: False
 * `-vv`, `--debug`: Enable more verbose output Default: False
-* `--maxcn`: Expert option: maximum CN at which the input is capped. Does not change FST. Default: 8
+* `--maxcn`: Expert option: maximum CN at which the input is capped. Does not change FST. The maximum possible value is 8. Default: 8
 * `--prune-weight`: Expert option: Prune weight in ancestor reconstruction. Values >0 might result in more accurate ancestors but will require more time and memory. Default: 0
 * `--fst`: Expert option: path to an alternative FST. Default: None
 * `--fst-chr-separator`: Expert option: character used to separate chromosomes in the FST. Default: 'X'

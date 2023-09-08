@@ -16,6 +16,9 @@ logger = logging.getLogger(__name__)
 def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv', separator='X',
                               chrom_column='chrom', allele_columns=['cn_a', 'cn_b'], maxcn=8,
                               total_copy_numbers=False):
+    
+    if maxcn > 8:
+        raise MEDICCIOError("Maximum copy number must be <= 8.")
 
     if len(allele_columns) == 1 and not total_copy_numbers:
         logger.warn('You have provided only one allele column but the --total-copy-numbers flag was not set')
