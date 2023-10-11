@@ -83,8 +83,8 @@ def plot_cn_profiles(
             df[['is_normal', 'is_clonal', 'is_gain', 'is_loss', 'is_wgd']] = False
         else:
             df[['is_gain', 'is_loss', 'is_wgd']] = False
+
             cn_change = compute_cn_change(df=df[allele_columns], tree=input_tree, normal_name=normal_name)
-            
             df.loc[(cn_change < 0).any(axis=1), 'is_loss'] = True
             df.loc[(cn_change > 0).any(axis=1), 'is_gain'] = True
 
@@ -94,19 +94,12 @@ def plot_cn_profiles(
             is_clonal = ~df.loc[df.index.get_level_values('sample_id')!=mrca].unstack('sample_id')[['is_loss', 'is_gain', 'is_wgd']].any(axis=1)
             is_clonal.name = 'is_clonal'
 
-            df = df.drop(['is_normal', 'is_clonal'], axis=1, errors='ignore')
             df = (df
-                    .join(is_normal, how='inner')
-                    .reorder_levels(['sample_id', 'chrom', 'start', 'end'])
-                    .sort_index()
-                    .join(is_clonal, how='inner')
-                    .reset_index())
-            df = (df
-                    .set_index(['sample_id', 'chrom', 'start', 'end'])
-                    .sort_index())
-
-
-
+                  .drop(['is_normal', 'is_clonal'], axis=1, errors='ignore')
+                  .join(is_normal, on=['chrom', 'start', 'end'], how='inner')
+                  .join(is_clonal, on=['chrom', 'start', 'end'], how='inner')
+                  .sort_index()
+                  )
 
     if hide_normal_chromosomes:
         df = df.join(df.groupby('chrom')['is_normal'].all().to_frame('hide'))

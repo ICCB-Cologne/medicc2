@@ -10,7 +10,7 @@ Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was develop
 
 Note that the notebooks and examples are not included when installing from conda or pip.
 
-For all installation methods you need to make sure to have a working version of the GNU Compiler Collection (`gcc`, `gxx` as well as related packages such as `libgcc-ng`) installed.
+For all installation methods you need to make sure to have a working version of the GNU Compiler Collection (`gcc`, `gxx` as well as related packages such as `libgcc-ng`) installed. Note that MEDICC2 requires Cython version 0.29 and does *not* work with Cython version 3.0.
 
 
 ## Installation via conda (recommended)
@@ -82,6 +82,8 @@ MEDICC2 follows the BED convention for segment coordinates, i.e. segment start i
 The folder `examples/simple_example` contains a simple example input both in fasta and tsv format.
 The folder `examples/OV03-04` contains a larger example consisting of multiple fasta files. If you want to run MEDICC on this data run `medicc2 examples/OV03-04/OV03-04_descr.txt path/to/output/folder --input-type fasta`.
 
+**Note that MEDICC2 requires a consistent segmentation across all samples**. That means that all segments must have the exact same segments.
+
 
 ## Output files
 MEDICC creates the following output files:
@@ -91,6 +93,7 @@ MEDICC creates the following output files:
 * `_final_cn_profiles.tsv`: Copy-number profiles of the input as well as the newly internal nodes. Also includes additional information such as whether a gain or loss has happened
 * `_cn_profiles.pdf`: Combined plot of the phylogenetic tree as well as the copy-number profiles of all samples (including the internal nodes)
 * `_branch_lengths.tsv`: List of all branches and their corresponding lenghts of the final tree
+* `_summary.tsv`: Contains summary information about the created tree. If the `--events` flag was set, this includes the WGD status.
 
 *optional (see "Event Reconstruction" below)*
 
