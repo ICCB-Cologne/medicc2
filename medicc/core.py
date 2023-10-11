@@ -438,9 +438,19 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
     return result
 
 
-def detect_wgd(input_df, sample, total_cn=False, wgd_x2=False):
-    wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2)
-    no_wgd_fst = io.read_fst(no_wgd=True)
+def detect_wgd(input_df, sample, total_cn=False, wgd_x2=False, n_wgd=None):
+    if n_wgd is not None and n_wgd > 2:
+        raise NotImplementedError("MEDICC can only detect WGDs with n_wgd <= 2")
+
+    if n_wgd is None:
+        wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=n_wgd)
+        no_wgd_fst = io.read_fst(no_wgd=True)
+    elif n_wgd == 1:
+        wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=2)
+        no_wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=1)
+    elif n_wgd == 2:
+        wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=None)
+        no_wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=2)
 
     diploid_fsa = medicc.tools.create_diploid_fsa(no_wgd_fst)
     symbol_table = no_wgd_fst.input_symbols()
@@ -450,7 +460,7 @@ def detect_wgd(input_df, sample, total_cn=False, wgd_x2=False):
     distance_wgd = float(fstlib.score(wgd_fst, diploid_fsa, fsa_dict[sample]))
     distance_no_wgd = float(fstlib.score(no_wgd_fst, diploid_fsa, fsa_dict[sample]))
 
-    return distance_wgd != distance_no_wgd
+    return distance_wgd < distance_no_wgd
 
 
 class MEDICCError(Exception):
