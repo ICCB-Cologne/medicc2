@@ -54,6 +54,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--prefix`, '-p': Output prefix to be used. None uses input filename. Default: None
 * `--no-wgd`: Disable whole-genome doubling events. Default: False
 * `--plot`: Type of copy-number plot to save. 'bars' is recommended for <50 samples, heatmap for more samples, 'auto' will decide based on the number of samples, 'both' will plot both and 'none' will plot neither. (default: auto).
+* `--no-plot-tree`: Disable plotting of tree figures. Default: False
 * `--total-copy-numbers`: Run for total copy number data instead of allele-specific data. Default: False
 * `-j`, `--n-cores`: Number of cores to run on. Default: None
 * `--events`: Whether to infer copy-number events. See section "Event Reconstruction" below
@@ -61,7 +62,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--regions-bed`: BED file for regions of interest to compare copy-number events to
 * `-v`, `--verbose`: Enable verbose output. Default: False
 * `-vv`, `--debug`: Enable more verbose output Default: False
-* `--maxcn`: Expert option: maximum CN at which the input is capped. Does not change FST. Default: 8
+* `--maxcn`: Expert option: maximum CN at which the input is capped. Does not change FST. The maximum possible value is 8. Default: 8
 * `--prune-weight`: Expert option: Prune weight in ancestor reconstruction. Values >0 might result in more accurate ancestors but will require more time and memory. Default: 0
 * `--fst`: Expert option: path to an alternative FST. Default: None
 * `--fst-chr-separator`: Expert option: character used to separate chromosomes in the FST. Default: 'X'
@@ -73,6 +74,8 @@ Input files can be either in fasta or tsv format:
 
 * **tsv (recommended):** Files should have the following columns: `sample_id`, `chrom`, `start`, `end` as well as columns for the copy numbers. MEDICC expects the copy number columns to be called `cn_a` and `cn_b`. Using the flag `--input-allele-columns` you can set your own copy number columns. If you want to use total copy numbers, make sure to use the flag `--total-copy-numbers`. Important: MEDICC2 does not create total copy numbers for you. You will have to calculate total copy numbers yourself and then specify the column using the `--input-allele-columns` flag.
 * **fasta:** A description file should be provided to MEDICC. This file should include one line per file with the name of the chromosome and the corresponding file names. If fasta files are provided you have to use the flag `--input-type fasta`.
+
+Note that MEDICC2 needs at least 2 non-diploid samples to create a tree.
 
 MEDICC2 follows the BED convention for segment coordinates, i.e. segment start is at 0 and the segment end is non-inclusive.
 
@@ -145,7 +148,7 @@ Users can specify regions of interest of their own in BED format by providing th
 
 
 ## Single sample WGD detection
-If you are interested in the WGD status of individual samples in your data, have a look at the notebook `notebooks/WGD_detection.ipynb`. By replacing the input data with your data you can easily calculate the WGD status of any copy-number input.
+If you are interested in the WGD status of individual samples in your data, have a look at the notebook `notebooks/WGD_detection.ipynb`. The notebooks also includes code to detect the presence of multple WGDs in your samples. By replacing the input data with your data you can easily calculate the WGD status of any copy-number input.
 
 
 # Issues

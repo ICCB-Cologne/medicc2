@@ -326,7 +326,7 @@ def calc_pairwise_distance_matrix(model_fst, fsa_dict, parallel_run=True):
         pdm[sample_b][sample_a] = cur_dist
 
         if not parallel_run and (100*(i+1)/ncombs) % 10 == 0:  # log every 10%
-            logger.info('%.2f%%', (i+1)/ncombs * 100)
+            logger.info(f'{(i+1)/ncombs * 100:.2f}')
 
     return pdm
 
@@ -413,7 +413,7 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
     # p_clock = stats.molecular_clock_test(pdm,
     #                                      np.flatnonzero(np.array(sample_labels) == normal_name)[0])
     if events_df is None:
-        wgd_status = "unknown"
+        wgd_status = "unknown (run with --events flag to detect WGDs)"
     else:
         if "wgd" in events_df['type'].values:
             wgd_status = "WGD on branch " + \
@@ -438,9 +438,19 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
     return result
 
 
-def detect_wgd(input_df, sample, total_cn=False, wgd_x2=False):
-    wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2)
-    no_wgd_fst = io.read_fst(no_wgd=True)
+def detect_wgd(input_df, sample, total_cn=False, wgd_x2=False, n_wgd=None):
+    if n_wgd is not None and n_wgd > 2:
+        raise NotImplementedError("MEDICC can only detect WGDs with n_wgd <= 2")
+
+    if n_wgd is None:
+        wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=n_wgd)
+        no_wgd_fst = io.read_fst(no_wgd=True)
+    elif n_wgd == 1:
+        wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=2)
+        no_wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=1)
+    elif n_wgd == 2:
+        wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=None)
+        no_wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=2)
 
     diploid_fsa = medicc.tools.create_diploid_fsa(no_wgd_fst)
     symbol_table = no_wgd_fst.input_symbols()
@@ -450,7 +460,7 @@ def detect_wgd(input_df, sample, total_cn=False, wgd_x2=False):
     distance_wgd = float(fstlib.score(wgd_fst, diploid_fsa, fsa_dict[sample]))
     distance_no_wgd = float(fstlib.score(no_wgd_fst, diploid_fsa, fsa_dict[sample]))
 
-    return distance_wgd != distance_no_wgd
+    return distance_wgd < distance_no_wgd
 
 
 class MEDICCError(Exception):
