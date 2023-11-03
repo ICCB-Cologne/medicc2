@@ -147,9 +147,9 @@ def validate_input(input_df, symbol_table=None, normal_name='diploid'):
         raise MEDICCIOError("DataFrame must be indexed by ['sample_id', 'chrom', 'start', 'end'].")
 
     # Check if the chromosome is categorical
-    if not pd.api.types.is_categorical_dtype(input_df.index.dtypes['chrom']):
+    if not isinstance(input_df.index.dtypes['chrom'], pd.CategoricalDtype):
         raise MEDICCIOError("""
-            Chromosome index 'chrom' must be of type pd.Categorical. 
+            Chromosome index 'chrom' must be of type pd.CategoricalDtype. 
             You can use medicc.tools.format_chromosomes() or create it yourself.""")
 
     # Check if the index is sorted
