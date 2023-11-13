@@ -141,7 +141,8 @@ parser.add_argument("-vv", "--debug", action='store_true', default=False,
 parser.add_argument("--silent", action='store_true', default=False,
                     help='Hide all output (default: False).', required=False)
 parser.add_argument("--maxcn", type=int, dest='maxcn', default=8,
-                    help='Expert option: maximum CN at which the input is capped. Does not change FST.')
+                    help='''Expert option: maximum CN at which the input is capped. Does not change FST.
+                            The maximum possible value is 8. Default: 8''')
 parser.add_argument("--prune-weight", type=int, dest='prune_weight', default=0,
                     help='''Expert option: Prune weight in ancestor reconstruction. Values >0 might
                             result in more accurate ancestors but will require more time and memory. Default: 0''')
@@ -217,7 +218,7 @@ if args.filter_segment_length is not None:
 
 if args.exclude_samples is not None:
     exclude_samples = np.array([x.strip() for x in args.exclude_samples.split(',')])
-    logger.info("Excluding samples {%s}." % ', '.join(exclude_samples))
+    logger.info(f"Excluding samples {', '.join(exclude_samples)}.")
     input_df = input_df.loc[~np.in1d(input_df.index.get_level_values('sample_id'), exclude_samples), :]
 
 if args.n_cores is not None:
@@ -273,9 +274,8 @@ logger.info("Writing trees.")
 #     output_dir, output_prefix + "_nj_tree"))
 medicc.io.write_tree_files(tree=final_tree, normal_name=normal_name, out_name=os.path.join(
     output_dir, output_prefix + "_final_tree"), plot_tree=(not args.no_plot_tree))
-# medicc.io.write_branch_lengths(tree=final_tree, out_name=os.path.join(
-#     output_dir, output_prefix + "_branch_lengths.tsv"))
-branch_lengths.to_csv(os.path.join(output_dir, output_prefix + "_branch_lengths.tsv"), sep='\t')
+medicc.io.write_branch_lengths(tree=final_tree, out_name=os.path.join(
+    output_dir, output_prefix + "_branch_lengths.tsv"))
 
 # Write ouput table
 output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.tsv"), sep='\t')
@@ -284,7 +284,7 @@ output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.ts
 logger.info("Writing patient summary.")
 summary = medicc.summarize_patient(
     final_tree, pairwise_distances.values, sample_labels, normal_name, events_df)
-logger.info("Final tree length %d.", summary.tree_length)
+logger.info(f"Final tree length {summary.tree_length}.")
 summary.to_csv(os.path.join(output_dir, output_prefix + "_summary.tsv"),
                index=True, header=False, sep='\t')
 
