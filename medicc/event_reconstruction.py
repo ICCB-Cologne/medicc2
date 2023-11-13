@@ -428,9 +428,14 @@ def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=
     all_events['final_name'] = all_events['name'].apply(lambda x: x.split(
         'chr')[-1]) + all_events['event'].apply(lambda x: ' +' if x == 'gain' else (' -' if x == 'loss' else (' 0' if x == 'loh' else '')))
 
-    all_events = all_events.set_index(['branch', 'name']).drop('NumberOverlaps', axis=1)
-    all_events = all_events.reset_index().set_index('branch')
-    
+    all_events = (all_events
+                  .reset_index()
+                  .sort_values(['branch', 'Chromosome', 'Start', 'End'], ascending=True)
+                  .set_index(['branch'])
+                  .drop('NumberOverlaps', axis=1)
+                  .rename({'Start': 'Event-Start', 'End': 'Event-End'}, axis=1)
+                  )
+
     return all_events
 
 
