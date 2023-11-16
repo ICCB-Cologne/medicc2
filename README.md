@@ -89,8 +89,8 @@ The folder `examples/OV03-04` contains a larger example consisting of multiple f
 MEDICC creates the following output files:
 
 * `_final_tree.new`, `_final_tree.xml`, `_final_tree.png`: The final phylogenetic tree in Newick and XML format as well as an image
-* `_pairwise_distances.tsv`: A NxN matrix (N being the number of samples) of pairwise distances calculated with the symmetric MEDICC2 distance
-* `_final_cn_profiles.tsv`: Copy-number profiles of the input as well as the newly internal nodes. Also includes additional information such as whether a gain or loss has happened
+* `_pairwise_distances.tsv`: A NxN matrix (N being the number of samples) of pairwise distances calculated with the symmetric MEDICC2 distance (from every pair of samples). This matrix is used to create the phylogenetic tree through neighbor joining. Note that this distance matrix is different from the distances in the final tree due to the inferred ancestral states present in tree; to get the pairwise distances from the final tree, we recommend using an external tool such as the "cophenetic.phylo" function from the "ape" package in R.
+* `_final_cn_profiles.tsv`: Copy-number profiles of the input as well as the newly internal nodes. Also includes additional information such as whether a gain or loss has happened.
 * `_cn_profiles.pdf`: Combined plot of the phylogenetic tree as well as the copy-number profiles of all samples (including the internal nodes)
 * `_branch_lengths.tsv`: List of all branches and their corresponding lenghts of the final tree
 * `_summary.tsv`: Contains summary information about the created tree. If the `--events` flag was set, this includes the WGD status.
