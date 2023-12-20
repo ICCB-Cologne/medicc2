@@ -137,7 +137,8 @@ Note, that the inferred events are not unambigous but just one possible solution
 Even though the events inferred by MEDICC2 are not unambigous they are minimal (as in there are no solutions with fewer number of steps) and deterministic (as in multiple runs of MEDICC2 will always return the same events).
 
 Minimal example: *111 -> 232* which can be explained by *gain-gain-gain* + *x-gain-x* or *gain-gain-x* + *x-gain-gain*. MEDICC2 would select the first option.
-In order to infer the events that  
+
+Therefore subsequent analysis on the reconstructed events can potentially be influenced by artifacts and most be treated with caution.
 
 
 ### Regions of interest
