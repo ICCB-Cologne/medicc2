@@ -70,18 +70,19 @@ def main(input_df,
 
         assert len([x for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name]) == \
             len(np.unique(input_df.index.get_level_values('sample_id'))), \
-            "Number of samples differs in input tree and input dataframe"
+                "Number of samples differs in input tree and input dataframe"
         assert np.all(
             np.sort([x.name for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name]) ==
-            np.sort(np.unique(input_df.index.get_level_values('sample_id')))), \
-            "Input tree does not match input dataframe"
+            np.sort(np.unique(input_df.index.get_level_values('sample_id')))), (
+                "Input tree does not match input dataframe: "
+                f"{np.sort([x.name for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name])}\n"
+                f"{np.sort(np.unique(input_df.index.get_level_values('sample_id')))}")
         
         # necessary for the way that reconstruct_ancestors is performed
         if ancestral_reconstruction:
             input_tree.root_with_outgroup([x for x in input_tree.root.clades if x.name != normal_name][0].name)
 
         nj_tree = input_tree
-
 
     final_tree = copy.deepcopy(nj_tree)
 
@@ -136,8 +137,8 @@ def create_standard_fsa_dict_from_data(input_data,
 
     fsa_dict = {}
     if isinstance(input_data, pd.DataFrame):
-        logger.info('Creating FSA for pd.DataFrame with the following data columns:\n{}'.format(
-            input_data.columns))
+        logger.info('Creating FSA for pd.DataFrame with the following data columns: {}'.format(
+            input_data.columns.values))
         def aggregate_copy_number_profile(cnp):
             return separator.join([separator.join(["".join(x.astype('str'))
                                                    for _, x in cnp[allele].groupby('chrom', observed=False)]) for allele in cnp.columns])

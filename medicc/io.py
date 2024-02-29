@@ -350,6 +350,8 @@ def import_tree(tree_file, normal_name='diploid', file_format='newick'):
     tree = Bio.Phylo.read(tree_file, file_format)
     input_tree = Bio.Phylo.BaseTree.copy.deepcopy(tree)
     tmpsearch = [c for c in input_tree.find_clades(name = normal_name)]
+    if len(tmpsearch) == 0:
+        raise ValueError(f"normal name '{normal_name}' not found in tree")
     normal_name = tmpsearch[0]
     root_path = input_tree.get_path(normal_name)[::-1]
 
@@ -362,8 +364,14 @@ def import_tree(tree_file, normal_name='diploid', file_format='newick'):
     # check that internal node names are unique
     node_names = [c.name for c in input_tree.find_clades() if c.name is not None]
     if len(node_names) != len(np.unique(node_names)):
-        logger.warning("Internal node names are not unique. This will cause problems in MEDICC2.")
-
+        raise ValueError("Internal node names of provided tree are not unique. Please provide a tree with unique node names.")
+    if any([clade.name is None for clade in input_tree.get_terminals()]):
+        raise ValueError("Some samples in the tree do not have names. Please provide a tree with names for all samples. Names must contain at least one letter.")
+    if sum([clade.name is None for clade in input_tree.get_nonterminals()]) > 1:
+        raise ValueError("Some internal nodes in the tree do not have names. Please provide a tree with names for all samples. Names must contain at least one letter.")
+    if any([len(clade.clades) != 2 for clade in input_tree.get_nonterminals()]):
+        raise ValueError("Some internal nodes in the tree do not have exactly 2 children. Please provide a binary tree.")
+    
     return input_tree
 
 
