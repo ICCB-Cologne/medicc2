@@ -201,7 +201,7 @@ MEDICC2 will assume that the segmentation is gap-less, i.e. that gaps between ne
 
 
 # Bugs, feature requests and contact
-You can report bugs and request features directly in [Bitbucket](https://bitbucket.org/schwarzlab/medicc2/issues) or contact us via at *tom.kaufmann@mdc-berlin.de*.
+You can report bugs and request features directly in [Bitbucket](https://bitbucket.org/schwarzlab/medicc2/issues) or contact us via at *tom.kaufmann@iccb-cologne.org*.
 
 
 # License
