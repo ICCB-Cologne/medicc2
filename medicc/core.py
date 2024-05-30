@@ -326,8 +326,8 @@ def calc_pairwise_distance_matrix(model_fst, fsa_dict, parallel_run=True):
 
     for i, (sample_a, sample_b) in enumerate(combs):
         cur_dist = float(fstlib.kernel_score(model_fst, fsa_dict[sample_a], fsa_dict[sample_b]))
-        pdm[sample_a][sample_b] = cur_dist
-        pdm[sample_b][sample_a] = cur_dist
+        pdm.loc[sample_a, sample_b] = cur_dist
+        pdm.loc[sample_b, sample_a] = cur_dist
 
         if not parallel_run and (100*(i+1)/ncombs) % 10 == 0:  # log every 10%
             logger.info(f'{(i+1)/ncombs * 100:.2f}')
