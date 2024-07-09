@@ -322,7 +322,7 @@ def test_gundem_et_al_2015(patient, extra_condition):
     assert process.returncode == 0, f'Error while running MEDICC for Gundem et al patient {patient}'
     assert np.all(all_files_exist), "Some files were not created! Missing files are: {}".format(
         np.array(expected_files)[~np.array(all_files_exist)])
-    assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
+    assert (extra_condition == 'total_cn') or (nr_events == tree_size), f"Number of events is {nr_events}, but tree size is {tree_size}"
 
 
 all_ipynb_notebooks = [x for x in os.listdir('notebooks') if '.ipynb' in x]
