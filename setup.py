@@ -29,7 +29,7 @@ setup(
     scripts=['medicc2'],
     license='GPL-3',
     install_requires=[
-        'numpy>=1.20.1',
+        'numpy>=1.20.1,<2.0',
         'pyyaml>=5.4.1',
         'pandas>=1.2,<2.1',
         'biopython>=1.78',
