@@ -258,6 +258,33 @@ def test_medicc_with_multiple_cores():
     assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
 
 
+def test_medicc_with_OV03_04():
+    "Testing testing example"
+    output_dir = 'examples/test_output_OV03_04'
+    process = subprocess.Popen(['python', "medicc2", "examples/OV03-04/OV03-04_descr.txt", 
+                                output_dir, "-i", "fasta", "--normal-name", "OV03-04_diploid",
+                                "--plot", "both", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
+                               stdout=subprocess.PIPE,
+                               cwd=pathlib.Path(__file__).parent.parent.absolute())
+
+    while process.poll() is None:
+        # Process hasn't exited yet
+        time.sleep(0.5)
+
+    expected_files = ['OV03-04_descr_cn_profiles.pdf', 'OV03-04_descr_final_cn_profiles.tsv',
+                      'OV03-04_descr_final_tree.new', 'OV03-04_descr_final_tree.png',
+                      'OV03-04_descr_final_tree.xml', 'OV03-04_descr_pairwise_distances.tsv',
+                      'OV03-04_descr_summary.tsv', 'OV03-04_descr_copynumber_events_df.tsv',
+                      'OV03-04_descr_events_overlap.tsv', 'OV03-04_descr_branch_lengths.tsv',
+                      'OV03-04_descr_cn_profiles_heatmap.pdf']
+    all_files_exist = [os.path.isfile(os.path.join(output_dir, f)) for f in expected_files]
+    subprocess.Popen(["rm", output_dir, "-rf"])
+
+    assert process.returncode == 0, 'Error while running MEDICC'
+    assert np.all(all_files_exist), "Some files were not created! Missing files are: {}".format(
+        np.array(expected_files)[~np.array(all_files_exist)])
+
+
 def test_medicc_with_bootstrap():
     "Testing bootstrap workflow"
     output_dir = 'examples/test_output_bootstrap'
