@@ -13,7 +13,7 @@ if sys.platform.startswith("darwin"):
 
 setup(
     name='medicc2',
-    version='1.0.3',
+    version='1.0.4',
     author='Tom L Kaufmann, Marina Petkovic, Roland F Schwarz',
     author_email='tkau93@gmail.com, marina.55kovic@gmail.com, roland.f.schwarz@gmail.com',
     description='Whole-genome doubling-aware copy number phylogenies for cancer evolution',
@@ -29,9 +29,9 @@ setup(
     scripts=['medicc2'],
     license='GPL-3',
     install_requires=[
-        'numpy>=1.20.1',
+        'numpy>=1.20.1,<2.0',
         'pyyaml>=5.4.1',
-        'pandas>=1.2.2',
+        'pandas>=1.2,<2.1',
         'biopython>=1.78',
         'scipy>=1.7',
         'matplotlib>=3.3.4'

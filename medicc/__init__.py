@@ -1,7 +1,7 @@
 import logging.config
 import os
 
-import pkg_resources
+from importlib.metadata import version, PackageNotFoundError
 import yaml
 
 import medicc.bootstrap
@@ -21,6 +21,6 @@ with open(os.path.join(os.path.dirname(__file__), 'logging_conf.yaml'), 'rt') as
 logging.config.dictConfig(config)
 
 try:
-    __version__ = pkg_resources.require("medicc2")[0].version
-except pkg_resources.DistributionNotFound:
+    __version__ = version('medicc2')
+except PackageNotFoundError:
     __version__ = 'not installed'

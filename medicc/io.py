@@ -147,9 +147,9 @@ def validate_input(input_df, symbol_table=None, normal_name='diploid'):
         raise MEDICCIOError("DataFrame must be indexed by ['sample_id', 'chrom', 'start', 'end'].")
 
     # Check if the chromosome is categorical
-    if not pd.api.types.is_categorical_dtype(input_df.index.dtypes['chrom']):
+    if not isinstance(input_df.index.dtypes['chrom'], pd.CategoricalDtype):
         raise MEDICCIOError("""
-            Chromosome index 'chrom' must be of type pd.Categorical. 
+            Chromosome index 'chrom' must be of type pd.CategoricalDtype. 
             You can use medicc.tools.format_chromosomes() or create it yourself.""")
 
     # Check if the index is sorted
@@ -215,7 +215,7 @@ def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8, chrom_
                 logger.warning(f"Integer CN > maxcn {maxcn}, capping.")
                 input_file[c] = np.fmin(input_file[c], maxcn)
     input_file[chrom_column] = tools.format_chromosomes(input_file[chrom_column])
-    if input_file[chrom_column].apply(lambda x: "Y" in str(x)).any():
+    if any(["Y" in str(x) for x in input_file[chrom_column].unique()]):
         logger.warn("Y chromosome detected in input. This might cause errors down the line!")
     input_file.set_index(['sample_id', chrom_column, 'start', 'end'], inplace=True)
     input_file.sort_index(inplace=True)
@@ -345,11 +345,13 @@ def write_pairwise_distances(sample_labels, pairwise_distances, filename_prefix)
     pairwise_distances.to_csv(f"{filename_prefix}.tsv", sep='\t')
 
 
-def import_tree(tree_file, normal_name='diploid', file_format='newick'):
+def import_tree(tree_file, normal_name='diploid', file_format='newick', quality_checks=True):
     """Loads a phylogenetic tree in the given format and roots it at the normal sample. """
     tree = Bio.Phylo.read(tree_file, file_format)
     input_tree = Bio.Phylo.BaseTree.copy.deepcopy(tree)
     tmpsearch = [c for c in input_tree.find_clades(name = normal_name)]
+    if len(tmpsearch) == 0:
+        raise ValueError(f"normal name '{normal_name}' not found in tree")
     normal_name = tmpsearch[0]
     root_path = input_tree.get_path(normal_name)[::-1]
 
@@ -359,11 +361,17 @@ def import_tree(tree_file, normal_name='diploid', file_format='newick'):
     else:
         pass
 
-    # check that internal node names are unique
-    node_names = [c.name for c in input_tree.find_clades() if c.name is not None]
-    if len(node_names) != len(np.unique(node_names)):
-        logger.warning("Internal node names are not unique. This will cause problems in MEDICC2.")
-
+    if quality_checks:
+        node_names = [c.name for c in input_tree.find_clades() if c.name is not None]
+        if len(node_names) != len(np.unique(node_names)):
+            raise ValueError("Internal node names of provided tree are not unique. Please provide a tree with unique node names.")
+        if any([clade.name is None for clade in input_tree.get_terminals()]):
+            raise ValueError("Some samples in the tree do not have names. Please provide a tree with names for all samples. Names must contain at least one letter.")
+        if sum([clade.name is None for clade in input_tree.get_nonterminals()]) > 1:
+            raise ValueError("Some internal nodes in the tree do not have names. Please provide a tree with names for all samples. Names must contain at least one letter.")
+        if any([len(clade.clades) != 2 for clade in input_tree.get_nonterminals()]):
+            raise ValueError("Some internal nodes in the tree do not have exactly 2 children. Please provide a binary tree.")
+    
     return input_tree
 
 

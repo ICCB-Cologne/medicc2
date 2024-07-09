@@ -895,7 +895,8 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=None, total_co
     ind = [y_posns.get(x, -1) for x in cur_sample_labels]
 
     cur_sample_labels = cur_sample_labels[np.argsort(ind)]
-    color_norm = mcolors.TwoSlopeNorm(vmin=0, vcenter=(2 if total_copy_numbers else 1), vmax=cmax)
+    vcenter = 2 if total_copy_numbers else 1
+    color_norm = mcolors.TwoSlopeNorm(vmin=0, vcenter=vcenter, vmax=cmax if cmax > vcenter else vcenter+1)
 
     chr_ends = input_df.loc[cur_sample_labels[0]].copy()
     chr_ends['end_pos'] = np.cumsum([1]*len(chr_ends))
