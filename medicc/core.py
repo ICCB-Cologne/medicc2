@@ -11,12 +11,15 @@ import pandas as pd
 import medicc
 from medicc import io, nj, tools, event_reconstruction
 
+import subprocess
+
 # prepare logger 
 logger = logging.getLogger(__name__)
 
 
 def main(input_df,
          asymm_fst,
+         output_dir,
          normal_name='diploid',
          input_tree=None,
          ancestral_reconstruction=True,
@@ -27,7 +30,8 @@ def main(input_df,
          no_wgd=False,
          total_cn=False,
          n_cores=None,
-         reconstruct_events=False):
+         reconstruct_events=False,
+         tree_method = "NJ"):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
@@ -61,8 +65,21 @@ def main(input_df,
                               f"{affected_pairs}")
 
         logger.info("Inferring tree topology.")
-        nj_tree = infer_tree_topology(
-            pairwise_distances.values, pairwise_distances.index, normal_name=normal_name)
+
+        # Choose tree reconstruction method
+        if tree_method.upper() == "NJ":
+            nj_tree = infer_tree_topology(
+                pairwise_distances.values, pairwise_distances.index, normal_name=normal_name)
+        elif tree_method.lower() == "fastme":
+            dm_file_path = os.path.join(output_dir, "pairwise_distances.phy")
+            medicc.tools.save_distmatrix(pairwise_distances, dm_file_path)
+            tree_prefix = os.path.join(output_dir, "fastme_tree.new")
+            nj_tree = infer_tree_topology_fastme(file_name = dm_file_path, tree_prefix = tree_prefix, fastme_path = "fastme", method = "balME", seed = False ,use_NNI = False)
+            # print("hahahah under construction existing")
+            # import sys
+            # sys.exit(-1)
+
+
     else:
         logger.info("Tree provided, using it. No pairwise distance matrix is calculated!")
 
@@ -355,6 +372,31 @@ def infer_tree_topology(pairwise_distances, labels, normal_name):
         tree.root_with_outgroup(normal_name)
 
     return tree
+
+# Call fastme to reconstruct a tree
+def infer_tree_topology_fastme(file_name, tree_prefix, fastme_path, method = "balME", seed = False ,use_NNI = False, internal_node_label_prefix = "internal"):
+    if method == 'fastNJ':
+        flags = ['N']
+    elif method == 'fastuNJ':
+        flags = ['U']
+    elif method == 'balME':
+        if use_NNI:
+            flags = ['B', '-n']
+        else:
+            flags = ['B', '-s']
+    elif method == 'olsME':
+        if use_NNI:
+            flags = ['O', '-n']
+        else:
+            flags = ['O', '-s']
+    if seed:
+        flags += ['-z', str(seed)]
+    call = subprocess.run([fastme_path, '-i', file_name, '-o', tree_prefix, '-m'] + flags, capture_output=True, text=True)
+
+    tree = Bio.Phylo.read(tree_prefix, "newick")
+    medicc.tools.label_tree_internal_nodes(tree, prefix = internal_node_label_prefix)
+    return tree
+
 
 
 def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):

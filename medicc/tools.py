@@ -147,3 +147,34 @@ def create_diploid_fsa(fst, total_copy_numbers=False):
     diploid_fsa.add_arc(0, ('X', 'X', 0, 0))
 
     return diploid_fsa
+
+# Adapted,from DICE package
+# https://github.com/samsonweiner/DICE/blob/main/core/dice.py
+# Saves the distance matrix in PHYLIP format
+def save_distmatrix(pairwise_distance_df, file_name):
+    '''
+    Extract the names of the pairwise distance dataframe and convert it to numpy ndarray
+    '''
+
+    cell_names = pairwise_distance_df.index.tolist()
+    dist_matrix = pairwise_distance_df.values
+
+    n = len(cell_names)
+    max_char = max([len(cell) for cell in cell_names]) + 1
+    with open(file_name, 'w+') as f:
+        f.write(str(n) + '\n')
+        for i in range(n):
+            cell = cell_names[i]
+            x = np.array2string(dist_matrix[i], formatter={'float_kind':lambda x: "%.5f" % x})[1:-1].replace('\n', '')
+            sep_char = ' ' * (max_char-len(cell))
+            f.write(cell + sep_char + x + '\n')
+
+# Function to label internal nodes of a tree
+# This function is needed because fastme tree does not label internal node by default
+def label_tree_internal_nodes(tree, prefix="internal"):
+    counter = 1
+    for clade in tree.find_clades(order="level"):
+        if not clade.is_terminal() and clade.name is None:
+            clade.name = f"{prefix}{counter}"
+            counter += 1
+

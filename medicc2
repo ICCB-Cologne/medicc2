@@ -137,6 +137,8 @@ parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', d
                     help = 'Expert option: character used to separate chromosomes in the FST (default: \"X\").')
 parser.add_argument("--wgd-x2", action='store_true', default=False, dest='wgd_x2',
                     help='Expert option: Treat WGD as a x2 operation (default: False).', required=False)
+parser.add_argument("--tree-method",type=str, dest = "tree_method", default = "NJ",
+                    help = "Select the tree reconstruction method, select from 'fastme' or 'NJ' for neighbor joining, default: NJ"  )
 args = parser.parse_args()
 
 
@@ -204,9 +206,10 @@ if args.n_cores is not None:
 # Run main method
 logger.info("Running main reconstruction routine.")
 sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = medicc.main(
-    input_df, 
-    fst, 
-    normal_name, 
+    input_df = input_df,
+    asymm_fst = fst,
+    output_dir=output_dir,
+    normal_name = normal_name,
     input_tree=input_tree, 
     ancestral_reconstruction=not args.topology_only,
     chr_separator=args.fst_chr_separator.strip(),
@@ -216,7 +219,8 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = m
     wgd_x2=args.wgd_x2,
     total_cn=args.total_copy_numbers,
     n_cores=args.n_cores,
-    reconstruct_events=args.events)
+    reconstruct_events=args.events,
+    tree_method = args.tree_method)
 
 
 # Write events table and overlap events with chromosome and oncogenes

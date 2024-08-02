@@ -22,3 +22,4 @@ dist
 build
 medicc2.egg-info
 .DS_Store
+/fstlib/
