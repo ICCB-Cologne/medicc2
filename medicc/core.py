@@ -74,7 +74,7 @@ def main(input_df,
             dm_file_path = os.path.join(output_dir, "pairwise_distances.phy")
             medicc.tools.save_distmatrix(pairwise_distances, dm_file_path)
             tree_prefix = os.path.join(output_dir, "fastme_tree.new")
-            nj_tree = infer_tree_topology_fastme(file_name = dm_file_path, tree_prefix = tree_prefix, fastme_path = "fastme", method = "balME", seed = False ,use_NNI = False)
+            nj_tree = infer_tree_topology_fastme(file_name = dm_file_path, tree_prefix = tree_prefix, normal_name = normal_name, fastme_path = "fastme", method = "balME", seed = False ,use_NNI = False)
             # print("hahahah under construction existing")
             # import sys
             # sys.exit(-1)
@@ -374,7 +374,7 @@ def infer_tree_topology(pairwise_distances, labels, normal_name):
     return tree
 
 # Call fastme to reconstruct a tree
-def infer_tree_topology_fastme(file_name, tree_prefix, fastme_path, method = "balME", seed = False ,use_NNI = False, internal_node_label_prefix = "internal"):
+def infer_tree_topology_fastme(file_name, tree_prefix, fastme_path, normal_name,method = "balME", seed = False ,use_NNI = False, internal_node_label_prefix = "internal"):
     if method == 'fastNJ':
         flags = ['N']
     elif method == 'fastuNJ':
@@ -395,6 +395,14 @@ def infer_tree_topology_fastme(file_name, tree_prefix, fastme_path, method = "ba
 
     tree = Bio.Phylo.read(tree_prefix, "newick")
     medicc.tools.label_tree_internal_nodes(tree, prefix = internal_node_label_prefix)
+
+    tmpsearch = [c for c in tree.find_clades(name=normal_name)]
+    normal_node = tmpsearch[0]
+    root_path = tree.get_path(normal_node)[::-1]
+
+    if len(root_path) > 1:
+        new_root = root_path[1]
+        tree.root_with_outgroup(new_root)
     return tree
 
 
