@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 def main(input_df,
          asymm_fst,
          output_dir,
+         maxcn,
          normal_name='diploid',
          input_tree=None,
          ancestral_reconstruction=True,
@@ -50,12 +51,14 @@ def main(input_df,
         ## Calculate pairwise distances
         logger.info("Calculating pairwise distance matrices")
         if n_cores is not None and n_cores > 1:
-            pairwise_distances = parallelization_calc_pairwise_distance_matrix(sample_labels, 
-                                                                        asymm_fst,
-                                                                        FSA_dict,
-                                                                        n_cores)
+            # pairwise_distances = parallelization_calc_pairwise_distance_matrix(sample_labels,
+            #                                                             asymm_fst,
+            #                                                             FSA_dict,
+            #                                                             n_cores)
+            pairwise_distances = parallelization_calc_pairwise_distance_shrink_idea(sample_labels, asymm_fst, FSA_dict, symbol_table, maxcn, chr_separator, n_cores)
         else:
-            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, FSA_dict)
+            # pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, FSA_dict)
+            pairwise_distances = calc_pairwise_distance_shrink_idea(asymm_fst, FSA_dict, symbol_table, maxcn, chr_separator)
 
         if (pairwise_distances == np.inf).any().any():
             affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
@@ -350,6 +353,83 @@ def calc_pairwise_distance_matrix(model_fst, fsa_dict, parallel_run=True):
             logger.info(f'{(i+1)/ncombs * 100:.2f}')
 
     return pdm
+
+def find_common_copy_number_profile_fsa(profile_1_fsa, profile_2_fsa, symbol_table, max_chr_num, chrom_sep):
+    profile_1_shrink = []
+    profile_2_shrink = []
+
+    prev_label_1 = None
+    prev_label_2 = None
+    for state in profile_1_fsa.states():
+        for arc in profile_1_fsa.arcs(state):
+            label_profile_1 = arc.ilabel
+
+            if label_profile_1 != max_chr_num  + 2:
+                label_profile_1 = str(int(label_profile_1) - 1)
+            else:
+                label_profile_1 = chrom_sep
+
+
+        for arc in profile_2_fsa.arcs(state):
+            label_profile_2 = arc.ilabel
+
+            if label_profile_2 != max_chr_num + 2:
+                label_profile_2 = str(int(label_profile_2) - 1)
+            else:
+                label_profile_2 = chrom_sep
+
+        if label_profile_1 != prev_label_1 or label_profile_2 != prev_label_2:
+            profile_1_shrink.append(label_profile_1)
+            profile_2_shrink.append(label_profile_2)
+            prev_label_1 = label_profile_1
+            prev_label_2 = label_profile_2
+    profile_1_shrink = ''.join(profile_1_shrink)
+    profile_2_shrink = ''.join(profile_2_shrink)
+
+    profile_1_shrink_fsa = fstlib.factory.from_string(profile_1_shrink, isymbols=symbol_table, osymbols=symbol_table)
+    profile_2_shrink_fsa = fstlib.factory.from_string(profile_2_shrink, isymbols=symbol_table, osymbols=symbol_table)
+
+    return profile_1_shrink_fsa, profile_2_shrink_fsa
+
+def calc_pairwise_distance_shrink_idea(model_fst, fsa_dict, symbol_table, max_chr_num, chrom_sep, parallel_run=True):
+    samples = list(fsa_dict.keys())
+    pdm = pd.DataFrame(0, index=samples, columns=samples, dtype=float)
+    combs = list(combinations(samples, 2))
+    ncombs = len(combs)
+
+    for i, (sample_a, sample_b) in enumerate(combs):
+        sample_a_fst = fsa_dict[sample_a]
+        sample_b_fst = fsa_dict[sample_b]
+
+        sample_a_shrink_fst, smaple_b_shrink_fst = find_common_copy_number_profile_fsa(sample_a_fst, sample_b_fst, symbol_table, max_chr_num, chrom_sep)
+
+        cur_dist = float(fstlib.kernel_score(model_fst, sample_a_shrink_fst, smaple_b_shrink_fst))
+        pdm.loc[sample_a, sample_b] = cur_dist
+        pdm.loc[sample_b, sample_a] = cur_dist
+
+        if not parallel_run and (100 * (i + 1) / ncombs) % 10 == 0:  # log every 10%
+            logger.info(f'{(i + 1) / ncombs * 100:.2f}')
+
+    return pdm
+
+def parallelization_calc_pairwise_distance_shrink_idea(sample_labels, asymm_fst, FSA_dict, symbol_table, max_chr_num, chrom_sep, n_cores):
+    try:
+        from joblib import Parallel, delayed
+    except ImportError:
+        raise ImportError("joblib must be installed for parallelization")
+
+    parallelization_groups = medicc.tools.create_parallelization_groups(len(sample_labels))
+    parallelization_groups = [sample_labels[group] for group in parallelization_groups]
+    logger.info("Running {} parallel runs on {} cores".format(len(parallelization_groups), n_cores))
+
+    parallel_pairwise_distances = Parallel(n_jobs=n_cores)(delayed(calc_pairwise_distance_shrink_idea)(
+        asymm_fst, {key: val for key, val in FSA_dict.items() if key in cur_group}, symbol_table, max_chr_num, chrom_sep, True)
+            for cur_group in parallelization_groups)
+
+    pdm = medicc.tools.total_pdm_from_parallel_pdms(sample_labels, parallel_pairwise_distances)
+
+    return pdm
+
 
 
 def infer_tree_topology(pairwise_distances, labels, normal_name):

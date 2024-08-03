@@ -220,7 +220,8 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = m
     total_cn=args.total_copy_numbers,
     n_cores=args.n_cores,
     reconstruct_events=args.events,
-    tree_method = args.tree_method)
+    tree_method = args.tree_method,
+    maxcn = args.maxcn)
 
 
 # Write events table and overlap events with chromosome and oncogenes
