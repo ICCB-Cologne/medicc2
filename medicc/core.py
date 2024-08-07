@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 def main(input_df,
          asymm_fst,
+         maxcn,
          normal_name='diploid',
          input_tree=None,
          ancestral_reconstruction=True,
@@ -406,14 +407,16 @@ def calc_pairwise_distance_shrink_idea(model_fst, fsa_dict, symbol_table, max_ch
         sample_a_fst = fsa_dict[sample_a]
         sample_b_fst = fsa_dict[sample_b]
 
-        sample_a_shrink_fst, smaple_b_shrink_fst = find_common_copy_number_profile_fsa(sample_a_fst, sample_b_fst, symbol_table, max_chr_num, chrom_sep)
+        sample_a_shrink_fst, sample_b_shrink_fst = find_common_copy_number_profile_fsa(sample_a_fst, sample_b_fst, symbol_table, max_chr_num, chrom_sep)
 
-        cur_dist = float(fstlib.kernel_score(model_fst, sample_a_shrink_fst, smaple_b_shrink_fst))
+        cur_dist = float(fstlib.kernel_score(model_fst, sample_a_shrink_fst, sample_b_shrink_fst))
         pdm.loc[sample_a, sample_b] = cur_dist
         pdm.loc[sample_b, sample_a] = cur_dist
 
         if not parallel_run and (100 * (i + 1) / ncombs) % 10 == 0:  # log every 10%
             logger.info(f'{(i + 1) / ncombs * 100:.2f}')
+
+    return pdm
 
 
 

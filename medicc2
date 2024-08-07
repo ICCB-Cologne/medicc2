@@ -205,8 +205,9 @@ if args.n_cores is not None:
 logger.info("Running main reconstruction routine.")
 sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = medicc.main(
     input_df, 
-    fst, 
-    normal_name, 
+    fst,
+    args.maxcn,
+    normal_name,
     input_tree=input_tree, 
     ancestral_reconstruction=not args.topology_only,
     chr_separator=args.fst_chr_separator.strip(),
