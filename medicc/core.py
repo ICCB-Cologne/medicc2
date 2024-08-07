@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def main(input_df,
          asymm_fst,
-         maxcn,
+         maxcn = 8,
          normal_name='diploid',
          input_tree=None,
          ancestral_reconstruction=True,
@@ -325,11 +325,13 @@ def find_common_copy_number_profile_fsa(profile_1_fsa, profile_2_fsa, symbol_tab
     profile_1_shrink = []
     profile_2_shrink = []
 
+    max_chr_num = int(max_chr_num)
+
     prev_label_1 = None
     prev_label_2 = None
     for state in profile_1_fsa.states():
         for arc in profile_1_fsa.arcs(state):
-            label_profile_1 = arc.ilabel
+            label_profile_1 = int(arc.ilabel)
 
             if label_profile_1 != max_chr_num  + 2:
                 label_profile_1 = str(int(label_profile_1) - 1)
@@ -338,7 +340,7 @@ def find_common_copy_number_profile_fsa(profile_1_fsa, profile_2_fsa, symbol_tab
 
 
         for arc in profile_2_fsa.arcs(state):
-            label_profile_2 = arc.ilabel
+            label_profile_2 = int(arc.ilabel)
 
             if label_profile_2 != max_chr_num + 2:
                 label_profile_2 = str(int(label_profile_2) - 1)

@@ -128,12 +128,13 @@ def compare_trees(tree1, tree2, fail_on_different_terminals=True):
     return _bitstrs(tree1) == _bitstrs(tree2)
 
 
-def _single_bootstrap_run(input_df, fst, bootstrap_method, i, N_bootstrap, normal_name='diploid'):
+def _single_bootstrap_run(input_df, fst, maxcn, bootstrap_method, i, N_bootstrap, normal_name='diploid'):
     cur_df = bootstrap_method(input_df)
     _, _, _, cur_final_tree, _, _ = main(
-        cur_df,
-        fst,
-        normal_name,
+        input_df = cur_df,
+        asymm_fst = fst,
+        maxcn = maxcn,
+        normal_name = normal_name,
         input_tree=None,
         ancestral_reconstruction=False,
         chr_separator='X')
@@ -153,7 +154,8 @@ def run_bootstrap(input_df,
                   seed=None,
                   normal_name='diploid',
                   show_progress=True,
-                  n_cores=None):
+                  n_cores=None,
+                  maxcn=8):
     """Run a given number of bootstrapping steps on the original data. 
 
     From the original data either a set of chromosome-wise bootstrap or segment-wise jackknife datasets
@@ -202,13 +204,13 @@ def run_bootstrap(input_df,
         except ImportError:
             raise ImportError("joblib must be installed for parallelization")
         initial_trees = Parallel(n_jobs=n_cores)(delayed(_single_bootstrap_run)(
-            input_df, fst, bootstrap_method, i, N_bootstrap, normal_name)
+            input_df, fst, maxcn, bootstrap_method, i, N_bootstrap, normal_name)
             for i in range(N_bootstrap))
     else:
         initial_trees = []
         for i in tqdm(range(N_bootstrap), disable=not show_progress):
             cur_tree = _single_bootstrap_run(
-                input_df, fst, bootstrap_method, i, N_bootstrap, normal_name)
+                input_df, fst, maxcn, bootstrap_method, i, N_bootstrap, normal_name)
             initial_trees.append(cur_tree)
 
     # delete duplicate trees
