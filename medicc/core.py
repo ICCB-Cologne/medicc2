@@ -74,10 +74,19 @@ def main(input_df,
             nj_tree = infer_tree_topology(
                 pairwise_distances.values, pairwise_distances.index, normal_name=normal_name)
         elif tree_method.lower() == "fastme":
-            dm_file_path = os.path.join(output_dir, "pairwise_distances.phy")
-            medicc.tools.save_distmatrix(pairwise_distances, dm_file_path)
-            tree_prefix = os.path.join(output_dir, "fastme_tree.new")
-            nj_tree = infer_tree_topology_fastme(file_name = dm_file_path, tree_prefix = tree_prefix, normal_name = normal_name, fastme_path = "fastme", method = "balME", seed = False ,use_NNI = False)
+            num_taxons = pairwise_distances.shape[0]
+            if num_taxons >= 4:
+                logger.debug("number of taxons larger than 4, using fastme to reconstruct the tree")
+                dm_file_path = os.path.join(output_dir, "pairwise_distances.phy")
+                medicc.tools.save_distmatrix(pairwise_distances, dm_file_path)
+                tree_prefix = os.path.join(output_dir, "fastme_tree.new")
+                nj_tree = infer_tree_topology_fastme(file_name = dm_file_path, tree_prefix = tree_prefix, normal_name = normal_name, fastme_path = "fastme", method = "balME", seed = False ,use_NNI = False)
+            else:
+                logger.warn("Number of taxons is less than 4, fastme will not work, using neighbor joining!")
+                nj_tree = infer_tree_topology(
+                    pairwise_distances.values, pairwise_distances.index, normal_name=normal_name)
+
+
             # print("hahahah under construction existing")
             # import sys
             # sys.exit(-1)
