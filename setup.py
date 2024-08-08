@@ -13,7 +13,7 @@ if sys.platform.startswith("darwin"):
 
 setup(
     name='medicc2',
-    version='1.0.4',
+    version='1.1.0',
     author='Tom L Kaufmann, Marina Petkovic, Roland F Schwarz',
     author_email='tkau93@gmail.com, marina.55kovic@gmail.com, roland.f.schwarz@gmail.com',
     description='Whole-genome doubling-aware copy number phylogenies for cancer evolution',
