@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import fstlib
+import medicc
 
 def test_medicc_help_box():
     "Just testing that medicc can be started"
@@ -19,6 +21,55 @@ def test_medicc_help_box():
         time.sleep(0.5)
 
     assert process.returncode == 0
+
+def test_medicc_distance_speed_up():
+    def __generate_random_copy_number_profile(n):
+        '''
+        Generate random copy number profiles of length n. Every copy number is chosen uniformly at random from 0 to 8.
+        '''
+        # Generate a list of random integers between 0 and 8
+        copy_number_profile = [str(np.random.randint(0, 8)) for _ in range(n)]
+        return "".join(copy_number_profile)
+
+    dataset_size = 50 # Generate 50 random copy number profiles
+    chr_num = 22 # every sample will have 22 chromosomes
+
+    # Generate a random dataset
+    profile_1_list = []
+    profile_2_list = []
+    np.random.seed(5)
+
+    for i in range(dataset_size):
+        chr_bin_size = []
+        for j in range(chr_num):
+            chr_bin_size.append(np.random.randint(1, 11)) # every chromosome has 1 to 10 bin sizes
+        profile_1 = []
+        profile_2 = []
+        for bin_size in chr_bin_size:
+            profile_1.append(__generate_random_copy_number_profile(bin_size))
+            profile_2.append(__generate_random_copy_number_profile(bin_size))
+
+        profile_1 = "X".join(profile_1)
+        profile_2 = "X".join(profile_2)
+
+        profile_1_list.append(profile_1)
+        profile_2_list.append(profile_2)
+
+    medicc_fst = medicc.io.read_fst()
+    symbol_table = medicc_fst.input_symbols()
+
+    for i in range(len(profile_1_list)):
+        profile_1_str = profile_1_list[i]
+        profile_2_str = profile_2_list[i]
+
+        profile_1_fsa = fstlib.factory.from_string(profile_1_str, isymbols=symbol_table, osymbols=symbol_table)
+        profile_2_fsa = fstlib.factory.from_string(profile_2_str, isymbols=symbol_table, osymbols=symbol_table)
+
+        distance_true = float(fstlib.kernel_score(medicc_fst, profile_1_fsa, profile_2_fsa))
+        distance_shrink_idea = medicc.calc_MED_distance(medicc_fst, profile_1_str, profile_2_str)
+
+        assert distance_true == distance_shrink_idea, f"Distance calculated using shrinkking is correct"
+
 
 
 def test_medicc_with_simple_example():
@@ -352,7 +403,7 @@ def test_gundem_et_al_2015(patient, extra_condition):
     assert (extra_condition == 'total_cn') or (nr_events == tree_size), f"Number of events is {nr_events}, but tree size is {tree_size}"
 
 
-all_ipynb_notebooks = [x for x in os.listdir('notebooks') if '.ipynb' in x]
+all_ipynb_notebooks = [x for x in os.listdir('../notebooks') if '.ipynb' in x]
 @pytest.mark.parametrize("notebook", all_ipynb_notebooks)
 def test_all_ipynb_notebooks(notebook):
     "Testing if all notebooks (with ending .ipynb) work"

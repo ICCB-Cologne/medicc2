@@ -11,13 +11,14 @@ import pandas as pd
 import medicc
 from medicc import io, nj, tools, event_reconstruction
 
+from functools import cache
+
 # prepare logger 
 logger = logging.getLogger(__name__)
 
 
 def main(input_df,
          asymm_fst,
-         maxcn = 8,
          normal_name='diploid',
          input_tree=None,
          ancestral_reconstruction=True,
@@ -39,7 +40,7 @@ def main(input_df,
 
     ## Compile input data into FSAs stored in dictionaries
     logger.info("Compiling input sequences into FSAs.")
-    FSA_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
+    FSA_dict, CN_str_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
     sample_labels = input_df.index.get_level_values('sample_id').unique()
 
     ## Reconstruct a tree
@@ -47,17 +48,15 @@ def main(input_df,
         ## Calculate pairwise distances
         logger.info("Calculating pairwise distance matrices")
         if n_cores is not None and n_cores > 1:
-            # pairwise_distances = parallelization_calc_pairwise_distance_matrix(sample_labels,
+            # pairwise_distances_True = parallelization_calc_pairwise_distance_matrix(sample_labels,
             #                                                             asymm_fst,
             #                                                             FSA_dict,
             #                                                             n_cores)
-            pairwise_distances = parallelization_calc_pairwise_distance_shrink_idea(sample_labels, asymm_fst, FSA_dict,
-                                                                                    symbol_table, maxcn, chr_separator,
+            pairwise_distances = parallelization_calc_pairwise_distance_shrink_idea(sample_labels, asymm_fst, CN_str_dict,
                                                                                     n_cores)
         else:
-            # pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, FSA_dict)
-            pairwise_distances = calc_pairwise_distance_shrink_idea(asymm_fst, FSA_dict, symbol_table, maxcn,
-                                                                    chr_separator)
+            # pairwise_distances_True = calc_pairwise_distance_matrix(asymm_fst, FSA_dict)
+            pairwise_distances = calc_pairwise_distance_shrink_idea(asymm_fst, CN_str_dict)
 
         if (pairwise_distances == np.inf).any().any():
             affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
@@ -142,6 +141,7 @@ def create_standard_fsa_dict_from_data(input_data,
     If the input is a DataFrame, the FSA will be the concatenated copy number profiles of all allele columns"""
 
     fsa_dict = {}
+    cn_str_dict = {}
     if isinstance(input_data, pd.DataFrame):
         logger.info('Creating FSA for pd.DataFrame with the following data columns: {}'.format(
             input_data.columns.values))
@@ -164,8 +164,9 @@ def create_standard_fsa_dict_from_data(input_data,
                                                      arc_type="standard",
                                                      isymbols=symbol_table,
                                                      osymbols=symbol_table)
+        cn_str_dict[taxon] = cn_str
 
-    return fsa_dict
+    return fsa_dict, cn_str_dict
 
 
 def create_phasing_fsa_dict_from_df(input_df: pd.DataFrame, symbol_table: fstlib.SymbolTable, separator: str = "X") -> dict:
@@ -321,48 +322,27 @@ def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_
 
     return pdm
 
-def find_common_copy_number_profile_fsa(profile_1_fsa, profile_2_fsa, symbol_table, max_chr_num, chrom_sep):
-    profile_1_shrink = []
-    profile_2_shrink = []
 
-    max_chr_num = int(max_chr_num)
+def __shrink_two_strings(string_1, string_2):
+    '''
+    Takes two strings string_1 and string_2 and delete entries that are identical to its direct precessor
 
-    prev_label_1 = None
-    prev_label_2 = None
-    for state in profile_1_fsa.states():
-        for arc in profile_1_fsa.arcs(state):
-            label_profile_1 = int(arc.ilabel)
+    Example:
+        Input:
+            string_1 = "abccd"
+            string_2 = "1233d"
+        Output:
+            string_1_short = "abcd"
+            string_2_short = "123d"
+    '''
+    assert len(string_1) == len(string_2)
+    keep_indices = [i for i in range(len(string_1)) if
+                    i == 0 or (string_1[i] != string_1[i - 1]) or (string_2[i] != string_2[i - 1])]
+    string_1_short = ''.join(string_1[i] for i in keep_indices)
+    string_2_short = ''.join(string_2[i] for i in keep_indices)
+    return string_1_short, string_2_short
 
-            if label_profile_1 != max_chr_num  + 2:
-                label_profile_1 = str(int(label_profile_1) - 1)
-            else:
-                label_profile_1 = chrom_sep
-
-
-        for arc in profile_2_fsa.arcs(state):
-            label_profile_2 = int(arc.ilabel)
-
-            if label_profile_2 != max_chr_num + 2:
-                label_profile_2 = str(int(label_profile_2) - 1)
-            else:
-                label_profile_2 = chrom_sep
-
-        if label_profile_1 != prev_label_1 or label_profile_2 != prev_label_2:
-            profile_1_shrink.append(label_profile_1)
-            profile_2_shrink.append(label_profile_2)
-            prev_label_1 = label_profile_1
-            prev_label_2 = label_profile_2
-    profile_1_shrink = ''.join(profile_1_shrink)
-    profile_2_shrink = ''.join(profile_2_shrink)
-
-    profile_1_shrink_fsa = fstlib.factory.from_string(profile_1_shrink, isymbols=symbol_table, osymbols=symbol_table)
-    profile_2_shrink_fsa = fstlib.factory.from_string(profile_2_shrink, isymbols=symbol_table, osymbols=symbol_table)
-
-    return profile_1_shrink_fsa, profile_2_shrink_fsa
-
-
-
-def parallelization_calc_pairwise_distance_shrink_idea(sample_labels, asymm_fst, FSA_dict, symbol_table, max_chr_num, chrom_sep, n_cores):
+def parallelization_calc_pairwise_distance_shrink_idea(sample_labels, asymm_fst, CN_str_dict, n_cores):
     try:
         from joblib import Parallel, delayed
     except ImportError:
@@ -373,7 +353,7 @@ def parallelization_calc_pairwise_distance_shrink_idea(sample_labels, asymm_fst,
     logger.info("Running {} parallel runs on {} cores".format(len(parallelization_groups), n_cores))
 
     parallel_pairwise_distances = Parallel(n_jobs=n_cores)(delayed(calc_pairwise_distance_shrink_idea)(
-        asymm_fst, {key: val for key, val in FSA_dict.items() if key in cur_group}, symbol_table, max_chr_num, chrom_sep, True)
+        asymm_fst, {key: val for key, val in CN_str_dict.items() if key in cur_group}, True)
             for cur_group in parallelization_groups)
 
     pdm = medicc.tools.total_pdm_from_parallel_pdms(sample_labels, parallel_pairwise_distances)
@@ -399,19 +379,36 @@ def calc_pairwise_distance_matrix(model_fst, fsa_dict, parallel_run=True):
 
     return pdm
 
-def calc_pairwise_distance_shrink_idea(model_fst, fsa_dict, symbol_table, max_chr_num, chrom_sep, parallel_run=True):
-    samples = list(fsa_dict.keys())
+@cache
+def calc_MED_distance(model_fst, profile_1, profile_2):
+    '''
+    Calculate the MED distance between two profiles represented as "string"
+    '''
+    # shrink the two profiles
+    profile_1_shrink, profile_2_shrink = __shrink_two_strings(profile_1, profile_2)
+
+    # Convert shrunken string to fsa
+    symbol_table = model_fst.input_symbols()
+    profile_1_shrink_fsa = fstlib.factory.from_string(profile_1_shrink, isymbols=symbol_table, osymbols=symbol_table)
+    profile_2_shrink_fsa = fstlib.factory.from_string(profile_2_shrink, isymbols=symbol_table, osymbols=symbol_table)
+
+    # Calculate the MED distance
+    distance = float(fstlib.kernel_score(model_fst, profile_1_shrink_fsa, profile_2_shrink_fsa))
+
+    return distance
+
+
+def calc_pairwise_distance_shrink_idea(model_fst, cn_str_dict, parallel_run=True):
+    samples = list(cn_str_dict.keys())
     pdm = pd.DataFrame(0, index=samples, columns=samples, dtype=float)
     combs = list(combinations(samples, 2))
     ncombs = len(combs)
 
     for i, (sample_a, sample_b) in enumerate(combs):
-        sample_a_fst = fsa_dict[sample_a]
-        sample_b_fst = fsa_dict[sample_b]
+        sample_a_cn_str = cn_str_dict[sample_a]
+        sample_b_cn_str = cn_str_dict[sample_b]
 
-        sample_a_shrink_fst, sample_b_shrink_fst = find_common_copy_number_profile_fsa(sample_a_fst, sample_b_fst, symbol_table, max_chr_num, chrom_sep)
-
-        cur_dist = float(fstlib.kernel_score(model_fst, sample_a_shrink_fst, sample_b_shrink_fst))
+        cur_dist = calc_MED_distance(model_fst, sample_a_cn_str, sample_b_cn_str)
         pdm.loc[sample_a, sample_b] = cur_dist
         pdm.loc[sample_b, sample_a] = cur_dist
 
@@ -545,7 +542,7 @@ def detect_wgd(input_df, sample, total_cn=False, wgd_x2=False, n_wgd=None):
 
     diploid_fsa = medicc.tools.create_diploid_fsa(no_wgd_fst)
     symbol_table = no_wgd_fst.input_symbols()
-    fsa_dict = medicc.create_standard_fsa_dict_from_data(input_df.loc[[sample]],
+    fsa_dict, _ = medicc.create_standard_fsa_dict_from_data(input_df.loc[[sample]],
                                                          symbol_table, 'X')
 
     distance_wgd = float(fstlib.score(wgd_fst, diploid_fsa, fsa_dict[sample]))

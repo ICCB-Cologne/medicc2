@@ -207,7 +207,6 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = m
     input_df = input_df,
     asymm_fst = fst,
     normal_name = normal_name,
-    maxcn= args.maxcn,
     input_tree=input_tree, 
     ancestral_reconstruction=not args.topology_only,
     chr_separator=args.fst_chr_separator.strip(),
@@ -266,7 +265,6 @@ if args.bootstrap_nr is not None:
     logger.info("Performing {} bootstrap runs (method: {})".format(args.bootstrap_nr, 
                                                                    args.bootstrap_method))
     bootstrap_trees_df, support_tree = medicc.bootstrap.run_bootstrap(input_df = input_df,
-                                                                      maxcn = args.maxcn,
                                                                       original_tree = final_tree,
                                                                       N_bootstrap=args.bootstrap_nr, 
                                                                       method=args.bootstrap_method,
