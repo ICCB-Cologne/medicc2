@@ -49,7 +49,7 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     normal_samples = np.setdiff1d(input_df_stacked.index[
         (input_df_stacked == normal_value).all(axis=1)], normal_name)
     if len(normal_samples) > 0:
-        logger.warn(f"Normal samples found in input data: {normal_samples}")
+        logger.warn(f"Diploid samples found in input data: {normal_samples}")
     
     ## Add normal sample if needed
     input_df = add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 
