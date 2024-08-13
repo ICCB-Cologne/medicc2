@@ -1,6 +1,7 @@
 import copy
 import logging
 import os
+from functools import cache
 from itertools import combinations
 
 import Bio
@@ -11,7 +12,6 @@ import pandas as pd
 import medicc
 from medicc import io, nj, tools, event_reconstruction
 
-from functools import cache
 
 # prepare logger 
 logger = logging.getLogger(__name__)
@@ -298,9 +298,10 @@ def create_df_from_phasing_fsa(input_df: pd.DataFrame, fsas, separator: str = 'X
     
     return output_df
 
-def __shrink_two_strings(string_1, string_2):
+
+def shorten_cn_strings(string_1, string_2):
     '''
-    Takes two strings string_1 and string_2 and delete entries that are identical to its direct precessor
+    Takes two strings string_1 and string_2 and removes entires that are consecutive duplicates in both strings.
 
     Example:
         Input:
@@ -316,6 +317,7 @@ def __shrink_two_strings(string_1, string_2):
     string_1_short = ''.join(string_1[i] for i in keep_indices)
     string_2_short = ''.join(string_2[i] for i in keep_indices)
     return string_1_short, string_2_short
+
 
 def parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict, n_cores):
     try:
@@ -335,21 +337,22 @@ def parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict
 
     return pdm
 
+
 @cache
 def calc_MED_distance(model_fst, profile_1, profile_2):
     '''
-    Calculate the MED distance between two profiles represented as "string"
+    Calculate the MED distance between two profiles represented as strings.
     '''
-    # shrink the two profiles
-    profile_1_shrink, profile_2_shrink = __shrink_two_strings(profile_1, profile_2)
+
+    profile_1_short, profile_2_short = shorten_cn_strings(profile_1, profile_2)
 
     # Convert shrunken string to fsa
     symbol_table = model_fst.input_symbols()
-    profile_1_shrink_fsa = fstlib.factory.from_string(profile_1_shrink, isymbols=symbol_table, osymbols=symbol_table)
-    profile_2_shrink_fsa = fstlib.factory.from_string(profile_2_shrink, isymbols=symbol_table, osymbols=symbol_table)
+    profile_1_short_fsa = fstlib.factory.from_string(profile_1_short, isymbols=symbol_table, osymbols=symbol_table)
+    profile_2_short_fsa = fstlib.factory.from_string(profile_2_short, isymbols=symbol_table, osymbols=symbol_table)
 
     # Calculate the MED distance
-    distance = float(fstlib.kernel_score(model_fst, profile_1_shrink_fsa, profile_2_shrink_fsa))
+    distance = float(fstlib.kernel_score(model_fst, profile_1_short_fsa, profile_2_short_fsa))
 
     return distance
 
@@ -361,10 +364,7 @@ def calc_pairwise_distance_matrix(model_fst, cn_str_dict, parallel_run=True):
     ncombs = len(combs)
 
     for i, (sample_a, sample_b) in enumerate(combs):
-        sample_a_cn_str = cn_str_dict[sample_a]
-        sample_b_cn_str = cn_str_dict[sample_b]
-
-        cur_dist = calc_MED_distance(model_fst, sample_a_cn_str, sample_b_cn_str)
+        cur_dist = calc_MED_distance(model_fst, cn_str_dict[sample_a], cn_str_dict[sample_b])
         pdm.loc[sample_a, sample_b] = cur_dist
         pdm.loc[sample_b, sample_a] = cur_dist
 
@@ -372,7 +372,6 @@ def calc_pairwise_distance_matrix(model_fst, cn_str_dict, parallel_run=True):
             logger.info(f'{(i + 1) / ncombs * 100:.2f}')
 
     return pdm
-
 
 
 def infer_tree_topology(pairwise_distances, labels, normal_name):
