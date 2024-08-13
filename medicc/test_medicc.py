@@ -403,7 +403,7 @@ def test_gundem_et_al_2015(patient, extra_condition):
     assert (extra_condition == 'total_cn') or (nr_events == tree_size), f"Number of events is {nr_events}, but tree size is {tree_size}"
 
 
-all_ipynb_notebooks = [x for x in os.listdir('../notebooks') if '.ipynb' in x]
+all_ipynb_notebooks = [x for x in os.listdir('notebooks') if '.ipynb' in x]
 @pytest.mark.parametrize("notebook", all_ipynb_notebooks)
 def test_all_ipynb_notebooks(notebook):
     "Testing if all notebooks (with ending .ipynb) work"

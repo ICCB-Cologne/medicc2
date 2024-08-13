@@ -48,15 +48,10 @@ def main(input_df,
         ## Calculate pairwise distances
         logger.info("Calculating pairwise distance matrices")
         if n_cores is not None and n_cores > 1:
-            # pairwise_distances_True = parallelization_calc_pairwise_distance_matrix(sample_labels,
-            #                                                             asymm_fst,
-            #                                                             FSA_dict,
-            #                                                             n_cores)
-            pairwise_distances = parallelization_calc_pairwise_distance_shrink_idea(sample_labels, asymm_fst, CN_str_dict,
+            pairwise_distances = parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict,
                                                                                     n_cores)
         else:
-            # pairwise_distances_True = calc_pairwise_distance_matrix(asymm_fst, FSA_dict)
-            pairwise_distances = calc_pairwise_distance_shrink_idea(asymm_fst, CN_str_dict)
+            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, CN_str_dict)
 
         if (pairwise_distances == np.inf).any().any():
             affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
@@ -303,26 +298,6 @@ def create_df_from_phasing_fsa(input_df: pd.DataFrame, fsas, separator: str = 'X
     
     return output_df
 
-# These two functions are replaced with their shrink_idea counterpart for speeding up
-def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_dict, n_cores):
-    try:
-        from joblib import Parallel, delayed
-    except ImportError:
-        raise ImportError("joblib must be installed for parallelization")
-
-    parallelization_groups = medicc.tools.create_parallelization_groups(len(sample_labels))
-    parallelization_groups = [sample_labels[group] for group in parallelization_groups]
-    logger.info("Running {} parallel runs on {} cores".format(len(parallelization_groups), n_cores))
-
-    parallel_pairwise_distances = Parallel(n_jobs=n_cores)(delayed(calc_pairwise_distance_matrix)(
-        asymm_fst, {key: val for key, val in FSA_dict.items() if key in cur_group}, True)
-            for cur_group in parallelization_groups)
-
-    pdm = medicc.tools.total_pdm_from_parallel_pdms(sample_labels, parallel_pairwise_distances)
-
-    return pdm
-
-
 def __shrink_two_strings(string_1, string_2):
     '''
     Takes two strings string_1 and string_2 and delete entries that are identical to its direct precessor
@@ -342,7 +317,7 @@ def __shrink_two_strings(string_1, string_2):
     string_2_short = ''.join(string_2[i] for i in keep_indices)
     return string_1_short, string_2_short
 
-def parallelization_calc_pairwise_distance_shrink_idea(sample_labels, asymm_fst, CN_str_dict, n_cores):
+def parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict, n_cores):
     try:
         from joblib import Parallel, delayed
     except ImportError:
@@ -352,30 +327,11 @@ def parallelization_calc_pairwise_distance_shrink_idea(sample_labels, asymm_fst,
     parallelization_groups = [sample_labels[group] for group in parallelization_groups]
     logger.info("Running {} parallel runs on {} cores".format(len(parallelization_groups), n_cores))
 
-    parallel_pairwise_distances = Parallel(n_jobs=n_cores)(delayed(calc_pairwise_distance_shrink_idea)(
+    parallel_pairwise_distances = Parallel(n_jobs=n_cores)(delayed(calc_pairwise_distance_matrix)(
         asymm_fst, {key: val for key, val in CN_str_dict.items() if key in cur_group}, True)
             for cur_group in parallelization_groups)
 
     pdm = medicc.tools.total_pdm_from_parallel_pdms(sample_labels, parallel_pairwise_distances)
-
-    return pdm
-
-
-def calc_pairwise_distance_matrix(model_fst, fsa_dict, parallel_run=True):
-    '''Given a symmetric model FST and input FSAs in a form of a dictionary, output pairwise distance matrix'''
-
-    samples = list(fsa_dict.keys())
-    pdm = pd.DataFrame(0, index=samples, columns=samples, dtype=float)
-    combs = list(combinations(samples, 2))
-    ncombs = len(combs)
-
-    for i, (sample_a, sample_b) in enumerate(combs):
-        cur_dist = float(fstlib.kernel_score(model_fst, fsa_dict[sample_a], fsa_dict[sample_b]))
-        pdm.loc[sample_a, sample_b] = cur_dist
-        pdm.loc[sample_b, sample_a] = cur_dist
-
-        if not parallel_run and (100*(i+1)/ncombs) % 10 == 0:  # log every 10%
-            logger.info(f'{(i+1)/ncombs * 100:.2f}')
 
     return pdm
 
@@ -398,7 +354,7 @@ def calc_MED_distance(model_fst, profile_1, profile_2):
     return distance
 
 
-def calc_pairwise_distance_shrink_idea(model_fst, cn_str_dict, parallel_run=True):
+def calc_pairwise_distance_matrix(model_fst, cn_str_dict, parallel_run=True):
     samples = list(cn_str_dict.keys())
     pdm = pd.DataFrame(0, index=samples, columns=samples, dtype=float)
     combs = list(combinations(samples, 2))
