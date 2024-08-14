@@ -1,5 +1,9 @@
 # Version 1
 
+## Version 1.1.0
+
+* Faster pairwise MED distance calculation 
+
 ## Version 1.0.4
 
 * added legacy_loh_asymm_fst

@@ -1,6 +1,7 @@
 import copy
 import logging
 import os
+from functools import cache
 from itertools import combinations
 
 import Bio
@@ -10,6 +11,7 @@ import pandas as pd
 
 import medicc
 from medicc import io, nj, tools, event_reconstruction
+
 
 # prepare logger 
 logger = logging.getLogger(__name__)
@@ -38,7 +40,7 @@ def main(input_df,
 
     ## Compile input data into FSAs stored in dictionaries
     logger.info("Compiling input sequences into FSAs.")
-    FSA_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
+    FSA_dict, CN_str_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
     sample_labels = input_df.index.get_level_values('sample_id').unique()
 
     ## Reconstruct a tree
@@ -46,12 +48,10 @@ def main(input_df,
         ## Calculate pairwise distances
         logger.info("Calculating pairwise distance matrices")
         if n_cores is not None and n_cores > 1:
-            pairwise_distances = parallelization_calc_pairwise_distance_matrix(sample_labels, 
-                                                                        asymm_fst,
-                                                                        FSA_dict,
-                                                                        n_cores)
+            pairwise_distances = parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict,
+                                                                                    n_cores)
         else:
-            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, FSA_dict)
+            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, CN_str_dict)
 
         if (pairwise_distances == np.inf).any().any():
             affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
@@ -136,6 +136,7 @@ def create_standard_fsa_dict_from_data(input_data,
     If the input is a DataFrame, the FSA will be the concatenated copy number profiles of all allele columns"""
 
     fsa_dict = {}
+    cn_str_dict = {}
     if isinstance(input_data, pd.DataFrame):
         logger.info('Creating FSA for pd.DataFrame with the following data columns: {}'.format(
             input_data.columns.values))
@@ -158,8 +159,9 @@ def create_standard_fsa_dict_from_data(input_data,
                                                      arc_type="standard",
                                                      isymbols=symbol_table,
                                                      osymbols=symbol_table)
+        cn_str_dict[taxon] = cn_str
 
-    return fsa_dict
+    return fsa_dict, cn_str_dict
 
 
 def create_phasing_fsa_dict_from_df(input_df: pd.DataFrame, symbol_table: fstlib.SymbolTable, separator: str = "X") -> dict:
@@ -297,7 +299,27 @@ def create_df_from_phasing_fsa(input_df: pd.DataFrame, fsas, separator: str = 'X
     return output_df
 
 
-def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_dict, n_cores):
+def shorten_cn_strings(string_1, string_2):
+    '''
+    Takes two strings string_1 and string_2 and removes entires that are consecutive duplicates in both strings.
+
+    Example:
+        Input:
+            string_1 = "abccd"
+            string_2 = "1233d"
+        Output:
+            string_1_short = "abcd"
+            string_2_short = "123d"
+    '''
+    assert len(string_1) == len(string_2)
+    keep_indices = [i for i in range(len(string_1)) if
+                    i == 0 or (string_1[i] != string_1[i - 1]) or (string_2[i] != string_2[i - 1])]
+    string_1_short = ''.join(string_1[i] for i in keep_indices)
+    string_2_short = ''.join(string_2[i] for i in keep_indices)
+    return string_1_short, string_2_short
+
+
+def parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict, n_cores):
     try:
         from joblib import Parallel, delayed
     except ImportError:
@@ -308,7 +330,7 @@ def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_
     logger.info("Running {} parallel runs on {} cores".format(len(parallelization_groups), n_cores))
 
     parallel_pairwise_distances = Parallel(n_jobs=n_cores)(delayed(calc_pairwise_distance_matrix)(
-        asymm_fst, {key: val for key, val in FSA_dict.items() if key in cur_group}, True)
+        asymm_fst, {key: val for key, val in CN_str_dict.items() if key in cur_group}, True)
             for cur_group in parallelization_groups)
 
     pdm = medicc.tools.total_pdm_from_parallel_pdms(sample_labels, parallel_pairwise_distances)
@@ -316,21 +338,38 @@ def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_
     return pdm
 
 
-def calc_pairwise_distance_matrix(model_fst, fsa_dict, parallel_run=True):
-    '''Given a symmetric model FST and input FSAs in a form of a dictionary, output pairwise distance matrix'''
+@cache
+def calc_MED_distance(model_fst, profile_1, profile_2):
+    '''
+    Calculate the MED distance between two profiles represented as strings.
+    '''
 
-    samples = list(fsa_dict.keys())
+    profile_1_short, profile_2_short = shorten_cn_strings(profile_1, profile_2)
+
+    # Convert shrunken string to fsa
+    symbol_table = model_fst.input_symbols()
+    profile_1_short_fsa = fstlib.factory.from_string(profile_1_short, isymbols=symbol_table, osymbols=symbol_table)
+    profile_2_short_fsa = fstlib.factory.from_string(profile_2_short, isymbols=symbol_table, osymbols=symbol_table)
+
+    # Calculate the MED distance
+    distance = float(fstlib.kernel_score(model_fst, profile_1_short_fsa, profile_2_short_fsa))
+
+    return distance
+
+
+def calc_pairwise_distance_matrix(model_fst, cn_str_dict, parallel_run=True):
+    samples = list(cn_str_dict.keys())
     pdm = pd.DataFrame(0, index=samples, columns=samples, dtype=float)
     combs = list(combinations(samples, 2))
     ncombs = len(combs)
 
     for i, (sample_a, sample_b) in enumerate(combs):
-        cur_dist = float(fstlib.kernel_score(model_fst, fsa_dict[sample_a], fsa_dict[sample_b]))
+        cur_dist = calc_MED_distance(model_fst, cn_str_dict[sample_a], cn_str_dict[sample_b])
         pdm.loc[sample_a, sample_b] = cur_dist
         pdm.loc[sample_b, sample_a] = cur_dist
 
-        if not parallel_run and (100*(i+1)/ncombs) % 10 == 0:  # log every 10%
-            logger.info(f'{(i+1)/ncombs * 100:.2f}')
+        if not parallel_run and (100 * (i + 1) / ncombs) % 10 == 0:  # log every 10%
+            logger.info(f'{(i + 1) / ncombs * 100:.2f}')
 
     return pdm
 
@@ -458,7 +497,7 @@ def detect_wgd(input_df, sample, total_cn=False, wgd_x2=False, n_wgd=None):
 
     diploid_fsa = medicc.tools.create_diploid_fsa(no_wgd_fst)
     symbol_table = no_wgd_fst.input_symbols()
-    fsa_dict = medicc.create_standard_fsa_dict_from_data(input_df.loc[[sample]],
+    fsa_dict, _ = medicc.create_standard_fsa_dict_from_data(input_df.loc[[sample]],
                                                          symbol_table, 'X')
 
     distance_wgd = float(fstlib.score(wgd_fst, diploid_fsa, fsa_dict[sample]))

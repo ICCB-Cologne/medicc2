@@ -131,9 +131,9 @@ def compare_trees(tree1, tree2, fail_on_different_terminals=True):
 def _single_bootstrap_run(input_df, fst, bootstrap_method, i, N_bootstrap, normal_name='diploid'):
     cur_df = bootstrap_method(input_df)
     _, _, _, cur_final_tree, _, _ = main(
-        cur_df,
-        fst,
-        normal_name,
+        input_df=cur_df,
+        asymm_fst=fst,
+        normal_name=normal_name,
         input_tree=None,
         ancestral_reconstruction=False,
         chr_separator='X')

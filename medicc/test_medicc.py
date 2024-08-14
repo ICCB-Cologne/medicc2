@@ -7,6 +7,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import fstlib
+import medicc
+
 
 def test_medicc_help_box():
     "Just testing that medicc can be started"
@@ -19,6 +22,55 @@ def test_medicc_help_box():
         time.sleep(0.5)
 
     assert process.returncode == 0
+
+
+def test_medicc_distance_speed_up():
+    def generate_random_profiles(dataset_size=50, chr_num=22):
+
+        def _generate_random_copy_number_profile(n):
+            '''Generate random copy number profiles of length n.
+            Every copy number is chosen uniformly at random from 0 to 8.'''
+            copy_number_profile = [str(np.random.randint(0, 8)) for _ in range(n)]
+            return "".join(copy_number_profile)
+
+        profile_1_list = []
+        profile_2_list = []
+        np.random.seed(5)
+
+        for i in range(dataset_size):
+            chr_bin_size = []
+            for j in range(chr_num):
+                chr_bin_size.append(np.random.randint(1, 11)) # every chromosome has 1 to 10 bin sizes
+            profile_1 = []
+            profile_2 = []
+            for bin_size in chr_bin_size:
+                profile_1.append(_generate_random_copy_number_profile(bin_size))
+                profile_2.append(_generate_random_copy_number_profile(bin_size))
+
+            profile_1 = "X".join(profile_1)
+            profile_2 = "X".join(profile_2)
+
+            profile_1_list.append(profile_1)
+            profile_2_list.append(profile_2)
+        
+        return profile_1_list, profile_2_list
+
+    medicc_fst = medicc.io.read_fst()
+    symbol_table = medicc_fst.input_symbols()
+    profile_1_list, profile_2_list = generate_random_profiles()
+
+    for i in range(len(profile_1_list)):
+        profile_1_str = profile_1_list[i]
+        profile_2_str = profile_2_list[i]
+
+        profile_1_fsa = fstlib.factory.from_string(profile_1_str, isymbols=symbol_table, osymbols=symbol_table)
+        profile_2_fsa = fstlib.factory.from_string(profile_2_str, isymbols=symbol_table, osymbols=symbol_table)
+
+        distance_true = float(fstlib.kernel_score(medicc_fst, profile_1_fsa, profile_2_fsa))
+        distance_short = medicc.calc_MED_distance(medicc_fst, profile_1_str, profile_2_str)
+
+        assert distance_true == distance_short, f"Distance calculated using `shorten_cn_strings` is not correct. " \
+                                                f"Expected {distance_true}, got {distance_short}"
 
 
 def test_medicc_with_simple_example():
@@ -56,6 +108,7 @@ def test_medicc_with_simple_example():
 
     assert (events_df['type'] == 'gain').sum() == 4, f"Number of gains in events_df is not 4 but {(events_df['type'] == 'gain').sum()}"
     assert (events_df['type'] == 'loss').sum() == 3, f"Number of losses in events_df is not 3 but {(events_df['type'] == 'loss').sum()}"
+
 
 def test_medicc_with_testing_example():
     "Testing testing example"
