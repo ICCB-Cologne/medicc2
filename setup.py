@@ -1,10 +1,13 @@
 import sys
+import os
 from pathlib import Path
 
 from Cython.Build import cythonize
 from setuptools import Extension, setup
 
 sys.path.append('fstlib/cext')
+conda_path = os.environ.get("CONDA_PREFIX", None)
+extra_link_args = ['-L{}/lib'.format(conda_path)]
 
 extra_compile_args = ['-std=c++17']
 if sys.platform.startswith("darwin"):
@@ -13,7 +16,7 @@ if sys.platform.startswith("darwin"):
 
 setup(
     name='medicc2',
-    version='1.1.0',
+    version='1.1.1',
     author='Tom L Kaufmann, Marina Petkovic, Roland F Schwarz',
     author_email='tkau93@gmail.com, marina.55kovic@gmail.com, roland.f.schwarz@gmail.com',
     description='Whole-genome doubling-aware copy number phylogenies for cancer evolution',
@@ -49,6 +52,7 @@ setup(
                   include_dirs=['fstlib/cext'],
                   libraries=["fst", "fstfar", "fstscript", "fstfarscript"],
                   extra_compile_args=extra_compile_args,
+                  extra_link_args=extra_link_args,
                   language = "c++"),
 
         Extension("fstlib.cext.ops", 
@@ -56,6 +60,7 @@ setup(
                   include_dirs=['fstlib/cext'],
                   libraries=["fst", "fstfar", "fstscript", "fstfarscript"],
                   extra_compile_args=extra_compile_args,
+                  extra_link_args=extra_link_args,
                   language = "c++")
     ])
 )

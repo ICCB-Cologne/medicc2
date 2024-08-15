@@ -1,5 +1,9 @@
 # Version 1
 
+## Version 1.1.1
+
+* Hotfix: Added extra compilation arguments to fix installation bugs
+
 ## Version 1.1.0
 
 * Faster pairwise MED distance calculation 
@@ -13,7 +17,6 @@
 * Misc
     * Additional checks for import_tree
     * Some changes to prevent pandas warnings
-
 
 ## Version 1.0.3
 
