@@ -1,5 +1,9 @@
 # Version 1
 
+## Version 1.1.2
+
+* Exchange `@cache` for `@lru_cache(maxsize=None)`
+
 ## Version 1.1.1
 
 * Hotfix: Added extra compilation arguments to fix installation bugs
