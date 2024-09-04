@@ -1,7 +1,7 @@
 import copy
 import logging
 import os
-from functools import cache
+from functools import lru_cache
 from itertools import combinations
 
 import Bio
@@ -338,7 +338,7 @@ def parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict
     return pdm
 
 
-@cache
+@lru_cache(maxsize=None)
 def calc_MED_distance(model_fst, profile_1, profile_2):
     '''
     Calculate the MED distance between two profiles represented as strings.
