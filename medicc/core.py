@@ -1,17 +1,17 @@
 import copy
 import logging
 import os
+from functools import lru_cache
 from itertools import combinations
 
 import Bio
 import fstlib
 import numpy as np
 import pandas as pd
-import pyranges as pr
-from joblib import Parallel, delayed
 
 import medicc
-from medicc import io, nj, tools
+from medicc import io, nj, tools, event_reconstruction
+
 
 # prepare logger 
 logger = logging.getLogger(__name__)
@@ -28,18 +28,19 @@ def main(input_df,
          wgd_x2=False,
          no_wgd=False,
          total_cn=False,
-         n_cores=None):
+         n_cores=None,
+         reconstruct_events=False):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
 
     ## Validate input
     logger.info("Validating input.")
-    io.validate_input(input_df, symbol_table)
+    io.validate_input(input_df, symbol_table, normal_name=normal_name)
 
     ## Compile input data into FSAs stored in dictionaries
     logger.info("Compiling input sequences into FSAs.")
-    FSA_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
+    FSA_dict, CN_str_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
     sample_labels = input_df.index.get_level_values('sample_id').unique()
 
     ## Reconstruct a tree
@@ -47,12 +48,10 @@ def main(input_df,
         ## Calculate pairwise distances
         logger.info("Calculating pairwise distance matrices")
         if n_cores is not None and n_cores > 1:
-            pairwise_distances = parallelization_calc_pairwise_distance_matrix(sample_labels, 
-                                                                        asymm_fst,
-                                                                        FSA_dict,
-                                                                        n_cores)
+            pairwise_distances = parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict,
+                                                                                    n_cores)
         else:
-            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, FSA_dict)
+            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, CN_str_dict)
 
         if (pairwise_distances == np.inf).any().any():
             affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
@@ -71,18 +70,19 @@ def main(input_df,
 
         assert len([x for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name]) == \
             len(np.unique(input_df.index.get_level_values('sample_id'))), \
-            "Number of samples differs in input tree and input dataframe"
+                "Number of samples differs in input tree and input dataframe"
         assert np.all(
             np.sort([x.name for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name]) ==
-            np.sort(np.unique(input_df.index.get_level_values('sample_id')))), \
-            "Input tree does not match input dataframe"
+            np.sort(np.unique(input_df.index.get_level_values('sample_id')))), (
+                "Input tree does not match input dataframe: "
+                f"{np.sort([x.name for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name])}\n"
+                f"{np.sort(np.unique(input_df.index.get_level_values('sample_id')))}")
         
         # necessary for the way that reconstruct_ancestors is performed
         if ancestral_reconstruction:
             input_tree.root_with_outgroup([x for x in input_tree.root.clades if x.name != normal_name][0].name)
 
         nj_tree = input_tree
-
 
     final_tree = copy.deepcopy(nj_tree)
 
@@ -101,12 +101,15 @@ def main(input_df,
         ## Update branch lengths with ancestors
         logger.info("Updating branch lengths of final tree using ancestors.")
         update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
+    else:
+        output_df = None
 
     nj_tree.root_with_outgroup(normal_name)
     final_tree.root_with_outgroup(normal_name)
 
-    if ancestral_reconstruction:
-        output_df, events_df = calculate_all_cn_events(
+    if ancestral_reconstruction and reconstruct_events:
+        logger.info("Reconstructing events.")
+        output_df, events_df = event_reconstruction.calculate_all_cn_events(
             final_tree, output_df, allele_columns, normal_name,
             wgd_x2=wgd_x2, no_wgd=no_wgd, total_cn=total_cn)
         if len(events_df) != final_tree.total_branch_length():
@@ -115,11 +118,12 @@ def main(input_df,
                 if node.name is not None and node.name != normal_name and node.branch_length != 0 and node.branch_length != len(events_df.loc[node.name]):
                     faulty_nodes.append(node.name)
             logger.warn("Event recreation was faulty. Events in '_cn_events_df.tsv' will be "
-                        f"incorrect for the following nodes: {faulty_nodes}")
+                        f"incorrect for the following nodes: {faulty_nodes}. "
+                        f"total_branch_length: {final_tree.total_branch_length()}, "
+                        f"nr of inferred events: {len(events_df)}")
+
     else:
         events_df = None
-        output_df = input_df
-
 
     return sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df
 
@@ -132,17 +136,18 @@ def create_standard_fsa_dict_from_data(input_data,
     If the input is a DataFrame, the FSA will be the concatenated copy number profiles of all allele columns"""
 
     fsa_dict = {}
+    cn_str_dict = {}
     if isinstance(input_data, pd.DataFrame):
-        logger.info('Creating FSA for pd.DataFrame with the following data columns:\n{}'.format(
-            input_data.columns))
-        def aggregate_copy_number_profile(copy_number_profile):
+        logger.info('Creating FSA for pd.DataFrame with the following data columns: {}'.format(
+            input_data.columns.values))
+        def aggregate_copy_number_profile(cnp):
             return separator.join([separator.join(["".join(x.astype('str'))
-                                                   for _, x in cnp[allele].groupby('chrom')]) for allele in copy_number_profile.columns])
+                                                   for _, x in cnp[allele].groupby('chrom', observed=False)]) for allele in cnp.columns])
 
     elif isinstance(input_data, pd.Series):
         logger.info('Creating FSA for pd.Series with the name {}'.format(input_data.name))
-        def aggregate_copy_number_profile(copy_number_profile):
-            return separator.join(["".join(x.astype('str')) for _, x in copy_number_profile.groupby('chrom')])
+        def aggregate_copy_number_profile(cnp):
+            return separator.join(["".join(x.astype('str')) for _, x in cnp.groupby('chrom', observed=False)])
 
     else:
         raise MEDICCError("Input to function create_standard_fsa_dict_from_data has to be either"
@@ -154,8 +159,9 @@ def create_standard_fsa_dict_from_data(input_data,
                                                      arc_type="standard",
                                                      isymbols=symbol_table,
                                                      osymbols=symbol_table)
+        cn_str_dict[taxon] = cn_str
 
-    return fsa_dict
+    return fsa_dict, cn_str_dict
 
 
 def create_phasing_fsa_dict_from_df(input_df: pd.DataFrame, symbol_table: fstlib.SymbolTable, separator: str = "X") -> dict:
@@ -188,12 +194,12 @@ def phase(input_df: pd.DataFrame, model_fst: fstlib.Fst, reference_sample='diplo
 
     # Phasing across chromosomes is random, so we need to swap haplotype assignment per chromosome
     # so that the higher ploidy haplotype is always cn_a
-    output_df['width'] = output_df.eval('end-start')
+    output_df['width'] = output_df.eval('end+1-start')
     output_df['cn_a_width'] = output_df['cn_a'].astype(float) * output_df['width']
     output_df['cn_b_width'] = output_df['cn_b'].astype(float) * output_df['width']
 
     swap_haplotypes_ind = output_df.groupby(['sample_id', 'chrom'])[
-    ['cn_a_width', 'cn_b_width']].mean().diff(axis=1).iloc[:, 1] > 0
+        ['cn_a_width', 'cn_b_width']].mean().diff(axis=1).iloc[:, 1] > 0
 
     output_df = output_df.join(swap_haplotypes_ind.rename('swap_haplotypes_ind'), on=['sample_id', 'chrom'])
     output_df.loc[output_df['swap_haplotypes_ind'], ['cn_a', 'cn_b']] = output_df.loc[output_df['swap_haplotypes_ind'], ['cn_b', 'cn_a']].values
@@ -250,7 +256,9 @@ def create_df_from_fsa(input_df: pd.DataFrame, fsa, separator: str = 'X'):
             cn = list(''.join(cns[(i*nr_chroms):((i+1)*nr_chroms)]))
             internal_cns[(allele, node)] = cn
 
-    output_df = (pd.concat([output_df, pd.DataFrame(internal_cns, index=output_df.index)], axis=1)
+    internal_cns_df = pd.DataFrame(internal_cns, index=output_df.index)
+    internal_cns_df.columns.names = ['allele', 'sample_id']
+    output_df = (pd.concat([output_df, internal_cns_df], axis=1)
                  .stack('sample_id')
                  .reorder_levels(['sample_id', 'chrom', 'start', 'end'])
                  .sort_index())
@@ -291,13 +299,38 @@ def create_df_from_phasing_fsa(input_df: pd.DataFrame, fsas, separator: str = 'X
     return output_df
 
 
-def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_dict, n_cores):
+def shorten_cn_strings(string_1, string_2):
+    '''
+    Takes two strings string_1 and string_2 and removes entires that are consecutive duplicates in both strings.
+
+    Example:
+        Input:
+            string_1 = "abccd"
+            string_2 = "1233d"
+        Output:
+            string_1_short = "abcd"
+            string_2_short = "123d"
+    '''
+    assert len(string_1) == len(string_2)
+    keep_indices = [i for i in range(len(string_1)) if
+                    i == 0 or (string_1[i] != string_1[i - 1]) or (string_2[i] != string_2[i - 1])]
+    string_1_short = ''.join(string_1[i] for i in keep_indices)
+    string_2_short = ''.join(string_2[i] for i in keep_indices)
+    return string_1_short, string_2_short
+
+
+def parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict, n_cores):
+    try:
+        from joblib import Parallel, delayed
+    except ImportError:
+        raise ImportError("joblib must be installed for parallelization")
+
     parallelization_groups = medicc.tools.create_parallelization_groups(len(sample_labels))
     parallelization_groups = [sample_labels[group] for group in parallelization_groups]
     logger.info("Running {} parallel runs on {} cores".format(len(parallelization_groups), n_cores))
 
     parallel_pairwise_distances = Parallel(n_jobs=n_cores)(delayed(calc_pairwise_distance_matrix)(
-        asymm_fst, {key: val for key, val in FSA_dict.items() if key in cur_group}, True)
+        asymm_fst, {key: val for key, val in CN_str_dict.items() if key in cur_group}, True)
             for cur_group in parallelization_groups)
 
     pdm = medicc.tools.total_pdm_from_parallel_pdms(sample_labels, parallel_pairwise_distances)
@@ -305,21 +338,38 @@ def parallelization_calc_pairwise_distance_matrix(sample_labels, asymm_fst, FSA_
     return pdm
 
 
-def calc_pairwise_distance_matrix(model_fst, fsa_dict, parallel_run=True):
-    '''Given a symmetric model FST and input FSAs in a form of a dictionary, output pairwise distance matrix'''
+@lru_cache(maxsize=None)
+def calc_MED_distance(model_fst, profile_1, profile_2):
+    '''
+    Calculate the MED distance between two profiles represented as strings.
+    '''
 
-    samples = list(fsa_dict.keys())
+    profile_1_short, profile_2_short = shorten_cn_strings(profile_1, profile_2)
+
+    # Convert shrunken string to fsa
+    symbol_table = model_fst.input_symbols()
+    profile_1_short_fsa = fstlib.factory.from_string(profile_1_short, isymbols=symbol_table, osymbols=symbol_table)
+    profile_2_short_fsa = fstlib.factory.from_string(profile_2_short, isymbols=symbol_table, osymbols=symbol_table)
+
+    # Calculate the MED distance
+    distance = float(fstlib.kernel_score(model_fst, profile_1_short_fsa, profile_2_short_fsa))
+
+    return distance
+
+
+def calc_pairwise_distance_matrix(model_fst, cn_str_dict, parallel_run=True):
+    samples = list(cn_str_dict.keys())
     pdm = pd.DataFrame(0, index=samples, columns=samples, dtype=float)
     combs = list(combinations(samples, 2))
     ncombs = len(combs)
 
     for i, (sample_a, sample_b) in enumerate(combs):
-        cur_dist = float(fstlib.kernel_score(model_fst, fsa_dict[sample_a], fsa_dict[sample_b]))
-        pdm[sample_a][sample_b] = cur_dist
-        pdm[sample_b][sample_a] = cur_dist
+        cur_dist = calc_MED_distance(model_fst, cn_str_dict[sample_a], cn_str_dict[sample_b])
+        pdm.loc[sample_a, sample_b] = cur_dist
+        pdm.loc[sample_b, sample_a] = cur_dist
 
-        if not parallel_run and (100*(i+1)/ncombs) % 10 == 0:  # log every 10%
-            logger.info('%.2f%%', (i+1)/ncombs * 100)
+        if not parallel_run and (100 * (i + 1) / ncombs) % 10 == 0:  # log every 10%
+            logger.info(f'{(i + 1) / ncombs * 100:.2f}')
 
     return pdm
 
@@ -377,344 +427,6 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
                 child.branch_length = brs
 
 
-def calculate_all_cn_events(tree, cur_df, alleles=['cn_a', 'cn_b'], normal_name='diploid',
-                            wgd_x2=False, no_wgd=False, total_cn=False):
-    """Create a DataFrame containing all copy-number events in the current data
-
-    Args:
-        tree (Bio.Phylo.Tree): Phylogenetic tree created by MEDICC2's tree reconstruction
-        cur_df (pandas.DataFrame): DataFrame containing the copy-numbers of the samples and internal nodes
-        alleles (list, optional): List of alleles. Defaults to ['cn_a', 'cn_b'].
-        normal_name (str, optional): Name of the normal sample. Defaults to 'diploid'.
-
-    Returns:
-        pandas.DataFrame: Updated copy-number DataFrame
-        pandas.DataFrame: DataFrame of copy-number events
-    """
-    
-    cur_df[['is_gain', 'is_loss', 'is_wgd']] = False
-    cur_df[alleles] = cur_df[alleles].astype(int)
-    if tree == None:
-        cur_df[['is_normal', 'is_clonal']] = False
-        events = None
-    else:
-
-        events = pd.DataFrame(columns=['sample_id', 'chrom', 'start',
-                                    'end', 'allele', 'type', 'cn_child'])
-
-        clades = [x for x in tree.find_clades()]
-
-        for clade in clades:
-            if not len(clade.clades):
-                continue
-            if clade.name is None:
-                clade = copy.deepcopy(clade)
-                clade.name = normal_name
-            for child in clade.clades:
-                if child.branch_length == 0:
-                    continue
-
-                cur_df, cur_events = calculate_cn_events_per_branch(
-                    cur_df, clade.name, child.name, alleles=alleles, wgd_x2=wgd_x2,
-                    total_cn=total_cn, no_wgd=no_wgd, normal_name=normal_name)
-
-                events = pd.concat([events, cur_events])
-
-        events = events.reset_index(drop=True)
-
-        is_normal = ~cur_df.unstack('sample_id')[['is_loss', 'is_gain', 'is_wgd']].any(axis=1)
-        is_normal.name = 'is_normal'
-        mrca = [x for x in tree.root.clades if x.name != normal_name][0].name
-        is_clonal = ~cur_df.loc[cur_df.index.get_level_values('sample_id')!=mrca].unstack('sample_id')[['is_loss', 'is_gain', 'is_wgd']].any(axis=1)
-        is_clonal.name = 'is_clonal'
-
-        cur_df = cur_df.drop(['is_normal', 'is_clonal'], axis=1, errors='ignore')
-        cur_df = (cur_df
-                .join(is_normal, how='inner')
-                .reorder_levels(['sample_id', 'chrom', 'start', 'end'])
-                .sort_index()
-                .join(is_clonal, how='inner')
-                .reset_index())
-        cur_df['chrom'] = tools.format_chromosomes(cur_df['chrom'])
-        cur_df = (cur_df
-                .set_index(['sample_id', 'chrom', 'start', 'end'])
-                .sort_index())
-
-        events = events.set_index(['sample_id', 'chrom', 'start', 'end'])
-
-    return cur_df, events
-
-
-def calculate_cn_events_per_branch(cur_df, parent_name, child_name, alleles=['cn_a', 'cn_b'],
-                                   wgd_x2=False, total_cn=False, no_wgd=False, normal_name='diploid'):
-    """Calculate copy-number events for a single branch. Used in calculate_all_cn_events
-
-    Args:
-        cur_df (pandas.DataFrame): DataFrame containing the copy-numbers of the samples and internal nodes
-        parent_name (str): Name of the parent sample
-        child_name (str): Name of the child sample
-        alleles (list, optional): List of alleles. Defaults to ['cn_a', 'cn_b'].
-
-    Returns:
-        pandas.DataFrame: Updated copy-number DataFrame
-        pandas.DataFrame: DataFrame of copy-number events
-    """
-
-    cur_df = cur_df.copy()
-    if len(np.setdiff1d(['is_gain', 'is_loss', 'is_wgd'], cur_df.columns)) > 0:
-        cur_df[['is_gain', 'is_loss', 'is_wgd']] = False
-    cur_df[alleles] = cur_df[alleles].astype(int)
-
-    # TODO: load these outside of the function so they are not loaded every time
-    asymm_fst, asymm_fst_nowgd, asymm_fst_1_wgd, asymm_fst_2_wgd, symbol_table = io.load_main_fsts(
-        return_symbol_table=True)
-    if wgd_x2:
-        asymm_fst = io.read_fst(wgd_x2=True)
-        asymm_fst_1_wgd = io.read_fst(wgd_x2=True, n_wgd=1)
-        asymm_fst_2_wgd = None
-    if no_wgd:
-        asymm_fst = io.read_fst(no_wgd=True)
-        asymm_fst_1_wgd = None
-        asymm_fst_2_wgd = None
-
-
-    events_df = pd.DataFrame(columns=['sample_id', 'chrom', 'start', 'end', 'allele', 'type', 'cn_child'])
-
-    cur_parent_cn = cur_df.loc[parent_name, alleles].astype(int)
-    cur_child_cn = cur_df.loc[child_name, alleles].astype(int)
-
-    def get_int_chrom(x):
-        if x == 'chrX':
-            return 23
-        elif x == 'chrY':
-            return 24
-        else:
-            return int(x.split('chr')[-1])
-
-    cur_chroms = cur_df.loc[normal_name].index.get_level_values(
-        'chrom').map(get_int_chrom).values.astype(int)
-
-    # 1. find total loss (loh)
-    parent_loh = cur_parent_cn == 0
-    for allele in alleles:
-
-        cur_loh = cur_child_cn.loc[~parent_loh[allele], allele] == 0
-        if cur_loh.sum() == 0:
-            continue
-
-        cur_df.loc[child_name, 'is_loss'] = (cur_df.loc[child_name, 'is_loss'].values 
-                                             + np.logical_and(cur_child_cn[allele] == 0, 
-                                                              cur_parent_cn[allele] != 0).values)
-
-        max_previous_cn = np.max(
-            np.unique(cur_parent_cn.loc[~parent_loh[allele], allele].loc[cur_loh]))
-
-        for _ in np.arange(max_previous_cn):
-            cur_loh_and_parental_val = np.logical_and(cur_loh.values, 
-                                                        cur_parent_cn.loc[~parent_loh[allele], allele] > 0).values
-
-            # + cur_chroms enables detection of chromosome boundaries
-            event_labels_ = ((np.cumsum(np.concatenate([[0], np.diff(
-                (cur_loh_and_parental_val + cur_chroms[~parent_loh[allele]]))])
-                * cur_loh_and_parental_val) + 1)
-                * cur_loh_and_parental_val)
-
-            # Label events starting at 1
-            event_labels = np.zeros_like(event_labels_)
-            for i, j in enumerate(np.setdiff1d(np.unique(event_labels_), [0])):
-                event_labels[event_labels_ == j] = i + 1
-
-            cur_parent_cn.loc[parent_loh.loc[~parent_loh[allele],
-                                               allele].index[cur_loh_and_parental_val], allele] -= 1
-
-            cur_events = (cur_parent_cn
-                        .loc[~parent_loh[allele]]
-                        .reset_index()
-                        .loc[np.array([np.argmax(event_labels == ind) for ind in np.setdiff1d(np.unique(event_labels), [0])])]
-                        [['chrom', 'start', 'end']].values)
-            # adjust ends
-            cur_events[:, 2] = (cur_parent_cn
-                                .loc[~parent_loh[allele]]
-                                .reset_index()
-                                .loc[np.array([len(event_labels) - np.argmax(event_labels[::-1] == ind) - 1 for ind in np.setdiff1d(np.unique(event_labels), [0])])]
-                                ['end'].values)
-
-            cur_ind = np.arange(len(events_df), len(events_df)+len(cur_events))
-            events_df = pd.concat([events_df, pd.DataFrame(index=cur_ind)])
-            events_df.loc[cur_ind, 'sample_id'] = child_name
-            events_df.loc[cur_ind, 'allele'] = allele
-            events_df.loc[cur_ind, 'type'] = 'loh'
-            events_df.loc[cur_ind, 'cn_child'] = 0
-            events_df.loc[cur_ind, ['chrom', 'start', 'end']] = cur_events[:, :3]
-
-            # recalculate parental_loss and cur_loh for next iteration
-            parent_loh = cur_parent_cn <= 0
-            cur_loh = cur_child_cn.loc[~parent_loh[allele], allele] == 0
-
-        cur_parent_cn.loc[cur_parent_cn[allele] < 0, allele] = 0
-    loh_pos = (cur_parent_cn == 0)
-
-    # 2. WGDs
-    # only check if >30% of is gained
-    wgd_candidate_threshold = 0.3
-
-    widths = cur_df.loc[[child_name]].eval('end-start')
-    fraction_gain = ((cur_df.loc[child_name, alleles] > 1).astype(int).sum(axis=1) * widths.loc[child_name]
-                        ).sum() / (2 * widths.loc[child_name].sum())
-    parent_fsa = fstlib.factory.from_string('X'.join(['X'.join(["".join(x.astype('str')) for _, x in cur_df.loc[parent_name, alleles][allele].groupby('chrom')]) for allele in alleles]),
-                                            arc_type="standard",
-                                            isymbols=symbol_table,
-                                            osymbols=symbol_table)
-    child_fsa = fstlib.factory.from_string('X'.join(['X'.join(["".join(x.astype('str')) for _, x in cur_df.loc[child_name, alleles][allele].groupby('chrom')]) for allele in alleles]),
-                                            arc_type="standard",
-                                            isymbols=symbol_table,
-                                            osymbols=symbol_table)
-
-    score_wgd = float(fstlib.score(asymm_fst, parent_fsa, child_fsa))
-    fraction_double_gain = (((cur_df.loc[child_name, alleles] > 2)
-                            .astype(int)
-                            .sum(axis=1)
-                            * widths.loc[child_name]
-                            ).sum() / widths.loc[child_name].sum())
-    if not no_wgd and fraction_gain > wgd_candidate_threshold:
-        if wgd_x2:
-            # double wgd
-            if (fraction_double_gain > wgd_candidate_threshold) and (float(fstlib.score(asymm_fst_1_wgd, parent_fsa, child_fsa)) != score_wgd):
-                cur_parent_cn = 4 * cur_parent_cn
-                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
-                                                cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
-                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
-                                                    cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
-                cur_df.loc[child_name, 'is_wgd'] = True
-            # single wgd
-            elif float(fstlib.score(asymm_fst_nowgd, parent_fsa, child_fsa)) != score_wgd:
-                cur_parent_cn = 2 * cur_parent_cn
-                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
-                                                cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
-                cur_df.loc[child_name, 'is_wgd'] = True
-
-        elif total_cn:
-            # single wgd
-            if float(fstlib.score(asymm_fst_nowgd, parent_fsa, child_fsa)) != score_wgd:
-                cur_parent_cn[~loh_pos] = cur_parent_cn[~loh_pos] + 2
-                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
-                                                cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
-                cur_df.loc[child_name, 'is_wgd'] = True
-
-        else:
-            # triple wgd
-            if (fraction_double_gain > wgd_candidate_threshold) and (float(fstlib.score(asymm_fst_2_wgd, parent_fsa, child_fsa)) != score_wgd):
-                cur_parent_cn[~loh_pos] = cur_parent_cn[~loh_pos] + 3
-                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
-                                                cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
-                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
-                                                    cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
-                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
-                                                    cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
-                cur_df.loc[child_name, 'is_wgd'] = True
-            # double wgd
-            elif (fraction_double_gain > wgd_candidate_threshold) and (float(fstlib.score(asymm_fst_1_wgd, parent_fsa, child_fsa)) != score_wgd):
-                cur_parent_cn[~loh_pos] = cur_parent_cn[~loh_pos] + 2
-                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
-                                                cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
-                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
-                                                    cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
-                cur_df.loc[child_name, 'is_wgd'] = True
-            # single wgd
-            elif float(fstlib.score(asymm_fst_nowgd, parent_fsa, child_fsa)) != score_wgd:
-                cur_parent_cn[~loh_pos] = cur_parent_cn[~loh_pos] + 1
-                events_df.loc[len(events_df.index)] = [child_name, 'chr0', cur_df.index.get_level_values('start').min(),
-                                                cur_df.index.get_level_values('end').max(), 'both', 'wgd', 0]
-                cur_df.loc[child_name, 'is_wgd'] = True
-
-    # 3. losses and gains
-    for allele in alleles:
-
-        cn_changes = (cur_child_cn[allele] - cur_parent_cn[allele]).values
-        all_cn_change_vals = np.unique(cn_changes)
-
-        cur_df.loc[child_name, 'is_loss'] = np.logical_or(cur_df.loc[child_name, 'is_loss'].values,
-                                                          cn_changes < 0)
-        cur_df.loc[child_name, 'is_gain'] = np.logical_or(cur_df.loc[child_name, 'is_gain'].values,
-                                                          cn_changes > 0)
-
-        # enumerate over all possible change values
-        all_cn_change_vals = np.setdiff1d(np.arange(np.min([np.min(all_cn_change_vals), 0]), np.max(all_cn_change_vals)+1), [0])
-        for cur_cn_change in all_cn_change_vals[np.argsort(np.abs(all_cn_change_vals))[::-1]]:
-            cur_event = 'gain' if cur_cn_change > 0 else 'loss'
-
-            cur_change_location = ((cur_child_cn.loc[~loh_pos[allele], allele] -
-                        cur_parent_cn.loc[~loh_pos[allele], allele]) == cur_cn_change)
-
-            # + cur_chroms enables detection of chromosome boundaries
-            event_labels_ = ((np.cumsum(np.concatenate([[0], np.diff(
-                (cur_change_location.values + cur_chroms[~loh_pos[allele]]))])
-                * cur_change_location.values) + 1)
-                * cur_change_location.values)
-
-            # Label events starting at 1
-            event_labels = np.zeros_like(event_labels_)
-            for i, j in enumerate(np.setdiff1d(np.unique(event_labels_), [0])):
-                event_labels[event_labels_ == j] = i + 1
-
-            cur_events = (cur_child_cn
-                          .loc[~loh_pos[allele]]
-                          .reset_index()
-                          .loc[np.array([np.argmax(event_labels == val) for val in np.setdiff1d(np.unique(event_labels), [0])])]
-                          [['chrom', 'start', 'end', allele]].values)
-
-            # adjust ends
-            cur_events[:, 2] = (cur_child_cn
-                                .loc[~loh_pos[allele]]
-                                .reset_index()
-                                .loc[np.array([len(event_labels) - np.argmax(event_labels[::-1] == val) - 1 for val in np.setdiff1d(np.unique(event_labels), [0])])]
-                                ['end'].values)
-
-            cur_ind = np.arange(len(events_df), len(events_df)+len(cur_events))
-            events_df = pd.concat([events_df, pd.DataFrame(index=cur_ind)])
-            events_df.loc[cur_ind, 'sample_id'] = child_name
-            events_df.loc[cur_ind, 'allele'] = allele
-            events_df.loc[cur_ind, 'type'] = cur_event
-            events_df.loc[cur_ind, 'cn_child'] = cur_events[:, 3]
-            events_df.loc[cur_ind, ['chrom', 'start', 'end']] = cur_events[:, :3]
-
-            cur_child_cn.loc[np.intersect1d(loh_pos.loc[~loh_pos[allele]].index,
-                                            cur_change_location.loc[cur_change_location].index), allele] += (1 if (cur_cn_change < 0) else -1)
-
-    events_df['chrom'] = tools.format_chromosomes(events_df['chrom'])
-    events_df = (events_df[['sample_id', 'allele', 'chrom', 'start', 'end', 'type', 'cn_child']]
-                 .reset_index(drop=True)
-                 .sort_values(['sample_id', 'allele', 'chrom', 'start', 'end', 'type', 'cn_child']))
-
-    return cur_df, events_df
-
-
-def compute_cn_change(df, tree, normal_name='diploid'):
-    """Compute the copy-number changes per segment in all branches
-
-    Args:
-        df (pandas.DataFrame): DataFrame containing the copy-numbers of samples and internal nodes
-        tree (Bio.Phylo.Tree): Phylogenetic tree
-        normal_name (str, optional): Name of normal sample. Defaults to 'diploid'.
-
-    Returns:
-        pandas.DataFrame: DataFrame containing the copy-number changes
-    """    
-    cn_change = df.copy()
-    alleles = cn_change.columns
-    for allele in alleles:
-        cn_change[allele] = cn_change[allele].astype('int')
-
-    clades = [clade for clade in tree.find_clades(order = "postorder") if clade.name is not None and clade.name != normal_name]
-    for clade in clades:
-        for child in clade.clades:
-            cn_change.loc[child.name, alleles] = cn_change.loc[child.name, alleles].values - cn_change.loc[clade.name, alleles].values
-    cn_change.loc[clades[-1].name, alleles] = cn_change.loc[clades[-1].name, alleles].values - cn_change.loc[normal_name, alleles].values
-    cn_change.loc[normal_name, alleles] = 0
-
-    return cn_change
-
-
 def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df=None):
     """Calculate several summary values for the provided samples
 
@@ -744,7 +456,7 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
     # p_clock = stats.molecular_clock_test(pdm,
     #                                      np.flatnonzero(np.array(sample_labels) == normal_name)[0])
     if events_df is None:
-        wgd_status = "unknown"
+        wgd_status = "unknown (run with --events flag to detect WGDs)"
     else:
         if "wgd" in events_df['type'].values:
             wgd_status = "WGD on branch " + \
@@ -769,136 +481,29 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
     return result
 
 
-def overlap_events(events_df=None, output_df=None, tree=None, overlap_threshold=0.9,
-                   chromosome_bed='default', regions_bed='default',
-                   replace_loh_with_loss=True, alleles=['cn_a', 'cn_b'],
-                   replace_both_arms_with_chrom=True, normal_name='diploid'):
-    """Overlap copy-number events with regions of interest
+def detect_wgd(input_df, sample, total_cn=False, wgd_x2=False, n_wgd=None):
+    if n_wgd is not None and n_wgd > 2:
+        raise NotImplementedError("MEDICC can only detect WGDs with n_wgd <= 2")
 
-    Args:
-        events_df (pandas.DataFrame, optional): All copy-number events. Defaults to None.
-        output_df (pandas.DataFrame, optional): DataFrame containing all copy-numbers. Defaults to None.
-        tree (Bio.Phylo.Tree, optional): Phylogenetic tree. Defaults to None.
-        overlap_threshold (float, optional): Threshold above which an overlap is considered. Defaults to 0.9.
-        chromosome_bed (str, optional): Name of BED file containing chromosome arm information. Defaults to 'default'.
-        regions_bed (str, optional): Name of BED file containing regions of interest. Defaults to 'default'.
-        replace_loh_with_loss (bool, optional): If True, loh is considered like a normal loss. Defaults to True.
-        alleles (list, optional): List of alleles. Defaults to ['cn_a', 'cn_b'].
-        replace_both_arms_with_chrom (bool, optional): If True, an event in the p- and q-arm of a chromosome will be displayed as a single event. Defaults to True.
-        normal_name (str, optional): Name of normal sample. Defaults to 'diploid'.
-
-    Returns:
-        pandas.DataFrame: DataFrame with events concerning the regions of interest
-    """                   
-
-    if chromosome_bed == 'default':
-        chromosome_bed = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                      "objects", "hg38_chromosome_arms.bed")
-    if regions_bed == 'default':
-        regions_bed = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                   "objects", "Davoli_2013_TSG_OG_genes.bed")
-
-    all_events = pd.DataFrame(columns=['Chromosome', 'Start', 'End', 'name', 'NumberOverlaps',
-                                       'FractionOverlaps', 'event', 'branch']).set_index(['Chromosome', 'Start', 'End'])
-
-    if events_df is None:
-        if output_df is None or tree is None:
-            raise MEDICCError("Either events_df or df and tree has to be specified")
-        _, events_df = calculate_all_cn_events(tree, output_df, alleles=alleles, normal_name=normal_name)
-    if replace_loh_with_loss:
-        events_df.loc[events_df['type'] == 'loh', 'type'] = 'loss'
-
-    # Read chromosome regions and other regions
-    if chromosome_bed is None and regions_bed is None:
-        raise MEDICCError("Either chromosome_bed or regions_bed has to be specified")
-
-    chr_arm_regions = None
-    if chromosome_bed is not None:
-        logger.debug(f'Overlap with chromosomes bed file {chromosome_bed}')
-        chr_arm_regions = medicc.io.read_bed_file(chromosome_bed)
-        whole_chromosome = chr_arm_regions.groupby('Chromosome').min()
-        whole_chromosome['End'] = chr_arm_regions.groupby('Chromosome')['End'].max()
-        whole_chromosome['name'] = whole_chromosome.index
-        chr_arm_regions = pd.concat([chr_arm_regions, whole_chromosome.reset_index()]).sort_values('Chromosome')
-        chr_arm_regions = pr.PyRanges(chr_arm_regions)
-
-    regions = None
-    if regions_bed is not None:
-        logger.debug(f'Overlap with regions bed file {regions_bed}')
-        regions = []
-        if isinstance(regions_bed, list) or isinstance(regions_bed, tuple):
-            for f in regions_bed:
-                regions.append(pr.PyRanges(medicc.io.read_bed_file(f)))
-        else:
-            regions.append(pr.PyRanges(medicc.io.read_bed_file(regions_bed)))
-
-    # Add WGD
-    for ind, _ in events_df.loc[events_df['type'] == 'wgd'].iterrows():
-        all_events.loc[('all', '0', '0')] = ['WGD', 1, 1., 'WGD', ind[0]]
-
-    for cur_branch in events_df.index.get_level_values('sample_id').unique():
-        for allele in alleles:
-            cur_events_df = events_df.loc[cur_branch]
-            cur_events_df = cur_events_df.loc[cur_events_df['allele']==allele]
-            for event_type in ['gain', 'loss'] if replace_loh_with_loss else ['gain', 'loh', 'loss']:
-                cur_events_ranges = pr.PyRanges(cur_events_df.loc[cur_events_df['type'] == event_type].reset_index(
-                ).rename({'chrom': 'Chromosome', 'start': 'Start', 'end': 'End'}, axis=1))
-
-                # Calculate chromosomal events
-                if chr_arm_regions is not None:
-                    chr_events = overlap_regions(
-                        chr_arm_regions, cur_events_ranges, event_type, cur_branch, overlap_threshold)
-                    # remove arms if the whole chromosome is in there
-                    if replace_both_arms_with_chrom and len(chr_events) > 0:
-                        chr_events = chr_events[~chr_events['name'].isin(np.concatenate(
-                            [[name + 'p', name + 'q'] if ('q' not in name and 'p' not in name) else [] for name in chr_events['name']]))]
-                    all_events = pd.concat([all_events, chr_events])
-
-                # Calculate other events
-                if regions is not None:
-                    for region in regions:
-                        chr_events = overlap_regions(
-                            region, cur_events_ranges, event_type, cur_branch, overlap_threshold)
-                        all_events = pd.concat([all_events, chr_events])
-
-    all_events['final_name'] = all_events['name'].apply(lambda x: x.split(
-        'chr')[-1]) + all_events['event'].apply(lambda x: ' +' if x == 'gain' else (' -' if x == 'loss' else (' 0' if x == 'loh' else '')))
-
-    all_events = all_events.set_index(['branch', 'name']).drop('NumberOverlaps', axis=1)
-    all_events = all_events.reset_index().set_index('branch')
-    
-    return all_events
-
-
-def overlap_regions(region, cur_events_ranges, event, branch, overlap_threshold):
-
-    # Workaround for bug in PyRanges for numpy version 1.20 and higher
-    np.long = np.int_
-
-    cur_events_overlaps = region.coverage(cur_events_ranges).as_df()
-    cur_events_overlaps = cur_events_overlaps.loc[cur_events_overlaps['FractionOverlaps']
-                                                > overlap_threshold]
-    cur_events_overlaps = cur_events_overlaps.set_index(['Chromosome', 'Start', 'End'])
-    cur_events_overlaps['event'] = event
-    cur_events_overlaps['branch'] = branch
-
-    return cur_events_overlaps
-
-
-def detect_wgd(input_df, sample, total_cn=False, wgd_x2=False):
-    wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2)
-    no_wgd_fst = io.read_fst(no_wgd=True)
+    if n_wgd is None:
+        wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=n_wgd)
+        no_wgd_fst = io.read_fst(no_wgd=True)
+    elif n_wgd == 1:
+        wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=2)
+        no_wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=1)
+    elif n_wgd == 2:
+        wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=None)
+        no_wgd_fst = io.read_fst(total_copy_numbers=total_cn, wgd_x2=wgd_x2, n_wgd=2)
 
     diploid_fsa = medicc.tools.create_diploid_fsa(no_wgd_fst)
     symbol_table = no_wgd_fst.input_symbols()
-    fsa_dict = medicc.create_standard_fsa_dict_from_data(input_df.loc[[sample]],
+    fsa_dict, _ = medicc.create_standard_fsa_dict_from_data(input_df.loc[[sample]],
                                                          symbol_table, 'X')
 
     distance_wgd = float(fstlib.score(wgd_fst, diploid_fsa, fsa_dict[sample]))
     distance_no_wgd = float(fstlib.score(no_wgd_fst, diploid_fsa, fsa_dict[sample]))
 
-    return distance_wgd != distance_no_wgd
-
+    return distance_wgd < distance_no_wgd
 
 
 class MEDICCError(Exception):

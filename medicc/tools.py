@@ -36,7 +36,7 @@ def set_sequences_on_tree_from_df(tree: Bio.Phylo.BaseTree, df: pd.DataFrame, cl
 
 
 def fsa_to_string(fsa):
-    fsa_string = fstlib.tools.strings(fsa).string[0]
+    fsa_string = fstlib.tools.strings(fsa)['input'].values[0]
     return fsa_string
 
 def hex2int(x):
@@ -55,11 +55,11 @@ def format_chromosomes(ds):
     matches = ds.apply(pattern.match)
     matchable = ~matches.isnull().any()
     if matchable:
-        newchr = matches.apply(lambda x:"chr%s" % x[4].upper())
+        newchr = matches.apply(lambda x:f"chr{x[4].upper():s}")
         numchr = matches.apply(lambda x:int(x[5]) if x[5] is not None else -1)
         chrlevels = np.sort(numchr.unique())
         chrlevels = np.setdiff1d(chrlevels, [-1])
-        chrcats = ["chr%d" % i for i in chrlevels]
+        chrcats = [f"chr{i}" for i in chrlevels]
         if 'chrX' in list(newchr):
             chrcats += ['chrX',]
         if 'chrY' in list(newchr):
@@ -131,7 +131,7 @@ def total_pdm_from_parallel_pdms(sample_labels, parallel_pdms):
     return total_pdm
 
 
-def create_diploid_fsa(fst):
+def create_diploid_fsa(fst, total_copy_numbers=False):
 
     # Create diploid FSA
     diploid_fsa = fstlib.Fst()
@@ -140,7 +140,10 @@ def create_diploid_fsa(fst):
     diploid_fsa.add_state()
     diploid_fsa.set_start(0)
     diploid_fsa.set_final(0, 0)
-    diploid_fsa.add_arc(0, ('1', '1', 0, 0))
+    if total_copy_numbers:
+        diploid_fsa.add_arc(0, ('2', '2', 0, 0))
+    else:
+        diploid_fsa.add_arc(0, ('1', '1', 0, 0))
     diploid_fsa.add_arc(0, ('X', 'X', 0, 0))
 
     return diploid_fsa

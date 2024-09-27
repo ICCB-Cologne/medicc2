@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from medicc import core
-
 logger = logging.getLogger(__name__)
 
 COL_ALLELE_A = mpl.colors.to_rgba('orange')
@@ -72,15 +70,36 @@ def plot_cn_profiles(
         label_func=None):
     
     df = input_df.copy()
+    df[allele_columns] = df[allele_columns].astype(int)
     if len(allele_columns) > 2:
-        logger.warn("More than two allels were provided ({})\n"
+        logger.warning("More than two allels were provided ({})\n"
                     "Copy number tracks can only be plotted for 1 or 2 alleles".format(allele_columns))
     if len(np.setdiff1d(allele_columns, df.columns)):
-        logger.warn("Some provided allele_columns are not in the dataframe"
+        logger.warning("Some provided allele_columns are not in the dataframe"
                     "These are: {}".format(np.setdiff1d(allele_columns, df.columns)))
 
     if np.setdiff1d(['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd'], df.columns).size > 0:
-        df, _ = core.calculate_all_cn_events(input_tree, df, allele_columns, normal_name)
+        if input_tree is None:
+            df[['is_normal', 'is_clonal', 'is_gain', 'is_loss', 'is_wgd']] = False
+        else:
+            df[['is_gain', 'is_loss', 'is_wgd']] = False
+
+            cn_change = compute_cn_change(df=df[allele_columns], tree=input_tree, normal_name=normal_name)
+            df.loc[(cn_change < 0).any(axis=1), 'is_loss'] = True
+            df.loc[(cn_change > 0).any(axis=1), 'is_gain'] = True
+
+            is_normal = ~df.unstack('sample_id')[['is_loss', 'is_gain', 'is_wgd']].any(axis=1)
+            is_normal.name = 'is_normal'
+            mrca = [x for x in input_tree.root.clades if x.name != normal_name][0].name
+            is_clonal = ~df.loc[df.index.get_level_values('sample_id')!=mrca].unstack('sample_id')[['is_loss', 'is_gain', 'is_wgd']].any(axis=1)
+            is_clonal.name = 'is_clonal'
+
+            df = (df
+                  .drop(['is_normal', 'is_clonal'], axis=1, errors='ignore')
+                  .join(is_normal, on=['chrom', 'start', 'end'], how='inner')
+                  .join(is_clonal, on=['chrom', 'start', 'end'], how='inner')
+                  .sort_index()
+                  )
 
     if hide_normal_chromosomes:
         df = df.join(df.groupby('chrom')['is_normal'].all().to_frame('hide'))
@@ -112,7 +131,7 @@ def plot_cn_profiles(
         plot_clonal_summary = False
 
     if nsamp > 20:
-        logger.warn('More than 20 samples were provided. Creating the copy number tracks will take '
+        logger.warning('More than 20 samples were provided. Creating the copy number tracks will take '
                     'a long time to process and might crash. Best to use plot_cn_heatmap instead')
 
     df.reset_index(['start','end'], inplace=True)
@@ -145,10 +164,10 @@ def plot_cn_profiles(
     df = df.reset_index().set_index(['sample_id', 'chrom', 'start', 'end'])
 
     if plot_summary or plot_subclonal_summary:
-        agg_events = core.compute_cn_change(df=df, tree=input_tree, normal_name=normal_name)
+        agg_events = compute_cn_change(df=df[allele_columns], tree=input_tree, normal_name=normal_name)
         agg_events = agg_events.groupby(["chrom", "start", "end"], observed=True).sum()
 
-        agg_events.loc[:, ['start_pos', 'end_pos', 'small_segment']
+        agg_events[['start_pos', 'end_pos', 'small_segment']
                        ] = df.loc[samples[0], ['start_pos', 'end_pos', 'small_segment']]
 
         mrca = [x for x in input_tree.root.clades if x.name != normal_name][0].name
@@ -233,9 +252,11 @@ def plot_cn_profiles(
                          show_events_in_cn=show_events_in_cn)
 
     if plot_clonal_summary:
+        cur = mrca_df.copy()
+        cur[['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd']] = False
         _plot_cn_profile(ax=cn_axes[nsamp],
                          label='clonal\nchanges',
-                         data=mrca_df.copy(),
+                         data=cur,
                          mincn=mrca_df[allele_columns].min().min()-1,
                          maxcn=mrca_df[allele_columns].max().max()+1,
                          alleles=allele_columns,
@@ -246,9 +267,11 @@ def plot_cn_profiles(
         cn_axes[nsamp].get_xaxis().set_visible(not (plot_summary or plot_subclonal_summary))
 
     if plot_summary:
+        cur = agg_events.copy()
+        cur[['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd']] = False
         _plot_cn_profile(ax=cn_axes[-1],
                          label='all\nchanges',
-                         data=agg_events.copy(),
+                         data=cur,
                          mincn=agg_events[allele_columns].min().min()-1,
                          maxcn=agg_events[allele_columns].max().max()+1,
                          alleles=allele_columns,
@@ -259,9 +282,12 @@ def plot_cn_profiles(
 
     if plot_subclonal_summary:
         agg_events.loc[:, allele_columns] = agg_events[allele_columns] - mrca_df[allele_columns]
+        cur = agg_events.copy()
+        cur[['is_clonal', 'is_normal', 'is_gain', 'is_loss', 'is_wgd']] = False
+
         _plot_cn_profile(ax=cn_axes[-1 - int(plot_summary)],
                          label='subclonal\nchanges',
-                         data=agg_events.copy(),
+                         data=cur,
                          type='summary',
                          mincn=agg_events[allele_columns].min().min()-1,
                          maxcn=agg_events[allele_columns].max().max()+1,
@@ -706,7 +732,7 @@ def plot_tree(input_tree,
             ax.text(
                 x_here + min(0.02*ax_scale, 1),
                 y_here,
-                " %s" % label,
+                f" {label}",
                 verticalalignment="center",
                 color=get_label_color(label),
             )
@@ -789,9 +815,9 @@ def plot_tree(input_tree,
             list(value)
         except TypeError:
             raise ValueError(
-                'Keyword argument "%s=%s" is not in the format '
-                "pyplot_option_name=(tuple), pyplot_option_name=(tuple, dict),"
-                " or pyplot_option_name=(dict) " % (key, value)
+                f'Keyword argument "{key}={value}" is not in the format '
+                'pyplot_option_name=(tuple), pyplot_option_name=(tuple, dict),'
+                ' or pyplot_option_name=(dict) '
             ) from None
         if isinstance(value, dict):
             getattr(plt, str(key))(**dict(value))
@@ -806,8 +832,8 @@ def plot_tree(input_tree,
     return plt.gcf()
 
 
-def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_numbers=False,
-                    alleles=('cn_a', 'cn_b'), tree_width_ratio=1, cbar_width_ratio=0.05, figsize=(20, 10),
+def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=None, total_copy_numbers=False,
+                    alleles=['cn_a', 'cn_b'], tree_width_ratio=1, cbar_width_ratio=0.05, figsize=(20, 10),
                     tree_line_width=0.5, tree_marker_size=0, show_internal_nodes=False, title='',
                     tree_label_colors=None, tree_label_func=None, cmap='coolwarm', normal_name='diploid',
                     ignore_segment_lengths=False):
@@ -820,17 +846,22 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
         alleles = [alleles]
     nr_alleles = len(alleles)
 
-    cmax = min(cmax, np.max(input_df[alleles].values.astype(int)))
+    if cmax is None:
+        cmax = np.max(input_df[alleles].values.astype(int))
 
     if final_tree is None:
         fig, axs = plt.subplots(figsize=figsize, ncols=1+nr_alleles, sharey=False,
                                 gridspec_kw={'width_ratios': nr_alleles*[1] + [cbar_width_ratio]})
 
         cur_sample_labels = (input_df.index.get_level_values('sample_id').unique())
+        if not show_internal_nodes:
+            logger.warning('No tree provided, so "show_internal_nodes=False" is ignored')
         if y_posns is None:
             y_posns = {s: i for i, s in enumerate(cur_sample_labels)}
 
         cn_axes = axs[:-1]
+        cn_axes[0].set_title(title, x=0, y=1, ha='left', va='bottom', pad=20,
+                             fontweight='bold', fontsize=16, zorder=10)
     else:
         fig, axs = plt.subplots(figsize=figsize, ncols=2+nr_alleles, sharey=False,
                                 gridspec_kw={'width_ratios': [tree_width_ratio] + nr_alleles*[1] + [cbar_width_ratio]})
@@ -852,12 +883,20 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
         tree_ax.set_axis_off()
         tree_ax.set_axis_off()
         fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=100)
-
     cax = axs[-1]
 
+    gaps = (input_df.loc[cur_sample_labels[0]].eval('start') - 
+            np.roll(input_df.loc[cur_sample_labels[0]].eval('end'), 1)).values
+    total_gaps = gaps[gaps>0].sum()
+    if total_gaps > 1e8:
+        logger.warning(f"Total of {total_gaps:.1e} bp gaps in the segmentation. These missing "
+                    "segments are not reflected in the plot!")
+
     ind = [y_posns.get(x, -1) for x in cur_sample_labels]
+
     cur_sample_labels = cur_sample_labels[np.argsort(ind)]
-    color_norm = mcolors.TwoSlopeNorm(vmin=0, vcenter=(2 if total_copy_numbers else 1), vmax=cmax)
+    vcenter = 2 if total_copy_numbers else 1
+    color_norm = mcolors.TwoSlopeNorm(vmin=0, vcenter=vcenter, vmax=cmax if cmax > vcenter else vcenter+1)
 
     chr_ends = input_df.loc[cur_sample_labels[0]].copy()
     chr_ends['end_pos'] = np.cumsum([1]*len(chr_ends))
@@ -870,7 +909,7 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
         x_pos = np.arange(len(input_df.loc[cur_sample_labels].astype(int).unstack('sample_id'))+1)
     else:
         x_pos = np.append([0], np.cumsum(input_df.loc[cur_sample_labels].astype(int).unstack(
-            'sample_id').loc[:, (alleles[0])].loc[:, cur_sample_labels].eval('end-start').values))
+            'sample_id').loc[:, (alleles[0])].loc[:, cur_sample_labels].eval('end+1-start').values))
     y_pos = np.arange(len(cur_sample_labels)+1)+0.5
 
     for ax, allele in zip(cn_axes, alleles):
@@ -911,6 +950,32 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=8, total_copy_
         ax.set_ylim(len(cur_sample_labels)+0.5, 0.5)
 
     return fig
+
+
+def compute_cn_change(df, tree, normal_name='diploid'):
+    """Compute the copy-number changes per segment in all branches
+
+    Args:
+        df (pandas.DataFrame): DataFrame containing the copy-numbers of samples and internal nodes
+        tree (Bio.Phylo.Tree): Phylogenetic tree
+        normal_name (str, optional): Name of normal sample. Defaults to 'diploid'.
+
+    Returns:
+        pandas.DataFrame: DataFrame containing the copy-number changes
+    """    
+    cn_change = df.copy()
+    alleles = cn_change.columns
+    for allele in alleles:
+        cn_change[allele] = cn_change[allele].astype('int')
+
+    clades = [clade for clade in tree.find_clades(order = "postorder") if clade.name is not None and clade.name != normal_name]
+    for clade in clades:
+        for child in clade.clades:
+            cn_change.loc[child.name, alleles] = cn_change.loc[child.name, alleles].values - cn_change.loc[clade.name, alleles].values
+    cn_change.loc[clades[-1].name, alleles] = cn_change.loc[clades[-1].name, alleles].values - cn_change.loc[normal_name, alleles].values
+    cn_change.loc[normal_name, alleles] = 0
+
+    return cn_change
 
 
 class MEDICCPlotError(Exception):

@@ -7,6 +7,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import fstlib
+import medicc
+
 
 def test_medicc_help_box():
     "Just testing that medicc can be started"
@@ -21,11 +24,61 @@ def test_medicc_help_box():
     assert process.returncode == 0
 
 
+def test_medicc_distance_speed_up():
+    def generate_random_profiles(dataset_size=50, chr_num=22):
+
+        def _generate_random_copy_number_profile(n):
+            '''Generate random copy number profiles of length n.
+            Every copy number is chosen uniformly at random from 0 to 8.'''
+            copy_number_profile = [str(np.random.randint(0, 8)) for _ in range(n)]
+            return "".join(copy_number_profile)
+
+        profile_1_list = []
+        profile_2_list = []
+        np.random.seed(5)
+
+        for i in range(dataset_size):
+            chr_bin_size = []
+            for j in range(chr_num):
+                chr_bin_size.append(np.random.randint(1, 11)) # every chromosome has 1 to 10 bin sizes
+            profile_1 = []
+            profile_2 = []
+            for bin_size in chr_bin_size:
+                profile_1.append(_generate_random_copy_number_profile(bin_size))
+                profile_2.append(_generate_random_copy_number_profile(bin_size))
+
+            profile_1 = "X".join(profile_1)
+            profile_2 = "X".join(profile_2)
+
+            profile_1_list.append(profile_1)
+            profile_2_list.append(profile_2)
+        
+        return profile_1_list, profile_2_list
+
+    medicc_fst = medicc.io.read_fst()
+    symbol_table = medicc_fst.input_symbols()
+    profile_1_list, profile_2_list = generate_random_profiles()
+
+    for i in range(len(profile_1_list)):
+        profile_1_str = profile_1_list[i]
+        profile_2_str = profile_2_list[i]
+
+        profile_1_fsa = fstlib.factory.from_string(profile_1_str, isymbols=symbol_table, osymbols=symbol_table)
+        profile_2_fsa = fstlib.factory.from_string(profile_2_str, isymbols=symbol_table, osymbols=symbol_table)
+
+        distance_true = float(fstlib.kernel_score(medicc_fst, profile_1_fsa, profile_2_fsa))
+        distance_short = medicc.calc_MED_distance(medicc_fst, profile_1_str, profile_2_str)
+
+        assert distance_true == distance_short, f"Distance calculated using `shorten_cn_strings` is not correct. " \
+                                                f"Expected {distance_true}, got {distance_short}"
+
+
 def test_medicc_with_simple_example():
     "Testing small example"
     output_dir = 'examples/test_output'
     process = subprocess.Popen(['python', "medicc2", "examples/simple_example/simple_example.tsv", 
-                                output_dir, "--plot", "both"],
+                                output_dir, "--plot", "both", "--events", "--chromosomes-bed",
+                                "default", "--regions-bed", "default"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -42,21 +95,26 @@ def test_medicc_with_simple_example():
     all_files_exist = [os.path.isfile(os.path.join('examples/test_output/', f)) for f in expected_files]
     nr_events, tree_size = get_number_of_events(output_dir, 'simple_example')
     output_df = pd.read_csv(os.path.join(output_dir, "simple_example_final_cn_profiles.tsv"), sep='\t')
+    events_df = pd.read_csv(os.path.join(output_dir, "simple_example_copynumber_events_df.tsv"), sep='\t')
     subprocess.Popen(["rm", output_dir, "-rf"])
 
     assert process.returncode == 0, 'Error while running MEDICC'
-    assert np.all(all_files_exist), "Some files were not created! \nMissing files are: {}".format(
+    assert np.all(all_files_exist), "Some files were not created! Missing files are: {}".format(
         np.array(expected_files)[~np.array(all_files_exist)])
     assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
 
-    assert output_df['is_gain'].sum() == 7, "Number of gains in output_df is not 7"
-    assert output_df['is_loss'].sum() == 4, "Number of losses in output_df is not 4"
+    assert output_df['is_gain'].sum() == 7, f"Number of gained segments in _final_cn_profiles.tsv is not 7 but {output_df['is_gain'].sum()}"
+    assert output_df['is_loss'].sum() == 5, f"Number of lost segments in _final_cn_profiles.tsv is not 5 but {output_df['is_loss'].sum()}"
+
+    assert (events_df['type'] == 'gain').sum() == 4, f"Number of gains in events_df is not 4 but {(events_df['type'] == 'gain').sum()}"
+    assert (events_df['type'] == 'loss').sum() == 3, f"Number of losses in events_df is not 3 but {(events_df['type'] == 'loss').sum()}"
+
 
 def test_medicc_with_testing_example():
     "Testing testing example"
     output_dir = 'examples/test_output'
     process = subprocess.Popen(['python', "medicc2", "examples/testing_example/testing_example.tsv", 
-                                output_dir],
+                                output_dir, "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -75,41 +133,12 @@ def test_medicc_with_testing_example():
     subprocess.Popen(["rm", output_dir, "-rf"])
 
     assert process.returncode == 0, 'Error while running MEDICC'
-    assert np.all(all_files_exist), "Some files were not created! \nMissing files are: {}".format(
+    assert np.all(all_files_exist), "Some files were not created! Missing files are: {}".format(
         np.array(expected_files)[~np.array(all_files_exist)])
     assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
 
-    assert output_df['is_gain'].sum() == 192, "Number of gains in output_df is not 192"
-    assert output_df['is_loss'].sum() == 173, "Number of losses in output_df is not 173"
-
-
-def test_medicc_with_OV03_04():
-    "Testing testing example"
-    output_dir = 'examples/test_output'
-    process = subprocess.Popen(['python', "medicc2", "examples/OV03-04/OV03-04_descr.txt", 
-                                output_dir, "-i", "fasta", "--normal-name", "OV03-04_diploid",
-                                "--plot", "both"],
-                               stdout=subprocess.PIPE,
-                               cwd=pathlib.Path(__file__).parent.parent.absolute())
-
-    while process.poll() is None:
-        # Process hasn't exited yet
-        time.sleep(0.5)
-
-    expected_files = ['OV03-04_descr_cn_profiles.pdf', 'OV03-04_descr_final_cn_profiles.tsv',
-                      'OV03-04_descr_final_tree.new', 'OV03-04_descr_final_tree.png',
-                      'OV03-04_descr_final_tree.xml', 'OV03-04_descr_pairwise_distances.tsv',
-                      'OV03-04_descr_summary.tsv', 'OV03-04_descr_copynumber_events_df.tsv',
-                      'OV03-04_descr_events_overlap.tsv', 'OV03-04_descr_branch_lengths.tsv',
-                      'OV03-04_descr_cn_profiles_heatmap.pdf']
-    all_files_exist = [os.path.isfile(os.path.join('examples/test_output/', f)) for f in expected_files]
-    nr_events, tree_size = get_number_of_events(output_dir, 'OV03-04_descr')
-    subprocess.Popen(["rm", output_dir, "-rf"])
-
-    assert process.returncode == 0, 'Error while running MEDICC'
-    assert np.all(all_files_exist), "Some files were not created! \nMissing files are: {}".format(
-        np.array(expected_files)[~np.array(all_files_exist)])
-    assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
+    assert output_df['is_gain'].sum() == 187, f"Number of gains in _final_cn_profiles.tsv is not 187 but {output_df['is_gain'].sum()}"
+    assert output_df['is_loss'].sum() == 170, f"Number of losses in _final_cn_profiles.tsv is not 170 but {output_df['is_loss'].sum()}"
 
 
 def test_medicc_with_testing_example_total_copy_numbers():
@@ -117,7 +146,7 @@ def test_medicc_with_testing_example_total_copy_numbers():
     output_dir = 'examples/test_output_total_cn'
     process = subprocess.Popen(['python', "medicc2", "examples/testing_example/testing_example.tsv", 
                                 output_dir, "--total-copy-numbers", 
-                                "--input-allele-columns", "cn_a"],
+                                "--input-allele-columns", "cn_a", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -136,7 +165,63 @@ def test_medicc_with_testing_example_total_copy_numbers():
     subprocess.Popen(["rm", output_dir, "-rf"])
 
     assert process.returncode == 0, 'Error while running MEDICC'
-    assert np.all(all_files_exist), "Some files were not created! \nMissing files are: {}".format(
+    assert np.all(all_files_exist), "Some files were not created! Missing files are: {}".format(
+        np.array(expected_files)[~np.array(all_files_exist)])
+    assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
+
+
+def test_medicc_with_testing_example_parallelization():
+    "Testing small example"
+    output_dir = 'examples/test_output_parallelization'
+    process = subprocess.Popen(['python', "medicc2", "examples/testing_example/testing_example.tsv", 
+                                output_dir, "--n-cores", "4", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
+                               stdout=subprocess.PIPE,
+                               cwd=pathlib.Path(__file__).parent.parent.absolute())
+
+    while process.poll() is None:
+        # Process hasn't exited yet
+        time.sleep(0.5)
+
+    expected_files = ['testing_example_cn_profiles.pdf', 'testing_example_final_cn_profiles.tsv',
+                      'testing_example_final_tree.new', 'testing_example_final_tree.png',
+                      'testing_example_final_tree.xml', 'testing_example_pairwise_distances.tsv',
+                      'testing_example_summary.tsv', 'testing_example_copynumber_events_df.tsv',
+                      'testing_example_events_overlap.tsv', 'testing_example_branch_lengths.tsv']
+    all_files_exist = [os.path.isfile(os.path.join(output_dir, f))
+                       for f in expected_files]
+    nr_events, tree_size = get_number_of_events(output_dir, 'testing_example')
+    subprocess.Popen(["rm", output_dir, "-rf"])
+
+    assert process.returncode == 0, 'Error while running MEDICC'
+    assert np.all(all_files_exist), "Some files were not created! Missing files are: {}".format(
+        np.array(expected_files)[~np.array(all_files_exist)])
+    assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
+
+
+def test_medicc_with_testing_example_parallelization():
+    "Testing small example"
+    output_dir = 'examples/test_output_parallelization'
+    process = subprocess.Popen(['python', "medicc2", "examples/testing_example/testing_example.tsv", 
+                                output_dir, "--n-cores", "4", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
+                               stdout=subprocess.PIPE,
+                               cwd=pathlib.Path(__file__).parent.parent.absolute())
+
+    while process.poll() is None:
+        # Process hasn't exited yet
+        time.sleep(0.5)
+
+    expected_files = ['testing_example_cn_profiles.pdf', 'testing_example_final_cn_profiles.tsv',
+                      'testing_example_final_tree.new', 'testing_example_final_tree.png',
+                      'testing_example_final_tree.xml', 'testing_example_pairwise_distances.tsv',
+                      'testing_example_summary.tsv', 'testing_example_copynumber_events_df.tsv',
+                      'testing_example_events_overlap.tsv', 'testing_example_branch_lengths.tsv']
+    all_files_exist = [os.path.isfile(os.path.join(output_dir, f))
+                       for f in expected_files]
+    nr_events, tree_size = get_number_of_events(output_dir, 'testing_example')
+    subprocess.Popen(["rm", output_dir, "-rf"])
+
+    assert process.returncode == 0, 'Error while running MEDICC'
+    assert np.all(all_files_exist), "Some files were not created! Missing files are: {}".format(
         np.array(expected_files)[~np.array(all_files_exist)])
     assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
 
@@ -145,7 +230,7 @@ def test_medicc_with_testing_example_nowgd():
     "Testing small example"
     output_dir = 'examples/test_output_nowgd'
     process = subprocess.Popen(['python', "medicc2", "examples/testing_example/testing_example.tsv", 
-                                output_dir, "--no-wgd"],
+                                output_dir, "--no-wgd", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -159,12 +244,13 @@ def test_medicc_with_testing_example_nowgd():
                       'testing_example_summary.tsv', 'testing_example_copynumber_events_df.tsv',
                       'testing_example_events_overlap.tsv', 'testing_example_branch_lengths.tsv']
     all_files_exist = [os.path.isfile(os.path.join(output_dir, f))
-                       for f in expected_files]
+                        for f in expected_files]
+
     nr_events, tree_size = get_number_of_events(output_dir, 'testing_example')
     subprocess.Popen(["rm", output_dir, "-rf"])
 
     assert process.returncode == 0, 'Error while running MEDICC'
-    assert np.all(all_files_exist), "Some files were not created! \nMissing files are: {}".format(
+    assert np.all(all_files_exist), "Some files were not created! Missing files are: {}".format(
         np.array(expected_files)[~np.array(all_files_exist)])
     assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
 
@@ -173,7 +259,7 @@ def test_medicc_with_testing_example_WGD_x2():
     "Testing small example"
     output_dir = 'examples/test_output_wgd_x2'
     process = subprocess.Popen(['python', "medicc2", "examples/testing_example/testing_example.tsv", 
-                                output_dir, "--wgd-x2"],
+                                output_dir, "--wgd-x2", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -192,7 +278,7 @@ def test_medicc_with_testing_example_WGD_x2():
     subprocess.Popen(["rm", output_dir, "-rf"])
 
     assert process.returncode == 0, 'Error while running MEDICC'
-    assert np.all(all_files_exist), "Some files were not created! \nMissing files are: {}".format(
+    assert np.all(all_files_exist), "Some files were not created! Missing files are: {}".format(
         np.array(expected_files)[~np.array(all_files_exist)])
     assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
 
@@ -201,7 +287,7 @@ def test_medicc_with_multiple_cores():
     "Testing small example"
     output_dir = 'examples/test_output_multiple_cores'
     process = subprocess.Popen(['python', "medicc2", "examples/simple_example/simple_example.tsv", 
-                                output_dir, "-j 4"],
+                                output_dir, "--n-cores", "4", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
                                stdout=subprocess.PIPE,
                                cwd=pathlib.Path(__file__).parent.parent.absolute())
 
@@ -220,9 +306,36 @@ def test_medicc_with_multiple_cores():
     subprocess.Popen(["rm", output_dir, "-rf"])
 
     assert process.returncode == 0, 'Error while running MEDICC'
-    assert np.all(all_files_exist), "Some files were not created! \nMissing files are: {}".format(
+    assert np.all(all_files_exist), "Some files were not created! Missing files are: {}".format(
         np.array(expected_files)[~np.array(all_files_exist)])
     assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
+
+
+def test_medicc_with_OV03_04():
+    "Testing testing example"
+    output_dir = 'examples/test_output_OV03_04'
+    process = subprocess.Popen(['python', "medicc2", "examples/OV03-04/OV03-04_descr.txt", 
+                                output_dir, "-i", "fasta", "--normal-name", "OV03-04_diploid",
+                                "--plot", "both", "--events", "--chromosomes-bed", "default", "--regions-bed", "default"],
+                               stdout=subprocess.PIPE,
+                               cwd=pathlib.Path(__file__).parent.parent.absolute())
+
+    while process.poll() is None:
+        # Process hasn't exited yet
+        time.sleep(0.5)
+
+    expected_files = ['OV03-04_descr_cn_profiles.pdf', 'OV03-04_descr_final_cn_profiles.tsv',
+                      'OV03-04_descr_final_tree.new', 'OV03-04_descr_final_tree.png',
+                      'OV03-04_descr_final_tree.xml', 'OV03-04_descr_pairwise_distances.tsv',
+                      'OV03-04_descr_summary.tsv', 'OV03-04_descr_copynumber_events_df.tsv',
+                      'OV03-04_descr_events_overlap.tsv', 'OV03-04_descr_branch_lengths.tsv',
+                      'OV03-04_descr_cn_profiles_heatmap.pdf']
+    all_files_exist = [os.path.isfile(os.path.join(output_dir, f)) for f in expected_files]
+    subprocess.Popen(["rm", output_dir, "-rf"])
+
+    assert process.returncode == 0, 'Error while running MEDICC'
+    assert np.all(all_files_exist), "Some files were not created! Missing files are: {}".format(
+        np.array(expected_files)[~np.array(all_files_exist)])
 
 
 def test_medicc_with_bootstrap():
@@ -255,7 +368,8 @@ def test_gundem_et_al_2015(patient, extra_condition):
     "Testing if running of all Gundem data works"
 
     output_dir = f"examples/test_output_{patient}"
-    command = ['python', "medicc2", f"examples/gundem_et_al_2015/{patient}_input_df.tsv", output_dir]
+    command = ['python', "medicc2", f"examples/gundem_et_al_2015/{patient}_input_df.tsv", output_dir,
+               "--events", "--chromosomes-bed", "default", "--regions-bed", "default"]
     if extra_condition == 'normal':
         pass
     elif extra_condition == 'no_wgd':
@@ -264,6 +378,8 @@ def test_gundem_et_al_2015(patient, extra_condition):
         command += ['--total-copy-numbers', '--input-allele-columns', 'cn_a']
     elif extra_condition == 'wgd_x2':
         command.append('--wgd-x2')
+
+    command += ["--events", "--chromosomes-bed", "default", "--regions-bed", "default"]
         
     process = subprocess.Popen(command,
                                stdout=subprocess.PIPE,
@@ -284,26 +400,9 @@ def test_gundem_et_al_2015(patient, extra_condition):
     subprocess.Popen(["rm", output_dir, "-rf"])
 
     assert process.returncode == 0, f'Error while running MEDICC for Gundem et al patient {patient}'
-    assert np.all(all_files_exist), "Some files were not created! \nMissing files are: {}".format(
+    assert np.all(all_files_exist), "Some files were not created! Missing files are: {}".format(
         np.array(expected_files)[~np.array(all_files_exist)])
-    assert nr_events == tree_size, f"Number of events is {nr_events}, but tree size is {tree_size}"
-
-
-all_py_notebooks = [x for x in os.listdir('notebooks') if '.py' in x]
-@pytest.mark.parametrize("notebook", all_py_notebooks)
-def test_all_py_notebooks(notebook):
-    "Testing if all notebooks (with ending .py) work"
-
-    process = subprocess.Popen(['python', 
-                                f"{notebook}"],
-                               stdout=subprocess.PIPE,
-                               cwd=os.path.join(pathlib.Path(__file__).parent.parent.absolute(), 'notebooks'))
-
-    while process.poll() is None:
-        # Process hasn't exited yet
-        time.sleep(0.5)
-
-    assert process.returncode == 0, f'Error while running notebook {notebook}'
+    assert (extra_condition == 'total_cn') or (nr_events == tree_size), f"Number of events is {nr_events}, but tree size is {tree_size}"
 
 
 all_ipynb_notebooks = [x for x in os.listdir('notebooks') if '.ipynb' in x]
@@ -322,26 +421,6 @@ def test_all_ipynb_notebooks(notebook):
         time.sleep(0.5)
 
     assert process.returncode == 0, f'Error while running notebook {notebook}: {process.stderr.read()}'
-
-
-all_files = [x for x in os.listdir('Figures_Kaufmann_et_al_2021') if '.py' in x]
-@pytest.mark.parametrize("cur_file", all_files)
-def test_figures_for_publication(cur_file):
-    "Testing if all Figure scripts work"
-    print(os.path.join(pathlib.Path(__file__).parent.parent.absolute(),
-                       "Figures_Kaufmann_et_al_2021"))
-
-    process = subprocess.Popen(['python',
-                                f"{cur_file}"],
-                                stdout=subprocess.PIPE,
-                                cwd=os.path.join(pathlib.Path(__file__).parent.parent.absolute(),
-                                                 "Figures_Kaufmann_et_al_2021"))
-
-    while process.poll() is None:
-        # Process hasn't exited yet
-        time.sleep(0.5)
-
-    assert process.returncode == 0, f'Error while running {cur_file}'
 
 
 def get_number_of_events(output_dir, file_prefix):

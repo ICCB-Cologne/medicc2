@@ -18,7 +18,6 @@ __pycache__
 */.ipynb_checkpoints/*
 fstlib/cext/ops.cpp
 fstlib/cext/pywrapfst.cpp
-Figures_Kaufmann_et_al_2021/final_figures
 dist
 build
 medicc2.egg-info

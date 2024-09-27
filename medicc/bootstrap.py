@@ -1,11 +1,9 @@
 import copy
 import logging
-import os
 
 import numpy as np
 import pandas as pd
 from Bio.Phylo.Consensus import _BitString, get_support
-from joblib.parallel import Parallel, delayed
 
 from medicc import io, tools
 from medicc.core import main
@@ -35,6 +33,7 @@ def chr_wise_bootstrap_df(input_df):
         bootstrap_df = pd.concat([bootstrap_df, cur_data])
 
     bootstrap_df['chrom'] = tools.format_chromosomes(bootstrap_df['chrom'])
+    bootstrap_df[['start', 'end']] = bootstrap_df[['start', 'end']].astype(int)
     bootstrap_df.set_index(['sample_id', 'chrom', 'start', 'end'], inplace=True)
     bootstrap_df.sort_index(inplace=True)
 
@@ -132,9 +131,9 @@ def compare_trees(tree1, tree2, fail_on_different_terminals=True):
 def _single_bootstrap_run(input_df, fst, bootstrap_method, i, N_bootstrap, normal_name='diploid'):
     cur_df = bootstrap_method(input_df)
     _, _, _, cur_final_tree, _, _ = main(
-        cur_df,
-        fst,
-        normal_name,
+        input_df=cur_df,
+        asymm_fst=fst,
+        normal_name=normal_name,
         input_tree=None,
         ancestral_reconstruction=False,
         chr_separator='X')
@@ -198,6 +197,10 @@ def run_bootstrap(input_df,
 
     # Run the actual bootstrapping steps
     if n_cores is not None and n_cores > 1:
+        try:
+            from joblib import Parallel, delayed
+        except ImportError:
+            raise ImportError("joblib must be installed for parallelization")
         initial_trees = Parallel(n_jobs=n_cores)(delayed(_single_bootstrap_run)(
             input_df, fst, bootstrap_method, i, N_bootstrap, normal_name)
             for i in range(N_bootstrap))

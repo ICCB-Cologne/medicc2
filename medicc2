@@ -4,6 +4,7 @@ import argparse
 import logging
 import os
 import pickle
+import sys
 
 import numpy as np
 
@@ -11,11 +12,15 @@ import medicc
 
 logger = logging.getLogger('medicc-main')
 
+version_string = f'medicc {medicc.__version__} from {os.path.dirname(medicc.__file__)} ' + \
+                 f'(python {sys.version.split(" ")[0]})'
+
 parser = argparse.ArgumentParser()
 parser.add_argument("input_file",
                     help="a path to the input file")
 parser.add_argument("output_dir",
                     help="a path to the output folder")
+parser.add_argument('--version', action='version', version=version_string)
 parser.add_argument("--input-type", "-i", type=str, dest="input_type", default="t",
                     choices=["f", "t", "fasta", "tsv"], required=False,
                     help="Choose the type of input: f for FASTA, t for TSV (default: TSV)")
@@ -86,6 +91,8 @@ parser.add_argument('--plot',
                     help="""Type of copy-number plot to save. 'bars' is recommended for <50 samples, 
                          heatmap for more samples, 'auto' will decide based on the number of samples, 
                          'both' will plot both and 'none' will plot neither. (default: auto).""")
+parser.add_argument("--no-plot-tree", action='store_true', default=False, dest='no_plot_tree',
+                    help='Disable plotting of tree (default: False).', required=False)
 parser.add_argument("--total-copy-numbers",
                     dest="total_copy_numbers",
                     action='store_true',
@@ -98,16 +105,18 @@ parser.add_argument("-j", "--n-cores",
                     default=None,
                     required=False,
                     help="Number of cores to run on")
+parser.add_argument("--events", action='store_true', default=False, dest='events',
+                    help='Whether to infer copy-number events (default: False).', required=False)
 parser.add_argument("--chromosomes-bed",
                     type=str,
                     dest='chromosomes_bed',
-                    default='default',
+                    default='none',
                     required=False,
                     help="BED file for chromosome regions")
 parser.add_argument("--regions-bed",
                     type=str,
                     dest='regions_bed',
-                    default='default',
+                    default='none',
                     required=False,
                     help="BED file for regions of interests")
 parser.add_argument("-v", "--verbose", action='store_true', default=False,
@@ -117,7 +126,8 @@ parser.add_argument("-vv", "--debug", action='store_true', default=False,
 parser.add_argument("--silent", action='store_true', default=False,
                     help='Hide all output (default: False).', required=False)
 parser.add_argument("--maxcn", type=int, dest='maxcn', default=8,
-                    help='Expert option: maximum CN at which the input is capped. Does not change FST.')
+                    help='''Expert option: maximum CN at which the input is capped. Does not change FST.
+                            The maximum possible value is 8. Default: 8''')
 parser.add_argument("--prune-weight", type=int, dest='prune_weight', default=0,
                     help='''Expert option: Prune weight in ancestor reconstruction. Values >0 might
                             result in more accurate ancestors but will require more time and memory. Default: 0''')
@@ -185,7 +195,7 @@ if args.filter_segment_length is not None:
 
 if args.exclude_samples is not None:
     exclude_samples = np.array([x.strip() for x in args.exclude_samples.split(',')])
-    logger.info("Excluding samples {%s}." % ', '.join(exclude_samples))
+    logger.info(f"Excluding samples {', '.join(exclude_samples)}.")
     input_df = input_df.loc[~np.in1d(input_df.index.get_level_values('sample_id'), exclude_samples), :]
 
 if args.n_cores is not None:
@@ -194,9 +204,9 @@ if args.n_cores is not None:
 # Run main method
 logger.info("Running main reconstruction routine.")
 sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = medicc.main(
-    input_df, 
-    fst, 
-    normal_name, 
+    input_df=input_df,
+    asymm_fst=fst,
+    normal_name=normal_name,
     input_tree=input_tree, 
     ancestral_reconstruction=not args.topology_only,
     chr_separator=args.fst_chr_separator.strip(),
@@ -205,7 +215,8 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = m
     no_wgd=args.no_wgd,
     wgd_x2=args.wgd_x2,
     total_cn=args.total_copy_numbers,
-    n_cores=args.n_cores)
+    n_cores=args.n_cores,
+    reconstruct_events=args.events)
 
 
 # Write events table and overlap events with chromosome and oncogenes
@@ -213,13 +224,14 @@ if events_df is not None:
     events_df.to_csv(os.path.join(output_dir, output_prefix + "_copynumber_events_df.tsv"),
                      sep='\t', index=True)
 
-    logger.info("Overlapping copy-number events with chromosomes and known oncogenes.")
-    overlaps = medicc.core.overlap_events(events_df=events_df, alleles=allele_columns, 
-                                          normal_name=normal_name,
-                                          chromosome_bed=args.chromosomes_bed, 
-                                          regions_bed=args.regions_bed)
-    overlaps.to_csv(os.path.join(output_dir, output_prefix + "_events_overlap.tsv"),
-                     sep='\t', index=True)
+    if args.chromosomes_bed != 'none' or args.regions_bed != 'none':
+        logger.info("Overlapping copy-number events with chromosomes and known oncogenes.")
+        overlaps = medicc.event_reconstruction.overlap_events(events_df=events_df, alleles=allele_columns, 
+                                            normal_name=normal_name,
+                                            chromosome_bed=args.chromosomes_bed, 
+                                            regions_bed=args.regions_bed)
+        overlaps.to_csv(os.path.join(output_dir, output_prefix + "_events_overlap.tsv"),
+                        sep='\t', index=True)
 
 logger.info(f"Output is saved as {output_dir}/{output_prefix}...")
 
@@ -233,7 +245,7 @@ logger.info("Writing trees.")
 # medicc.io.write_tree_files(tree=nj_tree, out_name=os.path.join(
 #     output_dir, output_prefix + "_nj_tree"))
 medicc.io.write_tree_files(tree=final_tree, normal_name=normal_name, out_name=os.path.join(
-    output_dir, output_prefix + "_final_tree"))
+    output_dir, output_prefix + "_final_tree"), plot_tree=(not args.no_plot_tree))
 medicc.io.write_branch_lengths(tree=final_tree, out_name=os.path.join(
     output_dir, output_prefix + "_branch_lengths.tsv"))
 
@@ -244,7 +256,7 @@ output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.ts
 logger.info("Writing patient summary.")
 summary = medicc.summarize_patient(
     final_tree, pairwise_distances.values, sample_labels, normal_name, events_df)
-logger.info("Final tree length %d.", summary.tree_length)
+logger.info(f"Final tree length {summary.tree_length}.")
 summary.to_csv(os.path.join(output_dir, output_prefix + "_summary.tsv"),
                index=True, header=False, sep='\t')
 
@@ -252,8 +264,8 @@ summary.to_csv(os.path.join(output_dir, output_prefix + "_summary.tsv"),
 if args.bootstrap_nr is not None:
     logger.info("Performing {} bootstrap runs (method: {})".format(args.bootstrap_nr, 
                                                                    args.bootstrap_method))
-    bootstrap_trees_df, support_tree = medicc.bootstrap.run_bootstrap(input_df, 
-                                                                      final_tree,
+    bootstrap_trees_df, support_tree = medicc.bootstrap.run_bootstrap(input_df=input_df,
+                                                                      original_tree=final_tree,
                                                                       N_bootstrap=args.bootstrap_nr, 
                                                                       method=args.bootstrap_method,
                                                                       normal_name=normal_name,

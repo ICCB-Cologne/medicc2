@@ -1,6 +1,7 @@
 import logging.config
 import os
 
+from importlib.metadata import version, PackageNotFoundError
 import yaml
 
 import medicc.bootstrap
@@ -18,3 +19,8 @@ from medicc.factory import *
 with open(os.path.join(os.path.dirname(__file__), 'logging_conf.yaml'), 'rt') as f:
     config = yaml.safe_load(f.read())
 logging.config.dictConfig(config)
+
+try:
+    __version__ = version('medicc2')
+except PackageNotFoundError:
+    __version__ = 'not installed'

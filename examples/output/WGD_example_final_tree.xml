@@ -10,7 +10,7 @@
           <branch_length>2.0</branch_length>
           <clade>
             <name>internal_2</name>
-            <branch_length>2.0</branch_length>
+            <branch_length>1.0</branch_length>
             <clade>
               <name>sample 2</name>
               <branch_length>1.0</branch_length>
@@ -22,7 +22,7 @@
           </clade>
           <clade>
             <name>internal_3</name>
-            <branch_length>1.0</branch_length>
+            <branch_length>2.0</branch_length>
             <clade>
               <name>sample 3</name>
               <branch_length>0.0</branch_length>

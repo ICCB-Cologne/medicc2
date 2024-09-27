@@ -23,7 +23,7 @@ internal_2	chr1	0	1	2	1	False	False	False	False	False
 internal_2	chr1	1	2	2	1	False	False	False	False	False
 internal_2	chr1	2	3	0	1	False	False	False	False	False
 internal_2	chr1	3	4	2	1	False	False	False	False	False
-internal_2	chr1	4	5	2	2	True	False	False	False	False
+internal_2	chr1	4	5	2	2	False	False	False	False	False
 internal_2	chr2	0	1	2	2	False	False	False	False	False
 internal_2	chr2	1	2	2	2	False	False	False	False	False
 internal_2	chr2	2	3	2	2	False	False	False	False	False
@@ -33,7 +33,7 @@ internal_3	chr1	0	1	2	1	False	False	False	False	False
 internal_3	chr1	1	2	2	1	False	False	False	False	False
 internal_3	chr1	2	3	0	1	False	False	False	False	False
 internal_3	chr1	3	4	2	1	False	False	False	False	False
-internal_3	chr1	4	5	2	1	False	False	False	False	False
+internal_3	chr1	4	5	2	1	False	True	False	False	False
 internal_3	chr2	0	1	2	2	False	False	False	False	False
 internal_3	chr2	1	2	2	2	False	False	False	False	False
 internal_3	chr2	2	3	3	2	True	False	False	False	False
@@ -43,7 +43,7 @@ internal_4	chr1	0	1	2	1	False	True	True	False	False
 internal_4	chr1	1	2	2	1	False	True	True	False	False
 internal_4	chr1	2	3	0	1	False	True	True	False	False
 internal_4	chr1	3	4	2	1	False	True	True	False	False
-internal_4	chr1	4	5	2	1	False	True	True	False	False
+internal_4	chr1	4	5	2	2	False	False	True	False	False
 internal_4	chr2	0	1	2	2	False	False	True	False	False
 internal_4	chr2	1	2	2	2	False	False	True	False	False
 internal_4	chr2	2	3	2	2	False	False	True	False	False
