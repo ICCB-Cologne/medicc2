@@ -5,6 +5,7 @@ import Bio
 import numpy as np
 import pandas as pd
 import scipy as sp
+import copy
 
 from medicc import tools
 
@@ -64,7 +65,51 @@ def _mutate(cnstr, event, start, end, maxcn, mincn, ignore_chr_boundaries=False,
             newcn = oldcn
         cnstr[i] = tools.int2hex(newcn)
 
-def rcoal(n, tips = None, uniform_branch_length=False):
+def evolve_along_tree(tree, normal_sequence, normal_name='diploid', rate_multiplier=1, 
+    plen=0.2, pwgd=0.05, pgain=0.5, maxcn=8, mincn=0, maxwgd=3, 
+    verbose=True, seed=None, inplace=True):
+    """ Mutates one allele along a given tree starting from the normal sample with name indicated
+    and normal sequence as given. All event rates are globally multiplied by rate_multiplier. """
+    if not inplace:
+        tree = copy.deepcopy(tree)
+    stack = []
+    child_counter = {}
+    finished = False
+    current_clade = tree.root
+    child_counter[current_clade]=0
+    for clade in tree.root.clades:
+        if clade.name == normal_name: 
+            clade.seq = normal_sequence
+            diploid_bl = clade.branch_length
+            current_clade.seq = evolve(normal_sequence, mu=diploid_bl*rate_multiplier, 
+                plen=plen, pwgd=pwgd, pgain=pgain, maxcn=maxcn, mincn=mincn, maxwgd=maxwgd,
+                verbose=verbose, seed=seed)[0]
+            break
+
+    while not finished:
+        i = child_counter[current_clade]
+        if i < len(current_clade.clades):
+            if current_clade.clades[i].name == normal_name:
+                child_counter[current_clade]+=1
+            else:
+                child_clade = current_clade.clades[i]
+                child_clade.seq = evolve(current_clade.seq, mu=child_clade.branch_length*rate_multiplier, 
+                    plen=plen, pwgd=pwgd, pgain=pgain, maxcn=maxcn, mincn=mincn, maxwgd=maxwgd,
+                    verbose=verbose, seed=seed)[0]
+                stack.append(current_clade)
+                child_counter[current_clade]+=1
+                current_clade = child_clade
+                child_counter[current_clade]=0
+        else:
+            try:
+                current_clade = stack.pop()
+            except IndexError:
+                finished = True
+
+    return tree
+    
+
+def rcoal(n, tips = None, uniform_branch_length=False, normal_name='diploid'):
     """As in rcoal function in R package Ape, function generates a random tree and random branch lengths."""
     x = np.divide(2*np.random.exponential(size = n-1),np.multiply(np.array(list(reversed(range(2,n+1)))), np.array(list(reversed(range(1, n))))))
     if (n == 2):
@@ -109,11 +154,11 @@ def rcoal(n, tips = None, uniform_branch_length=False):
         edge.columns = ['a','b']
 
 
-        reordered = pd.DataFrame()
+        reordered = pd.DataFrame(columns=['a','b'])
         root = edge.index[-2]
         parent = [edge.iloc[root][0]] #stack
         child = edge.iloc[root][1]
-        reordered = reordered.append(edge.iloc[root])
+        reordered = pd.concat([reordered, edge.iloc[[root]]])
         edge.drop(edge.index[root], inplace = True)
         while  not edge.empty:
             if (set (edge.a.isin([parent[-1]]))) == {False}:#checks if both occurences took place, and value can be popped out of stack
@@ -121,7 +166,7 @@ def rcoal(n, tips = None, uniform_branch_length=False):
             if child <= n :
                 root = edge.a.isin([parent[-1]]).idxmax()
                 child = int(edge.iloc[edge.index==root]['b'])
-                reordered = reordered.append(edge.iloc[edge.index==root])
+                reordered = pd.concat([reordered, edge.iloc[edge.index==root]])
                 edge.drop(root, inplace = True)
                 if child < n:
                     if (set (edge.a.isin([parent[-1]]))) == {False}:
@@ -130,7 +175,7 @@ def rcoal(n, tips = None, uniform_branch_length=False):
                 parent.append(child)
                 root =  edge.a.isin([child]).idxmax()
                 child = int(edge.iloc[edge.index==root]['b'])
-                reordered = reordered.append(edge.iloc[edge.index==root])
+                reordered = pd.concat([reordered, edge.iloc[edge.index==root]])
                 edge.drop(root, inplace = True)
                 if child < n:
                     if (set (edge.a.isin([parent[-1]]))) == {False}:
@@ -146,16 +191,16 @@ def rcoal(n, tips = None, uniform_branch_length=False):
             reordered['name_b'] = [tips[reordered.b[i]] if (reordered.b[i] < n)  else '' for i in reordered.index]
         else:
             reordered['name_b'] = ["sp_{0:04d}".format(reordered.b[i] +1) if (reordered.b[i] < n)  else '' for i in reordered.index]
-        reordered.at[reordered.name_b=='', 'name_b'] = ["internal_{0:d}".format(i +1) for i in range(len(reordered[reordered.name_b=='']))]
+        reordered.loc[reordered.name_b=='', 'name_b'] = ["internal_{0:d}".format(i +1) for i in range(len(reordered[reordered.name_b=='']))]
         internal_names =  reordered[reordered.b>n][['b','name_b']].copy()
         internal_names.set_index(['b'], inplace = True)
-        internal_names = internal_names.append(pd.DataFrame(data = ['mrca'], index= [n], columns = ['name_b']))
+        internal_names = pd.concat([internal_names, pd.DataFrame(data = ['mrca'], index= [n], columns = ['name_b'])])
         reordered['name_a'] = [internal_names.name_b .loc[i]for i in reordered.a]
 
     reordered = reordered[['a','b','name_a', 'name_b', 'edge_length']]
     if uniform_branch_length:
         reordered['edge_length'] = 1
-    return _edgelist_to_tree(reordered)
+    return _edgelist_to_tree(reordered, add_normal=normal_name is not None, normal_name=normal_name)
 
 
 def _edgelist_to_tree(el, add_normal=True, normal_name='diploid'):
