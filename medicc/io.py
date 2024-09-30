@@ -9,7 +9,6 @@ import pandas as pd
 
 from medicc import plot, tools
 
-matplotlib.use("Agg")
 logger = logging.getLogger(__name__)
 
 
