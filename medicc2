@@ -279,6 +279,7 @@ if args.bootstrap_nr is not None:
         output_dir, output_prefix + "_support_tree"), plot_tree=False, draw_ascii=False)
     fig = medicc.plot.plot_tree(support_tree,
                                 title='support tree',
+                                normal_name=normal_name,
                                 show_branch_lengths=True,
                                 show_branch_support=True)
     fig.savefig(os.path.join(output_dir, output_prefix + '_support_tree.pdf'), bbox_inches='tight')
