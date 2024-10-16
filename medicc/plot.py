@@ -560,6 +560,9 @@ def plot_tree(input_tree,
                 "Install matplotlib or pylab if you want to use draw."
             ) from None
 
+    if len(list(input_tree.find_clades(normal_name))) == 0:
+        raise MEDICCPlotError(f'Normal sample "{normal_name}" was not found in tree')
+
     import matplotlib.collections as mpcollections
     if ax is None:
         nsamp = len(list(input_tree.find_clades()))
