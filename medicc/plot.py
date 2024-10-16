@@ -457,7 +457,8 @@ Coordinates are negative, and integers for tips.
     maxheight = tree.count_terminals()
     heights = {tip: maxheight -1 -i for i,
             tip in enumerate(reversed([x for x in tree.get_terminals() if x.name != normal_name]))}
-    heights.update({list(tree.find_clades(normal_name))[0]: maxheight})
+    if normal_name is not None:
+        heights.update({list(tree.find_clades(normal_name))[0]: maxheight})
 
     # Internal nodes: place at midpoint of children
     def calc_row(clade):
@@ -560,7 +561,7 @@ def plot_tree(input_tree,
                 "Install matplotlib or pylab if you want to use draw."
             ) from None
 
-    if len(list(input_tree.find_clades(normal_name))) == 0:
+    if normal_name is not None and len(list(input_tree.find_clades(normal_name))) == 0:
         raise MEDICCPlotError(f'Normal sample "{normal_name}" was not found in tree')
 
     import matplotlib.collections as mpcollections
