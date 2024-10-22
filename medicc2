@@ -250,7 +250,8 @@ medicc.io.write_branch_lengths(tree=final_tree, out_name=os.path.join(
     output_dir, output_prefix + "_branch_lengths.tsv"))
 
 # Write ouput table
-output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.tsv"), sep='\t')
+if not args.topology_only:
+    output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.tsv"), sep='\t')
 
 # Summarize
 logger.info("Writing patient summary.")
@@ -287,15 +288,18 @@ else:
     support_tree = None
 
 # Plot copy-number tracks
-if args.plot == 'both':
-    plotting = ['heatmap', 'bars']
-elif args.plot == 'auto':
-    if len(sample_labels) < 50:
-        plotting = ['bars']
-    else:
-        plotting = ['heatmap']
+if args.topology_only:
+    plotting = []
 else:
-    plotting = [args.plot]
+    if args.plot == 'both':
+        plotting = ['heatmap', 'bars']
+    elif args.plot == 'auto':
+        if len(sample_labels) < 50:
+            plotting = ['bars']
+        else:
+            plotting = ['heatmap']
+    else:
+        plotting = [args.plot]
 
 if 'bars' in plotting:
     logger.info("Plotting copy-number profiles (bars).")
