@@ -197,6 +197,7 @@ def filter_by_segment_length(input_df, filter_size):
 def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8, chrom_column='chrom'):
     logger.info(f"Reading TSV file {path}")
     input_file = pd.read_csv(path, sep = "\t")
+    input_file["sample_id"] = input_file["sample_id"].astype(str)
     columnn_names = ['sample_id', chrom_column, 'start', 'end'] + allele_columns
     if len(np.setdiff1d(columnn_names, input_file.columns)) > 0:
         raise MEDICCIOError(f"TSV file needs the following columns: sample_id, chrom, start, end and the allele columns ({allele_columns})"
