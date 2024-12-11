@@ -20,7 +20,7 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
         raise MEDICCIOError("Maximum copy number must be <= 8.")
 
     if len(allele_columns) == 1 and not total_copy_numbers:
-        logger.warn('You have provided only one allele column but the --total-copy-numbers flag was not set')
+        logger.warning('You have provided only one allele column but the --total-copy-numbers flag was not set')
     if total_copy_numbers and not len(allele_columns) == 1:
         raise MEDICCIOError("You have set the --total-copy-numbers flag but provided more than one allele column. "
                             "Set allele columns with the flag --input-allele-columns")
@@ -41,16 +41,16 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
 
     duplicated_entries = input_df_stacked.duplicated(keep=False)
     if duplicated_entries.any():
-        logger.warn("Duplicated entries found in input data: "
+        logger.warning("Duplicated entries found in input data: "
                     f"{input_df_stacked.index[duplicated_entries]}")
 
     normal_value = '2' if total_copy_numbers else '1'
     normal_samples = np.setdiff1d(input_df_stacked.index[
         (input_df_stacked == normal_value).all(axis=1)], normal_name)
     if len(normal_samples) > 0:
-        logger.warn(f"Diploid samples found in input data: {normal_samples}")
+        logger.warning(f"Diploid samples found in input data: {normal_samples}")
     if len(normal_samples) == len(np.unique(input_df.index.get_level_values('sample_id'))):
-        logger.warn("All samples are diploid! MEDICC2 results will be meaningless!")
+        logger.warning("All samples are diploid! MEDICC2 results will be meaningless!")
     
     ## Add normal sample if needed
     input_df = add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 
@@ -64,7 +64,7 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
             np.roll(input_df.loc[normal_name].eval('end'), 1)).values
     total_gaps = gaps[gaps>0].sum()
     if total_gaps > 1e8:
-        logger.warn(f"Total of {total_gaps:.1e} bp gaps in the segmentation. Large gaps might "
+        logger.warning(f"Total of {total_gaps:.1e} bp gaps in the segmentation. Large gaps might "
                     "affect the performance of MEDICC2.")
 
     return input_df
@@ -218,7 +218,7 @@ def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8, chrom_
                 input_file[c] = np.fmin(input_file[c], maxcn)
     input_file[chrom_column] = tools.format_chromosomes(input_file[chrom_column])
     if any(["Y" in str(x) for x in input_file[chrom_column].unique()]):
-        logger.warn("Y chromosome detected in input. This might cause errors down the line!")
+        logger.warning("Y chromosome detected in input. This might cause errors down the line!")
     input_file.set_index(['sample_id', chrom_column, 'start', 'end'], inplace=True)
     input_file.sort_index(inplace=True)
     input_file[allele_columns] = input_file[allele_columns].astype(str)
@@ -304,10 +304,10 @@ def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_cop
     else:
         logger.info(f"Sample '{normal_name}' was found in data is is used as normal")
         if np.any(df.loc[normal_name] == '0'):
-            logger.warn("The provided normal sample contains segments with copy number 0. "
+            logger.warning("The provided normal sample contains segments with copy number 0. "
                         "If any other sample has non-zero values in these segments, MEDICC will crash")
         if np.any(df.loc[normal_name] != normal_value):
-            logger.warn("The provided normal sample contains segments with copy number != {}.".format(normal_value))
+            logger.warning("The provided normal sample contains segments with copy number != {}.".format(normal_value))
 
         tmp = df
 

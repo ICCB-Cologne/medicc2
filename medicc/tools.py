@@ -66,7 +66,7 @@ def format_chromosomes(ds):
             chrcats += ['chrY',]
         newchr = pd.Categorical(newchr, categories=chrcats)
     else:
-        logger.warn("Could not match the chromosome labels. Rename the chromosomes according chr1, "
+        logger.warning("Could not match the chromosome labels. Rename the chromosomes according chr1, "
                     "chr2, ... to avoid potential errors."
                     "Current format: {}".format(ds.unique()))
         newchr = pd.Categorical(ds, categories=ds.unique())
