@@ -49,6 +49,8 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
         (input_df_stacked == normal_value).all(axis=1)], normal_name)
     if len(normal_samples) > 0:
         logger.warn(f"Diploid samples found in input data: {normal_samples}")
+    if len(normal_samples) == len(np.unique(input_df.index.get_level_values('sample_id'))):
+        logger.warn("All samples are diploid! MEDICC2 results will be meaningless!")
     
     ## Add normal sample if needed
     input_df = add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 
