@@ -48,7 +48,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--topology-only`, `-s`: Output only tree topology, without reconstructing ancestors. Default: False
 * `--normal-name`, `-n`: ID of the sample to be treated as the normal sample. Trees are rooted at this sample for ancestral reconstruction. If the sample ID is not found, an artificial normal sample of the same name is created with CN states = 1 for each allele. Default: 'diploid'
 * `--exclude-samples`, `-x`: Comma separated list of sample IDs to exclude. Default: None
-* `--filter-segment-length`: Removes segments that are smaller than specified length. Default: None
+* `--filter-segment-length`: Removes segments that are smaller than specified length (measured in bp's). Default: None
 * `--bootstrap-method`: Bootstrap method. Has to be either 'chr-wise' or 'segment-wise'. Default: 'chr-wise'
 * `--bootstrap-nr`: Number of bootstrap runs to perform. Default: None
 * `--prefix`, '-p': Output prefix to be used. None uses input filename. Default: None
