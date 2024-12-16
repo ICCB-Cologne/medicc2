@@ -208,7 +208,7 @@ You can report bugs and request features directly in [Bitbucket](https://bitbuck
 MEDICC2 is available under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html). It contains modified code of the *pywrapfst* Python module from [OpenFST](http://www.openfst.org/) as permitted by the [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) license.
 
 
-# Kaufmann et al. 2022 Puplication
+# Kaufmann et al. 2022 Publication
 The MEDICC2 model has been published in 2022 with Genome Biology: [MEDICC2: whole-genome doubling aware copy-number phylogenies for cancer evolution](https://doi.org/10.1186/s13059-022-02794-9).
 
 ## Figures
