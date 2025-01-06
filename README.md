@@ -27,6 +27,15 @@ All dependencies including OpenFST (v1.8.2) should be directly installable via c
 
 Then, inside the `medicc2` folder, run `pip install .` to install MEDICC2 to your environment.
 
+## Running the medicc2 python file
+
+If you want to run the medicc2 python file, use the following commands (as indicated in the fstlib project) before running `python medicc2`
+
+```
+ cd submodule-fstlib 
+ python setup.py build_ext --inplace  
+```
+
 ## Development mode
 If you want to make changes to the MEDICC2 source code, install MEDICC2 as explained above in "Installation from source" but install in editable mode (with `pip install -e .`). Any changes to the local files will now be reflected in your environment.
 
