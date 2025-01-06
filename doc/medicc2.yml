@@ -13,4 +13,5 @@ dependencies:
   - scipy>=1.7
   - matplotlib>=3.3
   - cython==0.29.37
-  - pyranges==0.0.127
+  - fastme==2.1.6.3
+  - cxx-compiler
