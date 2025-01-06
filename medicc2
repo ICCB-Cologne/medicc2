@@ -137,7 +137,7 @@ parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', d
                     help = 'Expert option: character used to separate chromosomes in the FST (default: \"X\").')
 parser.add_argument("--wgd-x2", action='store_true', default=False, dest='wgd_x2',
                     help='Expert option: Treat WGD as a x2 operation (default: False).', required=False)
-parser.add_argument("--tree-method",type=str, dest = "tree_method", default = "NJ",
+parser.add_argument("--tree-method",type=str, dest = "tree_method", default = "fastme",
                     help = "Select the tree reconstruction method, select from 'fastme' or 'NJ' for neighbor joining, default: NJ"  )
 args = parser.parse_args()
 
