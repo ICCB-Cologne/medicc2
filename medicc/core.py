@@ -124,7 +124,7 @@ def main(input_df,
                      normal_name=normal_name,
                      prune_weight=prune_weight,
                      MCMC_step=medicc3_MCMC_step,
-                     accept_scaler=2)
+                     accept_scaler=1)
         logger.info("Creating output copynumbers.")
         output_df = create_df_from_fsa(input_df, ancestors)
 
@@ -532,6 +532,10 @@ def medicc3_mcmc(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
     update_branch_lengths(tree, fst, ancestors, normal_name)
     sum_of_branch_length_l.append(medicc.tools.sum_of_branch_length(tree))
 
+    global_tree = tree
+    global_ancestor = ancestors
+    global_sum_of_branch_length = sum_of_branch_length_l[-1]
+
     tree_pre = tree
     sum_of_branch_length_pre = sum_of_branch_length_l[-1]
     ancestors_pre = ancestors
@@ -559,6 +563,12 @@ def medicc3_mcmc(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
             ancestors_pre = new_ancestors
             sum_of_branch_length_l.append(sum_of_branch_length_new)
             logger.debug("MEDICC3: MCMC step: {}, accepted a better new tree".format(i))
+
+            # Check if the new tree is better than the global tree
+            if sum_of_branch_length_new <= global_sum_of_branch_length:
+                global_tree = new_tree_topology
+                global_ancestor = new_ancestors
+                global_sum_of_branch_length = sum_of_branch_length_new
         else:
             # Accept the new tree with probability exp(-delta)
             delta = sum_of_branch_length_new - sum_of_branch_length_pre
@@ -572,7 +582,7 @@ def medicc3_mcmc(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
                 sum_of_branch_length_l.append(sum_of_branch_length_pre)
                 logger.debug("MEDICC3: MCMC step: {}, rejected a worse new tree".format(i))
 
-    return tree_pre, ancestors_pre, sum_of_branch_length_l
+    return global_tree, global_ancestor, sum_of_branch_length_l
 
 
 
