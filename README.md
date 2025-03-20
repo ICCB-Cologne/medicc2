@@ -4,6 +4,12 @@
 [![Conda](https://img.shields.io/conda/v/bioconda/medicc2?color=green)](https://anaconda.org/bioconda/medicc2)
 
 For more information see the accompanying publication [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-022-02794-9).
+# What is in this branch?
+
+This branch contains experimental development to MEDICC3 where we aim to assign different weights to different event type.
+
+We achieve this by constructing a new FST and use the heuristic tree search function like SPR moves. 
+
 
 # Installation
 Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was developed and tested on unix-built systems (Linux and MacOS). For Windows users we recommended WSL2.
