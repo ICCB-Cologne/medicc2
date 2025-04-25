@@ -141,6 +141,9 @@ parser.add_argument("--medicc3", action='store_true', default=False, dest='medic
                     help='Expert option: Use medicc3 mode (default: False). (Parsimony mode)', required=False)
 parser.add_argument("--medicc3-MCMC-step", type=int, dest='medicc3_MCMC_step', default=1000,
                     help='Expert option: Number of MCMC steps in medicc3 mode (default: 1000).')
+parser.add_argument("--medicc3-MCMC-start", type=str, dest="medicc3_MCMC_start", default="random",
+                    help='''Expert option: Starting point for MCMC in medicc3 mode. )
+                            Can be either "random" or "neighbor-joining" or "nj" for short (default: random).''')
 args = parser.parse_args()
 
 
@@ -223,7 +226,8 @@ sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = m
     n_cores=args.n_cores,
     reconstruct_events=args.events,
     medicc3=args.medicc3,
-    medicc3_MCMC_step=args.medicc3_MCMC_step)
+    medicc3_MCMC_step=args.medicc3_MCMC_step,
+    medicc3_MCMC_start=args.medicc3_MCMC_start)
 
 
 # Write events table and overlap events with chromosome and oncogenes

@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 import medicc
-from medicc import io, nj, tools, event_reconstruction
+from medicc import io, nj, tools, event_reconstruction, tree_hash
 from medicc.tools import int2hex
 
 # prepare logger
@@ -34,7 +34,8 @@ def main(input_df,
          n_cores=None,
          reconstruct_events=False,
          medicc3=False,
-         medicc3_MCMC_step=1000):
+         medicc3_MCMC_step=1000,
+         medicc3_MCMC_start="random"):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
@@ -50,9 +51,13 @@ def main(input_df,
 
     ## Reconstruct a tree
     if input_tree is None:
-        if not medicc3:
-            ## Calculate pairwise distances
-            logger.info("Calculating pairwise distance matrices")
+        if not medicc3 or medicc3_MCMC_start=="neighbor-joining" or medicc3_MCMC_start=="nj":
+            ## Calculate pairwise distances'
+            if medicc3:
+                logger.info("MEDICC3 mode: Start with a Neighbor-joining tree.")
+                logger.info("MEDICC3 mode: Calculating pairwise distance matrices.")
+            else:
+                logger.info("Calculating pairwise distance matrices")
             if n_cores is not None and n_cores > 1:
                 pairwise_distances = parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict,
                                                                                         n_cores)
@@ -69,12 +74,16 @@ def main(input_df,
             logger.info("Inferring tree topology.")
             nj_tree = infer_tree_topology(
                 pairwise_distances.values, pairwise_distances.index, normal_name=normal_name)
+
+            if medicc3_MCMC_start == "neighbor-joining" or medicc3_MCMC_start == "nj":
+                logger.debug("MEDICC3 mode: Adjust the Neighbor-joining tree structure to be compatible with the MCMC process.")
+                nj_tree.root_with_outgroup(normal_name)
+                nj_tree.root.clades = [clade for clade in nj_tree.root.clades if clade.name != normal_name]
+                nj_tree.root.name = normal_name
         else:
             logger.info("MEDICC3 mode: Start with a random tree. No pairwise distance matrix is calculated!")
             nj_tree = create_random_tree_topology(list(sample_labels), normal_name=normal_name)
             pairwise_distances = pd.DataFrame(0, columns=FSA_dict.keys(), index=FSA_dict.keys())
-
-
     else:
         logger.info("Tree provided, using it. No pairwise distance matrix is calculated!")
 
@@ -118,7 +127,7 @@ def main(input_df,
 
     if medicc3:
         logger.info("MEDICC3 mode: Running MCMC to infer phylogenetic tree")
-        final_tree, ancestors, sum_of_branch_length_l = medicc3_mcmc(tree = final_tree,
+        final_tree_l, ancestors_l, sum_of_branch_length_l = medicc3_mcmc(tree = final_tree,
                      samples_dict=FSA_dict,
                      fst=asymm_fst,
                      normal_name=normal_name,
@@ -126,7 +135,7 @@ def main(input_df,
                      MCMC_step=medicc3_MCMC_step,
                      accept_scaler=1)
         logger.info("Creating output copynumbers.")
-        output_df = create_df_from_fsa(input_df, ancestors)
+        output_df_l = [create_df_from_fsa(input_df, ancestors) for ancestors in ancestors_l]
 
     if not medicc3:
         nj_tree.root_with_outgroup(normal_name)
@@ -135,12 +144,13 @@ def main(input_df,
         # Adjust the tree format for MEDICC2's plotting function
 
         # create a new root clade with no labels and attach normal_name and MRCA to it
-        new_root_clade = Bio.Phylo.PhyloXML.Clade(branch_length=0)
-        final_tree.root.branch_length = 0
-        new_root_clade.clades.append(final_tree.root)
-        new_root_clade.clades.append(final_tree.root.clades[0])
-        final_tree.root.clades = []
-        final_tree.root = new_root_clade
+        for final_tree in final_tree_l:
+            new_root_clade = Bio.Phylo.PhyloXML.Clade(branch_length=0)
+            final_tree.root.branch_length = 0
+            new_root_clade.clades.append(final_tree.root)
+            new_root_clade.clades.append(final_tree.root.clades[0])
+            final_tree.root.clades = []
+            final_tree.root = new_root_clade
 
         # do the same to the nj_tree
         new_root_clade = Bio.Phylo.PhyloXML.Clade(branch_length=0)
@@ -151,7 +161,8 @@ def main(input_df,
         nj_tree.root = new_root_clade
 
 
-    if ancestral_reconstruction and reconstruct_events:
+    if ancestral_reconstruction and reconstruct_events and not medicc3:
+        # TODO: above not medicc3 is a hot fix because medicc3 does not support reconstruct events yet
         logger.info("Reconstructing events.")
         output_df, events_df = event_reconstruction.calculate_all_cn_events(
             final_tree, output_df, allele_columns, normal_name,
@@ -523,6 +534,9 @@ def medicc3_mcmc(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
     """ Perform MCMC sampling to infer the phylogenetic tree """
 
     sum_of_branch_length_l = []
+    # Keep track of topologies visited
+    topology_visited = set()
+
     # MCMC starting point
     ancestors = medicc.reconstruct_ancestors(tree=tree,
                                              samples_dict=samples_dict,
@@ -532,8 +546,10 @@ def medicc3_mcmc(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
     update_branch_lengths(tree, fst, ancestors, normal_name)
     sum_of_branch_length_l.append(medicc.tools.sum_of_branch_length(tree))
 
-    global_tree = tree
-    global_ancestor = ancestors
+    topology_visited.add(tree_hash.tree_hash(tree_hash.strip_branch_lengths(tree)))
+
+    global_tree_l = [tree]
+    global_ancestor_l = [ancestors]
     global_sum_of_branch_length = sum_of_branch_length_l[-1]
 
     tree_pre = tree
@@ -543,6 +559,16 @@ def medicc3_mcmc(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
 
         # propose a new tree topology using SPR
         new_tree_topology = medicc.spr.spr_move(tree_pre)
+
+        # Check if the new topology has been visited before
+        new_tree_topology_hash = tree_hash.tree_hash(tree_hash.strip_branch_lengths(new_tree_topology))
+        if new_tree_topology_hash in topology_visited:
+            logger.debug("MEDICC3: MCMC step: {}, proposed new topology has been visited before".format(i))
+            sum_of_branch_length_l.append(sum_of_branch_length_pre)
+            continue
+        else:
+            topology_visited.add(new_tree_topology_hash)
+            logger.debug("MEDICC3: MCMC step: {}, proposed new topology is new".format(i))
 
         # calculate the sum of branch length
         new_ancestors = medicc.reconstruct_ancestors(tree=new_tree_topology,
@@ -565,10 +591,13 @@ def medicc3_mcmc(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
             logger.debug("MEDICC3: MCMC step: {}, accepted a better new tree".format(i))
 
             # Check if the new tree is better than the global tree
-            if sum_of_branch_length_new <= global_sum_of_branch_length:
-                global_tree = new_tree_topology
-                global_ancestor = new_ancestors
+            if sum_of_branch_length_new < global_sum_of_branch_length:
+                global_tree_l = [new_tree_topology]
+                global_ancestor_l = [new_ancestors]
                 global_sum_of_branch_length = sum_of_branch_length_new
+            elif sum_of_branch_length_new == global_sum_of_branch_length:
+                global_tree_l.append(new_tree_topology)
+                global_ancestor_l.append(new_ancestors)
         else:
             # Accept the new tree with probability exp(-delta)
             delta = sum_of_branch_length_new - sum_of_branch_length_pre
@@ -582,7 +611,7 @@ def medicc3_mcmc(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
                 sum_of_branch_length_l.append(sum_of_branch_length_pre)
                 logger.debug("MEDICC3: MCMC step: {}, rejected a worse new tree".format(i))
 
-    return global_tree, global_ancestor, sum_of_branch_length_l
+    return global_tree_l, global_ancestor_l, sum_of_branch_length_l
 
 
 

@@ -25,17 +25,12 @@ def get_canonical_newick(tree):
     return newick_str
 
 
-def hash_tree(tree):
+def tree_hash(tree):
     canon_newick = get_canonical_newick(tree)
     return hashlib.md5(canon_newick.encode()).hexdigest()
 
 
-def is_unique_tree(tree, visited_hashes):
-    tree_hash = hash_tree(tree)
-    if tree_hash in visited_hashes:
-        return False
-    visited_hashes.add(tree_hash)
-    return True
+
 
 
 def strip_branch_lengths(tree):
