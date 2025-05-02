@@ -40,7 +40,7 @@ parser.add_argument("--input-chr-separator",
 parser.add_argument("--tree",
                     action="store",
                     dest="user_tree",
-                    help="Do not reconstruct tree, use provided tree instead (in newick format) and only perform ancestral reconstruction (default: None).",
+                    help="Do not reconstruct tree, use provided tree instead (in newick format) and only perform ancestral reconstruction (default: None). If in `MEDICC3` mode, MCMC exploration is intialized using the provided tree",
                     required=False)
 parser.add_argument("--topology-only", "-s",
                     action="store_true",
@@ -210,125 +210,202 @@ if args.n_cores is not None:
 
 # Run main method
 logger.info("Running main reconstruction routine.")
-sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = medicc.main(
-    input_df=input_df,
-    asymm_fst=fst,
-    output_dir=args.output_dir,
-    normal_name=normal_name,
-    input_tree=input_tree, 
-    ancestral_reconstruction=not args.topology_only,
-    chr_separator=args.fst_chr_separator.strip(),
-    prune_weight=args.prune_weight,
-    allele_columns=allele_columns,
-    no_wgd=args.no_wgd,
-    wgd_x2=args.wgd_x2,
-    total_cn=args.total_copy_numbers,
-    n_cores=args.n_cores,
-    reconstruct_events=args.events,
-    medicc3=args.medicc3,
-    medicc3_MCMC_step=args.medicc3_MCMC_step,
-    medicc3_MCMC_start=args.medicc3_MCMC_start)
 
-
-# Write events table and overlap events with chromosome and oncogenes
-if events_df is not None:
-    events_df.to_csv(os.path.join(output_dir, output_prefix + "_copynumber_events_df.tsv"),
-                     sep='\t', index=True)
-
-    if args.chromosomes_bed != 'none' or args.regions_bed != 'none':
-        logger.info("Overlapping copy-number events with chromosomes and known oncogenes.")
-        overlaps = medicc.event_reconstruction.overlap_events(events_df=events_df, alleles=allele_columns, 
-                                            normal_name=normal_name,
-                                            chromosome_bed=args.chromosomes_bed, 
-                                            regions_bed=args.regions_bed)
-        overlaps.to_csv(os.path.join(output_dir, output_prefix + "_events_overlap.tsv"),
-                        sep='\t', index=True)
-
-logger.info(f"Output is saved as {output_dir}/{output_prefix}...")
-
-# Output pairwise distance matrices
-logger.info("Writing pairwise distance matrices.")
-medicc.io.write_pairwise_distances(sample_labels, pairwise_distances, os.path.join(
-    output_dir, output_prefix + "_pairwise_distances"))
-
-# Write trees
-logger.info("Writing trees.")
-# medicc.io.write_tree_files(tree=nj_tree, out_name=os.path.join(
-#     output_dir, output_prefix + "_nj_tree"))
-medicc.io.write_tree_files(tree=final_tree, normal_name=normal_name, out_name=os.path.join(
-    output_dir, output_prefix + "_final_tree"), plot_tree=(not args.no_plot_tree))
-medicc.io.write_branch_lengths(tree=final_tree, out_name=os.path.join(
-    output_dir, output_prefix + "_branch_lengths.tsv"))
-
-# Write output table
-output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.tsv"), sep='\t')
-
-# Summarize
-logger.info("Writing patient summary.")
-summary = medicc.summarize_patient(
-    final_tree, pairwise_distances.values, sample_labels, normal_name, events_df)
-logger.info(f"Final tree length {summary.tree_length}.")
-summary.to_csv(os.path.join(output_dir, output_prefix + "_summary.tsv"),
-               index=True, header=False, sep='\t')
-
-# Bootstrap
-if args.bootstrap_nr is not None:
-    logger.info("Performing {} bootstrap runs (method: {})".format(args.bootstrap_nr, 
-                                                                   args.bootstrap_method))
-    bootstrap_trees_df, support_tree = medicc.bootstrap.run_bootstrap(input_df=input_df,
-                                                                      original_tree=final_tree,
-                                                                      N_bootstrap=args.bootstrap_nr, 
-                                                                      method=args.bootstrap_method,
-                                                                      normal_name=normal_name,
-                                                                      n_cores=args.n_cores)
-
-    logger.info('Writing bootstrap output')
-    with open(os.path.join(output_dir, output_prefix + "_bootstrap_trees_df.pickle"), 'wb') as f:
-        pickle.dump(bootstrap_trees_df, f)
-
-    medicc.io.write_tree_files(tree=support_tree, out_name=os.path.join(
-        output_dir, output_prefix + "_support_tree"), plot_tree=False, draw_ascii=False)
-    fig = medicc.plot.plot_tree(support_tree,
-                                title='support tree',
-                                show_branch_lengths=True,
-                                show_branch_support=True)
-    fig.savefig(os.path.join(output_dir, output_prefix + '_support_tree.pdf'), bbox_inches='tight')
-else:
-    support_tree = None
-
-# Plot copy-number tracks
-if args.plot == 'both':
-    plotting = ['heatmap', 'bars']
-elif args.plot == 'auto':
-    if len(sample_labels) < 50:
-        plotting = ['bars']
-    else:
-        plotting = ['heatmap']
-else:
-    plotting = [args.plot]
-
-if 'bars' in plotting:
-    logger.info("Plotting copy-number profiles (bars).")
-    p = medicc.plot.plot_cn_profiles(
-        output_df, 
-        input_tree=support_tree if support_tree is not None else final_tree,
-        title=output_prefix, 
+if not args.medicc3:
+    sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = medicc.main(
+        input_df=input_df,
+        asymm_fst=fst,
+        output_dir=args.output_dir,
         normal_name=normal_name,
+        input_tree=input_tree,
+        ancestral_reconstruction=not args.topology_only,
+        chr_separator=args.fst_chr_separator.strip(),
+        prune_weight=args.prune_weight,
         allele_columns=allele_columns,
-        show_branch_support=support_tree is not None,
-        label_func=None)
-    p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'), bbox_inches='tight')
+        no_wgd=args.no_wgd,
+        wgd_x2=args.wgd_x2,
+        total_cn=args.total_copy_numbers,
+        n_cores=args.n_cores,
+        reconstruct_events=args.events)
 
 
-if 'heatmap' in plotting:
-    logger.info("Plotting copy-number profiles (heatmap).")
-    p = medicc.plot.plot_cn_heatmap(
-        output_df, 
-        final_tree=support_tree if support_tree is not None else final_tree,
-        alleles=allele_columns, normal_name=normal_name,
-        total_copy_numbers=args.total_copy_numbers)
-    p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles_heatmap.pdf'), bbox_inches='tight')
-if 'none' in plotting:
-    logger.info("Skipped plotting of copy-number profiles (change --plot if this is undesired)")
+    # Write events table and overlap events with chromosome and oncogenes
+    if events_df is not None:
+        events_df.to_csv(os.path.join(output_dir, output_prefix + "_copynumber_events_df.tsv"),
+                         sep='\t', index=True)
 
-logger.info("Done.")
+        if args.chromosomes_bed != 'none' or args.regions_bed != 'none':
+            logger.info("Overlapping copy-number events with chromosomes and known oncogenes.")
+            overlaps = medicc.event_reconstruction.overlap_events(events_df=events_df, alleles=allele_columns,
+                                                normal_name=normal_name,
+                                                chromosome_bed=args.chromosomes_bed,
+                                                regions_bed=args.regions_bed)
+            overlaps.to_csv(os.path.join(output_dir, output_prefix + "_events_overlap.tsv"),
+                            sep='\t', index=True)
+
+    logger.info(f"Output is saved as {output_dir}/{output_prefix}...")
+
+    # Output pairwise distance matrices
+    logger.info("Writing pairwise distance matrices.")
+    medicc.io.write_pairwise_distances(sample_labels, pairwise_distances, os.path.join(
+        output_dir, output_prefix + "_pairwise_distances"))
+
+    # Write trees
+    logger.info("Writing trees.")
+    # medicc.io.write_tree_files(tree=nj_tree, out_name=os.path.join(
+    #     output_dir, output_prefix + "_nj_tree"))
+    medicc.io.write_tree_files(tree=final_tree, normal_name=normal_name, out_name=os.path.join(
+        output_dir, output_prefix + "_final_tree"), plot_tree=(not args.no_plot_tree))
+    medicc.io.write_branch_lengths(tree=final_tree, out_name=os.path.join(
+        output_dir, output_prefix + "_branch_lengths.tsv"))
+
+    # Write output table
+    output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.tsv"), sep='\t')
+
+    # Summarize
+    logger.info("Writing patient summary.")
+    summary = medicc.summarize_patient(
+        final_tree, pairwise_distances.values, sample_labels, normal_name, events_df)
+    logger.info(f"Final tree length {summary.tree_length}.")
+    summary.to_csv(os.path.join(output_dir, output_prefix + "_summary.tsv"),
+                   index=True, header=False, sep='\t')
+
+    # Bootstrap
+    if args.bootstrap_nr is not None:
+        logger.info("Performing {} bootstrap runs (method: {})".format(args.bootstrap_nr,
+                                                                       args.bootstrap_method))
+        bootstrap_trees_df, support_tree = medicc.bootstrap.run_bootstrap(input_df=input_df,
+                                                                          original_tree=final_tree,
+                                                                          N_bootstrap=args.bootstrap_nr,
+                                                                          method=args.bootstrap_method,
+                                                                          normal_name=normal_name,
+                                                                          n_cores=args.n_cores)
+
+        logger.info('Writing bootstrap output')
+        with open(os.path.join(output_dir, output_prefix + "_bootstrap_trees_df.pickle"), 'wb') as f:
+            pickle.dump(bootstrap_trees_df, f)
+
+        medicc.io.write_tree_files(tree=support_tree, out_name=os.path.join(
+            output_dir, output_prefix + "_support_tree"), plot_tree=False, draw_ascii=False)
+        fig = medicc.plot.plot_tree(support_tree,
+                                    title='support tree',
+                                    show_branch_lengths=True,
+                                    show_branch_support=True)
+        fig.savefig(os.path.join(output_dir, output_prefix + '_support_tree.pdf'), bbox_inches='tight')
+    else:
+        support_tree = None
+
+    # Plot copy-number tracks
+    if args.plot == 'both':
+        plotting = ['heatmap', 'bars']
+    elif args.plot == 'auto':
+        if len(sample_labels) < 50:
+            plotting = ['bars']
+        else:
+            plotting = ['heatmap']
+    else:
+        plotting = [args.plot]
+
+    if 'bars' in plotting:
+        logger.info("Plotting copy-number profiles (bars).")
+        p = medicc.plot.plot_cn_profiles(
+            output_df,
+            input_tree=support_tree if support_tree is not None else final_tree,
+            title=output_prefix,
+            normal_name=normal_name,
+            allele_columns=allele_columns,
+            show_branch_support=support_tree is not None,
+            label_func=None)
+        p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'), bbox_inches='tight')
+
+
+    if 'heatmap' in plotting:
+        logger.info("Plotting copy-number profiles (heatmap).")
+        p = medicc.plot.plot_cn_heatmap(
+            output_df,
+            final_tree=support_tree if support_tree is not None else final_tree,
+            alleles=allele_columns, normal_name=normal_name,
+            total_copy_numbers=args.total_copy_numbers)
+        p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles_heatmap.pdf'), bbox_inches='tight')
+    if 'none' in plotting:
+        logger.info("Skipped plotting of copy-number profiles (change --plot if this is undesired)")
+
+    logger.info("Done.")
+
+else:
+    logger.info("Running MEDICC3.")
+    # Run medicc3
+    sample_labels, nj_tree, final_tree_l, output_df_l = medicc.main_medicc3(
+        input_df=input_df,
+        asymm_fst=fst,
+        output_dir=args.output_dir,
+        normal_name=normal_name,
+        input_tree=input_tree,
+        chr_separator=args.fst_chr_separator.strip(),
+        n_cores=args.n_cores,
+        prune_weight=args.prune_weight,
+        medicc3_MCMC_step=args.medicc3_MCMC_step,
+        medicc3_MCMC_start=args.medicc3_MCMC_start
+    )
+
+    # Write results
+    topology_counter = 1
+    for i in range(len(final_tree_l)):
+        final_tree = final_tree_l[i]
+        topology_counter = i + 1
+        output_df = output_df_l[i]
+
+        # Create a directory under output_dir for this topology
+        topology_dir = os.path.join(output_dir, f"topology_{topology_counter}")
+        os.makedirs(topology_dir, exist_ok=True)
+
+        # Write trees
+        logger.info(f"Writing tree_topology_{topology_counter}.")
+        medicc.io.write_tree_files(tree=final_tree, normal_name=normal_name, out_name=os.path.join(
+            topology_dir,output_prefix + f"_final_tree_topology_{topology_counter}"), plot_tree=(not args.no_plot_tree))
+        medicc.io.write_branch_lengths(tree=final_tree, out_name=os.path.join(
+            topology_dir, output_prefix + f"_branch_lengths_topology_{topology_counter}.tsv"))
+
+        # Write output table
+        output_df.to_csv(os.path.join(topology_dir, output_prefix + f"_final_cn_profiles_topology_{topology_counter}.tsv"), sep='\t')
+
+        # Plotting
+        if args.plot == 'both':
+            plotting = ['heatmap', 'bars']
+        elif args.plot == 'auto':
+            if len(sample_labels) < 50:
+                plotting = ['bars']
+            else:
+                plotting = ['heatmap']
+        else:
+            plotting = [args.plot]
+
+        if 'bars' in plotting:
+            logger.info(f"Plotting copy-number profiles (bars) for topology_{topology_counter}.")
+            p = medicc.plot.plot_cn_profiles(
+                output_df,
+                input_tree=final_tree,
+                title=output_prefix,
+                normal_name=normal_name,
+                allele_columns=allele_columns,
+                show_branch_support=False,
+                label_func=None)
+            p.savefig(os.path.join(topology_dir, output_prefix + f'_cn_profiles_topology_{topology_counter}.pdf'), bbox_inches='tight')
+
+
+        if 'heatmap' in plotting:
+            logger.info(f"Plotting copy-number profiles (heatmap) for topology_{topology_counter}.")
+            p = medicc.plot.plot_cn_heatmap(
+                output_df,
+                final_tree=final_tree,
+                alleles=allele_columns, normal_name=normal_name,
+                total_copy_numbers=args.total_copy_numbers)
+            p.savefig(os.path.join(topology_dir, output_prefix + f'_cn_profiles_heatmap_topology_{topology_counter}.pdf'), bbox_inches='tight')
+
+        if 'none' in plotting:
+            logger.info(f"Skipped plotting of copy-number profiles (change --plot if this is undesired) for topology_{topology_counter}.")
+
+    logger.info("Done.")
+
+
+

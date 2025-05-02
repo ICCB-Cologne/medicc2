@@ -315,7 +315,7 @@ def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_cop
 def write_tree_files(tree, out_name: str, plot_tree=True, draw_ascii=False, normal_name='diploid'):
     """Writes a Newick, PhyloXML, Ascii graphic and PNG grahic file of the tree. """
     Bio.Phylo.write(tree, out_name + ".new", "newick")
-    Bio.Phylo.write(tree, out_name + ".xml", "phyloxml")
+#     Bio.Phylo.write(tree, out_name + ".xml", "phyloxml")
 
     if draw_ascii:
         with open(out_name + ".txt", "w") as f:
