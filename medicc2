@@ -128,7 +128,7 @@ parser.add_argument("--silent", action='store_true', default=False,
 parser.add_argument("--maxcn", type=int, dest='maxcn', default=8,
                     help='''Expert option: maximum CN at which the input is capped. Does not change FST.
                             The maximum possible value is 8. Default: 8''')
-parser.add_argument("--prune-weight", type=int, dest='prune_weight', default=0,
+parser.add_argument("--prune-weight", type=float, dest='prune_weight', default=0,
                     help='''Expert option: Prune weight in ancestor reconstruction. Values >0 might
                             result in more accurate ancestors but will require more time and memory. Default: 0''')
 parser.add_argument("--fst", type=str, dest='fst', default=None,
