@@ -137,12 +137,12 @@ parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', d
                     help = 'Expert option: character used to separate chromosomes in the FST (default: \"X\").')
 parser.add_argument("--wgd-x2", action='store_true', default=False, dest='wgd_x2',
                     help='Expert option: Treat WGD as a x2 operation (default: False).', required=False)
-parser.add_argument("--medicc3", action='store_true', default=False, dest='medicc3',
-                    help='Expert option: Use medicc3 mode (default: False). (Parsimony mode)', required=False)
-parser.add_argument("--medicc3-MCMC-step", type=int, dest='medicc3_MCMC_step', default=1000,
-                    help='Expert option: Number of MCMC steps in medicc3 mode (default: 1000).')
-parser.add_argument("--medicc3-MCMC-start", type=str, dest="medicc3_MCMC_start", default="random",
-                    help='''Expert option: Starting point for MCMC in medicc3 mode. )
+parser.add_argument("--spr-mode", action='store_true', default=False, dest='spr',
+                    help='Expert option: Use spr mode (default: False).', required=False)
+parser.add_argument("--spr-mode-step", type=int, dest='spr_step', default=1000,
+                    help='Expert option: Number of spr steps in spr mode (default: 1000).')
+parser.add_argument("--spr-start", type=str, dest="spr_start", default="random",
+                    help='''Expert option: Starting point for spr in spr mode. )
                             Can be either "random" or "neighbor-joining" or "nj" for short (default: random).''')
 args = parser.parse_args()
 
@@ -211,7 +211,7 @@ if args.n_cores is not None:
 # Run main method
 logger.info("Running main reconstruction routine.")
 
-if not args.medicc3:
+if not args.spr:
     sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = medicc.main(
         input_df=input_df,
         asymm_fst=fst,
@@ -335,7 +335,7 @@ if not args.medicc3:
 else:
     logger.info("Running MEDICC3.")
     # Run medicc3
-    sample_labels, nj_tree, final_tree_l, output_df_l = medicc.main_medicc3(
+    sample_labels, nj_tree, final_tree_l, output_df_l = medicc.main_spr(
         input_df=input_df,
         asymm_fst=fst,
         output_dir=args.output_dir,
@@ -344,8 +344,8 @@ else:
         chr_separator=args.fst_chr_separator.strip(),
         n_cores=args.n_cores,
         prune_weight=args.prune_weight,
-        medicc3_MCMC_step=args.medicc3_MCMC_step,
-        medicc3_MCMC_start=args.medicc3_MCMC_start
+        spr_step=args.spr_step,
+        spr_start=args.spr_start
     )
 
     # Write results

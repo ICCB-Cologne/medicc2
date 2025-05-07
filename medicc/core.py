@@ -95,7 +95,8 @@ def main(input_df,
                                                  samples_dict=FSA_dict,
                                                  fst=asymm_fst,
                                                  normal_name=normal_name,
-                                                 prune_weight=prune_weight)
+                                                 prune_weight=prune_weight,
+                                                 spr_logger_disable=False)
 
         ## Create and write output data frame with ancestors
         logger.info("Creating output copynumbers.")
@@ -131,21 +132,21 @@ def main(input_df,
     return sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df
 
 
-def main_medicc3(input_df,
-                 asymm_fst,
-                 output_dir,
-                 normal_name='diploid',
-                 input_tree=None,
-                 chr_separator='X',
-                 n_cores=None,
-                 prune_weight=0,
-                 medicc3_MCMC_step=1000,
-                 medicc3_MCMC_start="random"):
+def main_spr(input_df,
+             asymm_fst,
+             output_dir,
+             normal_name='diploid',
+             input_tree=None,
+             chr_separator='X',
+             n_cores=None,
+             prune_weight=0,
+             spr_step=1000,
+             spr_start="random"):
     """
-    MEDICC3 Main Method
+    spr mode Main Method
     We start with a
-        - if medicc3_MCMC_start = "random" : A random tree
-        - if medicc3_MCMC_start = "neighbor-joining" : A neighbor-joining tree
+        - if spr_start = "random" : A random tree
+        - if spr_start = "neighbor-joining" : A neighbor-joining tree
         - if input_tree is not None : A user-provided tree, medicc3_MCMC_start is ignored in this case
     And uses SPR tree search moves to explore the tree space.
     """
@@ -165,12 +166,12 @@ def main_medicc3(input_df,
 
     ### Create start point tree
     if input_tree is None:
-        if medicc3_MCMC_start == "random":
-            logger.info("MEDICC3 mode: Start with a random tree.")
+        if spr_start == "random":
+            logger.info("SPR mode: Start with a random tree.")
             nj_tree = create_random_tree_topology(list(sample_labels), normal_name=normal_name)
-        elif medicc3_MCMC_start == "neighbor-joining" or medicc3_MCMC_start == "nj":
-            logger.info("MEDICC3 mode: Start with a Neighbor-joining tree.")
-            logger.info("MEDICC3 mode: Calculating pairwise distance matrices.")
+        elif spr_start == "neighbor-joining" or spr_start == "nj":
+            logger.info("SPR mode: Start with a Neighbor-joining tree.")
+            logger.info("SPR mode: Calculating pairwise distance matrices.")
             if n_cores is not None and n_cores > 1:
                 pairwise_distances = parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict,
                                                                                         n_cores)
@@ -184,19 +185,19 @@ def main_medicc3(input_df,
                                   "pairings. Please check the input data.\n\nThe affected pairs are: "
                                   f"{affected_pairs}")
 
-            logger.info("MEDICC3 mode: Inferring tree topology using neighbor-joining.")
+            logger.info("SPR mode: Inferring tree topology using neighbor-joining.")
             nj_tree = infer_tree_topology(
                 pairwise_distances.values, pairwise_distances.index, normal_name=normal_name)
 
             logger.debug(
-                "MEDICC3 mode: Adjust the Neighbor-joining tree structure to be compatible with the MCMC process.")
+                "SPR mode: Adjust the Neighbor-joining tree structure to be compatible with the MCMC process.")
             nj_tree.root_with_outgroup(normal_name)
             nj_tree.root.clades = [clade for clade in nj_tree.root.clades if clade.name != normal_name]
             nj_tree.root.name = normal_name
         else:
-            raise NotImplementedError("MEDICC3 mode: Start with a random tree or a neighbor-joining tree.")
+            raise NotImplementedError("SPR mode: Start with a random tree or a neighbor-joining tree.")
     else:
-        logger.info("MEDICC3 mode: Tree provided, using it as the starting point.")
+        logger.info("SPR mode: Tree provided, using it as the starting point.")
 
         assert len([x for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name]) == \
                len(np.unique(input_df.index.get_level_values('sample_id'))), \
@@ -213,15 +214,15 @@ def main_medicc3(input_df,
         nj_tree = input_tree
 
     final_tree = copy.deepcopy(nj_tree)
-    logger.info("MEDICC3 mode: Running MCMC to infer phylogenetic tree")
-    final_tree_l, ancestors_l, sum_of_branch_length_l = medicc3_mcmc(tree=final_tree,
-                                                                     samples_dict=FSA_dict,
-                                                                     fst=asymm_fst,
-                                                                     normal_name=normal_name,
-                                                                     prune_weight=prune_weight,
-                                                                     MCMC_step=medicc3_MCMC_step,
-                                                                     accept_scaler=1)
-    logger.info("Creating output copynumbers.")
+    logger.info("SPR mode: Running MCMC to infer phylogenetic tree")
+    final_tree_l, ancestors_l, sum_of_branch_length_l = spr_mode(tree=final_tree,
+                                                                 samples_dict=FSA_dict,
+                                                                 fst=asymm_fst,
+                                                                 normal_name=normal_name,
+                                                                 prune_weight=prune_weight,
+                                                                 MCMC_step=spr_step,
+                                                                 accept_scaler=1)
+    logger.info("SPR mode: Creating output copynumbers.")
     output_df_l = [create_df_from_fsa(input_df, ancestors) for ancestors in ancestors_l]
 
     # Adjust the tree format for MEDICC2's plotting function
@@ -242,15 +243,15 @@ def main_medicc3(input_df,
     nj_tree.root.clades = []
     nj_tree.root = new_root_clade
 
-    logger.info("MEDICC3: Plotting MCMC Trace")
+    logger.info("SPR mode: Plotting SPR Trace")
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.plot(sum_of_branch_length_l, '-o', alpha=0.6)
-    ax.set_xlabel('MCMC Step')
+    ax.set_xlabel('SPR Step')
     ax.set_ylabel('Sum of Branch Lengths')
-    ax.set_title('MEDICC3 MCMC Trace')
+    ax.set_title('SPR Trace Summary')
     ax.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, 'medicc3_mcmc_trace.pdf'), bbox_inches='tight')
+    plt.savefig(os.path.join(output_dir, 'SPR_trace.pdf'), bbox_inches='tight')
     plt.close()
 
     return sample_labels, nj_tree, final_tree_l, output_df_l
@@ -590,7 +591,7 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
                 child.branch_length = brs
 
 
-def medicc3_mcmc(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCMC_step=1000, accept_scaler=1):
+def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCMC_step=1000, accept_scaler=1):
     """ Perform MCMC sampling to infer the phylogenetic tree """
 
     sum_of_branch_length_l = []
@@ -602,7 +603,8 @@ def medicc3_mcmc(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
                                              samples_dict=samples_dict,
                                              fst=fst,
                                              normal_name=normal_name,
-                                             prune_weight=prune_weight)
+                                             prune_weight=prune_weight,
+                                             spr_logger_disable=True)
     update_branch_lengths(tree, fst, ancestors, normal_name)
     sum_of_branch_length_l.append(medicc.tools.sum_of_branch_length(tree))
 
@@ -623,23 +625,24 @@ def medicc3_mcmc(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
         # Check if the new topology has been visited before
         new_tree_topology_hash = tree_hash.tree_hash(tree_hash.strip_branch_lengths(new_tree_topology))
         if new_tree_topology_hash in topology_visited:
-            logger.debug("MEDICC3: MCMC step: {}, proposed new topology has been visited before".format(i))
+            logger.debug("SPR mode: step: {}, proposed new topology has been visited before, skipping".format(i))
             sum_of_branch_length_l.append(sum_of_branch_length_pre)
             continue
         else:
             topology_visited.add(new_tree_topology_hash)
-            logger.debug("MEDICC3: MCMC step: {}, proposed new topology is new".format(i))
+            logger.debug("SPR mode: step: {}, proposed new topology is new".format(i))
 
         # calculate the sum of branch length
         new_ancestors = medicc.reconstruct_ancestors(tree=new_tree_topology,
                                                      samples_dict=samples_dict,
                                                      fst=fst,
                                                      normal_name=normal_name,
-                                                     prune_weight=prune_weight)
+                                                     prune_weight=prune_weight,
+                                                     spr_logger_disable=True)
 
         update_branch_lengths(new_tree_topology, fst, new_ancestors, normal_name)
         sum_of_branch_length_new = medicc.tools.sum_of_branch_length(new_tree_topology)
-        logger.debug("MEDICC3: MCMC step: {}, proposed new sum of branch length: {}".format(i, sum_of_branch_length_new))
+        logger.debug("SPR mode: step: {}, proposed new sum of branch length: {}".format(i, sum_of_branch_length_new))
 
         # Accept or reject the new tree
         if sum_of_branch_length_new <= sum_of_branch_length_pre:
@@ -648,7 +651,7 @@ def medicc3_mcmc(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
             sum_of_branch_length_pre = sum_of_branch_length_new
             ancestors_pre = new_ancestors
             sum_of_branch_length_l.append(sum_of_branch_length_new)
-            logger.debug("MEDICC3: MCMC step: {}, accepted a better new tree".format(i))
+            logger.info("SPR mode: step: {}, accepted a better new tree with sum of branch length {}".format(i, sum_of_branch_length_new))
 
             # Check if the new tree is better than the global tree
             if sum_of_branch_length_new < global_sum_of_branch_length:
@@ -666,10 +669,10 @@ def medicc3_mcmc(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
                 sum_of_branch_length_pre = sum_of_branch_length_new
                 ancestors_pre = new_ancestors
                 sum_of_branch_length_l.append(sum_of_branch_length_new)
-                logger.debug("MEDICC3: MCMC step: {}, accepted a worse new tree".format(i))
+                logger.info("SPR mode: step: {}, accepted a worse new tree with sum of branch length {}".format(i, sum_of_branch_length_new))
             else:
                 sum_of_branch_length_l.append(sum_of_branch_length_pre)
-                logger.debug("MEDICC3: MCMC step: {}, rejected a worse new tree".format(i))
+                logger.debug("SPR mode: step: {}, rejected a worse new tree with sum of branch length {}".format(i, sum_of_branch_length_new))
 
     return global_tree_l, global_ancestor_l, sum_of_branch_length_l
 
