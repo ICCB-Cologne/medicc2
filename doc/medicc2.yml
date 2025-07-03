@@ -4,7 +4,7 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - openfst=1.8.2
+  - openfst=1.8.4
   - numpy>=1.20.1
   - pyyaml>=5.4.1
   - pandas>=1.2.2
@@ -12,5 +12,5 @@ dependencies:
   - biopython>=1.78
   - scipy>=1.7
   - matplotlib>=3.3
-  - cython==0.29.37
+  - cython==3.1.2
   - pyranges==0.0.127
