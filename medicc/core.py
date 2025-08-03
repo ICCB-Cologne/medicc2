@@ -34,7 +34,8 @@ def main(input_df,
          no_wgd=False,
          total_cn=False,
          n_cores=None,
-         reconstruct_events=False):
+         reconstruct_events=False,
+         euclidean=False):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
@@ -52,9 +53,9 @@ def main(input_df,
     if input_tree is None:
         if n_cores is not None and n_cores > 1:
             pairwise_distances = parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict,
-                                                                                    n_cores)
+                                                                                    n_cores, euclidean, chr_separator)
         else:
-            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, CN_str_dict)
+            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, CN_str_dict, euclidean, chr_separator)
 
         if (pairwise_distances == np.inf).any().any():
             affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
@@ -448,7 +449,7 @@ def shorten_cn_strings(string_1, string_2):
     return string_1_short, string_2_short
 
 
-def parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict, n_cores):
+def parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict, n_cores, euclidean=False, chr_separator="X"):
     try:
         from joblib import Parallel, delayed
     except ImportError:
@@ -458,9 +459,14 @@ def parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict
     parallelization_groups = [sample_labels[group] for group in parallelization_groups]
     logger.info("Running {} parallel runs on {} cores".format(len(parallelization_groups), n_cores))
 
-    parallel_pairwise_distances = Parallel(n_jobs=n_cores)(delayed(calc_pairwise_distance_matrix)(
-        asymm_fst, {key: val for key, val in CN_str_dict.items() if key in cur_group}, True)
-            for cur_group in parallelization_groups)
+    parallel_pairwise_distances = Parallel(n_jobs=n_cores)(
+        delayed(calc_pairwise_distance_matrix)(
+            asymm_fst,
+            {key: val for key, val in CN_str_dict.items() if key in cur_group},
+            True,
+            euclidean,
+            chr_separator
+        ) for cur_group in parallelization_groups)
 
     pdm = medicc.tools.total_pdm_from_parallel_pdms(sample_labels, parallel_pairwise_distances)
 
@@ -468,32 +474,40 @@ def parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict
 
 
 @lru_cache(maxsize=None)
-def calc_MED_distance(model_fst, profile_1, profile_2):
+def calc_MED_distance(model_fst, profile_1, profile_2, euclidean=False, chr_separator="X"):
     '''
     Calculate the MED distance between two profiles represented as strings.
     '''
 
-    profile_1_short, profile_2_short = shorten_cn_strings(profile_1, profile_2)
+    if not euclidean:
+        profile_1_short, profile_2_short = shorten_cn_strings(profile_1, profile_2)
+        # Convert shrunken string to fsa
+        symbol_table = model_fst.input_symbols()
+        profile_1_short_fsa = fstlib.factory.from_string(profile_1_short, isymbols=symbol_table, osymbols=symbol_table)
+        profile_2_short_fsa = fstlib.factory.from_string(profile_2_short, isymbols=symbol_table, osymbols=symbol_table)
 
-    # Convert shrunken string to fsa
-    symbol_table = model_fst.input_symbols()
-    profile_1_short_fsa = fstlib.factory.from_string(profile_1_short, isymbols=symbol_table, osymbols=symbol_table)
-    profile_2_short_fsa = fstlib.factory.from_string(profile_2_short, isymbols=symbol_table, osymbols=symbol_table)
+        # Calculate the MED distance
+        distance = float(fstlib.kernel_score(model_fst, profile_1_short_fsa, profile_2_short_fsa))
+    else:
+        profile_1_no_sep = profile_1.replace(chr_separator, '')
+        profile_2_no_sep = profile_2.replace(chr_separator, '')
 
-    # Calculate the MED distance
-    distance = float(fstlib.kernel_score(model_fst, profile_1_short_fsa, profile_2_short_fsa))
+        profile_1_np_array = np.array([int(x) for x in profile_1_no_sep])
+        profile_2_np_array = np.array([int(x) for x in profile_2_no_sep])
+
+        distance = np.linalg.norm(profile_1_np_array - profile_2_np_array)
 
     return distance
 
 
-def calc_pairwise_distance_matrix(model_fst, cn_str_dict, parallel_run=True):
+def calc_pairwise_distance_matrix(model_fst, cn_str_dict, parallel_run=True, euclidean=False, chr_separator="X"):
     samples = list(cn_str_dict.keys())
     pdm = pd.DataFrame(0, index=samples, columns=samples, dtype=float)
     combs = list(combinations(samples, 2))
     ncombs = len(combs)
 
     for i, (sample_a, sample_b) in enumerate(combs):
-        cur_dist = calc_MED_distance(model_fst, cn_str_dict[sample_a], cn_str_dict[sample_b])
+        cur_dist = calc_MED_distance(model_fst, cn_str_dict[sample_a], cn_str_dict[sample_b], euclidean, chr_separator)
         pdm.loc[sample_a, sample_b] = cur_dist
         pdm.loc[sample_b, sample_a] = cur_dist
 

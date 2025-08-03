@@ -144,6 +144,7 @@ parser.add_argument("--spr-mode-step", type=int, dest='spr_step', default=1000,
 parser.add_argument("--spr-start", type=str, dest="spr_start", default="random",
                     help='''Expert option: Starting point for spr in spr mode. )
                             Can be either "random" or "neighbor-joining" or "nj" for short (default: random).''')
+parser.add_argument("--euclidean", type=bool, dest="euclidean", default=False, help='''Expert option: Use Euclidean distance instead of FST for pairwise distances (default: False).''')
 args = parser.parse_args()
 
 
@@ -226,7 +227,8 @@ if not args.spr:
         wgd_x2=args.wgd_x2,
         total_cn=args.total_copy_numbers,
         n_cores=args.n_cores,
-        reconstruct_events=args.events)
+        reconstruct_events=args.events,
+        euclidean=args.euclidean)
 
 
     # Write events table and overlap events with chromosome and oncogenes
