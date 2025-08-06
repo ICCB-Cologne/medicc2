@@ -12,7 +12,7 @@ extra_link_args = ['-L{}/lib'.format(conda_path)]
 extra_compile_args = ['-std=c++17']
 if sys.platform.startswith("darwin"):
   extra_compile_args.append("-stdlib=libc++")
-  extra_compile_args.append("-mmacosx-version-min=10.12")
+  extra_compile_args.append("-mmacosx-version-min=10.14")
 
 setup(
     name='medicc2',
