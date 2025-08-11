@@ -48,9 +48,10 @@ XX = L_LOH * G
 W_1step = medicc.factory.create_1step_WGD_fst(SYMBOL_TABLE, separator,
                                               wgd_cost=wgd_cost,
                                               minimize=False,
-                                              wgd_x2=True,
+                                              wgd_x2=False,
                                               total_cn=False)
 
 MEDICC2_FST_with_extend_modeling = W_1step * XX
 
 MEDICC2_FST_with_extend_modeling.write("gain_loss_extend_0.1.fst")
+# %%
