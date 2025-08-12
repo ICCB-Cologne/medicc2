@@ -53,9 +53,9 @@ def main(input_df,
     if input_tree is None:
         if n_cores is not None and n_cores > 1:
             pairwise_distances = parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict,
-                                                                                    n_cores, euclidean, chr_separator)
+                                                                                    n_cores, euclidean = euclidean, chr_separator = chr_separator)
         else:
-            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, CN_str_dict, euclidean, chr_separator)
+            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, CN_str_dict, euclidean=euclidean, chr_separator=chr_separator)
 
         if (pairwise_distances == np.inf).any().any():
             affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
@@ -474,17 +474,17 @@ def parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict
 
 
 @lru_cache(maxsize=None)
-def calc_MED_distance(model_fst, profile_1, profile_2, euclidean=False, chr_separator="X"):
+def calc_MED_distance(model_fst, profile_1, profile_2, chr_separator="X", euclidean=False):
     '''
     Calculate the MED distance between two profiles represented as strings.
     '''
 
     if not euclidean:
-        profile_1_short, profile_2_short = shorten_cn_strings(profile_1, profile_2)
+        # profile_1_short, profile_2_short = shorten_cn_strings(profile_1, profile_2)
         # Convert shrunken string to fsa
         symbol_table = model_fst.input_symbols()
-        profile_1_short_fsa = fstlib.factory.from_string(profile_1_short, isymbols=symbol_table, osymbols=symbol_table)
-        profile_2_short_fsa = fstlib.factory.from_string(profile_2_short, isymbols=symbol_table, osymbols=symbol_table)
+        profile_1_short_fsa = fstlib.factory.from_string(profile_1, isymbols=symbol_table, osymbols=symbol_table)
+        profile_2_short_fsa = fstlib.factory.from_string(profile_2, isymbols=symbol_table, osymbols=symbol_table)
 
         # Calculate the MED distance
         distance = float(fstlib.kernel_score(model_fst, profile_1_short_fsa, profile_2_short_fsa))
@@ -507,7 +507,7 @@ def calc_pairwise_distance_matrix(model_fst, cn_str_dict, parallel_run=True, euc
     ncombs = len(combs)
 
     for i, (sample_a, sample_b) in enumerate(combs):
-        cur_dist = calc_MED_distance(model_fst, cn_str_dict[sample_a], cn_str_dict[sample_b], euclidean, chr_separator)
+        cur_dist = calc_MED_distance(model_fst, cn_str_dict[sample_a], cn_str_dict[sample_b], euclidean = euclidean, chr_separator = chr_separator)
         pdm.loc[sample_a, sample_b] = cur_dist
         pdm.loc[sample_b, sample_a] = cur_dist
 

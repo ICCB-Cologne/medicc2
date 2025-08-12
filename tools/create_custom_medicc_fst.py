@@ -53,5 +53,5 @@ W_1step = medicc.factory.create_1step_WGD_fst(SYMBOL_TABLE, separator,
 
 MEDICC2_FST_with_extend_modeling = W_1step * XX
 
-MEDICC2_FST_with_extend_modeling.write("gain_loss_extend_0.1.fst")
+MEDICC2_FST_with_extend_modeling.write("/Users/chenxi/Projects/Phylogenetics/medicc2/medicc/objects/gain_loss_extend_0.1.fst")
 # %%
