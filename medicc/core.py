@@ -102,7 +102,7 @@ def main(input_df,
         logger.info("Updating branch lengths of final tree using ancestors.")
         update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
     else:
-        output_df = None
+        output_df = input_df.copy()
 
     nj_tree.root_with_outgroup(normal_name)
     final_tree.root_with_outgroup(normal_name)
