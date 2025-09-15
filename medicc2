@@ -298,6 +298,8 @@ else:
 
 if 'bars' in plotting:
     logger.info("Plotting copy-number profiles (bars).")
+    if args.topology_only:
+        raise ValueError('Cannot plot "bars" when --topology-only is set. Please change --plot option to "heatmap" or "none".')
     p = medicc.plot.plot_cn_profiles(
         output_df, 
         input_tree=support_tree if support_tree is not None else final_tree,
@@ -308,7 +310,6 @@ if 'bars' in plotting:
         label_func=None)
     p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'), bbox_inches='tight')
 
-
 if 'heatmap' in plotting:
     logger.info("Plotting copy-number profiles (heatmap).")
     p = medicc.plot.plot_cn_heatmap(
@@ -317,7 +318,8 @@ if 'heatmap' in plotting:
         alleles=allele_columns, normal_name=normal_name,
         total_copy_numbers=args.total_copy_numbers)
     p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles_heatmap.pdf'), bbox_inches='tight')
+
 if 'none' in plotting:
     logger.info("Skipped plotting of copy-number profiles (change --plot if this is undesired)")
 
-logger.info("Done.")
+logger.info("MEDICC2 has finished.")
