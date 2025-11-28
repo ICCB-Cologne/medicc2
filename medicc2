@@ -189,7 +189,11 @@ input_df = medicc.io.read_and_parse_input_data(
     total_copy_numbers=args.total_copy_numbers,
     maxcn=args.maxcn)
 
-ecdna_df = medicc.io.read_and_parse_ecdna_regions(ecdna_tsv=args.ecdna_tsv)
+if args.ecdna_tsv is not None:
+    ecdna_df = medicc.io.read_and_parse_ecdna_regions(ecdna_tsv=args.ecdna_tsv)
+
+    # remove ecDNA regions from input_df
+    input_df = medicc.tools.remove_ecdna_regions_from_input_df(input_df, ecdna_df)
 
 if args.filter_segment_length is not None:
     old_size = len(input_df)

@@ -147,3 +147,23 @@ def create_diploid_fsa(fst, total_copy_numbers=False):
     diploid_fsa.add_arc(0, ('X', 'X', 0, 0))
 
     return diploid_fsa
+
+def remove_ecdna_regions_from_input_df(input_df, ecdna_df, chrom_column='chrom'):
+    # Convert ecdna regions (chrom, start, end) into set of tuples
+    ecdna_regions = {
+        (row[chrom_column], row['start'], row['end'])
+        for _, row in ecdna_df.iterrows()
+    }
+
+    ecdna_idx = pd.MultiIndex.from_tuples(
+        list(ecdna_regions),
+        names=[chrom_column, 'start', 'end']
+    )
+
+    chrom_start_end = input_df.index.droplevel('sample_id')
+
+    mask = ~chrom_start_end.isin(ecdna_idx)
+
+    input_df_filtered = input_df[mask]
+
+    return input_df_filtered
