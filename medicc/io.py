@@ -117,6 +117,16 @@ def read_fst(user_fst=None, no_wgd=False, n_wgd=None, total_copy_numbers=False, 
 
     return fstlib.read(fst_path)
 
+def read_and_parse_ecdna_regions(ecdna_tsv, chrom_column='chrom'):
+    """Reads a tsv file with ecdna regions and returns a DataFrame."""
+    logger.info(f"Reading ecdna regions from {ecdna_tsv}")
+    ecdna_df = pd.read_csv(ecdna_tsv, sep='\t', header=0, names=[chrom_column, 'start', 'end'])
+    ecdna_df[chrom_column] = tools.format_chromosomes(ecdna_df[chrom_column])
+    # ecdna_df.set_index([chrom_column, 'start', 'end'], inplace=True)
+    ecdna_df.sort_index(inplace=True)
+    logger.info(f"Read {ecdna_df.shape[0]} ecdna regions.")
+    return ecdna_df
+
 
 def load_main_fsts(return_symbol_table=False):
     asymm_fst = read_fst()

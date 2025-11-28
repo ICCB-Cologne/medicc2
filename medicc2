@@ -20,6 +20,10 @@ parser.add_argument("input_file",
                     help="a path to the input file")
 parser.add_argument("output_dir",
                     help="a path to the output folder")
+parser.add_argument("--ecDNA-positions-file",
+                    help="a path to the ecDNA positions file",
+                    dest='ecdna_tsv',
+                    required=False)
 parser.add_argument('--version', action='version', version=version_string)
 parser.add_argument("--input-type", "-i", type=str, dest="input_type", default="t",
                     choices=["f", "t", "fasta", "tsv"], required=False,
@@ -184,6 +188,8 @@ input_df = medicc.io.read_and_parse_input_data(
     allele_columns=allele_columns,
     total_copy_numbers=args.total_copy_numbers,
     maxcn=args.maxcn)
+
+ecdna_df = medicc.io.read_and_parse_ecdna_regions(ecdna_tsv=args.ecdna_tsv)
 
 if args.filter_segment_length is not None:
     old_size = len(input_df)
