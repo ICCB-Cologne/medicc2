@@ -165,5 +165,6 @@ def remove_ecdna_regions_from_input_df(input_df, ecdna_df, chrom_column='chrom')
     mask = ~chrom_start_end.isin(ecdna_idx)
 
     input_df_filtered = input_df[mask]
+    ec_dna_df = input_df[~mask]
 
-    return input_df_filtered
+    return input_df_filtered, ec_dna_df
