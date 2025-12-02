@@ -252,7 +252,7 @@ def plot_cn_profiles(
     # define plot width and height and create figure
     track_width = nsegs.sum() * 0.2 * track_width_scale
     if ecdna_cnp_df is not None:
-        track_width_ecdna = nsegs_ecdna * 0.2 * track_width_scale
+        track_width_ecdna = (nsegs_ecdna) * 0.2 * track_width_scale
     if input_tree is not None:
         tree_width = 2.5 * tree_width_scale ## in figsize
     else:
@@ -263,9 +263,14 @@ def plot_cn_profiles(
     if ecdna_cnp_df is not None:
 
         plotheight = 4 * 0.2 * nrows * height_scale
+        colorbar_width_ratio = 0.05  # Allocate 5% of the width for the color bar
+
         plotwidth = tree_width + track_width_ecdna + track_width
         tree_width_ratio = tree_width / plotwidth
         track_width_ratio = track_width / plotwidth
+
+        # Adjust total plot width to include color bar space
+        plotwidth = plotwidth / (1 - colorbar_width_ratio)  # Normalize to include the color bar
     else:
         plotheight = 4 * 0.2 * nrows * height_scale
         plotwidth = tree_width + track_width
@@ -282,16 +287,20 @@ def plot_cn_profiles(
             gs = fig.add_gridspec(nrows, 2, width_ratios=[tree_width_ratio, 1-tree_width_ratio])
         else:
             # tree | cn track | ecdna cn track
-            gs = fig.add_gridspec(nrows, 3,
-                                  width_ratios=[tree_width_ratio, track_width_ratio, 1 - tree_width_ratio - track_width_ratio])
+            gs = fig.add_gridspec(nrows, 4, wspace = 0.1,
+                                  width_ratios=[tree_width_ratio, track_width_ratio, 1 - tree_width_ratio - track_width_ratio, colorbar_width_ratio])
 
         if ecdna_cnp_df is not None:
             # TODO: Figure out how to set tree_ax and cn_axes when ecdna is present
             tree_ax = fig.add_subplot(gs[0:nsamp, 0])
-            cn_axes = []; ecdna_axes = []
+            cn_axes = []; ecdna_axes = []; colorbar_axes = []
             for i in range(nrows):
                 cn_axes.append(fig.add_subplot(gs[i, 1]))
                 ecdna_axes.append(fig.add_subplot(gs[i, 2]))
+                colorbar_axes.append(fig.add_subplot(gs[i, 3]))
+            for ax in colorbar_axes[1:]:
+                ax.axis('off')  # Hide all but the first colorbar axis
+            cbar_ax = colorbar_axes[0]
 
         else:
             tree_ax = fig.add_subplot(gs[0:nsamp, 0])
@@ -328,8 +337,8 @@ def plot_cn_profiles(
             continue
         index_to_plot = y_posns[sample] - 1
         if ecdna_cnp_df is not None:
-            if sample in ecdna_df['sample_id']:
-                sample_rows = ecdna_df.loc[sample]
+            if sample in ecdna_df['sample_id'].values:
+                sample_rows = ecdna_df[ecdna_df['sample_id'] == sample]
                 cn_a_list = sample_rows['cn_a'].tolist()
                 cn_b_list = sample_rows['cn_b'].tolist()
 
@@ -358,6 +367,15 @@ def plot_cn_profiles(
                          show_small_segments=show_small_segments,
                          detailed_xticks=detailed_xticks,
                          show_events_in_cn=show_events_in_cn)
+        # 2. Plot the ecDNA CN profile
+        if ecdna_cnp_df is not None:
+            _plot_ecdna_cn_profile(ax=ecdna_axes[index_to_plot],
+                                   label=label_func(sample) if label_func is not None else sample,
+                                   cn_a_color=cn_a_color,
+                                   ecdna_positions=ecdna_positions,
+                                   plot_yaxis_labels=False,  # Y-label is handled by the CN track
+                                   yaxis_label_color=clade_colors[sample],
+                                   plot_xaxis_labels=plot_axis_labels)
 
     # === NOW draw ecDNA triangles (cn_axes[0] has correct xlim) ===
     if ecdna_cnp_df is not None:
@@ -417,6 +435,27 @@ def plot_cn_profiles(
     if ecdna_cnp_df is not None:
         for ax in cn_axes:
             ax.set_xlim(0.0, x_max)
+
+        # Calculate the starting index of the summary axes
+        nsamp = len(samples)  # Number of sample axes (already calculated)
+
+        # The summary rows start right after the last sample row
+        summary_start_index = nsamp
+
+        # --- Hide unused ecdna_axes for summary tracks ---
+        # Hide the remaining axes in the ecdna column
+        for i in range(summary_start_index, len(ecdna_axes)):
+            ecdna_axes[i].axis('off')  # Hide the entire axis (box, ticks, etc.)
+
+        # Create the ScalarMappable object using the defined norm and cmap
+        sm = mpl.cm.ScalarMappable(norm=ecdna_color_norm, cmap=ecdna_color_map)
+        sm.set_array([])  # Required for plotting with ScalarMappable
+
+        # Draw the color bar on the dedicated top axis (cbar_ax)
+        fig.colorbar(sm,
+                     cax=cbar_ax,  # Specify the single axis to draw on
+                     label='ecDNA CN (cn_a)')
+        # No need for shrink or pad when using cax, it fills the axis
     return fig
 
 def make_ecdna_colormap(vmin, vmax, cmap_name="plasma"):
@@ -468,6 +507,67 @@ def _plot_ecdna_triangles(ax, ecdna_position_df, color_list):
             clip_on=False,
         )
 
+
+def _plot_ecdna_cn_profile(ax, label, cn_a_color, ecdna_positions, plot_yaxis_labels=True, yaxis_label_color='black',
+                           plot_xaxis_labels=True):
+    """
+    Plots the ecDNA copy number profile for one sample using solid rectangles.
+
+    Args:
+        ax (matplotlib.axes.Axes): The axis to draw on.
+        label (str): The label for the Y-axis.
+        cn_a_color (list): List of RGBA colors for each ecDNA segment.
+        ecdna_positions (list): List of x-coordinates (start of the segment).
+    """
+
+    rectangles = []
+
+    # Define the height of the plot
+    ymin, ymax = 0, 1  # Normalized axis height
+
+    # Iterate over each ecDNA segment
+    for x_start, color in zip(ecdna_positions, cn_a_color):
+        # We plot a solid rectangle of width 1, covering the height of the axis
+        rect = mpl.patches.Rectangle(
+            (x_start, ymin),  # (x, y) starting point
+            width=1,  # Segment width is fixed to 1 in this track
+            height=ymax - ymin,
+            facecolor=color,
+            edgecolor='none',  # No border line
+            zorder=3
+        )
+        rectangles.append(rect)
+
+    # Add all rectangles to the axis
+    ax.add_collection(mpl.collections.PatchCollection(rectangles, match_original=True))
+
+    # --- Axis Formatting ---
+
+    # Hide the y-axis entirely as the label is provided by the CN track
+    ax.set_yticks([])
+    ax.set_yticklabels([])
+
+    # Set the y-limits to just 0 to 1 for the rectangle drawing
+    ax.set_ylim(0, 1)
+
+    # Set x-limits to match the range of ecDNA segments
+    # The positions are 0, 1, 2, ... so the max extent is len(positions)
+    x_max_ecdna = len(ecdna_positions)
+    ax.set_xlim(0, x_max_ecdna)
+
+    if plot_xaxis_labels:
+        ax.set_xlabel('ecDNA', fontsize=XLABEL_FONT_SIZE)
+        # Assuming one tick label per segment (0, 1, 2, ...)
+        ax.set_xticks(np.arange(x_max_ecdna) + 0.5)  # Center the ticks
+        ax.set_xticklabels([f'e{i + 1}' for i in range(x_max_ecdna)],
+                           fontsize=XLABEL_TICK_SIZE, rotation=45, ha='right')
+    else:
+        ax.set_xticks([])
+        ax.set_xticklabels([])
+
+    # Optional: Add the same y-label as the CN track for consistency
+    if plot_yaxis_labels:
+        ax.set_ylabel(label, fontsize=YLABEL_FONT_SIZE, color=yaxis_label_color)
 
 def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles,
                      type='sample',
