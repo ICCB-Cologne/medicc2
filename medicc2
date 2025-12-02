@@ -7,6 +7,7 @@ import pickle
 import sys
 
 import numpy as np
+import pandas as pd
 
 import medicc
 
@@ -193,6 +194,21 @@ if args.ecdna_tsv is not None:
         allele_columns=allele_columns,
         total_copy_numbers=args.total_copy_numbers,
         maxcn=args.maxcn)
+
+    if normal_name not in ecdna_cnp_df["sample_id"].values:
+        logger.info("Adding normal sample to ecDNA copy-number profiles.")
+        ecdna_sample_id_0 = ecdna_cnp_df["sample_id"].values[0]
+        ecdna_df_sample_id_0 = ecdna_cnp_df[ecdna_cnp_df["sample_id"] == ecdna_sample_id_0]
+        nseg = ecdna_df_sample_id_0.shape[0]
+        normal_ecdna_rows = pd.DataFrame({
+            "sample_id": [normal_name] * nseg,
+            "chrom": ecdna_df_sample_id_0["chrom"].values,
+            "start": ecdna_df_sample_id_0["start"].values,
+            "end": ecdna_df_sample_id_0["end"].values,
+            "cn_a": [2] * nseg,
+            "cn_b": [0] * nseg
+        })
+        ecdna_cnp_df = pd.concat([ecdna_cnp_df, normal_ecdna_rows], ignore_index=True)
 else:
     logger.info("Reading and parsing input data.")
     input_df = medicc.io.read_and_parse_input_data(
@@ -223,20 +239,38 @@ if args.n_cores is not None:
 
 # Run main method
 logger.info("Running main reconstruction routine.")
-sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = medicc.main(
-    input_df=input_df,
-    asymm_fst=fst,
-    normal_name=normal_name,
-    input_tree=input_tree, 
-    ancestral_reconstruction=not args.topology_only,
-    chr_separator=args.fst_chr_separator.strip(),
-    prune_weight=args.prune_weight,
-    allele_columns=allele_columns,
-    no_wgd=args.no_wgd,
-    wgd_x2=args.wgd_x2,
-    total_cn=args.total_copy_numbers,
-    n_cores=args.n_cores,
-    reconstruct_events=args.events)
+if args.ecdna_tsv is not None:
+    sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df, ecdna_cnp_df = medicc.main(
+        input_df=input_df,
+        asymm_fst=fst,
+        ecdna_cnp_df=ecdna_cnp_df,
+        normal_name=normal_name,
+        input_tree=input_tree,
+        ancestral_reconstruction=not args.topology_only,
+        chr_separator=args.fst_chr_separator.strip(),
+        prune_weight=args.prune_weight,
+        allele_columns=allele_columns,
+        no_wgd=args.no_wgd,
+        wgd_x2=args.wgd_x2,
+        total_cn=args.total_copy_numbers,
+        n_cores=args.n_cores,
+        reconstruct_events=args.events)
+
+else:
+    sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = medicc.main(
+        input_df=input_df,
+        asymm_fst=fst,
+        normal_name=normal_name,
+        input_tree=input_tree,
+        ancestral_reconstruction=not args.topology_only,
+        chr_separator=args.fst_chr_separator.strip(),
+        prune_weight=args.prune_weight,
+        allele_columns=allele_columns,
+        no_wgd=args.no_wgd,
+        wgd_x2=args.wgd_x2,
+        total_cn=args.total_copy_numbers,
+        n_cores=args.n_cores,
+        reconstruct_events=args.events)
 
 
 # Write events table and overlap events with chromosome and oncogenes

@@ -4,10 +4,49 @@ import Bio
 import Bio.Phylo
 import fstlib
 import numpy as np
+import pandas as pd
 
 import medicc
 
 logger = logging.getLogger(__name__)
+
+def reconstruct_ecdna_ancestors(tree, ecdna_cnp_df, normal_name):
+    """
+    Recosntruct ecdna ancestors on the tree using a simple average approach.
+
+    TODO: plugin Maja's method here once available.
+    """
+
+    clade_list = [clade for clade in tree.find_clades(order="preorder") if clade.name != normal_name]
+    logger.info("eCDNA Ancestor reconstruction: Up the tree")
+    for node in reversed(clade_list):
+        if len(node.clades) != 0:
+            children = [item for item in node.clades if item.name != normal_name]
+            left_name = children[0].name
+            right_name = children[1].name
+
+            left_ecdna_counts = (ecdna_cnp_df[ecdna_cnp_df['sample_id'] == left_name]["cn_a"]).to_numpy()
+            right_ecdna_counts = (ecdna_cnp_df[ecdna_cnp_df['sample_id'] == right_name]["cn_a"]).to_numpy()
+
+            ancestor_ecdna_counts = np.ceil((left_ecdna_counts + right_ecdna_counts) / 2).astype(int)
+            ecdna_chrom_list = (ecdna_cnp_df[ecdna_cnp_df['sample_id'] == left_name]["chrom"]).to_numpy()
+            ecdna_start_position_list = (ecdna_cnp_df[ecdna_cnp_df['sample_id'] == left_name]["start"]).to_numpy()
+            ecdna_end_position_list = (ecdna_cnp_df[ecdna_cnp_df['sample_id'] == left_name]["end"]).to_numpy()
+            sample_id = np.array([node.name] * len(ancestor_ecdna_counts))
+            cn_b_list = np.array([0] * len(ancestor_ecdna_counts))
+
+            # append ancestor data to the dataframe
+            new_rows = pd.DataFrame({
+                "sample_id": sample_id,
+                "chrom": ecdna_chrom_list,
+                "start": ecdna_start_position_list,
+                "end": ecdna_end_position_list,
+                "cn_a": ancestor_ecdna_counts,
+                "cn_b": cn_b_list
+            })
+            ecdna_cnp_df = pd.concat([ecdna_cnp_df, new_rows], ignore_index=True)
+    return ecdna_cnp_df
+
 
 def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0):
 

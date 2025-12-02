@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 def main(input_df,
          asymm_fst,
+         ecdna_cnp_df=None,
          normal_name='diploid',
          input_tree=None,
          ancestral_reconstruction=True,
@@ -94,6 +95,11 @@ def main(input_df,
                                                  normal_name=normal_name,
                                                  prune_weight=prune_weight)
 
+        if ecdna_cnp_df is not None:
+            ecdna_cnp_df = medicc.ancestors.reconstruct_ecdna_ancestors(tree=final_tree,
+                                                                        ecdna_cnp_df=ecdna_cnp_df,
+                                                                        normal_name=normal_name)
+
         ## Create and write output data frame with ancestors
         logger.info("Creating output copynumbers.")
         output_df = create_df_from_fsa(input_df, ancestors)
@@ -124,8 +130,10 @@ def main(input_df,
 
     else:
         events_df = None
-
-    return sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df
+    if ecdna_cnp_df is not None:
+        return sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df, ecdna_cnp_df
+    else:
+        return sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df
 
 
 def create_standard_fsa_dict_from_data(input_data,
