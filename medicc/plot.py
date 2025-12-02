@@ -39,9 +39,14 @@ XLABEL_TICK_SIZE = 8
 CHR_LABEL_SIZE = 8
 SMALL_SEGMENTS_LIMIT = 1e7
 
+# ecDNA related
+NO_DATA_ECDNA_COLOR = mpl.colors.to_rgba('black')
+
 
 def plot_cn_profiles(
         input_df,
+        ecdna_cnp_df = None,
+        ecdna_position_df = None,
         input_tree=None,
         title=None,
         normal_name='diploid',
@@ -71,6 +76,11 @@ def plot_cn_profiles(
     
     df = input_df.copy()
     df[allele_columns] = df[allele_columns].astype(int)
+    if ecdna_cnp_df is not None:
+        ecdna_df = ecdna_cnp_df.copy()
+        ecdna_df[allele_columns] = ecdna_df[allele_columns].astype(int)
+
+
     if len(allele_columns) > 2:
         logger.warning("More than two allels were provided ({})\n"
                     "Copy number tracks can only be plotted for 1 or 2 alleles".format(allele_columns))
@@ -114,6 +124,10 @@ def plot_cn_profiles(
     else:
         maxcn = int(maxcn)
 
+    if ecdna_cnp_df is not None:
+        min_ecdna_cn = ecdna_df[allele_columns[0]].min().min()
+        max_ecdna_cn = ecdna_df[allele_columns[0]].max().max()
+
     samples = df.index.get_level_values('sample_id').unique()
     if hide_internal_nodes:
         if input_tree is not None:
@@ -123,6 +137,8 @@ def plot_cn_profiles(
             samples = [x for x in df.index.get_level_values('sample_id').unique() if 'internal_' not in x]
     nsamp = len(samples)
     nsegs = df.loc[samples[0], :].groupby('chrom').size()
+    if ecdna_cnp_df is not None:
+        nsegs_ecdna = len(ecdna_position_df["ecdna_chrom"].unique())
 
     # == 2 because of diploid
     if input_tree is None or normal_name is None or nsamp == 2:
@@ -153,13 +169,45 @@ def plot_cn_profiles(
         df = df.join(cur_df, on=['chrom', 'start'])
 
     else:
-        chrom_offset = df.loc[samples[0],:].reset_index().groupby('chrom', sort=False).max()['end']
-        chrom_offset.dropna(inplace=True)
-        chrom_offset.loc[:] = np.append(0, chrom_offset.cumsum().values[:-1])
-        chrom_offset.name='offset'
-        df = df.join(chrom_offset, on='chrom')
-        df['start_pos'] = df['start'] + df['offset']
-        df['end_pos'] = df['end'] + df['offset']
+
+        if ecdna_cnp_df is not None:
+            # Calculate chromosome offset for regular CN segments
+            chrom_offset = df.loc[samples[0], :].reset_index().groupby('chrom', sort=False).max()['end']
+            chrom_offset.dropna(inplace=True)
+            chrom_offset.loc[:] = np.append(0, chrom_offset.cumsum().values[:-1])
+            chrom_offset.name = 'offset'
+            df = df.join(chrom_offset, on='chrom')
+            df['start_pos'] = df['start'] + df['offset']
+            df['end_pos'] = df['end'] + df['offset']
+
+            triangle_positions = []
+            diploid_df = df.loc[samples[0], :].reset_index()[['chrom', 'start', 'end', 'start_pos', 'end_pos']]
+
+            for _, row in ecdna_position_df.iterrows():
+                chrom = row["chrom"]
+                missing_start = row["start"]
+
+                # locate inside diploid_df the x-position for the indicating triangle
+                diploid_chrom_df = diploid_df[diploid_df["chrom"] == chrom]
+                match = diploid_chrom_df[diploid_chrom_df["end"] == missing_start]
+
+                if not match.empty:
+                    triangle_positions.append(match['end_pos'].iat[0])
+
+            ecdna_position_df["triangle_pos"] = triangle_positions
+
+            number_of_sample = ecdna_cnp_df["sample_id"].nunique()
+            ecdna_df["start_pos"] = np.array(list(range(0, nsegs_ecdna)) * number_of_sample)
+            ecdna_df["end_pos"] = ecdna_df["start_pos"] + 1
+        else:
+            chrom_offset = df.loc[samples[0],:].reset_index().groupby('chrom', sort=False).max()['end']
+            chrom_offset.dropna(inplace=True)
+            chrom_offset.loc[:] = np.append(0, chrom_offset.cumsum().values[:-1])
+            chrom_offset.name='offset'
+            df = df.join(chrom_offset, on='chrom')
+            df['start_pos'] = df['start'] + df['offset']
+            df['end_pos'] = df['end'] + df['offset']
+
 
     df = df.reset_index().set_index(['sample_id', 'chrom', 'start', 'end'])
 
@@ -193,24 +241,51 @@ def plot_cn_profiles(
 
     # define plot width and height and create figure
     track_width = nsegs.sum() * 0.2 * track_width_scale
+    if ecdna_cnp_df is not None:
+        track_width_ecdna = nsegs_ecdna * 0.2 * track_width_scale
     if input_tree is not None:
         tree_width = 2.5 * tree_width_scale ## in figsize
     else:
         tree_width = 0
 
     nrows = nsamp + int(plot_summary) + int(plot_subclonal_summary) + int(plot_clonal_summary)
-    plotheight = 4 * 0.2 * nrows * height_scale
-    plotwidth = tree_width + track_width
-    tree_width_ratio = tree_width / plotwidth
+
+    if ecdna_cnp_df is not None:
+
+        plotheight = 4 * 0.2 * nrows * height_scale
+        plotwidth = tree_width + track_width_ecdna + track_width
+        tree_width_ratio = tree_width / plotwidth
+        track_width_ratio = track_width / plotwidth
+    else:
+        plotheight = 4 * 0.2 * nrows * height_scale
+        plotwidth = tree_width + track_width
+        tree_width_ratio = tree_width / plotwidth
+
     fig = plt.figure(figsize=(min(250, plotwidth), min(250, plotheight)), constrained_layout=True)
     if input_tree is None:
         gs = fig.add_gridspec(nrows, 1)
         cn_axes = [fig.add_subplot(gs[i]) for i in range(0, nrows)]
         y_posns = {sample: i for i, sample in enumerate(samples)} # as they appear
     else:
-        gs = fig.add_gridspec(nrows, 2, width_ratios=[tree_width_ratio, 1-tree_width_ratio])
-        tree_ax = fig.add_subplot(gs[0:nsamp, 0])
-        cn_axes = [fig.add_subplot(gs[i]) for i in range(1,(2*(nrows))+1,2)]
+        if ecdna_cnp_df is None:
+            # tree | cn track
+            gs = fig.add_gridspec(nrows, 2, width_ratios=[tree_width_ratio, 1-tree_width_ratio])
+        else:
+            # tree | cn track | ecdna cn track
+            gs = fig.add_gridspec(nrows, 3,
+                                  width_ratios=[tree_width_ratio, track_width_ratio, 1 - tree_width_ratio - track_width_ratio])
+
+        if ecdna_cnp_df is not None:
+            # TODO: Figure out how to set tree_ax and cn_axes when ecdna is present
+            tree_ax = fig.add_subplot(gs[0:nsamp, 0])
+            cn_axes = []; ecdna_axes = []
+            for i in range(nrows):
+                cn_axes.append(fig.add_subplot(gs[i, 1]))
+                ecdna_axes.append(fig.add_subplot(gs[i, 2]))
+        else:
+            tree_ax = fig.add_subplot(gs[0:nsamp, 0])
+            cn_axes = [fig.add_subplot(gs[i]) for i in range(1,(2*(nrows))+1,2)]
+
         y_posns = _get_y_positions(
             input_tree, adjust=not hide_internal_nodes, normal_name=normal_name)
         y_posns = {clade.name: y_pos for clade, y_pos in y_posns.items(
@@ -228,11 +303,33 @@ def plot_cn_profiles(
     
     # Adjust the margin between the tree and cn tracks. Default is 0
     fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=horizontal_margin_adjustment)
+
+    if ecdna_cnp_df is not None:
+        ecdna_color_norm, ecdna_color_map = make_ecdna_colormap(vmin = min_ecdna_cn,
+                                              vmax = max_ecdna_cn,
+                                              cmap_name="plasma")
+        # ecdna_positions = list(ecdna_df.index.droplevel('sample_id').unique())
+        ecnda_segment_color_l = plt.cm.tab20(np.linspace(0, 1, nsegs_ecdna))
+
     ## iterate over samples and plot the track
     for sample, group in df.groupby('sample_id'):
         if sample not in samples:
             continue
         index_to_plot = y_posns[sample] - 1
+        if ecdna_cnp_df is not None:
+            if sample in ecdna_df['sample_id']:
+                sample_rows = ecdna_df.loc[sample]
+                cn_a_list = sample_rows['cn_a'].tolist()
+                cn_b_list = sample_rows['cn_b'].tolist()
+
+                cn_a_color = [ecdna_color(i, ecdna_color_norm, ecdna_color_map) for i in cn_a_list]
+                cn_b_color = [NO_DATA_ECDNA_COLOR for i in cn_b_list] # TODO: Add support for cn_b ecdna later when the model is better
+                ecdna_positions = list(range(len(cn_a_list)))
+            else:
+                cn_a_color = [NO_DATA_ECDNA_COLOR for i in range(nsegs_ecdna)]
+                cn_b_color = [NO_DATA_ECDNA_COLOR for i in range(nsegs_ecdna)]
+                ecdna_positions = list(range(len(cn_a_color)))
+
         plot_axis_labels = (index_to_plot == (nsamp-1))
         _plot_cn_profile(ax=cn_axes[index_to_plot],
                          label=label_func(sample) if label_func is not None else sample,
@@ -250,6 +347,11 @@ def plot_cn_profiles(
                          show_small_segments=show_small_segments,
                          detailed_xticks=detailed_xticks,
                          show_events_in_cn=show_events_in_cn)
+
+    # === NOW draw ecDNA triangles (cn_axes[0] has correct xlim) ===
+    if ecdna_cnp_df is not None:
+        _plot_ecdna_triangles(cn_axes[0], ecdna_position_df, ecnda_segment_color_l)
+
 
     if plot_clonal_summary:
         cur = mrca_df.copy()
@@ -303,8 +405,58 @@ def plot_cn_profiles(
 
     return fig
 
+def make_ecdna_colormap(vmin, vmax, cmap_name="plasma"):
+    """
+    Create a normalization + colormap for ecDNA values
 
-def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
+    Returns:
+        norm: maps values -> [0 .. 1]
+        cmap: callable colormap (value in [0, 1] -> RGBA color)
+    """
+    norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+    cmap = mpl.cm.get_cmap(cmap_name) # e.g. 'plasma', 'viridis', "inferno", etc.
+    return norm, cmap
+
+def ecdna_color(value, norm, cmap):
+    """
+    Given one ecDNA CN value, return RGBA Color
+    """
+    return cmap(norm(value))
+
+
+def _plot_ecdna_triangles(ax, ecdna_position_df, color_list):
+    """
+    Draw ecDNA triangles ABOVE the highest CN axis, in axis coordinates.
+    ax = the TOP cn axis
+    """
+
+    unique_ecdna = ecdna_position_df["ecdna_chrom"].unique()
+
+    # map ecDNA labels → triangle colors
+    color_map = {
+        name: color_list[i % len(color_list)]
+        for i, name in enumerate(unique_ecdna)
+    }
+
+    for _, row in ecdna_position_df.iterrows():
+        xdata = row["triangle_pos"]  # genomic x coordinate
+        c = color_map[row["ecdna_chrom"]]
+
+        ax.scatter(
+            xdata,
+            1.15,  # → ABOVE the axis, not inside it
+            marker='v',
+            s=40,
+            color=c,
+            transform=ax.get_xaxis_transform(),
+            # this means: x = data coordinate, y = axis coordinate (0–1)
+            zorder=50,
+            clip_on=False,
+        )
+
+
+def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles,
+                     type='sample',
                      plot_xaxis_labels=True, plot_yaxis_labels=True, chr_label_func=None,
                      clonal_transparant=True, yaxis_label_color='black', show_small_segments=False,
                      show_events_in_cn=True, detailed_xticks=False):
@@ -315,7 +467,6 @@ def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles, type='sample',
     lines_b = []
     circles_a = []
     circles_b = []
-
     two_alleles = len(alleles) == 2
 
     alpha = []
@@ -832,7 +983,7 @@ def plot_tree(input_tree,
     return plt.gcf()
 
 
-def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=None, total_copy_numbers=False,
+def plot_cn_heatmap(input_df, ecdna_cnp_df=None, final_tree=None, y_posns=None, cmax=None, total_copy_numbers=False,
                     alleles=['cn_a', 'cn_b'], tree_width_ratio=1, cbar_width_ratio=0.05, figsize=(20, 10),
                     tree_line_width=0.5, tree_marker_size=0, show_internal_nodes=False, title='',
                     tree_label_colors=None, tree_label_func=None, cmap='coolwarm', normal_name='diploid',

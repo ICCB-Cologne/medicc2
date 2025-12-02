@@ -179,23 +179,30 @@ else:
     input_tree = None
 
 # Load data
-logger.info("Reading and parsing input data.")
-input_df = medicc.io.read_and_parse_input_data(
-    filename=args.input_file,
-    normal_name=normal_name,
-    input_type=args.input_type.strip(),
-    separator=args.input_chr_separator.strip(),
-    allele_columns=allele_columns,
-    total_copy_numbers=args.total_copy_numbers,
-    maxcn=args.maxcn)
-
 if args.ecdna_tsv is not None:
     logger.info(f"Reading ecdna regions from {args.ecdna_tsv}")
     ecdna_position_df = medicc.io.read_and_parse_ecdna_regions(ecdna_tsv=args.ecdna_tsv)
 
-    # remove ecDNA regions from input_df
-    logger.info("Removing ecDNA regions from input data.")
-    input_df, ecdna_cnp_df = medicc.tools.remove_ecdna_regions_from_input_df(input_df, ecdna_position_df)
+    logger.info("Reading and parsing input data.")
+    input_df, ecdna_cnp_df = medicc.io.read_and_parse_input_data(
+        filename=args.input_file,
+        ecdna_position_df=ecdna_position_df,
+        normal_name=normal_name,
+        input_type=args.input_type.strip(),
+        separator=args.input_chr_separator.strip(),
+        allele_columns=allele_columns,
+        total_copy_numbers=args.total_copy_numbers,
+        maxcn=args.maxcn)
+else:
+    logger.info("Reading and parsing input data.")
+    input_df = medicc.io.read_and_parse_input_data(
+        filename=args.input_file,
+        normal_name=normal_name,
+        input_type=args.input_type.strip(),
+        separator=args.input_chr_separator.strip(),
+        allele_columns=allele_columns,
+        total_copy_numbers=args.total_copy_numbers,
+        maxcn=args.maxcn)
 
 
 if args.filter_segment_length is not None:
@@ -313,14 +320,27 @@ if 'bars' in plotting:
     logger.info("Plotting copy-number profiles (bars).")
     if args.topology_only:
         raise ValueError('Cannot plot "bars" when --topology-only is set. Please change --plot option to "heatmap" or "none".')
-    p = medicc.plot.plot_cn_profiles(
-        output_df, 
-        input_tree=support_tree if support_tree is not None else final_tree,
-        title=output_prefix, 
-        normal_name=normal_name,
-        allele_columns=allele_columns,
-        show_branch_support=support_tree is not None,
-        label_func=None)
+    if args.ecdna_tsv:
+        p = medicc.plot.plot_cn_profiles(
+            output_df,
+            ecdna_cnp_df,
+            ecdna_position_df,
+            input_tree=support_tree if support_tree is not None else final_tree,
+            title=output_prefix,
+            normal_name=normal_name,
+            allele_columns=allele_columns,
+            show_branch_support=support_tree is not None,
+            label_func=None)
+    else:
+        p = medicc.plot.plot_cn_profiles(
+            output_df,
+            input_tree=support_tree if support_tree is not None else final_tree,
+            title=output_prefix,
+            normal_name=normal_name,
+            allele_columns=allele_columns,
+            show_branch_support=support_tree is not None,
+            label_func=None)
+
     p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles.pdf'), bbox_inches='tight')
 
 if 'heatmap' in plotting:

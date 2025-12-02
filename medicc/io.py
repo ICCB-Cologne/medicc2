@@ -13,7 +13,7 @@ matplotlib.use("Agg")
 logger = logging.getLogger(__name__)
 
 
-def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv', separator='X',
+def read_and_parse_input_data(filename, ecdna_position_df = None, normal_name='diploid', input_type='tsv', separator='X',
                               chrom_column='chrom', allele_columns=['cn_a', 'cn_b'], maxcn=8,
                               total_copy_numbers=False):
     
@@ -32,8 +32,12 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
         input_df = _read_fasta_as_dataframe(filename, separator=separator, allele_columns=allele_columns, maxcn=maxcn)
     elif input_type.lower() == "tsv" or input_type.lower() == 't':
         logger.info("Reading TSV input.")
-        input_df = _read_tsv_as_dataframe(
-            filename, allele_columns=allele_columns, maxcn=maxcn, chrom_column=chrom_column)
+        if ecdna_position_df is not None:
+            input_df, ecdna_cnp_df = _read_tsv_as_dataframe(
+                filename, ecdna_position_df=ecdna_position_df, allele_columns=allele_columns, maxcn=maxcn, chrom_column=chrom_column)
+        else:
+            input_df = _read_tsv_as_dataframe(
+                filename, ecdna_position_df=None, allele_columns=allele_columns, maxcn=maxcn, chrom_column=chrom_column)
     else:
         raise MEDICCIOError("Unknown input type, possible options are 'fasta' or 'tsv'.")
 
@@ -65,8 +69,10 @@ def read_and_parse_input_data(filename, normal_name='diploid', input_type='tsv',
     if total_gaps > 1e8:
         logger.warn(f"Total of {total_gaps:.1e} bp gaps in the segmentation. Large gaps might "
                     "affect the performance of MEDICC2.")
-
-    return input_df
+    if ecdna_position_df is not None:
+        return input_df, ecdna_cnp_df
+    else:
+        return  input_df
 
 
 def read_fst(user_fst=None, no_wgd=False, n_wgd=None, total_copy_numbers=False, wgd_x2=False,
@@ -119,7 +125,7 @@ def read_fst(user_fst=None, no_wgd=False, n_wgd=None, total_copy_numbers=False, 
 
 def read_and_parse_ecdna_regions(ecdna_tsv, chrom_column='chrom'):
     """Reads a tsv file with ecdna regions and returns a DataFrame."""
-    ecdna_df = pd.read_csv(ecdna_tsv, sep='\t', header=0, names=[chrom_column, 'start', 'end'])
+    ecdna_df = pd.read_csv(ecdna_tsv, sep='\t', header=0, names=[chrom_column, 'start', 'end', 'ecdna_chrom'])
     ecdna_df[chrom_column] = tools.format_chromosomes(ecdna_df[chrom_column])
     # ecdna_df.set_index([chrom_column, 'start', 'end'], inplace=True)
     ecdna_df.sort_index(inplace=True)
@@ -204,9 +210,17 @@ def filter_by_segment_length(input_df, filter_size):
     return input_df.loc[segment_length > float(filter_size)]
 
 
-def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8, chrom_column='chrom'):
+def _read_tsv_as_dataframe(path, ecdna_position_df = None, allele_columns=['cn_a','cn_b'], maxcn=8, chrom_column='chrom'):
     logger.info(f"Reading TSV file {path}")
     input_file = pd.read_csv(path, sep = "\t")
+
+    # Separate input_file into ecdna and non-ecdna regions if ecdna positions are provided
+    if ecdna_position_df is not None:
+        ecdna_ids = ecdna_position_df["ecdna_chrom"].unique()
+        logger.info(f"Separating ecdna regions from non-ecdna regions")
+        ecdna_regions = input_file[input_file["chrom"].isin(ecdna_ids)]
+        input_file = input_file[~input_file["chrom"].isin(ecdna_ids)]
+
     columnn_names = ['sample_id', chrom_column, 'start', 'end'] + allele_columns
     if len(np.setdiff1d(columnn_names, input_file.columns)) > 0:
         raise MEDICCIOError(f"TSV file needs the following columns: sample_id, chrom, start, end and the allele columns ({allele_columns})"
@@ -230,7 +244,11 @@ def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8, chrom_
     input_file.sort_index(inplace=True)
     input_file[allele_columns] = input_file[allele_columns].astype(str)
 
-    return input_file
+    if ecdna_position_df is not None:
+        return input_file, ecdna_regions
+    else:
+        return input_file
+
 
 
 def _read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns = ['cn_a','cn_b'], maxcn: int = 8):
