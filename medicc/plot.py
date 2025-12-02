@@ -73,7 +73,7 @@ def plot_cn_profiles(
         detailed_xticks=False,
         clonal_transparant=False,
         label_func=None):
-    
+
     df = input_df.copy()
     df[allele_columns] = df[allele_columns].astype(int)
     if ecdna_cnp_df is not None:
@@ -118,7 +118,7 @@ def plot_cn_profiles(
     if mincn=='auto':
         mincn = df[allele_columns].min().min()
     else:
-        mincn = int(mincn)        
+        mincn = int(mincn)
     if maxcn=='auto':
         maxcn = df[allele_columns].max().max()
     else:
@@ -172,9 +172,19 @@ def plot_cn_profiles(
 
         if ecdna_cnp_df is not None:
             # Calculate chromosome offset for regular CN segments
-            chrom_offset = df.loc[samples[0], :].reset_index().groupby('chrom', sort=False).max()['end']
-            chrom_offset.dropna(inplace=True)
-            chrom_offset.loc[:] = np.append(0, chrom_offset.cumsum().values[:-1])
+            cn_max_ends = df.loc[samples[0], :].reset_index().groupby('chrom', sort=False).max()['end']
+            if ecdna_position_df is not None and not ecdna_position_df.empty:
+                ecdna_max_ends = ecdna_position_df.groupby('chrom')['end'].max()
+
+                # Combine: take the larger end position for each chromosome
+                combined_max_ends = cn_max_ends.combine(ecdna_max_ends, max, fill_value=0)
+                # Ensure we keep the original chromosome order
+                final_chrom_lengths = combined_max_ends.reindex(cn_max_ends.index).fillna(cn_max_ends)
+            else:
+                final_chrom_lengths = cn_max_ends
+
+            x_max = final_chrom_lengths.sum()
+            chrom_offset = final_chrom_lengths.cumsum().shift(1).fillna(0)
             chrom_offset.name = 'offset'
             df = df.join(chrom_offset, on='chrom')
             df['start_pos'] = df['start'] + df['offset']
@@ -282,6 +292,7 @@ def plot_cn_profiles(
             for i in range(nrows):
                 cn_axes.append(fig.add_subplot(gs[i, 1]))
                 ecdna_axes.append(fig.add_subplot(gs[i, 2]))
+
         else:
             tree_ax = fig.add_subplot(gs[0:nsamp, 0])
             cn_axes = [fig.add_subplot(gs[i]) for i in range(1,(2*(nrows))+1,2)]
@@ -290,7 +301,7 @@ def plot_cn_profiles(
             input_tree, adjust=not hide_internal_nodes, normal_name=normal_name)
         y_posns = {clade.name: y_pos for clade, y_pos in y_posns.items(
             ) if clade.name is not None and clade.name != 'root'}
-        plot_tree(input_tree, 
+        plot_tree(input_tree,
                   ax=tree_ax,
                   title=title,
                   normal_name=normal_name,
@@ -300,7 +311,7 @@ def plot_cn_profiles(
                   show_events=show_events_in_tree,
                   show_branch_lengths=show_branch_lengths,
                   hide_internal_nodes=hide_internal_nodes)
-    
+
     # Adjust the margin between the tree and cn tracks. Default is 0
     fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=horizontal_margin_adjustment)
 
@@ -403,6 +414,9 @@ def plot_cn_profiles(
     cn_axes[-1].xaxis.set_tick_params(labelsize=XLABEL_TICK_SIZE)
     cn_axes[-1].xaxis.offsetText.set_fontsize(XLABEL_TICK_SIZE)
 
+    if ecdna_cnp_df is not None:
+        for ax in cn_axes:
+            ax.set_xlim(0.0, x_max)
     return fig
 
 def make_ecdna_colormap(vmin, vmax, cmap_name="plasma"):
@@ -471,7 +485,7 @@ def _plot_cn_profile(ax, label, data, mincn, maxcn, alleles,
 
     alpha = []
     for idx, r in data.iterrows():
-        lines_a.append([(r['start_pos'], r[alleles[0]]), 
+        lines_a.append([(r['start_pos'], r[alleles[0]]),
                         (r['end_pos'], r[alleles[0]])])
         if two_alleles:
             lines_b.append([(r['start_pos'], r[alleles[1]]), (r['end_pos'], r[alleles[1]])])
@@ -620,7 +634,7 @@ Coordinates are negative, and integers for tips.
 
     if tree.root.clades:
         calc_row(tree.root)
-        
+
     if adjust:
         pos = pd.DataFrame([(clade, val) for clade, val in heights.items()], columns=['clade','pos']).sort_values('pos')
         pos['newpos'] = 0
@@ -748,7 +762,7 @@ def plot_tree(input_tree,
                 clade_colors[sample] = COL_MARKER_INTERNAL
             if sample == normal_name:
                 clade_colors[sample] = COL_MARKER_NORMAL
-        
+
         def get_label_color(label):
             return clade_colors.get(label, "black")
 
@@ -783,7 +797,7 @@ def plot_tree(input_tree,
 
     if not branch_labels:
         if show_branch_lengths:
-            def format_branch_label(x): 
+            def format_branch_label(x):
                 return value_to_str(np.round(x.branch_length, 1)) if x.name != 'root' and x.name is not None else None
         else:
             def format_branch_label(clade):
@@ -1025,7 +1039,7 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, final_tree=None, y_posns=None, 
             cur_sample_labels = np.array([x.name for x in final_tree.get_terminals()])
 
         y_posns = {k.name:v for k, v in _get_y_positions(final_tree, adjust=show_internal_nodes, normal_name=normal_name).items()}
-        
+
         _ = plot_tree(final_tree, ax=tree_ax, normal_name=normal_name,
                       label_func=tree_label_func if tree_label_func is not None else lambda x: '',
                       hide_internal_nodes=(not show_internal_nodes), show_branch_lengths=False, show_events=False,
@@ -1036,7 +1050,7 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, final_tree=None, y_posns=None, 
         fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=100)
     cax = axs[-1]
 
-    gaps = (input_df.loc[cur_sample_labels[0]].eval('start') - 
+    gaps = (input_df.loc[cur_sample_labels[0]].eval('start') -
             np.roll(input_df.loc[cur_sample_labels[0]].eval('end'), 1)).values
     total_gaps = gaps[gaps>0].sum()
     if total_gaps > 1e8:
@@ -1072,7 +1086,7 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, final_tree=None, y_posns=None, 
 
         for _, line in chr_ends.items():
             ax.axvline(x_pos[line], color='black', linewidth=0.75)
-        
+
         xtick_pos = np.append([0], x_pos[chr_ends.values][:-1])
         xtick_pos = (xtick_pos + np.roll(xtick_pos, -1))/2
         xtick_pos[-1] += x_pos[-1]/2
@@ -1113,7 +1127,7 @@ def compute_cn_change(df, tree, normal_name='diploid'):
 
     Returns:
         pandas.DataFrame: DataFrame containing the copy-number changes
-    """    
+    """
     cn_change = df.copy()
     alleles = cn_change.columns
     for allele in alleles:
