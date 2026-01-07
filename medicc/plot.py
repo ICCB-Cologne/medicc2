@@ -139,6 +139,9 @@ def plot_cn_profiles(
     nsegs = df.loc[samples[0], :].groupby('chrom').size()
     if ecdna_cnp_df is not None:
         nsegs_ecdna = len(ecdna_position_df["ecdna_chrom"].unique())
+        # Canonical ecDNA column order (stable)
+        ecdna_order = list(ecdna_position_df["ecdna_chrom"].drop_duplicates())
+        ecdna_to_idx = {name: i for i, name in enumerate(ecdna_order)}
 
     # == 2 because of diploid
     if input_tree is None or normal_name is None or nsamp == 2:
@@ -207,7 +210,20 @@ def plot_cn_profiles(
             ecdna_position_df["triangle_pos"] = triangle_positions
 
             number_of_sample = ecdna_cnp_df["sample_id"].nunique()
-            ecdna_df["start_pos"] = np.array(list(range(0, nsegs_ecdna)) * number_of_sample)
+            # start_pos_l = [x for x in range(0, nsegs_ecdna) for _ in range(number_of_sample)] # [0, 1, 2] & 3 -> [0,0,0,1,1,1,2,2,2]
+            # ecdna_df["start_pos"] = np.array(start_pos_l)
+            # ecdna_df["end_pos"] = ecdna_df["start_pos"] + 1
+
+            # ecdna_df["chrom"] contains ecdna IDs like 'ecdna1', 'ecdna2' (based on your example)
+            ecdna_df["ecdna_idx"] = ecdna_df["chrom"].map(ecdna_to_idx)
+
+            # If something is unmapped, that's a data consistency issue
+            if ecdna_df["ecdna_idx"].isna().any():
+                missing = ecdna_df.loc[ecdna_df["ecdna_idx"].isna(), "chrom"].unique()
+                raise ValueError(f"ecdna_cnp_df contains ecDNA IDs not present in ecdna_position_df: {missing}")
+
+            # Use the fixed indices as x positions (so column identity is deterministic)
+            ecdna_df["start_pos"] = ecdna_df["ecdna_idx"].astype(int)
             ecdna_df["end_pos"] = ecdna_df["start_pos"] + 1
         else:
             chrom_offset = df.loc[samples[0],:].reset_index().groupby('chrom', sort=False).max()['end']
@@ -338,7 +354,7 @@ def plot_cn_profiles(
         index_to_plot = y_posns[sample] - 1
         if ecdna_cnp_df is not None:
             if sample in ecdna_df['sample_id'].values:
-                sample_rows = ecdna_df[ecdna_df['sample_id'] == sample]
+                sample_rows = ecdna_df[ecdna_df['sample_id'] == sample].sort_values("ecdna_idx")
                 cn_a_list = sample_rows['cn_a'].tolist()
                 cn_b_list = sample_rows['cn_b'].tolist()
 
@@ -375,11 +391,15 @@ def plot_cn_profiles(
                                    ecdna_positions=ecdna_positions,
                                    plot_yaxis_labels=False,  # Y-label is handled by the CN track
                                    yaxis_label_color=clade_colors[sample],
-                                   plot_xaxis_labels=plot_axis_labels)
+                                   plot_xaxis_labels=plot_axis_labels,
+                                   ecdna_order=ecdna_order)
 
     # === NOW draw ecDNA triangles (cn_axes[0] has correct xlim) ===
     if ecdna_cnp_df is not None:
         _plot_ecdna_triangles(cn_axes[0], ecdna_position_df, ecnda_segment_color_l)
+
+        # NEW: triangles above ecDNA heatmap columns
+        _plot_ecdna_heatmap_triangles(ecdna_axes[0], ecdna_position_df, ecnda_segment_color_l)
 
 
     if plot_clonal_summary:
@@ -507,9 +527,40 @@ def _plot_ecdna_triangles(ax, ecdna_position_df, color_list):
             clip_on=False,
         )
 
+def _plot_ecdna_heatmap_triangles(ax, ecdna_position_df, color_list, y_axes=1.15, s=40):
+    """
+    Draw one triangle ABOVE each ecDNA segment column on the ecDNA heatmap axis.
+    ATTENTION: This is not the same as _plot_ecdna_triangles, which draws triangles in the CN axes!
+
+    ax: an ecDNA axis (recommended: the top one, e.g., ecdna_axes[0])
+    ecdna_position_df must contain 'ecdna_chrom' (your ecDNA segment IDs, e.g. 'ecdna1').
+    color_list: list of colors, length >= nsegs_ecdna (you already have ecnda_segment_color_l)
+    """
+    # Segment order must match how ecdna_df is laid out:
+    # you used: unique order from ecdna_position_df["ecdna_chrom"].unique()
+    unique_ecdna = list(ecdna_position_df["ecdna_chrom"].unique())
+
+    # color map consistent with your CN-triangle mapping
+    color_map = {
+        name: color_list[i % len(color_list)]
+        for i, name in enumerate(unique_ecdna)
+    }
+
+    # place one triangle at the center of each column: x = i + 0.5
+    for i, name in enumerate(unique_ecdna):
+        ax.scatter(
+            i + 0.5,
+            y_axes,
+            marker="v",
+            s=s,
+            color=color_map[name],
+            transform=ax.get_xaxis_transform(),  # x=data, y=axes fraction
+            zorder=50,
+            clip_on=False,
+        )
 
 def _plot_ecdna_cn_profile(ax, label, cn_a_color, ecdna_positions, plot_yaxis_labels=True, yaxis_label_color='black',
-                           plot_xaxis_labels=True):
+                           plot_xaxis_labels=True, ecdna_order=None):
     """
     Plots the ecDNA copy number profile for one sample using solid rectangles.
 
@@ -559,8 +610,22 @@ def _plot_ecdna_cn_profile(ax, label, cn_a_color, ecdna_positions, plot_yaxis_la
         ax.set_xlabel('ecDNA', fontsize=XLABEL_FONT_SIZE)
         # Assuming one tick label per segment (0, 1, 2, ...)
         ax.set_xticks(np.arange(x_max_ecdna) + 0.5)  # Center the ticks
-        ax.set_xticklabels([f'e{i + 1}' for i in range(x_max_ecdna)],
-                           fontsize=XLABEL_TICK_SIZE, rotation=45, ha='right')
+        # ax.set_xticklabels([f'e{i + 1}' for i in range(x_max_ecdna)],
+        #                    fontsize=XLABEL_TICK_SIZE, rotation=45, ha='right')
+        if ecdna_order is not None:
+            ax.set_xticklabels(
+                ecdna_order,
+                fontsize=XLABEL_TICK_SIZE,
+                rotation=45,
+                ha='right'
+            )
+        else:
+            ax.set_xticklabels(
+                [f'e{i + 1}' for i in range(x_max_ecdna)],
+                fontsize=XLABEL_TICK_SIZE,
+                rotation=45,
+                ha='right'
+            )
     else:
         ax.set_xticks([])
         ax.set_xticklabels([])
