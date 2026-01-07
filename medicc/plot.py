@@ -1634,11 +1634,17 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, ecdna_position_df=None, final_t
                                 shading='flat')
 
             ecdna_cax.set_xticks([])
-            # Show only min and max ticks in log space
-            ecdna_cax.set_yticks([log_min, log_max])
+
+            # Calculate middle value and its log position to show non-linear scale
+            mid_ecdna_cn = int((min_ecdna_cn + max_ecdna_cn) / 2)
+            log_mid = math.log10(mid_ecdna_cn + 1.0)
+
+            # Show min, middle, and max ticks with original integer values
+            ecdna_cax.set_yticks([log_min, log_mid, log_max])
             ecdna_cax.set_yticklabels([
-                f"{log_min:.{ecdna_log_decimals}f}",
-                f"{log_max:.{ecdna_log_decimals}f}"
+                str(int(min_ecdna_cn)),
+                str(mid_ecdna_cn),
+                str(int(max_ecdna_cn))
             ], ha='left')
             ecdna_cax.set_ylim(log_min, log_max)
         else:
