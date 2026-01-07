@@ -1210,7 +1210,7 @@ def _compute_heatmap_triangle_positions(input_df, ecdna_position_df, cur_sample_
         x_pos: array of x positions in the heatmap (segment boundaries)
 
     Returns:
-        dict: mapping from ecDNA_chrom to x-position in plot coordinates
+        dict: mapping from ecDNA_chrom to list of x-positions in plot coordinates
     """
     # Get segments from the first sample (they should all have the same segments)
     first_sample = cur_sample_labels[0]
@@ -1222,46 +1222,54 @@ def _compute_heatmap_triangle_positions(input_df, ecdna_position_df, cur_sample_
     triangle_positions = {}
 
     for ecdna_name, group in ecdna_groups:
-        # Get the chromosome and position range for this ecDNA group
-        chrom = group['chrom'].iloc[0]  # All segments in a group should be from same chromosome
-        min_start = group['start'].min()
-        max_end = group['end'].max()
+        # ecDNA segments may span multiple chromosomes, so group by chromosome
+        positions_for_this_ecdna = []
 
-        # Find segments on this chromosome
-        chrom_mask = segments_df['chrom'] == chrom
-        chrom_segments = segments_df[chrom_mask].reset_index(drop=True)
+        for chrom in group['chrom'].unique():
+            chrom_group = group[group['chrom'] == chrom]
+            min_start = chrom_group['start'].min()
+            max_end = chrom_group['end'].max()
 
-        if len(chrom_segments) == 0:
-            continue
+            # Find segments on this chromosome
+            # Use str() to handle categorical comparison issues
+            chrom_mask = segments_df['chrom'].astype(str) == str(chrom)
+            chrom_segments = segments_df[chrom_mask].reset_index(drop=True)
 
-        # Find which gap this ecDNA falls into
-        # Get the global index of the first segment in this chromosome
-        # Count how many segments come before this chromosome
-        chrom_start_idx = 0
-        for idx, row in segments_df.iterrows():
-            if row['chrom'] == chrom:
-                break
-            chrom_start_idx += 1
+            if len(chrom_segments) == 0:
+                continue
 
-        # Check each segment boundary
-        for local_idx in range(len(chrom_segments)):
-            seg_end = chrom_segments.loc[local_idx, 'end']
-
-            # Check if ecDNA starts after this segment ends
-            if local_idx < len(chrom_segments) - 1:
-                next_seg_start = chrom_segments.loc[local_idx + 1, 'start']
-
-                # If ecDNA falls in the gap between seg_end and next_seg_start
-                if seg_end <= min_start < next_seg_start:
-                    # The triangle should be at the boundary between segments
-                    # Global segment index
-                    global_idx = chrom_start_idx + local_idx + 1
-
-                    # x_pos[global_idx] is the x-coordinate of this boundary
-                    if global_idx < len(x_pos):
-                        triangle_positions[ecdna_name] = x_pos[global_idx]
-
+            # Find which gap this ecDNA falls into
+            # Get the global index of the first segment in this chromosome
+            # Count how many segments come before this chromosome
+            chrom_start_idx = 0
+            for idx, row in segments_df.iterrows():
+                if str(row['chrom']) == str(chrom):
                     break
+                chrom_start_idx += 1
+
+            # Check each segment boundary
+            for local_idx in range(len(chrom_segments)):
+                seg_end = chrom_segments.loc[local_idx, 'end']
+
+                # Check if ecDNA starts after this segment ends
+                if local_idx < len(chrom_segments) - 1:
+                    next_seg_start = chrom_segments.loc[local_idx + 1, 'start']
+
+                    # If ecDNA falls in the gap between seg_end and next_seg_start
+                    if seg_end <= min_start < next_seg_start:
+                        # The triangle should be at the boundary between segments
+                        # Global segment index
+                        global_idx = chrom_start_idx + local_idx + 1
+
+                        # x_pos[global_idx] is the x-coordinate of this boundary
+                        if global_idx < len(x_pos):
+                            positions_for_this_ecdna.append(x_pos[global_idx])
+
+                        break
+
+        # Store all positions for this ecDNA (could be multiple if spanning chromosomes)
+        if positions_for_this_ecdna:
+            triangle_positions[ecdna_name] = positions_for_this_ecdna
 
     return triangle_positions
 
@@ -1557,20 +1565,22 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, ecdna_position_df=None, final_t
         }
 
         # Draw triangles on the first CN axis (usually cn_a or major)
-        for ecdna_name, plot_x in triangle_positions_dict.items():
+        for ecdna_name, plot_x_list in triangle_positions_dict.items():
             if ecdna_name in color_map:
                 color = color_map[ecdna_name]
 
-                cn_axes[0].scatter(
-                    plot_x,
-                    1.01,  # Above the axis (matching _plot_ecdna_triangles)
-                    marker='v',
-                    s=40,
-                    color=color,
-                    transform=cn_axes[0].get_xaxis_transform(),
-                    zorder=50,
-                    clip_on=False,
-                )
+                # plot_x_list is now a list of positions (could be multiple per ecDNA)
+                for plot_x in plot_x_list:
+                    cn_axes[0].scatter(
+                        plot_x,
+                        1.01,  # Above the axis (matching _plot_ecdna_triangles)
+                        marker='v',
+                        s=40,
+                        color=color,
+                        transform=cn_axes[0].get_xaxis_transform(),
+                        zorder=50,
+                        clip_on=False,
+                    )
 
     cax.pcolormesh([0, 1],
                    np.arange(0, cmax+2),
