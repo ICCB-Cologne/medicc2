@@ -98,7 +98,8 @@ def main(input_df,
         if ecdna_cnp_df is not None:
             ecdna_cnp_df = medicc.ancestors.reconstruct_ecdna_ancestors(tree=final_tree,
                                                                         ecdna_cnp_df=ecdna_cnp_df,
-                                                                        normal_name=normal_name)
+                                                                        normal_name=normal_name,
+                                                                        allele_columns=allele_columns)
 
         ## Create and write output data frame with ancestors
         logger.info("Creating output copynumbers.")

@@ -214,18 +214,19 @@ def _read_tsv_as_dataframe(path, ecdna_position_df = None, allele_columns=['cn_a
     logger.info(f"Reading TSV file {path}")
     input_file = pd.read_csv(path, sep = "\t")
 
+    columnn_names = ['sample_id', chrom_column, 'start', 'end'] + allele_columns
+    if len(np.setdiff1d(columnn_names, input_file.columns)) > 0:
+        raise MEDICCIOError(f"TSV file needs the following columns: sample_id, chrom, start, end and the allele columns ({allele_columns})"
+                            "\nMissing columns are: {}".format(
+                                np.setdiff1d(columnn_names, input_file.columns)))
+
     # Separate input_file into ecdna and non-ecdna regions if ecdna positions are provided
     if ecdna_position_df is not None:
         ecdna_ids = ecdna_position_df["ecdna_chrom"].unique()
         logger.info(f"Separating ecdna regions from non-ecdna regions")
         ecdna_regions = input_file[input_file["chrom"].isin(ecdna_ids)]
         input_file = input_file[~input_file["chrom"].isin(ecdna_ids)]
-
-    columnn_names = ['sample_id', chrom_column, 'start', 'end'] + allele_columns
-    if len(np.setdiff1d(columnn_names, input_file.columns)) > 0:
-        raise MEDICCIOError(f"TSV file needs the following columns: sample_id, chrom, start, end and the allele columns ({allele_columns})"
-                            "\nMissing columns are: {}".format(
-                                np.setdiff1d(columnn_names, input_file.columns)))
+        ecdna_regions = ecdna_regions[columnn_names]
 
     logger.info(f"Successfully read input file. Using columns: {', '.join(columnn_names)}")
     input_file = input_file[columnn_names]

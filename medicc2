@@ -200,14 +200,26 @@ if args.ecdna_tsv is not None:
         ecdna_sample_id_0 = ecdna_cnp_df["sample_id"].values[0]
         ecdna_df_sample_id_0 = ecdna_cnp_df[ecdna_cnp_df["sample_id"] == ecdna_sample_id_0]
         nseg = ecdna_df_sample_id_0.shape[0]
-        normal_ecdna_rows = pd.DataFrame({
+
+        # Reconstruct column names
+        column_names = ["sample_id", "chrom", "start", "end"] + allele_columns
+
+        diploid_ecnda_d = {
             "sample_id": [normal_name] * nseg,
             "chrom": ecdna_df_sample_id_0["chrom"].values,
             "start": ecdna_df_sample_id_0["start"].values,
             "end": ecdna_df_sample_id_0["end"].values,
-            "cn_a": [2] * nseg,
-            "cn_b": [0] * nseg
-        })
+        }
+
+        for i, allele in enumerate(allele_columns):
+            if i == 0:
+                diploid_ecnda_d[allele] = [2] * nseg
+            else:
+                diploid_ecnda_d[allele] = [0] * nseg
+
+        normal_ecdna_rows = pd.DataFrame(
+            diploid_ecnda_d
+        )
         ecdna_cnp_df = pd.concat([ecdna_cnp_df, normal_ecdna_rows], ignore_index=True)
 else:
     logger.info("Reading and parsing input data.")
