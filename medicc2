@@ -398,7 +398,9 @@ if 'heatmap' in plotting:
             ecdna_position_df=ecdna_position_df,
             final_tree=support_tree if support_tree is not None else final_tree,
             alleles=allele_columns, normal_name=normal_name,
-            total_copy_numbers=args.total_copy_numbers)
+            total_copy_numbers=args.total_copy_numbers,
+            ecdna_log_scale=True,
+            ecdna_log_decimals=2)
     else:
         p = medicc.plot.plot_cn_heatmap(
             output_df,

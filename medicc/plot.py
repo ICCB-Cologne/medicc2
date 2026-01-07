@@ -478,15 +478,49 @@ def plot_cn_profiles(
         # No need for shrink or pad when using cax, it fills the axis
     return fig
 
-def make_ecdna_colormap(vmin, vmax, cmap_name="plasma"):
+def make_ecdna_colormap(vmin, vmax, cmap_name="plasma", scale="linear", offset=1.0):
     """
     Create a normalization + colormap for ecDNA values
+
+    Args:
+        vmin (float): minimum raw ecDNA value
+        vmax (float): maximum raw ecDNA value
+        cmap_name (str): matplotlib colormap name
+        scale (str): "linear" or "log" (log uses value -> log(value + offset))
+        offset (float): value added to raw ecDNA values before log; helps handle zeros
 
     Returns:
         norm: maps values -> [0 .. 1]
         cmap: callable colormap (value in [0, 1] -> RGBA color)
     """
-    norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+    if scale not in ("linear", "log"):
+        raise ValueError("scale must be 'linear' or 'log'")
+
+    if scale == "linear":
+        norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+    else:
+        # Create a custom Normalize that accepts raw values and applies log internally
+        class OffsetLogNorm(mpl.colors.Normalize):
+            def __init__(self, vmin, vmax, offset, clip=False):
+                super().__init__(vmin=vmin, vmax=vmax, clip=clip)
+                self.offset = float(offset)
+                # Ensure positive domain for LogNorm
+                self._log_vmin = max((vmin or 0.0) + self.offset, 1e-12)
+                self._log_vmax = max((vmax or self._log_vmin) + self.offset, self._log_vmin * 10.0)
+                self._inner = mpl.colors.LogNorm(vmin=self._log_vmin, vmax=self._log_vmax)
+
+            def __call__(self, value, clip=None):
+                # Work with numpy arrays so broadcasting works
+                val = np.array(value, copy=False)
+                # Add offset and pass to the internal LogNorm
+                return self._inner(val + self.offset)
+
+            def inverse(self, value):
+                inv = self._inner.inverse(value)
+                return inv - self.offset
+
+        norm = OffsetLogNorm(vmin=vmin, vmax=vmax, offset=offset)
+
     cmap = mpl.cm.get_cmap(cmap_name) # e.g. 'plasma', 'viridis', "inferno", etc.
     return norm, cmap
 
@@ -1326,7 +1360,8 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, ecdna_position_df=None, final_t
                     alleles=['cn_a', 'cn_b'], tree_width_ratio=1, cbar_width_ratio=0.05, figsize=(20, 10),
                     tree_line_width=0.5, tree_marker_size=0, show_internal_nodes=False, title='',
                     tree_label_colors=None, tree_label_func=None, cmap='coolwarm', normal_name='diploid',
-                    ignore_segment_lengths=False, ecdna_cbar_width_ratio=0.05):
+                    ignore_segment_lengths=False, ecdna_cbar_width_ratio=0.05,
+                    ecdna_log_scale=False, ecdna_log_decimals=2):
 
     input_df = input_df[alleles].copy()
     # if len(np.intersect1d(cur_sample_labels, input_df.index.get_level_values('sample_id').unique())) != len(cur_sample_labels):
@@ -1351,12 +1386,28 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, ecdna_position_df=None, final_t
         min_ecdna_cn = ecdna_df[alleles[0]].min()
         max_ecdna_cn = ecdna_df[alleles[0]].max()
 
-        # Create ecDNA colormap
-        ecdna_color_norm, ecdna_color_map = make_ecdna_colormap(
-            vmin=min_ecdna_cn,
-            vmax=max_ecdna_cn,
-            cmap_name="plasma"
-        )
+        # Create ecDNA colormap with optional log scale
+        if ecdna_log_scale:
+            ecdna_color_norm, ecdna_color_map = make_ecdna_colormap(
+                vmin=min_ecdna_cn,
+                vmax=max_ecdna_cn,
+                cmap_name="plasma",
+                scale="log",
+                offset=1.0
+            )
+            # Create custom formatter for colorbar ticks
+            def log_tick_formatter(x, pos):
+                # x is the normalized value from the colorbar
+                # Use the inverse transform to get back to original scale
+                val = ecdna_color_norm.inverse(x)
+                return f"{val:.{ecdna_log_decimals}f}"
+        else:
+            ecdna_color_norm, ecdna_color_map = make_ecdna_colormap(
+                vmin=min_ecdna_cn,
+                vmax=max_ecdna_cn,
+                cmap_name="plasma"
+            )
+            log_tick_formatter = None
 
         # Colors for triangles (segment identity)
         ecnda_segment_color_l = plt.cm.tab20(np.linspace(0, 1, nsegs_ecdna))
@@ -1555,18 +1606,56 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, ecdna_position_df=None, final_t
         _plot_ecdna_heatmap_triangles(ecdna_ax, ecdna_position_df, ecnda_segment_color_l, y_axes=1.01)
 
         # Create ecDNA colorbar
-        ecdna_cax.pcolormesh([0, 1],
-                            np.arange(int(min_ecdna_cn), int(max_ecdna_cn)+2),
-                            np.arange(int(min_ecdna_cn), int(max_ecdna_cn)+1)[:, np.newaxis],
-                            cmap="plasma",
-                            norm=ecdna_color_norm)
+        if ecdna_log_scale:
+            # For log scale, calculate log-transformed values for display
+            # The offset is 1.0, so log10(min_ecdna_cn + 1) and log10(max_ecdna_cn + 1)
+            import math
+            log_min = math.log10(min_ecdna_cn + 1.0)
+            log_max = math.log10(max_ecdna_cn + 1.0)
 
-        ecdna_cax.set_xticks([])
-        # Show only min and max ticks
-        ecdna_cax.set_yticks([int(min_ecdna_cn)+0.5, int(max_ecdna_cn)+0.5])
-        ecdna_cax.set_yticklabels([int(min_ecdna_cn), int(max_ecdna_cn)], ha='left')
+            # Create a gradient from log_min to log_max
+            # We need to map the original CN values through the log norm
+            n_steps = 256  # Number of color steps for smooth gradient
+            log_values = np.linspace(log_min, log_max, n_steps)
+            # Convert back to original scale for the norm
+            cn_values = np.power(10, log_values) - 1.0
+
+            # Create the colorbar using pcolormesh
+            # Y values go from log_min to log_max
+            y_edges = np.linspace(log_min, log_max, n_steps + 1)
+            # Create a 2D array where each row has a single CN value
+            color_array = cn_values[:, np.newaxis]
+
+            ecdna_cax.pcolormesh([0, 1],
+                                y_edges,
+                                color_array,
+                                cmap="plasma",
+                                norm=ecdna_color_norm,
+                                shading='flat')
+
+            ecdna_cax.set_xticks([])
+            # Show only min and max ticks in log space
+            ecdna_cax.set_yticks([log_min, log_max])
+            ecdna_cax.set_yticklabels([
+                f"{log_min:.{ecdna_log_decimals}f}",
+                f"{log_max:.{ecdna_log_decimals}f}"
+            ], ha='left')
+            ecdna_cax.set_ylim(log_min, log_max)
+        else:
+            # Original linear colorbar
+            ecdna_cax.pcolormesh([0, 1],
+                                np.arange(int(min_ecdna_cn), int(max_ecdna_cn)+2),
+                                np.arange(int(min_ecdna_cn), int(max_ecdna_cn)+1)[:, np.newaxis],
+                                cmap="plasma",
+                                norm=ecdna_color_norm)
+
+            ecdna_cax.set_xticks([])
+            # Show only min and max ticks
+            ecdna_cax.set_yticks([int(min_ecdna_cn)+0.5, int(max_ecdna_cn)+0.5])
+            ecdna_cax.set_yticklabels([int(min_ecdna_cn), int(max_ecdna_cn)], ha='left')
+            ecdna_cax.set_ylim(int(min_ecdna_cn), int(max_ecdna_cn)+1)
+
         ecdna_cax.yaxis.set_tick_params(left=False, labelleft=False, labelright=True)
-        ecdna_cax.set_ylim(int(min_ecdna_cn), int(max_ecdna_cn)+1)
 
         # Set y-limits for all axes including ecDNA
         for ax in [*cn_axes, ecdna_ax]:
