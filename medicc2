@@ -391,11 +391,20 @@ if 'bars' in plotting:
 
 if 'heatmap' in plotting:
     logger.info("Plotting copy-number profiles (heatmap).")
-    p = medicc.plot.plot_cn_heatmap(
-        output_df, 
-        final_tree=support_tree if support_tree is not None else final_tree,
-        alleles=allele_columns, normal_name=normal_name,
-        total_copy_numbers=args.total_copy_numbers)
+    if args.ecdna_tsv:
+        p = medicc.plot.plot_cn_heatmap(
+            output_df,
+            ecdna_cnp_df=ecdna_cnp_df,
+            ecdna_position_df=ecdna_position_df,
+            final_tree=support_tree if support_tree is not None else final_tree,
+            alleles=allele_columns, normal_name=normal_name,
+            total_copy_numbers=args.total_copy_numbers)
+    else:
+        p = medicc.plot.plot_cn_heatmap(
+            output_df,
+            final_tree=support_tree if support_tree is not None else final_tree,
+            alleles=allele_columns, normal_name=normal_name,
+            total_copy_numbers=args.total_copy_numbers)
     p.savefig(os.path.join(output_dir, output_prefix + '_cn_profiles_heatmap.pdf'), bbox_inches='tight')
 
 if 'none' in plotting:

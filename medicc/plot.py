@@ -1162,11 +1162,171 @@ def plot_tree(input_tree,
     return plt.gcf()
 
 
-def plot_cn_heatmap(input_df, ecdna_cnp_df=None, final_tree=None, y_posns=None, cmax=None, total_copy_numbers=False,
+def _compute_heatmap_triangle_positions(input_df, ecdna_position_df, cur_sample_labels, x_pos):
+    """
+    Compute the x-positions for triangles in the CN heatmap to indicate ecDNA locations.
+
+    For each unique ecDNA (e.g., NB05_ecDNA1), find the genomic gap it falls into
+    and return the x-position in heatmap coordinates.
+
+    Args:
+        input_df: DataFrame with CN segments (must have 'chrom', 'start', 'end')
+        ecdna_position_df: DataFrame with ecDNA genomic positions
+        cur_sample_labels: list of sample names
+        x_pos: array of x positions in the heatmap (segment boundaries)
+
+    Returns:
+        dict: mapping from ecDNA_chrom to x-position in plot coordinates
+    """
+    # Get segments from the first sample (they should all have the same segments)
+    first_sample = cur_sample_labels[0]
+    segments_df = input_df.loc[first_sample].reset_index()[['chrom', 'start', 'end']]
+
+    # Group ecDNA segments by ecdna_chrom
+    ecdna_groups = ecdna_position_df.groupby('ecdna_chrom')
+
+    triangle_positions = {}
+
+    for ecdna_name, group in ecdna_groups:
+        # Get the chromosome and position range for this ecDNA group
+        chrom = group['chrom'].iloc[0]  # All segments in a group should be from same chromosome
+        min_start = group['start'].min()
+        max_end = group['end'].max()
+
+        # Find segments on this chromosome
+        chrom_mask = segments_df['chrom'] == chrom
+        chrom_segments = segments_df[chrom_mask].reset_index(drop=True)
+
+        if len(chrom_segments) == 0:
+            continue
+
+        # Find which gap this ecDNA falls into
+        # Get the global index of the first segment in this chromosome
+        # Count how many segments come before this chromosome
+        chrom_start_idx = 0
+        for idx, row in segments_df.iterrows():
+            if row['chrom'] == chrom:
+                break
+            chrom_start_idx += 1
+
+        # Check each segment boundary
+        for local_idx in range(len(chrom_segments)):
+            seg_end = chrom_segments.loc[local_idx, 'end']
+
+            # Check if ecDNA starts after this segment ends
+            if local_idx < len(chrom_segments) - 1:
+                next_seg_start = chrom_segments.loc[local_idx + 1, 'start']
+
+                # If ecDNA falls in the gap between seg_end and next_seg_start
+                if seg_end <= min_start < next_seg_start:
+                    # The triangle should be at the boundary between segments
+                    # Global segment index
+                    global_idx = chrom_start_idx + local_idx + 1
+
+                    # x_pos[global_idx] is the x-coordinate of this boundary
+                    if global_idx < len(x_pos):
+                        triangle_positions[ecdna_name] = x_pos[global_idx]
+
+                    break
+
+    return triangle_positions
+
+
+def _plot_ecdna_heatmap_bars(ax, ecdna_df, cur_sample_labels, y_posns, ecdna_order,
+                             ecdna_color_norm, ecdna_color_map, ecdna_position_df, color_list, alleles):
+    """
+    Plot ecDNA copy numbers as colored bars for each sample (similar to _plot_ecdna_cn_profile but arranged as rows).
+    Each sample gets a row of colored rectangles, one per ecDNA segment.
+
+    Args:
+        ax: matplotlib axis to plot on
+        ecdna_df: DataFrame with ecDNA copy numbers (must have 'sample_id', 'chrom' as ecDNA IDs, and CN columns)
+        cur_sample_labels: ordered list of sample names
+        y_posns: dictionary mapping sample names to y positions
+        ecdna_order: ordered list of ecDNA segment IDs
+        ecdna_color_norm: normalization for ecDNA colors
+        ecdna_color_map: colormap for ecDNA
+        ecdna_position_df: DataFrame with ecDNA position information for triangles
+        color_list: list of colors for the triangles (tab20 colors for segment identity)
+        alleles: list of allele column names (e.g., ['cn_a', 'cn_b'] or ['major', 'minor'])
+    """
+    # Sort samples by y_posns
+    ind = [y_posns.get(x, -1) for x in cur_sample_labels]
+    sorted_sample_labels = cur_sample_labels[np.argsort(ind)]
+
+    nsamples = len(sorted_sample_labels)
+    nsegs_ecdna = len(ecdna_order)
+
+    # Map ecDNA IDs to column indices
+    ecdna_to_idx = {name: i for i, name in enumerate(ecdna_order)}
+
+    rectangles = []
+
+    # For each sample, draw colored rectangles
+    for sample_idx, sample in enumerate(sorted_sample_labels):
+        # Y position for this sample (inverted: 0 at top)
+        y_bottom = sample_idx + 0.5
+        y_top = sample_idx + 1.5
+
+        # Get ecDNA data for this sample
+        if sample in ecdna_df['sample_id'].values:
+            sample_data = ecdna_df[ecdna_df['sample_id'] == sample]
+
+            for _, row in sample_data.iterrows():
+                ecdna_id = row['chrom']
+                if ecdna_id in ecdna_to_idx:
+                    col_idx = ecdna_to_idx[ecdna_id]
+                    cn_value = row[alleles[0]]  # Use first allele column name
+
+                    # Get color based on CN value
+                    color = ecdna_color_map(ecdna_color_norm(cn_value))
+
+                    # Draw rectangle for this ecDNA segment
+                    rect = mpl.patches.Rectangle(
+                        (col_idx, y_bottom),
+                        width=1,
+                        height=1,
+                        facecolor=color,
+                        edgecolor='none',
+                        zorder=3
+                    )
+                    rectangles.append(rect)
+        else:
+            # No data: draw black rectangles
+            for col_idx in range(nsegs_ecdna):
+                rect = mpl.patches.Rectangle(
+                    (col_idx, y_bottom),
+                    width=1,
+                    height=1,
+                    facecolor=NO_DATA_ECDNA_COLOR,
+                    edgecolor='none',
+                    zorder=3
+                )
+                rectangles.append(rect)
+
+    # Add all rectangles to the axis
+    ax.add_collection(mpl.collections.PatchCollection(rectangles, match_original=True))
+
+
+    # Set x-axis labels (at bottom with short e1, e2, ... format)
+    ax.set_xticks(np.arange(nsegs_ecdna) + 0.5)
+    # Create short labels: e1, e2, e3, ...
+    short_labels = [f'e{i+1}' for i in range(nsegs_ecdna)]
+    ax.set_xticklabels(short_labels, ha='center', rotation=0, va='top')
+    ax.tick_params(width=0)
+    ax.xaxis.set_tick_params(labelbottom=True, labeltop=False, bottom=False)
+    ax.set_yticks([])
+
+    # Set limits
+    ax.set_xlim(0, nsegs_ecdna)
+    ax.set_ylim(nsamples + 0.5, 0.5)
+
+
+def plot_cn_heatmap(input_df, ecdna_cnp_df=None, ecdna_position_df=None, final_tree=None, y_posns=None, cmax=None, total_copy_numbers=False,
                     alleles=['cn_a', 'cn_b'], tree_width_ratio=1, cbar_width_ratio=0.05, figsize=(20, 10),
                     tree_line_width=0.5, tree_marker_size=0, show_internal_nodes=False, title='',
                     tree_label_colors=None, tree_label_func=None, cmap='coolwarm', normal_name='diploid',
-                    ignore_segment_lengths=False):
+                    ignore_segment_lengths=False, ecdna_cbar_width_ratio=0.05):
 
     input_df = input_df[alleles].copy()
     # if len(np.intersect1d(cur_sample_labels, input_df.index.get_level_values('sample_id').unique())) != len(cur_sample_labels):
@@ -1179,9 +1339,43 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, final_tree=None, y_posns=None, 
     if cmax is None:
         cmax = np.max(input_df[alleles].values.astype(int))
 
+    # Process ecDNA data if provided
+    ecdna_ax = None
+    ecdna_cax = None
+    if ecdna_cnp_df is not None and ecdna_position_df is not None:
+        ecdna_df = ecdna_cnp_df.copy()
+        nsegs_ecdna = len(ecdna_position_df["ecdna_chrom"].unique())
+        ecdna_order = list(ecdna_position_df["ecdna_chrom"].drop_duplicates())
+
+        # Determine ecDNA CN range for colormap
+        min_ecdna_cn = ecdna_df[alleles[0]].min()
+        max_ecdna_cn = ecdna_df[alleles[0]].max()
+
+        # Create ecDNA colormap
+        ecdna_color_norm, ecdna_color_map = make_ecdna_colormap(
+            vmin=min_ecdna_cn,
+            vmax=max_ecdna_cn,
+            cmap_name="plasma"
+        )
+
+        # Colors for triangles (segment identity)
+        ecnda_segment_color_l = plt.cm.tab20(np.linspace(0, 1, nsegs_ecdna))
+
     if final_tree is None:
-        fig, axs = plt.subplots(figsize=figsize, ncols=1+nr_alleles, sharey=False,
-                                gridspec_kw={'width_ratios': nr_alleles*[1] + [cbar_width_ratio]})
+        if ecdna_cnp_df is None or ecdna_position_df is None:
+            # Original: CN heatmap(s) + colorbar
+            fig, axs = plt.subplots(figsize=figsize, ncols=1+nr_alleles, sharey=False,
+                                    gridspec_kw={'width_ratios': nr_alleles*[1] + [cbar_width_ratio]})
+            cn_axes = axs[:-1]
+            cax = axs[-1]
+        else:
+            # New: CN heatmap(s) + CN colorbar + ecDNA heatmap + ecDNA colorbar
+            fig, axs = plt.subplots(figsize=figsize, ncols=3+nr_alleles, sharey=False,
+                                    gridspec_kw={'width_ratios': nr_alleles*[1] + [cbar_width_ratio] + [1] + [ecdna_cbar_width_ratio]})
+            cn_axes = axs[:nr_alleles]
+            cax = axs[nr_alleles]
+            ecdna_ax = axs[nr_alleles+1]
+            ecdna_cax = axs[-1]
 
         cur_sample_labels = (input_df.index.get_level_values('sample_id').unique())
         if not show_internal_nodes:
@@ -1189,14 +1383,50 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, final_tree=None, y_posns=None, 
         if y_posns is None:
             y_posns = {s: i for i, s in enumerate(cur_sample_labels)}
 
-        cn_axes = axs[:-1]
         cn_axes[0].set_title(title, x=0, y=1, ha='left', va='bottom', pad=20,
                              fontweight='bold', fontsize=16, zorder=10)
     else:
-        fig, axs = plt.subplots(figsize=figsize, ncols=2+nr_alleles, sharey=False,
-                                gridspec_kw={'width_ratios': [tree_width_ratio] + nr_alleles*[1] + [cbar_width_ratio]})
-        tree_ax = axs[0]
-        cn_axes = axs[1:-1]
+        if ecdna_cnp_df is None or ecdna_position_df is None:
+            # Original: tree + CN heatmap(s) + colorbar
+            fig, axs = plt.subplots(figsize=figsize, ncols=2+nr_alleles, sharey=False,
+                                    gridspec_kw={'width_ratios': [tree_width_ratio] + nr_alleles*[1] + [cbar_width_ratio]})
+            tree_ax = axs[0]
+            cn_axes = axs[1:-1]
+            cax = axs[-1]
+        else:
+            # New: tree + CN heatmap(s) + ecDNA heatmap + CN colorbar + ecDNA colorbar
+            # Calculate relative widths similar to plot_cn_profiles
+            nsegs_cn = len(input_df.loc[input_df.index.get_level_values('sample_id').unique()[0]])
+
+            # Width calculation
+            cn_heatmap_width = nsegs_cn * 0.2
+            ecdna_heatmap_width = nsegs_ecdna * 0.2
+
+            total_content_width = tree_width_ratio + cn_heatmap_width + ecdna_heatmap_width
+
+            # Normalize ratios
+            tree_ratio = tree_width_ratio / total_content_width
+            cn_ratio = cn_heatmap_width / total_content_width
+            ecdna_ratio = ecdna_heatmap_width / total_content_width
+
+            # Adjust for colorbars
+            total_ratio = tree_ratio + cn_ratio + ecdna_ratio + cbar_width_ratio + ecdna_cbar_width_ratio
+            tree_ratio = tree_ratio / total_ratio
+            cn_ratio = cn_ratio / total_ratio
+            ecdna_ratio = ecdna_ratio / total_ratio
+            cbar_ratio = cbar_width_ratio / total_ratio
+            ecdna_cbar_ratio = ecdna_cbar_width_ratio / total_ratio
+
+            # Create subplots: tree | CN heatmap(s) | CN colorbar | ecDNA heatmap | ecDNA colorbar
+            width_ratios = [tree_ratio] + [cn_ratio / nr_alleles] * nr_alleles + [cbar_ratio, ecdna_ratio, ecdna_cbar_ratio]
+
+            fig, axs = plt.subplots(figsize=figsize, ncols=4+nr_alleles, sharey=False,
+                                    gridspec_kw={'width_ratios': width_ratios})
+            tree_ax = axs[0]
+            cn_axes = axs[1:1+nr_alleles]
+            cax = axs[1+nr_alleles]
+            ecdna_ax = axs[1+nr_alleles+1]
+            ecdna_cax = axs[-1]
 
         if show_internal_nodes:
             cur_sample_labels = np.array([x.name for x in list(final_tree.find_clades()) if x.name is not None])
@@ -1213,7 +1443,6 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, final_tree=None, y_posns=None, 
         tree_ax.set_axis_off()
         tree_ax.set_axis_off()
         fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0.0, wspace=100)
-    cax = axs[-1]
 
     gaps = (input_df.loc[cur_sample_labels[0]].eval('start') -
             np.roll(input_df.loc[cur_sample_labels[0]].eval('end'), 1)).values
@@ -1261,6 +1490,37 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, final_tree=None, y_posns=None, 
         ax.xaxis.set_tick_params(labelbottom=False, labeltop=True, bottom=False)
         ax.set_yticks([])
 
+    # Draw ecDNA triangles on CN heatmap if ecDNA data is provided
+    if ecdna_cnp_df is not None and ecdna_position_df is not None:
+        # Compute triangle positions
+        triangle_positions_dict = _compute_heatmap_triangle_positions(
+            input_df, ecdna_position_df, cur_sample_labels, x_pos
+        )
+
+        # Get colors for triangles (same as ecDNA heatmap columns)
+        unique_ecdna = ecdna_position_df["ecdna_chrom"].unique()
+        triangle_color_list = plt.cm.tab20(np.linspace(0, 1, len(unique_ecdna)))
+        color_map = {
+            name: triangle_color_list[i % len(triangle_color_list)]
+            for i, name in enumerate(unique_ecdna)
+        }
+
+        # Draw triangles on the first CN axis (usually cn_a or major)
+        for ecdna_name, plot_x in triangle_positions_dict.items():
+            if ecdna_name in color_map:
+                color = color_map[ecdna_name]
+
+                cn_axes[0].scatter(
+                    plot_x,
+                    1.01,  # Above the axis (matching _plot_ecdna_triangles)
+                    marker='v',
+                    s=40,
+                    color=color,
+                    transform=cn_axes[0].get_xaxis_transform(),
+                    zorder=50,
+                    clip_on=False,
+                )
+
     cax.pcolormesh([0, 1],
                    np.arange(0, cmax+2),
                    np.arange(0, cmax+1)[:, np.newaxis],
@@ -1276,8 +1536,45 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, final_tree=None, y_posns=None, 
         cax.set_yticklabels(np.arange(0, cmax+1), ha='left')
     cax.yaxis.set_tick_params(left=False, labelleft=False, labelright=True)
 
-    for ax in axs[:-1]:
-        ax.set_ylim(len(cur_sample_labels)+0.5, 0.5)
+    # Plot ecDNA heatmap if data is provided
+    if ecdna_cnp_df is not None and ecdna_position_df is not None and ecdna_ax is not None:
+        _plot_ecdna_heatmap_bars(
+            ax=ecdna_ax,
+            ecdna_df=ecdna_df,
+            cur_sample_labels=cur_sample_labels,
+            y_posns=y_posns,
+            ecdna_order=ecdna_order,
+            ecdna_color_norm=ecdna_color_norm,
+            ecdna_color_map=ecdna_color_map,
+            ecdna_position_df=ecdna_position_df,
+            color_list=ecnda_segment_color_l,
+            alleles=alleles
+        )
+
+        # Draw triangles above the ecDNA heatmap
+        _plot_ecdna_heatmap_triangles(ecdna_ax, ecdna_position_df, ecnda_segment_color_l, y_axes=1.01)
+
+        # Create ecDNA colorbar
+        ecdna_cax.pcolormesh([0, 1],
+                            np.arange(int(min_ecdna_cn), int(max_ecdna_cn)+2),
+                            np.arange(int(min_ecdna_cn), int(max_ecdna_cn)+1)[:, np.newaxis],
+                            cmap="plasma",
+                            norm=ecdna_color_norm)
+
+        ecdna_cax.set_xticks([])
+        # Show only min and max ticks
+        ecdna_cax.set_yticks([int(min_ecdna_cn)+0.5, int(max_ecdna_cn)+0.5])
+        ecdna_cax.set_yticklabels([int(min_ecdna_cn), int(max_ecdna_cn)], ha='left')
+        ecdna_cax.yaxis.set_tick_params(left=False, labelleft=False, labelright=True)
+        ecdna_cax.set_ylim(int(min_ecdna_cn), int(max_ecdna_cn)+1)
+
+        # Set y-limits for all axes including ecDNA
+        for ax in [*cn_axes, ecdna_ax]:
+            ax.set_ylim(len(cur_sample_labels)+0.5, 0.5)
+    else:
+        # Original behavior: only CN axes
+        for ax in axs[:-1]:
+            ax.set_ylim(len(cur_sample_labels)+0.5, 0.5)
 
     return fig
 
