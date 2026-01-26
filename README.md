@@ -40,6 +40,8 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 
 * `input_file`: path to the input file
 * `output_dir`: path to the output folder
+* `--ecDNA-positions-file`: Path to the ecDNA positions file (an example can be found in examples/simple_example_ecDNA)
+* `--ecdna-distance-weight`: Weight of ecDNA pairwise distance in the overall distance calculation. (overall distance matrix = MED distance matrix + weight * ecDNA distance matrix). Default: 0.5
 * `--version`: Print version information
 * `--input-type`, `-i`: Choose the type of input: f for FASTA, t for TSV. Default: 'TSV'
 * `--input-allele-columns`, `-a`: Name of the CN columns (comma separated) if using TSV input format. This also adjusts the number of alleles considered (min. 1, max. 2). Default: 'cn_a, cn_b'
