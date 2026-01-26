@@ -6,6 +6,14 @@
 For more information see the accompanying publication [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-022-02794-9).
 
 # Installation
+
+## HOT FIX FOR NOW 
+
+Installing this particular branch requires installing from source as described below. 
+
+## ORIGINAL INSTALLATION SECTION 
+
+
 Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was developed and tested on unix-built systems (Linux and MacOS). For Windows users we recommended WSL2.
 
 Note that the notebooks and examples are not included when installing from conda or pip.
