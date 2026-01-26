@@ -270,7 +270,7 @@ def plot_cn_profiles(
     if ecdna_cnp_df is not None:
         track_width_ecdna = (nsegs_ecdna) * 0.2 * track_width_scale
     if input_tree is not None:
-        tree_width = 2.5 * tree_width_scale ## in figsize
+        tree_width = 6.0 * tree_width_scale ## in figsize
     else:
         tree_width = 0
 
@@ -282,11 +282,11 @@ def plot_cn_profiles(
         colorbar_width_ratio = 0.05  # Allocate 5% of the width for the color bar
 
         plotwidth = tree_width + track_width_ecdna + track_width
-        tree_width_ratio = tree_width / plotwidth
-        track_width_ratio = track_width / plotwidth
-
         # Adjust total plot width to include color bar space
         plotwidth = plotwidth / (1 - colorbar_width_ratio)  # Normalize to include the color bar
+
+        tree_width_ratio = tree_width / plotwidth
+        track_width_ratio = track_width / plotwidth
     else:
         plotheight = 4 * 0.2 * nrows * height_scale
         plotwidth = tree_width + track_width
@@ -1368,7 +1368,7 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, ecdna_position_df=None, final_t
                     alleles=['cn_a', 'cn_b'], tree_width_ratio=1, cbar_width_ratio=0.05, figsize=(20, 10),
                     tree_line_width=0.5, tree_marker_size=0, show_internal_nodes=False, title='',
                     tree_label_colors=None, tree_label_func=None, cmap='coolwarm', normal_name='diploid',
-                    ignore_segment_lengths=False, ecdna_cbar_width_ratio=0.05,
+                    ignore_segment_lengths=False, ecdna_cbar_width_ratio=0.01,
                     ecdna_log_scale=False, ecdna_log_decimals=2):
 
     input_df = input_df[alleles].copy()
@@ -1460,11 +1460,12 @@ def plot_cn_heatmap(input_df, ecdna_cnp_df=None, ecdna_position_df=None, final_t
             # Width calculation
             cn_heatmap_width = nsegs_cn * 0.2
             ecdna_heatmap_width = nsegs_ecdna * 0.2
+            tree_width = cn_heatmap_width * tree_width_ratio * 0.8
 
-            total_content_width = tree_width_ratio + cn_heatmap_width + ecdna_heatmap_width
+            total_content_width = tree_width + cn_heatmap_width + ecdna_heatmap_width
 
             # Normalize ratios
-            tree_ratio = tree_width_ratio / total_content_width
+            tree_ratio = tree_width / total_content_width
             cn_ratio = cn_heatmap_width / total_content_width
             ecdna_ratio = ecdna_heatmap_width / total_content_width
 

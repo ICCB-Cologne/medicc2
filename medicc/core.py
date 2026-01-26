@@ -30,7 +30,8 @@ def main(input_df,
          no_wgd=False,
          total_cn=False,
          n_cores=None,
-         reconstruct_events=False):
+         reconstruct_events=False,
+         ecdna_distance_weight=0.5):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
@@ -53,6 +54,8 @@ def main(input_df,
                                                                                     n_cores)
         else:
             pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, CN_str_dict)
+
+        pairwise_distances = calc_ecdna_distance_matrix(ecdna_cnp_df, allele_columns, pairwise_distances, ecdna_distance_weight) if ecdna_cnp_df is not None else pairwise_distances
 
         if (pairwise_distances == np.inf).any().any():
             affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
@@ -381,6 +384,49 @@ def calc_pairwise_distance_matrix(model_fst, cn_str_dict, parallel_run=True):
             logger.info(f'{(i + 1) / ncombs * 100:.2f}')
 
     return pdm
+
+
+def calc_ecdna_distance_matrix(ecdna_cnp_df, allele_columns, pairwise_distances, ecdna_distance_weight):
+    """
+    Calculate a pairwise distance matrix based on ecdna copy number profiles.
+    """
+    cnp_column_name = allele_columns[0]
+    samples_distance_matrix = (pairwise_distances.index)
+    required_columns = {"sample_id", "chrom", cnp_column_name}
+    if not required_columns.issubset(set(ecdna_cnp_df.columns)):
+        raise ValueError(f"ecdna_cnp_df must contain the columns: {required_columns}")
+
+    for ec_chrom in ecdna_cnp_df["chrom"].unique():
+        chrom_df = ecdna_cnp_df[ecdna_cnp_df["chrom"] == ec_chrom]
+        samples = chrom_df["sample_id"].unique()
+
+        samples_missing_cnp = set(samples) - set(samples_distance_matrix)
+        if len(samples_missing_cnp) > 0:
+            logger.warning(f"{len(samples_missing_cnp)} samples does not have copy number, skipping... {samples_missing_cnp}")
+            samples = [s for s in samples if s in samples_distance_matrix]
+
+        for sample_i, sample_j in combinations(samples, 2):
+            ecdna_cnp_i = float(chrom_df[chrom_df["sample_id"] == sample_i][cnp_column_name].values)
+            ecdna_cnp_j = float(chrom_df[chrom_df["sample_id"] == sample_j][cnp_column_name].values)
+
+            # NOTE: Replace this logic with a more advanced model if needed
+            if ecdna_cnp_i != 0:
+                sample_i_number_of_ecdna_event = np.ceil(np.log2(ecdna_cnp_i))
+            else:
+                sample_i_number_of_ecdna_event = 1 # you need at least 1 event to lose ecDNA
+
+            if ecdna_cnp_j != 0:
+                sample_j_number_of_ecdna_event = np.ceil(np.log2(ecdna_cnp_j))
+            else:
+                sample_j_number_of_ecdna_event = 1 # you need at least 1 event to lose ecDNA
+
+            ecdna_distance = np.abs(sample_i_number_of_ecdna_event - sample_j_number_of_ecdna_event)
+
+            pairwise_distances.loc[sample_i, sample_j] += ecdna_distance_weight * ecdna_distance
+            pairwise_distances.loc[sample_j, sample_i] += ecdna_distance_weight * ecdna_distance
+
+    return pairwise_distances
+
 
 
 def infer_tree_topology(pairwise_distances, labels, normal_name):

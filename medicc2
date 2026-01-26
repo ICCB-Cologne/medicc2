@@ -142,6 +142,8 @@ parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', d
                     help = 'Expert option: character used to separate chromosomes in the FST (default: \"X\").')
 parser.add_argument("--wgd-x2", action='store_true', default=False, dest='wgd_x2',
                     help='Expert option: Treat WGD as a x2 operation (default: False).', required=False)
+parser.add_argument("--ecdna-distance-weight", type=float, dest='ecdna_distance_weight', default=0.5,
+                    help='Export option: Weight of ecDNA distance in overall distance calculation (default: 0.5).')
 args = parser.parse_args()
 
 
@@ -266,7 +268,8 @@ if args.ecdna_tsv is not None:
         wgd_x2=args.wgd_x2,
         total_cn=args.total_copy_numbers,
         n_cores=args.n_cores,
-        reconstruct_events=args.events)
+        reconstruct_events=args.events,
+        ecdna_distance_weight=args.ecdna_distance_weight)
 
 else:
     sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = medicc.main(
