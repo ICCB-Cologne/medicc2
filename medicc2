@@ -133,7 +133,7 @@ parser.add_argument("--silent", action='store_true', default=False,
 parser.add_argument("--maxcn", type=int, dest='maxcn', default=8,
                     help='''Expert option: maximum CN at which the input is capped. Does not change FST.
                             The maximum possible value is 8. Default: 8''')
-parser.add_argument("--prune-weight", type=int, dest='prune_weight', default=0,
+parser.add_argument("--prune-weight", type=float, dest='prune_weight', default=0,
                     help='''Expert option: Prune weight in ancestor reconstruction. Values >0 might
                             result in more accurate ancestors but will require more time and memory. Default: 0''')
 parser.add_argument("--fst", type=str, dest='fst', default=None,
@@ -142,8 +142,8 @@ parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', d
                     help = 'Expert option: character used to separate chromosomes in the FST (default: \"X\").')
 parser.add_argument("--wgd-x2", action='store_true', default=False, dest='wgd_x2',
                     help='Expert option: Treat WGD as a x2 operation (default: False).', required=False)
-parser.add_argument("--ecdna-distance-weight", type=float, dest='ecdna_distance_weight', default=0.5,
-                    help='Export option: Weight of ecDNA distance in overall distance calculation (default: 0.5).')
+parser.add_argument("--copy-number-rate", type=float, dest='copy_number_rate', default=2,
+                    help='Export option: Weight of ecDNA distance in overall distance calculation (default: 2).')
 args = parser.parse_args()
 
 
@@ -269,7 +269,7 @@ if args.ecdna_tsv is not None:
         total_cn=args.total_copy_numbers,
         n_cores=args.n_cores,
         reconstruct_events=args.events,
-        ecdna_distance_weight=args.ecdna_distance_weight)
+        copy_number_rate=args.copy_number_rate)
 
 else:
     sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = medicc.main(

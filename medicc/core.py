@@ -31,7 +31,7 @@ def main(input_df,
          total_cn=False,
          n_cores=None,
          reconstruct_events=False,
-         ecdna_distance_weight=0.5):
+         copy_number_rate=2.0):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
@@ -55,7 +55,7 @@ def main(input_df,
         else:
             pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, CN_str_dict)
 
-        pairwise_distances = calc_ecdna_distance_matrix(ecdna_cnp_df, allele_columns, pairwise_distances, ecdna_distance_weight) if ecdna_cnp_df is not None else pairwise_distances
+        pairwise_distances = calc_ecdna_distance_matrix(ecdna_cnp_df, allele_columns, pairwise_distances, copy_number_rate) if ecdna_cnp_df is not None else pairwise_distances
 
         if (pairwise_distances == np.inf).any().any():
             affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
@@ -386,7 +386,7 @@ def calc_pairwise_distance_matrix(model_fst, cn_str_dict, parallel_run=True):
     return pdm
 
 
-def calc_ecdna_distance_matrix(ecdna_cnp_df, allele_columns, pairwise_distances, ecdna_distance_weight):
+def calc_ecdna_distance_matrix(ecdna_cnp_df, allele_columns, pairwise_distances, copy_number_rate=2.0):
     """
     Calculate a pairwise distance matrix based on ecdna copy number profiles.
     """
@@ -422,8 +422,8 @@ def calc_ecdna_distance_matrix(ecdna_cnp_df, allele_columns, pairwise_distances,
 
             ecdna_distance = np.abs(sample_i_number_of_ecdna_event - sample_j_number_of_ecdna_event)
 
-            pairwise_distances.loc[sample_i, sample_j] += ecdna_distance_weight * ecdna_distance
-            pairwise_distances.loc[sample_j, sample_i] += ecdna_distance_weight * ecdna_distance
+            pairwise_distances.loc[sample_i, sample_j] += (1 / copy_number_rate) * ecdna_distance
+            pairwise_distances.loc[sample_j, sample_i] += (1 / copy_number_rate) * ecdna_distance
 
     return pairwise_distances
 
