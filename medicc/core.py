@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 def main(input_df,
          asymm_fst,
          output_dir,
+         event_counting_fst,
          normal_name='diploid',
          input_tree=None,
          ancestral_reconstruction=True,
@@ -105,7 +106,7 @@ def main(input_df,
 
         ## Update branch lengths with ancestors
         logger.info("Updating branch lengths of final tree using ancestors.")
-        update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
+        update_branch_lengths(final_tree, event_counting_fst, ancestors, normal_name)
     else:
         output_df = None
 
@@ -136,6 +137,7 @@ def main(input_df,
 def main_spr(input_df,
              asymm_fst,
              output_dir,
+             event_counting_fst, 
              normal_name='diploid',
              input_tree=None,
              chr_separator='X',
@@ -228,13 +230,23 @@ def main_spr(input_df,
 
     # Adjust the tree format for MEDICC2's plotting function
     # create a new root clade with no labels and attach normal_name and MRCA to it
-    for final_tree in final_tree_l:
+    for i, final_tree in enumerate(final_tree_l):
         new_root_clade = Bio.Phylo.PhyloXML.Clade(branch_length=0)
         final_tree.root.branch_length = 0
         new_root_clade.clades.append(final_tree.root)
         new_root_clade.clades.append(final_tree.root.clades[0])
         final_tree.root.clades = []
         final_tree.root = new_root_clade
+
+        # Update branch length using event-counting fst 
+        ancestors = ancestors_l[i]
+
+        ## Update branch lengths with ancestors
+        logger.info("Updating branch lengths of final tree using ancestors.")
+        update_branch_lengths(final_tree, event_counting_fst, ancestors, normal_name)
+
+
+
 
     # do the same to the nj_tree
     new_root_clade = Bio.Phylo.PhyloXML.Clade(branch_length=0)
