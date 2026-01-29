@@ -10,11 +10,11 @@ max_pre_wgd_losses = 7
 # FST weights
 w_stay_gain = 0
 w_open_gain = 1
-w_extend_gain = 0.1
+w_extend_gain = 0.05
 
 w_stay_loss = 0
 w_open_loss = 1
-w_extend_loss = 0.1
+w_extend_loss = 0.05
 
 wgd_cost = 1
 
@@ -53,5 +53,5 @@ W_1step = medicc.factory.create_1step_WGD_fst(SYMBOL_TABLE, separator,
 
 MEDICC2_FST_with_extend_modeling = W_1step * XX
 
-MEDICC2_FST_with_extend_modeling.write("/Users/chenxi/Projects/Phylogenetics/medicc2/medicc/objects/gain_loss_extend_0.1.fst")
+MEDICC2_FST_with_extend_modeling.write("/projects/ag-schwarzr/project-medicc/medicc2/medicc/objects/gain_loss_extend_0_05.fst")
 # %%

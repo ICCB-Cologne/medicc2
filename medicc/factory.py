@@ -214,3 +214,64 @@ def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1,
         return {'T': T, 'LOH': LOH, 'W': W, 'L': L, 'L_LOH': L_LOH, 'G': G, 'LG': LG}
     else:
         return T
+
+
+def modify_gain_loss_fst_with_weights(medicc2_fst, w_stay, w_open, w_extend, w_close, chr_sep="X"):
+    """
+    Modifies an input gain/loss FST by applying different weights to staying, event opening, event extending and event closing. 
+    The input FST must be a gain/loss FST created by medicc2's create_nstep_fst function.
+    This function is a tradeoff, ideally you would want to modify the weights in 1step gain/loss FST and then create the nstep FST using create_nstep_fst.
+    However, this is not feasible cause for certain combination of event open weigth and event extend weight, the nstep FST would not encode-determinize-minimize. 
+    Instead, we opted for taking the FST structure of existing MEDICC2 gain/loss FSTs and just modify their weights. 
+    """
+
+    medicc2_fst_copy = medicc2_fst.copy()
+    symbol_table = medicc2_fst.input_symbols()
+
+    for state in medicc2_fst_copy.states():
+        mutable_arc_iterator = medicc2_fst_copy.mutable_arcs(state)
+        while not mutable_arc_iterator.done():
+            arc = mutable_arc_iterator.value()
+            state_from = int(state)
+            state_to = int(arc.nextstate)
+            ilabel = arc.ilabel
+            olabel = arc.olabel 
+            weight = float(arc.weight)
+
+            if state_from == state_to:
+                if state_from != 0:
+                    # Event extending 
+                    if ilabel != symbol_table.find("0") and ilabel != symbol_table.find(chr_sep):
+                        new_weight = state_from * w_extend
+                        new_weight = fstlib.cext.pywrapfst.Weight(medicc2_fst_copy.weight_type(), new_weight)
+                        arc.weight = new_weight
+                        mutable_arc_iterator.set_value(arc)
+                else:
+                    # Staying in state 0
+                    if ilabel != symbol_table.find("0") and ilabel != symbol_table.find(chr_sep):
+                        new_weight = state_from * w_stay
+                        new_weight = fstlib.cext.pywrapfst.Weight(medicc2_fst_copy.weight_type(), new_weight)
+                        arc.weight = new_weight
+                        mutable_arc_iterator.set_value(arc)
+            elif state_to > state_from:
+                # Event opening
+                if ilabel != symbol_table.find(chr_sep): # copy number 0 cannot gain or loss 
+                    new_weight = (state_to - state_from) * w_open 
+                    new_weight = fstlib.cext.pywrapfst.Weight(medicc2_fst_copy.weight_type(), new_weight)
+                    arc.weight = new_weight
+                    mutable_arc_iterator.set_value(arc)
+            else:
+                # Event closing 
+                if ilabel != symbol_table.find(chr_sep):
+                    new_weight = w_close
+                    new_weight = fstlib.cext.pywrapfst.Weight(medicc2_fst_copy.weight_type(), new_weight)
+                    arc.weight = new_weight 
+                    mutable_arc_iterator.set_value(arc)
+            mutable_arc_iterator.next()
+    return medicc2_fst_copy
+
+
+
+
+
+
