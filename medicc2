@@ -144,7 +144,7 @@ parser.add_argument("--spr-mode-step", type=int, dest='spr_step', default=1000,
 parser.add_argument("--spr-start", type=str, dest="spr_start", default="random",
                     help='''Expert option: Starting point for spr in spr mode. )
                             Can be either "random" or "neighbor-joining" or "nj" for short (default: random).''')
-parser.add_argument("--euclidean", type=bool, dest="euclidean", default=False, help='''Expert option: Use Euclidean distance instead of FST for pairwise distances (default: False).''')
+# parser.add_argument("--euclidean", type=bool, dest="euclidean", default=False, help='''Expert option: Use Euclidean distance instead of FST for pairwise distances (default: False).''')
 args = parser.parse_args()
 
 
@@ -336,8 +336,8 @@ if not args.spr:
     logger.info("Done.")
 
 else:
-    logger.info("Running MEDICC3.")
-    # Run medicc3
+    logger.info("Running MEDICC2 with spr moves.")
+    # Run medicc2 with spr moves 
     sample_labels, nj_tree, final_tree_l, output_df_l = medicc.main_spr(
         input_df=input_df,
         asymm_fst=fst,
