@@ -7,9 +7,21 @@ For more information see the accompanying publication [Whole-genome doubling-awa
 
 # Installation
 
-## HOT FIX FOR NOW 
+## HOT FIX FOR INSTALLING THIS BRANCH  
 
 Installing this particular branch requires installing from source as described below. 
+A note about fstlib. Please make sure that your `submodule-fstlib` is up to date after checking out this branch. Your `submodule-fstlib` should be at commit 'deb4015'. If not please manually run these commands to checkout that commit for `submodule-fstlib`:
+
+```
+cd submodule-fstlib
+git checkout deb4015 
+```
+
+A note about Cython, MEDICC2 used to require Cython 0.29, but recently we have updated the codebase to be compatible with Cython 3 (3.1.2 to be exact).
+
+A note about OpenFST, MEDICC2 now uses openfst 1.8.4 instead of 1.8.2. 
+
+
 
 ## ORIGINAL INSTALLATION SECTION 
 
