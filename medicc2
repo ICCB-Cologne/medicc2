@@ -320,6 +320,8 @@ medicc.io.write_branch_lengths(tree=final_tree, out_name=os.path.join(
 
 # Write ouput table
 output_df.to_csv(os.path.join(output_dir, output_prefix + "_final_cn_profiles.tsv"), sep='\t')
+if ecdna_cnp_df is not None:
+    ecdna_cnp_df.to_csv(os.path.join(output_dir, output_prefix + "_final_ecdna_cn_profiles.tsv"), sep='\t', index=False)
 
 # Summarize
 logger.info("Writing patient summary.")
