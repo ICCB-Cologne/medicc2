@@ -5,6 +5,12 @@
 
 For more information see the accompanying publication [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-022-02794-9).
 
+# New feature of this branch -- denoising uncertain copy number profiles 
+
+Sometimes it is not clear whether the input copy number is say, 1 or 2, and this branch modules this uncertainty using a bifurcation in FST constructed using the copy number profile. 
+
+![](doc/bifurcating_fst_ideas.png)
+
 # Installation
 Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was developed and tested on unix-built systems (Linux and MacOS). For Windows users we recommended WSL2.
 
