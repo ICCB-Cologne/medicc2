@@ -183,6 +183,15 @@ def validate_input(input_df, symbol_table=None, normal_name='diploid'):
         # Check if symbols are in symbol table
         alphabet = {x[1] for x in symbol_table}
         data_chars = set(input_df.values.flatten())
+        data_to_be_remove = []
+        for data in data_chars:
+            if "," in data:
+                data_split = data.split(",")
+                data_chars.update(data_split)
+                data_to_be_remove.append(data)
+        for data in data_to_be_remove:
+            data_chars.remove(data)
+
         if not data_chars.issubset(alphabet):
             not_in_set = data_chars.difference(alphabet)
             raise MEDICCIOError(f"Not all input symbols are contained in symbol table. Offending symbols: {str(not_in_set)}")
@@ -197,6 +206,39 @@ def filter_by_segment_length(input_df, filter_size):
 
 
 def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8, chrom_column='chrom'):
+    def __parse_and_validate_allele_column_for_uncertain_cn(column, max_cn, logger):
+        def __process_value(val):
+            if pd.isna(val):
+                return val
+
+            val_str = str(val).strip()
+
+            # Split by comma if present
+            if "," in val_str:
+                parts = val_str.split(",")
+            else:
+                parts = [val_str]
+
+            processed_parts = []
+            for part in parts:
+                num = float(part.strip())
+                if num != int(num):
+                    if logger:
+                        logger.warning("Floating point payload! I will round, but this might not be intended.")
+                    num = round(num)
+                else:
+                    num = int(num)
+
+                if num > maxcn:
+                    if logger:
+                        logger.warning(f"Integer CN > maxcn {maxcn}, capping.")
+                    num = min(num, maxcn)
+
+                processed_parts.append(str(num))
+            return ','.join(processed_parts)
+        return column.apply(__process_value)
+
+
     logger.info(f"Reading TSV file {path}")
     input_file = pd.read_csv(path, sep = "\t")
     input_file["sample_id"] = input_file["sample_id"].astype(str)
@@ -209,6 +251,10 @@ def _read_tsv_as_dataframe(path, allele_columns=['cn_a','cn_b'], maxcn=8, chrom_
     logger.info(f"Successfully read input file. Using columns: {', '.join(columnn_names)}")
     input_file = input_file[columnn_names]
     for c in allele_columns:
+        if input_file[c].dtype == object:
+            logger.warning("Uncertain copy number detected! Processing two possible cases separately.")
+            input_file[c] = __parse_and_validate_allele_column_for_uncertain_cn(input_file[c], maxcn, logger)
+
         if input_file[c].dtype in [np.dtype('float64'), np.dtype('float32')]:
             logger.warning("Floating point payload! I will round, but this might not be intended.")
             input_file[c] = input_file[c].round().astype('int')
