@@ -101,17 +101,18 @@ def main(input_df,
 
     final_tree = copy.deepcopy(nj_tree)
 
-    if ancestral_reconstruction:
+    if ancestral_reconstruction or uncertain_cnp: # ancestor reconstruction is mandatory for uncertain cnp to be decoded
         logger.info("Reconstructing ancestors.")
         ancestors = medicc.reconstruct_ancestors(tree=final_tree,
                                                  samples_dict=FSA_dict,
                                                  fst=asymm_fst,
                                                  normal_name=normal_name,
-                                                 prune_weight=prune_weight)
+                                                 prune_weight=prune_weight,
+                                                 uncertain_cnp=uncertain_cnp)
 
         ## Create and write output data frame with ancestors
         logger.info("Creating output copynumbers.")
-        output_df = create_df_from_fsa(input_df, ancestors)
+        output_df = create_df_from_fsa(input_df, ancestors, uncertain_cnp=uncertain_cnp)
 
         ## Update branch lengths with ancestors
         logger.info("Updating branch lengths of final tree using ancestors.")
@@ -290,7 +291,7 @@ def phase_dict(phasing_dict, model_fst, reference_fst):
     return fsa_dict_a, fsa_dict_b, scores
 
 
-def create_df_from_fsa(input_df: pd.DataFrame, fsa, separator: str = 'X'):
+def create_df_from_fsa(input_df: pd.DataFrame, fsa, separator: str = 'X', uncertain_cnp=False):
     """ 
     Takes a single FSA dict or a list of FSA dicts and extracts the copy number profiles.
     The allele names are taken from the input_df columns and the returned data frame has the same 
@@ -308,7 +309,7 @@ def create_df_from_fsa(input_df: pd.DataFrame, fsa, separator: str = 'X'):
     # Create dict and concat later to prevent pandas PerformanceWarning
     internal_cns = dict()
     for node in fsa:
-        if node in samples:
+        if (node in samples) and not uncertain_cnp:
             continue
         cns = tools.fsa_to_string(fsa[node]).split(separator)
         if len(cns) % nr_alleles != 0:
@@ -323,10 +324,14 @@ def create_df_from_fsa(input_df: pd.DataFrame, fsa, separator: str = 'X'):
 
     internal_cns_df = pd.DataFrame(internal_cns, index=output_df.index)
     internal_cns_df.columns.names = ['allele', 'sample_id']
-    output_df = (pd.concat([output_df, internal_cns_df], axis=1)
-                 .stack('sample_id')
-                 .reorder_levels(['sample_id', 'chrom', 'start', 'end'])
-                 .sort_index())
+    if uncertain_cnp:
+        # for uncertain cnp, we use inferred cnp from ancestor reconstruction for all samples, including leaf nodes
+        output_df = internal_cns_df.stack("sample_id").reorder_levels(['sample_id', 'chrom', 'start', 'end']).sort_index()
+    else:
+        output_df = (pd.concat([output_df, internal_cns_df], axis=1)
+                     .stack('sample_id')
+                     .reorder_levels(['sample_id', 'chrom', 'start', 'end'])
+                     .sort_index())
 
     return output_df
 

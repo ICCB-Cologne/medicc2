@@ -9,7 +9,7 @@ import medicc
 
 logger = logging.getLogger(__name__)
 
-def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0):
+def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0, uncertain_cnp=False):
 
     if len(samples_dict) == 2:
         return samples_dict
@@ -42,7 +42,7 @@ def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0):
     # down the tree (root to leaf)
     for node in clade_list:
         if len(node.clades) != 0:
-            children = [q for q in node.clades if len(q.clades) != 0]
+            children = [q for q in node.clades if len(q.clades) != 0 or uncertain_cnp] # if uncertain_ancestors is True, also reconstruct leaf nodes
             logger.debug(f"Clade: {node.name}, internal children: {children}")
             for child in children:
                 sp = fstlib.align(fst, fsa_dict[node.name], fsa_dict[child.name])
