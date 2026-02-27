@@ -40,7 +40,15 @@ def main(input_df,
 
     ## Compile input data into FSAs stored in dictionaries
     logger.info("Compiling input sequences into FSAs.")
-    FSA_dict, CN_str_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
+    # Detect uncertain cnp
+    input_cnp_flat = input_df.values.ravel().tolist()
+    uncertain_cnp = any([isinstance(x, str) and "," in x for x in input_cnp_flat])
+    if uncertain_cnp:
+        logger.info("Uncertain copy number profiles detected. Creating uncertain FSAs.")
+        FSA_dict = create_uncertain_cnp_fsa_dict_from_df(input_df, symbol_table, chr_separator)
+        CN_str_dict = None
+    else:
+        FSA_dict, CN_str_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
     sample_labels = input_df.index.get_level_values('sample_id').unique()
 
     ## Reconstruct a tree
@@ -48,10 +56,17 @@ def main(input_df,
         ## Calculate pairwise distances
         logger.info("Calculating pairwise distance matrices")
         if n_cores is not None and n_cores > 1:
-            pairwise_distances = parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict,
+            if uncertain_cnp:
+                pairwise_distances = parallelization_calc_pairwise_distance_from_fsa(sample_labels, asymm_fst, FSA_dict,
+                                                                                    n_cores)
+            else:
+                pairwise_distances = parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict,
                                                                                     n_cores)
         else:
-            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, CN_str_dict)
+            if uncertain_cnp:
+                pairwise_distances = calc_pairwise_distance_matrix_from_fsa(asymm_fst, FSA_dict)
+            else:
+                pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, CN_str_dict)
 
         if (pairwise_distances == np.inf).any().any():
             affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
@@ -127,6 +142,56 @@ def main(input_df,
 
     return sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df
 
+def create_uncertain_cnp_fsa_dict_from_df(input_df: pd.DataFrame,
+                                          symbol_table: fstlib.SymbolTable,
+                                          separator: str = "X") -> dict:
+
+    def __build_fsa_from_cnp_allele(cnp_allele_val):
+        # FSA initialization
+        fsa = fstlib.Fst()
+        fsa.set_input_symbols(symbol_table)
+        fsa.set_output_symbols(symbol_table)
+        fsa.add_state()
+        fsa.set_start(0)
+
+        # Latest state index
+        latest_state_index = [0]
+
+        for i, cn in enumerate(cnp_allele_val):
+            if "," not in str(cn):
+                fsa.add_state()
+                state_index = max(latest_state_index) + 1 # new state index
+                for state_id in latest_state_index:
+                    fsa.add_arc(state_id, (cn, cn, 0, state_index))
+                latest_state_index = [state_index]
+
+            elif "," in str(cn):
+                cn_options = str(cn).split(",")
+                fsa.add_states(len(cn_options))
+                state_indexes = list(range(max(latest_state_index) + 1, max(latest_state_index) + 1 + len(cn_options))) # new state indexes
+                for state_id in latest_state_index:
+                    for cn_option, state_index in zip(cn_options, state_indexes):
+                        fsa.add_arc(state_id, (cn_option, cn_option, 0, state_index))
+                latest_state_index = state_indexes
+
+        # Set final states
+        for state_id in latest_state_index:
+            fsa.set_final(state_id)
+        return fsa
+
+    """Creates a FST that encodes uncertainty in copy number profile from input dataframe."""
+    fsa_dict = {}
+    for taxon, cnp in input_df.groupby('sample_id'):
+        taxon_cnp = []
+        for allele in cnp.columns:
+            cnp_allele_val = list(cnp[allele].values)
+            taxon_cnp += cnp_allele_val
+            taxon_cnp += separator
+
+        taxon_cnp = taxon_cnp[:-1] # remove last separator
+        fsa_dict[taxon] = __build_fsa_from_cnp_allele(taxon_cnp)
+
+    return fsa_dict
 
 def create_standard_fsa_dict_from_data(input_data,
                                        symbol_table: fstlib.SymbolTable,
@@ -337,6 +402,24 @@ def parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict
 
     return pdm
 
+def parallelization_calc_pairwise_distance_from_fsa(sample_labels, asymm_fst, fsa_dict, n_cores):
+    try:
+        from joblib import Parallel, delayed
+    except ImportError:
+        raise ImportError("joblib must be installed for parallelization")
+
+    parallelization_groups = medicc.tools.create_parallelization_groups(len(sample_labels))
+    parallelization_groups = [sample_labels[group] for group in parallelization_groups]
+    logger.info("Running {} parallel runs on {} cores".format(len(parallelization_groups), n_cores))
+
+    parallel_pairwise_distances = Parallel(n_jobs=n_cores)(delayed(calc_pairwise_distance_matrix_from_fsa)(
+        asymm_fst, {key: val for key, val in fsa_dict.items() if key in cur_group}, True)
+            for cur_group in parallelization_groups)
+
+    pdm = medicc.tools.total_pdm_from_parallel_pdms(sample_labels, parallel_pairwise_distances)
+
+    return pdm
+
 
 @lru_cache(maxsize=None)
 def calc_MED_distance(model_fst, profile_1, profile_2):
@@ -371,6 +454,29 @@ def calc_pairwise_distance_matrix(model_fst, cn_str_dict, parallel_run=True):
         if not parallel_run and (100 * (i + 1) / ncombs) % 10 == 0:  # log every 10%
             logger.info(f'{(i + 1) / ncombs * 100:.2f}')
 
+    return pdm
+
+
+def calc_pairwise_distance_matrix_from_fsa(model_fst, fsa_dict, parallel_run=True):
+    """
+    The same function as above but takes a dict of FSAs instead of copy number strings.
+    Used for the uncertain FSA encoding case cause string dict is not possible when we have uncertain copy numbers.
+    """
+
+    samples = list(fsa_dict.keys())
+    pdm = pd.DataFrame(0, index=samples, columns=samples, dtype=float)
+    combs = list(combinations(samples, 2))
+    ncombs = len(combs)
+
+    for i, (sample_a, sample_b) in enumerate(combs):
+        profile_1_fsa = fsa_dict[sample_a]
+        profile_2_fsa = fsa_dict[sample_b]
+        cur_dist = float(fstlib.kernel_score(model_fst, profile_1_fsa, profile_2_fsa))
+        pdm.loc[sample_a, sample_b] = cur_dist
+        pdm.loc[sample_b, sample_a] = cur_dist
+
+        if not parallel_run and (100 * (i + 1) / ncombs) % 10 == 0:
+            logger.into(f'{(i + 1) / ncombs * 100:.2f}')
     return pdm
 
 
