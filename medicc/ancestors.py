@@ -45,8 +45,9 @@ def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0, 
             children = [q for q in node.clades if len(q.clades) != 0 or uncertain_cnp] # if uncertain_ancestors is True, also reconstruct leaf nodes
             logger.debug(f"Clade: {node.name}, internal children: {children}")
             for child in children:
-                sp = fstlib.align(fst, fsa_dict[node.name], fsa_dict[child.name])
-                fsa_dict[child.name] = fstlib.arcmap(sp.copy().project('output'), map_type='rmweight')
+                if child.name != normal_name:
+                    sp = fstlib.align(fst, fsa_dict[node.name], fsa_dict[child.name])
+                    fsa_dict[child.name] = fstlib.arcmap(sp.copy().project('output'), map_type='rmweight')
 
     # check if ancestors were correctly reconstructed
     sample_lengths = {sample: len(medicc.tools.fsa_to_string(fsa_dict[sample])) for sample, fsa in fsa_dict.items()}
