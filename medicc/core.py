@@ -29,7 +29,9 @@ def main(input_df,
          no_wgd=False,
          total_cn=False,
          n_cores=None,
-         reconstruct_events=False):
+         reconstruct_events=False,
+         all_possible_ancestors=False,
+         max_ancestors=100):
     """ MEDICC Main Method """
 
     symbol_table = asymm_fst.input_symbols()
@@ -88,21 +90,28 @@ def main(input_df,
 
     if ancestral_reconstruction:
         logger.info("Reconstructing ancestors.")
-        ancestors = medicc.reconstruct_ancestors(tree=final_tree,
+        ancestors, ancestors_all = medicc.reconstruct_ancestors(tree=final_tree,
                                                  samples_dict=FSA_dict,
                                                  fst=asymm_fst,
                                                  normal_name=normal_name,
-                                                 prune_weight=prune_weight)
+                                                 prune_weight=prune_weight,
+                                                 all_possible_ancestors=all_possible_ancestors)
 
         ## Create and write output data frame with ancestors
         logger.info("Creating output copynumbers.")
-        output_df = create_df_from_fsa(input_df, ancestors)
+        output_df = create_df_from_fsa(input_df, ancestors, separator=chr_separator)
+
+        if ancestors_all is not None:
+            output_df_all = create_df_from_ancestor_all_long(input_df, ancestors_all, separator=chr_separator, max_ancestors=max_ancestors)
+        else:
+            output_df_all = None
 
         ## Update branch lengths with ancestors
         logger.info("Updating branch lengths of final tree using ancestors.")
         update_branch_lengths(final_tree, asymm_fst, ancestors, normal_name)
     else:
         output_df = input_df.copy()
+        output_df_all = None
 
     nj_tree.root_with_outgroup(normal_name)
     final_tree.root_with_outgroup(normal_name)
@@ -125,7 +134,7 @@ def main(input_df,
     else:
         events_df = None
 
-    return sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df
+    return sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df, output_df_all
 
 
 def create_standard_fsa_dict_from_data(input_data,
@@ -134,9 +143,9 @@ def create_standard_fsa_dict_from_data(input_data,
     """ Creates a dictionary of FSAs from input DataFrame or Series.
     The keys of the dictionary are the sample/taxon names. 
     If the input is a DataFrame, the FSA will be the concatenated copy number profiles of all allele columns"""
-
     fsa_dict = {}
     cn_str_dict = {}
+
     if isinstance(input_data, pd.DataFrame):
         logger.info('Creating FSA for pd.DataFrame with the following data columns: {}'.format(
             input_data.columns.values))
@@ -264,6 +273,110 @@ def create_df_from_fsa(input_df: pd.DataFrame, fsa, separator: str = 'X'):
                  .sort_index())
 
     return output_df
+
+
+def create_df_from_ancestor_all(input_df, fsa, separator='X', max_ancestors=100):
+    alleles = input_df.columns
+    if not isinstance(fsa, dict):
+        raise MEDICCError("fsa input to create_df_from_fsa has to be a dict"
+                          "Input type is {}".format(type(fsa)))
+
+    nr_alleles = len(alleles)
+    samples = input_df.index.get_level_values('sample_id').unique()
+    output_df = input_df.unstack('sample_id')
+
+    # Create dict and concat later to prevent pandas PerformanceWarning
+    internal_cns = dict()
+    for node in fsa:
+        if node in samples:
+            continue
+        # cns = tools.fsa_to_string(fsa[node]).split(separator)
+        cns_l = fstlib.tools.strings(fstlib.shortestpath(fsa[node], nshortest=max_ancestors).rmepsilon())["input"].values
+        cns_l = [x.split(separator) for x in cns_l]
+        if len(cns_l[0]) % nr_alleles != 0:
+            raise MEDICCError('For sample {} we have {} haplotype-specific chromosomes for {} alleles'
+                              '\nnumber of chromosomes has to be divisible by nr of alleles'.format(node,
+                                                                                                    len(cns),
+                                                                                                    nr_alleles))
+        nr_chroms = int(len(cns_l[0]) // nr_alleles)
+        for i, allele in enumerate(alleles):
+            for j, cns in enumerate(cns_l):
+                cn = list(''.join(cns[(i * nr_chroms):((i + 1) * nr_chroms)]))
+                internal_cns[(allele, node + "_" + str(j))] = cn
+
+    internal_cns_df = pd.DataFrame(internal_cns, index=output_df.index)
+    internal_cns_df.columns.names = ['allele', 'sample_id']
+    return internal_cns_df
+
+def create_df_from_ancestor_all_long(input_df, fsa, separator='X', max_ancestors=100):
+    alleles = list(input_df.columns)
+    if set(alleles) != {"cn_a", "cn_b"}:
+        raise MEDICCError(
+            f"Expected diploid allele columns ['cn_a', 'cn_b'], got {alleles}"
+        )
+
+    if not isinstance(fsa, dict):
+        raise MEDICCError(
+            "fsa input to create_df_from_ancestor_all has to be a dict "
+            f"Input type is {type(fsa)}"
+        )
+
+    # Segment template in genomic order
+    seg_df = (
+        input_df.reset_index()[["chrom", "start", "end"]]
+        .drop_duplicates()
+        .reset_index(drop=True)
+    )
+
+    observed_samples = set(input_df.index.get_level_values("sample_id").unique())
+    out_chunks = []
+
+    for node, node_fsa in fsa.items():
+        # Keep only inferred internal nodes
+        if node in observed_samples:
+            continue
+
+        cns_l = fstlib.tools.strings(
+            fstlib.shortestpath(node_fsa, nshortest=max_ancestors).rmepsilon()
+        )["input"].values
+        cns_l = [x.split(separator) for x in cns_l]
+
+        if not cns_l:
+            continue
+
+        nr_alleles = 2
+        if len(cns_l[0]) % nr_alleles != 0:
+            raise MEDICCError(
+                f"For sample {node} we have {len(cns_l[0])} haplotype-specific chromosomes; "
+                "number of chromosomes has to be divisible by 2."
+            )
+
+        nr_chroms = len(cns_l[0]) // nr_alleles
+
+        for ancestor_rank, cns in enumerate(cns_l):
+            cn_a = "".join(cns[0:nr_chroms])
+            cn_b = "".join(cns[nr_chroms:(2 * nr_chroms)])
+
+            if len(cn_a) != len(seg_df) or len(cn_b) != len(seg_df):
+                raise MEDICCError(
+                    f"Length mismatch for node={node}, ancestor_rank={ancestor_rank}: "
+                    f"segments={len(seg_df)}, cn_a={len(cn_a)}, cn_b={len(cn_b)}"
+                )
+
+            tmp = seg_df.copy()
+            tmp["node_id"] = node
+            tmp["ancestor_rank"] = ancestor_rank
+            tmp["cn_a"] = list(cn_a)
+            tmp["cn_b"] = list(cn_b)
+            out_chunks.append(tmp)
+
+    if not out_chunks:
+        return pd.DataFrame(
+            columns=["node_id", "ancestor_rank", "chrom", "start", "end", "cn_a", "cn_b"]
+        )
+
+    out = pd.concat(out_chunks, ignore_index=True)
+    return out[["node_id", "ancestor_rank", "chrom", "start", "end", "cn_a", "cn_b"]]
 
 
 def create_df_from_phasing_fsa(input_df: pd.DataFrame, fsas, separator: str = 'X'):

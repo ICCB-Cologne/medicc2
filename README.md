@@ -7,7 +7,7 @@
 For more information see the accompanying publication [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-022-02794-9).
 # What is this branch? 
 
-This branch contains one additional flag called "--all-possible-ancestors" that when set returns all ancestral sequence of internal nodes. 
+This branch contains one additional flag called "--all-possible-ancestors" that when set returns all ancestral sequence (or the first random --max-ancestors) internal nodes. 
 
 It is important to note that this flag does not affect plotting, the result plots will be the same as the master branch. 
 
@@ -74,6 +74,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--fst-chr-separator`: Expert option: character used to separate chromosomes in the FST. Default: 'X'
 * `--wgd-x2`: Expert option: Treat WGD as a x2 operation. Default: False
 * `--all-possible-ancestors`: Expert option: Return all possible ancestral states for internal nodes instead of just one. Default: False
+* `--max-ancestors`: Expert option: If `--all-possible-ancestors` is set, return only the first `--max-ancestors` ancestors. Default: 100
 
 
 ## Input files
