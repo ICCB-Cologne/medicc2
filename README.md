@@ -5,6 +5,11 @@
 [![Tests](https://github.com/ICCB-Cologne/medicc2/actions/workflows/tests.yml/badge.svg)](https://github.com/ICCB-Cologne/medicc2/actions/workflows/tests.yml)
 
 For more information see the accompanying publication [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-022-02794-9).
+# What is this branch? 
+
+This branch contains one additional flag called "--all-possible-ancestors" that when set returns all ancestral sequence of internal nodes. 
+
+It is important to note that this flag does not affect plotting, the result plots will be the same as the master branch. 
 
 # Installation
 Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was developed and tested on unix-built systems (Linux and MacOS). For Windows users we recommended WSL2.
