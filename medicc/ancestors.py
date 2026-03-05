@@ -9,7 +9,7 @@ import medicc
 
 logger = logging.getLogger(__name__)
 
-def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0):
+def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0, all_possible_ancestors=False):
 
     if len(samples_dict) == 2:
         return samples_dict
@@ -28,15 +28,20 @@ def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0):
             logger.debug(f"Clade: {node.name}, left: {left_name}, right: {right_name}")
 
             ## project
-            intersection = intersect_clades_detmin(fsa_dict[left_name], fsa_dict[right_name], fst, 
+            intersection = intersect_clades_detmin(fsa_dict[left_name], fsa_dict[right_name], fst,
                                                    prune_weight=prune_weight, detmin_before_intersect=False, detmin_after_intersect=True)
             fsa_dict[node.name] = intersection
 
     logger.debug("Ancestor reconstruction for root")
+    fsa_dict_all = fsa_dict.copy() if all_possible_ancestors else None
     # root node is calculated separately w.r.t. normal node
-    root_name = clade_list[0].name 
+    root_name = clade_list[0].name
+    if all_possible_ancestors:
+        fsa_dict_all[root_name] = intersect_ancestor_child(fst, fsa_dict[normal_name], fsa_dict[root_name],
+                                                           prune_weight=0)
     sp = fstlib.align(fst, fsa_dict[normal_name], fsa_dict[root_name])
     fsa_dict[root_name] = fstlib.arcmap(sp.copy().project('output'), map_type='rmweight')
+
 
     logger.info("Ancestor reconstruction: Down the tree")
     # down the tree (root to leaf)
@@ -45,6 +50,8 @@ def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0):
             children = [q for q in node.clades if len(q.clades) != 0]
             logger.debug(f"Clade: {node.name}, internal children: {children}")
             for child in children:
+                if all_possible_ancestors:
+                    fsa_dict_all[child.name] = intersect_ancestor_child(fst, fsa_dict[node.name], fsa_dict[child.name], prune_weight=0)
                 sp = fstlib.align(fst, fsa_dict[node.name], fsa_dict[child.name])
                 fsa_dict[child.name] = fstlib.arcmap(sp.copy().project('output'), map_type='rmweight')
 
@@ -57,7 +64,7 @@ def reconstruct_ancestors(tree, samples_dict, fst, normal_name, prune_weight=0):
                                                 "{}".format('\n'.join([sample for sample, length in sample_lengths.items() if length != normal_length])) + \
                                                 "\nCheck whether your normal sample contains segments with copy number zero")
 
-    return fsa_dict
+    return fsa_dict, fsa_dict_all
 
 
 def intersect_clades_detmin(left, right, fst, prune_weight=None, detmin_before_intersect=True, detmin_after_intersect=True):
@@ -75,6 +82,14 @@ def intersect_clades_detmin(left, right, fst, prune_weight=None, detmin_before_i
     if detmin_after_intersect:
         pruned = fstlib.determinize(pruned).minimize()
     return pruned
+
+def intersect_ancestor_child(fst, ancestor, child, prune_weight=0):
+    all_possible_ancestors = fstlib.compose(ancestor, fst.arcsort('ilabel')).project('output')
+    all_possible_internal_nodes = fstlib.compose(all_possible_ancestors, child.arcsort('ilabel')).project('output')
+    optimal_ancestor = fstlib.prune(all_possible_internal_nodes, weight=prune_weight)
+    # optimal_ancestor = fstlib.arcmap(optimal_ancestor.copy(), map_type='rmweight')
+    optimal_ancestor = fstlib.determinize(optimal_ancestor).minimize()
+    return optimal_ancestor
 
 
 class MEDICCAncestorReconstructionError(Exception):

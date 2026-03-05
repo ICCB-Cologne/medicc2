@@ -5,6 +5,11 @@
 [![Tests](https://github.com/ICCB-Cologne/medicc2/actions/workflows/tests.yml/badge.svg)](https://github.com/ICCB-Cologne/medicc2/actions/workflows/tests.yml)
 
 For more information see the accompanying publication [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-022-02794-9).
+# What is this branch? 
+
+This branch contains one additional flag called "--all-possible-ancestors" that when set returns all ancestral sequence (or the first random --max-ancestors) internal nodes. 
+
+It is important to note that this flag does not affect plotting, the result plots will be the same as the master branch. 
 
 # Installation
 Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was developed and tested on unix-built systems (Linux and MacOS). For Windows users we recommended WSL2.
@@ -68,6 +73,8 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--fst`: Expert option: path to an alternative FST. Default: None
 * `--fst-chr-separator`: Expert option: character used to separate chromosomes in the FST. Default: 'X'
 * `--wgd-x2`: Expert option: Treat WGD as a x2 operation. Default: False
+* `--all-possible-ancestors`: Expert option: Return all possible ancestral states for internal nodes instead of just one. Default: False
+* `--max-ancestors`: Expert option: If `--all-possible-ancestors` is set, return only the first `--max-ancestors` ancestors. Default: 100
 
 
 ## Input files
