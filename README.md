@@ -11,6 +11,8 @@ This branch contains one additional flag called "--all-possible-ancestors" that 
 
 It is important to note that this flag does not affect plotting, the result plots will be the same as the master branch. 
 
+A new output file is introduced to document down the different copy number profiles for each internal node with the same suffix "_all_cn_profiles.tsv"
+
 # Installation
 Install MEDICC2 via conda (recommended), pip or from source. MEDICC2 was developed and tested on unix-built systems (Linux and MacOS). For Windows users we recommended WSL2.
 
