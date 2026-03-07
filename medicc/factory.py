@@ -271,7 +271,76 @@ def modify_gain_loss_fst_with_weights(medicc2_fst, w_stay, w_open, w_extend, w_c
     return medicc2_fst_copy
 
 
+def create_1step_gain_fst_whole_chrom(symbol_table, separator='X', w_open=1, minimize=True):
+
+    cns = _get_int_cns_from_symbol_table(symbol_table, separator)
+
+    W = fstlib.Fst()
+    W.set_input_symbols(symbol_table)
+    W.set_output_symbols(symbol_table)
+    W.add_states(3)
+    W.set_start(0)
+    W.set_final(0, 0)
+    W.set_final(1, 0)
+    W.set_final(2, 0)
+
+    W.add_arcs(0, [(s, t, w_open, 1) for s in cns.keys()
+                for t in cns.keys() if (s != '0') and ((cns[t]-cns[s]) == 1)])
+
+    W.add_arc(1, ('0', '0', 0, 1))
+    W.add_arcs(1, [(s, t, 0, 1) for s in cns.keys()
+                for t in cns.keys() if (s != '0') and ((cns[t]-cns[s]) == 1)])
+    W.add_arc(0, ('0', '0', 0, 0))
+    if separator is not None and separator != '':
+        W.add_arc(0, (separator, separator, 0, 0))
+        W.add_arc(1, (separator, separator, 0, 0))
+    W.add_arc(1, ('0', '0', 0, 1))
+
+    W.add_arcs(0, [(s, s, 0, 2) for s in cns.keys() if s != '0'])
+    W.add_arcs(2, [(s, s, 0, 2) for s in cns.keys()])
+    W.add_arc(2, ('0', '0', 0, 2))
+    if separator is not None and separator != '':
+        W.add_arc(2, (separator, separator, 0, 0))
+    W.arcsort('olabel')
+    if minimize:
+        W = fstlib.encode_determinize_minimize(W)
+
+    return W
 
 
 
+def create_1step_loss_fst_whole_chrom(symbol_table, separator='X', w_open=1, minimize=True):
 
+    cns = _get_int_cns_from_symbol_table(symbol_table, separator)
+
+    W = fstlib.Fst()
+    W.set_input_symbols(symbol_table)
+    W.set_output_symbols(symbol_table)
+    W.add_states(3)
+    W.set_start(0)
+    W.set_final(0, 0)
+    W.set_final(1, 0)
+    W.set_final(2, 0)
+
+    W.add_arcs(0, [(s, t, w_open, 1) for s in cns.keys()
+                for t in cns.keys() if (s != '0') and ((cns[s]-cns[t]) == 1)])
+
+    W.add_arc(1, ('0', '0', 0, 1))
+    W.add_arcs(1, [(s, t, 0, 1) for s in cns.keys()
+                for t in cns.keys() if (s != '0') and ((cns[s]-cns[t]) == 1)])
+    W.add_arc(0, ('0', '0', 0, 0))
+    if separator is not None and separator != '':
+        W.add_arc(0, (separator, separator, 0, 0))
+        W.add_arc(1, (separator, separator, 0, 0))
+    W.add_arc(1, ('0', '0', 0, 1))
+
+    W.add_arcs(0, [(s, s, 0, 2) for s in cns.keys() if s != '0'])
+    W.add_arcs(2, [(s, s, 0, 2) for s in cns.keys()])
+    W.add_arc(2, ('0', '0', 0, 2))
+    if separator is not None and separator != '':
+        W.add_arc(2, (separator, separator, 0, 0))
+    W.arcsort('olabel')
+    if minimize:
+        W = fstlib.encode_determinize_minimize(W)
+
+    return W

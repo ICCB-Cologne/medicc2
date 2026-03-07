@@ -486,13 +486,16 @@ def parallelization_calc_pairwise_distance(sample_labels, asymm_fst, CN_str_dict
 
 
 @lru_cache(maxsize=None)
-def calc_MED_distance(model_fst, profile_1, profile_2, chr_separator="X", euclidean=False):
+def calc_MED_distance(model_fst, profile_1, profile_2, chr_separator="X", euclidean=False, disable_shortening=True):
     '''
     Calculate the MED distance between two profiles represented as strings.
     '''
 
     if not euclidean:
-        profile_1_short, profile_2_short = shorten_cn_strings(profile_1, profile_2)
+        profile_1_short = profile_1
+        profile_2_short = profile_2
+        if not disable_shortening:
+            profile_1_short, profile_2_short = shorten_cn_strings(profile_1, profile_2)
         # Convert shrunken string to fsa
         symbol_table = model_fst.input_symbols()
         profile_1_short_fsa = fstlib.factory.from_string(profile_1_short, isymbols=symbol_table, osymbols=symbol_table)
