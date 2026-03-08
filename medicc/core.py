@@ -93,12 +93,13 @@ def main(input_df,
 
     if ancestral_reconstruction:
         logger.info("Reconstructing ancestors.")
-        ancestors = medicc.reconstruct_ancestors(tree=final_tree,
+        ancestors, _uppass_cache = medicc.reconstruct_ancestors(tree=final_tree,
                                                  samples_dict=FSA_dict,
                                                  fst=asymm_fst,
                                                  normal_name=normal_name,
                                                  prune_weight=prune_weight,
-                                                 spr_logger_disable=False)
+                                                 spr_logger_disable=False,
+                                                 n_cores=n_cores)
 
         ## Create and write output data frame with ancestors
         logger.info("Creating output copynumbers.")
@@ -144,7 +145,10 @@ def main_spr(input_df,
              n_cores=None,
              prune_weight=0,
              spr_step=1000,
-             spr_start="random"):
+             spr_start="nj",
+             sa_temp_start=10.0,
+             sa_temp_end=0.01,
+             sa_cooling="geometric"):
     """
     spr mode Main Method
     We start with a
@@ -224,7 +228,10 @@ def main_spr(input_df,
                                                                  normal_name=normal_name,
                                                                  prune_weight=prune_weight,
                                                                  MCMC_step=spr_step,
-                                                                 accept_scaler=1)
+                                                                 n_cores=n_cores,
+                                                                 sa_temp_start=sa_temp_start,
+                                                                 sa_temp_end=sa_temp_end,
+                                                                 sa_cooling=sa_cooling)
     logger.info("SPR mode: Creating output copynumbers.")
     output_df_l = [create_df_from_fsa(input_df, ancestors) for ancestors in ancestors_l]
 
@@ -619,20 +626,61 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
                 child.branch_length = brs
 
 
-def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCMC_step=1000, accept_scaler=1):
-    """ Perform MCMC sampling to infer the phylogenetic tree """
+def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCMC_step=1000,
+             n_cores=None, sa_temp_start=10.0, sa_temp_end=0.01, sa_cooling="geometric"):
+    """Perform tree search via SPR moves with simulated annealing.
+
+    Uses incremental ancestor reconstruction: after each SPR move, only the
+    up-pass (intersection) results for nodes on the prune/regraft-to-root paths
+    are recomputed. The down-pass is always run in full.
+
+    Simulated annealing schedule:
+        - 'geometric': T(i) = T_start * alpha^i, where alpha is computed so that
+          T(MCMC_step-1) = T_end. Standard for SPR-based phylogenetic search
+          (used in e.g. GARLI).
+        - 'linear': T(i) = T_start * (1 - i / MCMC_step). Simpler alternative.
+
+    At each step, worse trees are accepted with probability exp(-delta / T(i)).
+    High T → exploration (accept bad moves freely).
+    Low T  → exploitation (mostly greedy, only accept improvements).
+
+    Args:
+        sa_temp_start: Starting temperature (default: 10.0).
+        sa_temp_end: Final temperature (default: 0.01).
+        sa_cooling: Cooling schedule, either 'geometric' or 'linear' (default: 'geometric').
+    """
+    from medicc.ancestors import reconstruct_ancestors_incremental
+
+    # Compute cooling schedule parameters
+    if sa_cooling == "geometric":
+        # T(i) = T_start * alpha^i, solve for alpha such that T(N-1) = T_end
+        if MCMC_step > 1:
+            sa_alpha = (sa_temp_end / sa_temp_start) ** (1.0 / (MCMC_step - 1))
+        else:
+            sa_alpha = 1.0
+        def temperature(step):
+            return sa_temp_start * (sa_alpha ** step)
+    elif sa_cooling == "linear":
+        def temperature(step):
+            return sa_temp_start * max(1e-10, 1.0 - step / MCMC_step)
+    else:
+        raise ValueError(f"Unknown cooling schedule '{sa_cooling}'. Use 'geometric' or 'linear'.")
+
+    logger.info(f"SPR mode: Simulated annealing with {sa_cooling} cooling, "
+                f"T_start={sa_temp_start}, T_end={sa_temp_end}, steps={MCMC_step}")
 
     sum_of_branch_length_l = []
     # Keep track of topologies visited
     topology_visited = set()
 
-    # MCMC starting point
-    ancestors = medicc.reconstruct_ancestors(tree=tree,
+    # MCMC starting point — full reconstruction
+    ancestors, uppass_cache = medicc.reconstruct_ancestors(tree=tree,
                                              samples_dict=samples_dict,
                                              fst=fst,
                                              normal_name=normal_name,
                                              prune_weight=prune_weight,
-                                             spr_logger_disable=True)
+                                             spr_logger_disable=True,
+                                             n_cores=n_cores)
     update_branch_lengths(tree, fst, ancestors, normal_name)
     sum_of_branch_length_l.append(medicc.tools.sum_of_branch_length(tree))
 
@@ -645,10 +693,13 @@ def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCM
     tree_pre = tree
     sum_of_branch_length_pre = sum_of_branch_length_l[-1]
     ancestors_pre = ancestors
+    uppass_cache_pre = uppass_cache
     for i in range(MCMC_step):
+        T = temperature(i)
 
-        # propose a new tree topology using SPR
-        new_tree_topology = medicc.spr.spr_move(tree_pre)
+        # propose a new tree topology using SPR (with metadata for incremental reconstruction)
+        spr_result = medicc.spr.spr_move_with_metadata(tree_pre)
+        new_tree_topology = spr_result.tree
 
         # Check if the new topology has been visited before
         new_tree_topology_hash = tree_hash.tree_hash(tree_hash.strip_branch_lengths(new_tree_topology))
@@ -660,28 +711,34 @@ def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCM
             topology_visited.add(new_tree_topology_hash)
             logger.debug("SPR mode: step: {}, proposed new topology is new".format(i))
 
-        # calculate the sum of branch length
-        new_ancestors = medicc.reconstruct_ancestors(tree=new_tree_topology,
-                                                     samples_dict=samples_dict,
-                                                     fst=fst,
-                                                     normal_name=normal_name,
-                                                     prune_weight=prune_weight,
-                                                     spr_logger_disable=True)
+        # Incremental ancestor reconstruction — only recompute dirty up-pass nodes
+        # Pass the up-pass cache (pure intersection results), NOT the final ancestors
+        new_ancestors, new_uppass_cache = reconstruct_ancestors_incremental(
+            tree=new_tree_topology,
+            old_uppass_cache=uppass_cache_pre,
+            samples_dict=samples_dict,
+            fst=fst,
+            normal_name=normal_name,
+            spr_result=spr_result,
+            prune_weight=prune_weight)
 
         update_branch_lengths(new_tree_topology, fst, new_ancestors, normal_name)
         sum_of_branch_length_new = medicc.tools.sum_of_branch_length(new_tree_topology)
-        logger.debug("SPR mode: step: {}, proposed new sum of branch length: {}".format(i, sum_of_branch_length_new))
+        logger.debug("SPR mode: step: {}, T: {:.4f}, proposed sum of branch length: {}".format(
+            i, T, sum_of_branch_length_new))
 
-        # Accept or reject the new tree
+        # Accept or reject the new tree (simulated annealing)
         if sum_of_branch_length_new <= sum_of_branch_length_pre:
-            # Accept the new tree
+            # Always accept improvements
             tree_pre = new_tree_topology
             sum_of_branch_length_pre = sum_of_branch_length_new
             ancestors_pre = new_ancestors
+            uppass_cache_pre = new_uppass_cache
             sum_of_branch_length_l.append(sum_of_branch_length_new)
-            logger.info("SPR mode: step: {}, accepted a better new tree with sum of branch length {}".format(i, sum_of_branch_length_new))
+            logger.info("SPR mode: step: {}, T: {:.4f}, accepted a better tree with sum of branch length {}".format(
+                i, T, sum_of_branch_length_new))
 
-            # Check if the new tree is better than the global tree
+            # Check if the new tree is better than the global best
             if sum_of_branch_length_new < global_sum_of_branch_length:
                 global_tree_l = [new_tree_topology]
                 global_ancestor_l = [new_ancestors]
@@ -690,23 +747,23 @@ def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCM
                 global_tree_l.append(new_tree_topology)
                 global_ancestor_l.append(new_ancestors)
         else:
-            # Accept the new tree with probability exp(-delta)
+            # Accept worse tree with probability exp(-delta / T)
             delta = sum_of_branch_length_new - sum_of_branch_length_pre
-            if np.random.rand() < np.exp(-accept_scaler * delta):
+            accept_prob = np.exp(-delta / T)
+            if np.random.rand() < accept_prob:
                 tree_pre = new_tree_topology
                 sum_of_branch_length_pre = sum_of_branch_length_new
                 ancestors_pre = new_ancestors
+                uppass_cache_pre = new_uppass_cache
                 sum_of_branch_length_l.append(sum_of_branch_length_new)
-                logger.info("SPR mode: step: {}, accepted a worse new tree with sum of branch length {}".format(i, sum_of_branch_length_new))
+                logger.info("SPR mode: step: {}, T: {:.4f}, accepted a worse tree (p={:.4f}) with sum of branch length {}".format(
+                    i, T, accept_prob, sum_of_branch_length_new))
             else:
                 sum_of_branch_length_l.append(sum_of_branch_length_pre)
-                logger.debug("SPR mode: step: {}, rejected a worse new tree with sum of branch length {}".format(i, sum_of_branch_length_new))
+                logger.debug("SPR mode: step: {}, T: {:.4f}, rejected a worse tree (p={:.4f}) with sum of branch length {}".format(
+                    i, T, accept_prob, sum_of_branch_length_new))
 
     return global_tree_l, global_ancestor_l, sum_of_branch_length_l
-
-
-
-
 
 
 def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df=None):

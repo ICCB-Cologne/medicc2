@@ -1,8 +1,18 @@
 import copy
+from collections import namedtuple
 
 from Bio import Phylo
 from Bio.Phylo.BaseTree import Clade, Tree 
 import random 
+
+
+SPRResult = namedtuple('SPRResult', [
+    'tree',                    # the new tree after SPR
+    'pruned_subtree_root',     # name of the root of the pruned subtree (S)
+    'prune_grandparent',       # name of node G (grandparent where sibling was reconnected)
+    'regraft_parent',          # name of the new internal node P' (reused from old parent)
+])
+
 
 def get_random_candidate_clades(tree, prune = True, parent_name = None):
     # Get all clades
@@ -62,7 +72,7 @@ def prune_tree(tree):
     parent, grandparent = get_parent_and_grandparent(tree, prune_clade)
     tree = connect_grandparent_to_sibling(tree, prune_clade)
 
-    return tree, prune_clade, parent.name 
+    return tree, prune_clade, parent.name, grandparent.name
 
 def regraft_tree(pruned_tree, subtree, parent_name):
     regraft_clade = get_random_candidate_clades(pruned_tree, prune = False, parent_name=parent_name)
@@ -86,9 +96,37 @@ def spr_move(tree):
     # NOTE: This function modifies the tree in place!!!
     tree_copy = copy.deepcopy(tree)
     # Prune a subtree
-    pruned_tree, subtree, parent_name = prune_tree(tree_copy)
+    pruned_tree, subtree, parent_name, _ = prune_tree(tree_copy)
 
     # Regraft the subtree
     tree_SPR = regraft_tree(pruned_tree, subtree, parent_name)
 
-    return tree_SPR 
+    return tree_SPR
+
+
+def spr_move_with_metadata(tree):
+    """Perform an SPR move and return metadata about which nodes changed.
+
+    Returns an SPRResult namedtuple containing:
+      - tree: the new tree after the SPR move
+      - pruned_subtree_root: name of the root of the pruned subtree
+      - prune_grandparent: name of the grandparent node on the prune side
+      - regraft_parent: name of the newly created internal node at the regraft site
+    """
+    tree_copy = copy.deepcopy(tree)
+
+    # Prune — also capture grandparent name
+    pruned_tree, subtree, parent_name, grandparent_name = prune_tree(tree_copy)
+
+    # The pruned subtree root name
+    pruned_subtree_root_name = subtree.name
+
+    # Regraft
+    tree_SPR = regraft_tree(pruned_tree, subtree, parent_name)
+
+    return SPRResult(
+        tree=tree_SPR,
+        pruned_subtree_root=pruned_subtree_root_name,
+        prune_grandparent=grandparent_name,
+        regraft_parent=parent_name,  # the reused parent name becomes the new internal node
+    )

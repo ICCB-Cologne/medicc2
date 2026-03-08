@@ -141,9 +141,16 @@ parser.add_argument("--spr-mode", action='store_true', default=False, dest='spr'
                     help='Expert option: Use spr mode (default: False).', required=False)
 parser.add_argument("--spr-mode-step", type=int, dest='spr_step', default=1000,
                     help='Expert option: Number of spr steps in spr mode (default: 1000).')
-parser.add_argument("--spr-start", type=str, dest="spr_start", default="random",
+parser.add_argument("--spr-start", type=str, dest="spr_start", default="nj",
                     help='''Expert option: Starting point for spr in spr mode. 
                             Can be either "random" or "neighbor-joining" or "nj" for short (default: random).''')
+parser.add_argument("--sa-temp-start", type=float, dest='sa_temp_start', default=10.0,
+                    help='Expert option: Simulated annealing starting temperature for SPR mode (default: 10.0).')
+parser.add_argument("--sa-temp-end", type=float, dest='sa_temp_end', default=0.01,
+                    help='Expert option: Simulated annealing ending temperature for SPR mode (default: 0.01).')
+parser.add_argument("--sa-cooling", type=str, dest='sa_cooling', default='geometric',
+                    choices=['geometric', 'linear'],
+                    help='Expert option: Simulated annealing cooling schedule for SPR mode (default: geometric).')
 # parser.add_argument("--euclidean", type=bool, dest="euclidean", default=False, help='''Expert option: Use Euclidean distance instead of FST for pairwise distances (default: False).''')
 args = parser.parse_args()
 
@@ -354,7 +361,10 @@ else:
         n_cores=args.n_cores,
         prune_weight=args.prune_weight,
         spr_step=args.spr_step,
-        spr_start=args.spr_start
+        spr_start=args.spr_start,
+        sa_temp_start=args.sa_temp_start,
+        sa_temp_end=args.sa_temp_end,
+        sa_cooling=args.sa_cooling
     )
 
     # Write results
