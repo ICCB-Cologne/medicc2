@@ -457,7 +457,8 @@ Coordinates are negative, and integers for tips.
     maxheight = tree.count_terminals()
     heights = {tip: maxheight -1 -i for i,
             tip in enumerate(reversed([x for x in tree.get_terminals() if x.name != normal_name]))}
-    heights.update({list(tree.find_clades(normal_name))[0]: maxheight})
+    if normal_name is not None:
+        heights.update({list(tree.find_clades(normal_name))[0]: maxheight})
 
     # Internal nodes: place at midpoint of children
     def calc_row(clade):
@@ -559,6 +560,9 @@ def plot_tree(input_tree,
             raise MEDICCPlotError(
                 "Install matplotlib or pylab if you want to use draw."
             ) from None
+
+    if normal_name is not None and len(list(input_tree.find_clades(normal_name))) == 0:
+        raise MEDICCPlotError(f'Normal sample "{normal_name}" was not found in tree')
 
     import matplotlib.collections as mpcollections
     if ax is None:
@@ -834,7 +838,7 @@ def plot_tree(input_tree,
 
 def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=None, total_copy_numbers=False,
                     alleles=['cn_a', 'cn_b'], tree_width_ratio=1, cbar_width_ratio=0.05, figsize=(20, 10),
-                    tree_line_width=0.5, tree_marker_size=0, show_internal_nodes=False, title='',
+                    tree_line_width=0.5, tree_marker_size=0, show_internal_nodes=False, show_branch_support=False, title='',
                     tree_label_colors=None, tree_label_func=None, cmap='coolwarm', normal_name='diploid',
                     ignore_segment_lengths=False):
 
@@ -877,7 +881,8 @@ def plot_cn_heatmap(input_df, final_tree=None, y_posns=None, cmax=None, total_co
         
         _ = plot_tree(final_tree, ax=tree_ax, normal_name=normal_name,
                       label_func=tree_label_func if tree_label_func is not None else lambda x: '',
-                      hide_internal_nodes=(not show_internal_nodes), show_branch_lengths=False, show_events=False,
+                      hide_internal_nodes=(not show_internal_nodes), show_branch_lengths=False, 
+                      show_events=False, show_branch_support=show_branch_support,
                       line_width=tree_line_width, marker_size=tree_marker_size,
                       title=title, label_colors=tree_label_colors)
         tree_ax.set_axis_off()

@@ -14,9 +14,14 @@ if sys.platform.startswith("darwin"):
   extra_compile_args.append("-stdlib=libc++")
   extra_compile_args.append("-mmacosx-version-min=10.14")
 
+# Define __version__
+__version__ = None
+exec(open("medicc/_version.py").read())
+
 setup(
     name='medicc2',
-    version='1.1.2',
+    # Change this in medicc/_version.py
+    version=__version__,
     author='Tom L Kaufmann, Marina Petkovic, Chenxi Nie, Roland F Schwarz',
     author_email='tkau93@gmail.com, marina.55kovic@gmail.com, roland.f.schwarz@gmail.com',
     description='Whole-genome doubling-aware copy number phylogenies for cancer evolution',
