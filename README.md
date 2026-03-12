@@ -2,6 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/medicc2?color=green)](https://pypi.org/project/medicc2/)
 [![Conda](https://img.shields.io/conda/v/bioconda/medicc2?color=green)](https://anaconda.org/bioconda/medicc2)
+[![Tests](https://github.com/ICCB-Cologne/medicc2/actions/workflows/tests.yml/badge.svg)](https://github.com/ICCB-Cologne/medicc2/actions/workflows/tests.yml)
 
 For more information see the accompanying publication [Whole-genome doubling-aware copy number phylogenies for cancer evolution with MEDICC2](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-022-02794-9).
 # What is in this branch?
@@ -25,12 +26,12 @@ It is best to use a dedicated conda environment for your MEDICC2 installation wi
 After activating the environment with `conda activate medicc_env` you can install MEDICC2 via `conda install -c bioconda -c conda-forge medicc2`.
 
 ## Installation via pip
-As MEDICC2 relies on OpenFST version 1.8.2 which is not packaged on PyPi you have to first install it using conda with `conda install -c conda-forge openfst=1.8.2`. Next you can install MEDICC2 via `pip install medicc2`.
+As MEDICC2 relies on OpenFST version 1.8.2 which is not packaged on PyPi you have to first install it using conda with `conda install -c conda-forge openfst=1.8.4`. Next you can install MEDICC2 via `pip install medicc2`.
 
 ## Installation from source
-Clone the MEDICC2 repository and its submodules using `git clone --recursive https://bitbucket.org/schwarzlab/medicc2.git`. It is important to use the `--recursive` flag to also download the modified OpenFST submodule.
+Clone the MEDICC2 repository and its submodules using `git clone --recursive https://github.com/ICCB-Cologne/medicc2.git`. It is important to use the `--recursive` flag to also download the modified OpenFST submodule.
 
-All dependencies including OpenFST (v1.8.2) should be directly installable via conda. A yaml file with a suggested MEDICC2 conda environment is provided in 'doc/medicc2.yml'. You can create a new conda environment with all requirements using `conda env create -f doc/medicc2.yml -n medicc_env`. Note that Cython version 0.29 is required (Cython version 3.0 and will likely not work).
+All dependencies including OpenFST (v1.8.2) should be directly installable via conda. A yaml file with a suggested MEDICC2 conda environment is provided in 'doc/medicc2.yml'. You can create a new conda environment with all requirements using `conda env create -f doc/medicc2.yml -n medicc_env`.
 
 Then, inside the `medicc2` folder, run `pip install .` to install MEDICC2 to your environment.
 
@@ -54,7 +55,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--topology-only`, `-s`: Output only tree topology, without reconstructing ancestors. Default: False
 * `--normal-name`, `-n`: ID of the sample to be treated as the normal sample. Trees are rooted at this sample for ancestral reconstruction. If the sample ID is not found, an artificial normal sample of the same name is created with CN states = 1 for each allele. Default: 'diploid'
 * `--exclude-samples`, `-x`: Comma separated list of sample IDs to exclude. Default: None
-* `--filter-segment-length`: Removes segments that are smaller than specified length. Default: None
+* `--filter-segment-length`: Removes segments that are smaller than specified length (measured in bp's). Default: None
 * `--bootstrap-method`: Bootstrap method. Has to be either 'chr-wise' or 'segment-wise'. Default: 'chr-wise'
 * `--bootstrap-nr`: Number of bootstrap runs to perform. Default: None
 * `--prefix`, '-p': Output prefix to be used. None uses input filename. Default: None

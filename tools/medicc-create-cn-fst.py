@@ -33,7 +33,7 @@ logger.info('Creating FSTs.')
 fst = medicc.create_copynumber_fst(symbol_table=symbol_table, sep=separator, 
                                    enable_wgd=args.wgd, max_num_wgds=args.max_num_wgds,
                                    wgd_x2=args.wgd_x2, total_cn=args.total_cn,
-                                   exact=not args.legacy_loh)
+                                   exact_nowgd=not args.legacy_loh)
 logger.info('FST: %d states.', fst.num_states())
 
 logger.info('Writing.')

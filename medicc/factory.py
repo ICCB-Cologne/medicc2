@@ -165,17 +165,17 @@ def create_nstep_fst(n, one_step_fst, minimize=True):
 
 def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1, 
                           max_num_wgds=3, wgd_x2=False, output_all=False, total_cn=False,
-                          exact=True, max_pre_wgd_losses=8, exact_wgd=False):
+                          exact_nowgd=True, max_pre_wgd_losses=8, exact_wgd=False):
     """ Creates the tree FST T which computes the asymmetric MED.
-    The current creation is based on a trade-off. In the absence of WGDs, the FST is exact wr.t.
-    combined LOH-losses (i.e 21 -> 10 is counted as one event), however, in the presence of WGDs, 
-    for performance reasons losses and LOHs are counted separately.
+    The current creation is based on a trade-off. In the absence of WGDs (and the default "exact_nowgd=True"),
+    the FST is exact wr.t. combined LOH-losses (i.e 21 -> 10 is counted as one event), however,
+    in the presence of WGDs, for performance reasons losses and LOHs are counted separately.
 
-    For `exact_wgd=True`, the FST is exact wr.t. combined LOH-losses even in the presence of WGDs 
+    For `exact_wgd=True`, the FST is exact w.r.t. combined LOH-losses even in the presence of WGDs 
     but due to the exponential growth of the FST, it is not feasible in most cases. (Example where 
     this is required: 22X1X1X1 -> 10X2X2X2, 4 events with exact_wgd and 5 otherwise.)
 
-    For `exact=False` the legacy version is created which never combines losses and LOHs.
+    For `exact_nowgd=False` the legacy version is created which never combines losses and LOHs.
     """
     n = len(_get_int_cns_from_symbol_table(symbol_table, sep))
 
@@ -197,13 +197,13 @@ def create_copynumber_fst(symbol_table, sep='X', enable_wgd=False, wgd_cost=1,
             W = W1step
         if exact_wgd:
             T = L_LOH * W * LG
-        elif exact:
+        elif exact_nowgd:
             T = ((LOH * W * LG) + fstlib.encode_determinize_minimize(L_LOH * G)).rmepsilon()
         else:
             # legacy version
             T = LOH * W * LG
     else:
-        if exact:
+        if exact_nowgd:
             T = fstlib.encode_determinize_minimize(L_LOH*G)
         else:
             # legacy version

@@ -109,7 +109,7 @@ def main(input_df,
         logger.info("Updating branch lengths of final tree using ancestors.")
         update_branch_lengths(final_tree, event_counting_fst, ancestors, normal_name)
     else:
-        output_df = None
+        output_df = input_df.copy()
 
     nj_tree.root_with_outgroup(normal_name)
     final_tree.root_with_outgroup(normal_name)
@@ -124,7 +124,7 @@ def main(input_df,
             for node in final_tree.find_clades():
                 if node.name is not None and node.name != normal_name and node.branch_length != 0 and node.branch_length != len(events_df.loc[node.name]):
                     faulty_nodes.append(node.name)
-            logger.warn("Event recreation was faulty. Events in '_cn_events_df.tsv' will be "
+            logger.warning("Event recreation was faulty. Events in '_cn_events_df.tsv' will be "
                         f"incorrect for the following nodes: {faulty_nodes}. "
                         f"total_branch_length: {final_tree.total_branch_length()}, "
                         f"nr of inferred events: {len(events_df)}")
@@ -784,13 +784,13 @@ def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df
         for child in parent.clades:
             if child.branch_length:
                 branch_lengths.append(child.branch_length)
-    
+
     nsamples = len(sample_labels)
-    tree_length = np.sum(branch_lengths)
-    avg_branch_length = np.mean(branch_lengths)
-    min_branch_length = np.min(branch_lengths)
-    max_branch_length = np.max(branch_lengths)
-    median_branch_length = np.median(branch_lengths)
+    tree_length = np.sum(branch_lengths) if len(branch_lengths) > 0 else None
+    avg_branch_length = np.mean(branch_lengths) if len(branch_lengths) > 0 else None
+    min_branch_length = np.min(branch_lengths) if len(branch_lengths) > 0 else None
+    max_branch_length = np.max(branch_lengths) if len(branch_lengths) > 0 else None
+    median_branch_length = np.median(branch_lengths) if len(branch_lengths) > 0 else None
     # p_star = stats.star_topology_test(pdm)
     # p_clock = stats.molecular_clock_test(pdm,
     #                                      np.flatnonzero(np.array(sample_labels) == normal_name)[0])
