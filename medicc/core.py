@@ -1,6 +1,7 @@
 import copy
 import logging
 import os
+import random
 from functools import lru_cache
 from itertools import combinations
 
@@ -169,13 +170,28 @@ def main_spr(input_df,
     FSA_dict, CN_str_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
     sample_labels = input_df.index.get_level_values('sample_id').unique()
 
+    use_multichain = n_cores is not None and n_cores > 1
+    n_chains = n_cores if use_multichain else 1
+    chain_start_trees = []
+
     ## Tree Reconstruction
 
     ### Create start point tree
     if input_tree is None:
         if spr_start == "random":
             logger.info("SPR mode: Start with a random tree.")
-            nj_tree = create_random_tree_topology(list(sample_labels), normal_name=normal_name)
+            if use_multichain:
+                logger.info("SPR mode: Multi-chain enabled with %s chains. Generating random start tree per chain.",
+                            n_chains)
+                chain_start_trees = _create_unique_random_start_trees(
+                    sample_labels=sample_labels,
+                    normal_name=normal_name,
+                    n_chains=n_chains,
+                )
+                nj_tree = copy.deepcopy(chain_start_trees[0])
+            else:
+                nj_tree = create_random_tree_topology(list(sample_labels), normal_name=normal_name)
+                chain_start_trees = [copy.deepcopy(nj_tree)]
         elif spr_start == "neighbor-joining" or spr_start == "nj":
             logger.info("SPR mode: Start with a Neighbor-joining tree.")
             logger.info("SPR mode: Calculating pairwise distance matrices.")
@@ -201,6 +217,13 @@ def main_spr(input_df,
             nj_tree.root_with_outgroup(normal_name)
             nj_tree.root.clades = [clade for clade in nj_tree.root.clades if clade.name != normal_name]
             nj_tree.root.name = normal_name
+
+            if use_multichain:
+                logger.info("SPR mode: Multi-chain enabled with %s chains. All chains start from the same neighbor-joining tree.",
+                            n_chains)
+                chain_start_trees = [copy.deepcopy(nj_tree) for _ in range(n_chains)]
+            else:
+                chain_start_trees = [copy.deepcopy(nj_tree)]
         else:
             raise NotImplementedError("SPR mode: Start with a random tree or a neighbor-joining tree.")
     else:
@@ -220,18 +243,25 @@ def main_spr(input_df,
         input_tree.root_with_outgroup([x for x in input_tree.root.clades if x.name != normal_name][0].name)
         nj_tree = input_tree
 
-    final_tree = copy.deepcopy(nj_tree)
+        if use_multichain:
+            logger.info("SPR mode: Multi-chain enabled with %s chains. All chains start from the provided input tree.",
+                        n_chains)
+            chain_start_trees = [copy.deepcopy(nj_tree) for _ in range(n_chains)]
+        else:
+            chain_start_trees = [copy.deepcopy(nj_tree)]
+
     logger.info("SPR mode: Running MCMC to infer phylogenetic tree")
-    final_tree_l, ancestors_l, sum_of_branch_length_l = spr_mode(tree=final_tree,
-                                                                 samples_dict=FSA_dict,
-                                                                 fst=asymm_fst,
-                                                                 normal_name=normal_name,
-                                                                 prune_weight=prune_weight,
-                                                                 MCMC_step=spr_step,
-                                                                 n_cores=n_cores,
-                                                                 sa_temp_start=sa_temp_start,
-                                                                 sa_temp_end=sa_temp_end,
-                                                                 sa_cooling=sa_cooling)
+    final_tree_l, ancestors_l, chain_traces = spr_mode(tree=copy.deepcopy(chain_start_trees[0]),
+                                                       samples_dict=FSA_dict,
+                                                       fst=asymm_fst,
+                                                       normal_name=normal_name,
+                                                       prune_weight=prune_weight,
+                                                       MCMC_step=spr_step,
+                                                       n_cores=n_cores,
+                                                       sa_temp_start=sa_temp_start,
+                                                       sa_temp_end=sa_temp_end,
+                                                       sa_cooling=sa_cooling,
+                                                       chain_start_trees=chain_start_trees)
     logger.info("SPR mode: Creating output copynumbers.")
     output_df_l = [create_df_from_fsa(input_df, ancestors) for ancestors in ancestors_l]
 
@@ -264,15 +294,41 @@ def main_spr(input_df,
     nj_tree.root = new_root_clade
 
     logger.info("SPR mode: Plotting SPR Trace")
+    is_multichain_trace = len(chain_traces) > 0 and isinstance(chain_traces[0], list)
+    chain_trace_l = chain_traces if is_multichain_trace else [chain_traces]
+
+    # Save overall summary trace (single file).
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(sum_of_branch_length_l, '-o', alpha=0.6)
+    if len(chain_trace_l) > 1:
+        for chain_idx, chain_trace in enumerate(chain_trace_l, start=1):
+            ax.plot(chain_trace, alpha=0.55, linewidth=1.2, label=f'chain_{chain_idx}')
+        if len(chain_trace_l) <= 12:
+            ax.legend(fontsize=8, ncol=2)
+        ax.set_title('SPR Trace Summary (Multi-chain)')
+    else:
+        ax.plot(chain_trace_l[0], '-o', alpha=0.6)
+        ax.set_title('SPR Trace Summary')
     ax.set_xlabel('SPR Step')
     ax.set_ylabel('Sum of Branch Lengths')
-    ax.set_title('SPR Trace Summary')
     ax.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, 'SPR_trace.pdf'), bbox_inches='tight')
     plt.close()
+
+    # Save one trajectory plot per chain.
+    trace_output_dir = os.path.join(output_dir, 'spr_traces')
+    os.makedirs(trace_output_dir, exist_ok=True)
+    for chain_idx, chain_trace in enumerate(chain_trace_l, start=1):
+        fig_chain, ax_chain = plt.subplots(figsize=(10, 6))
+        ax_chain.plot(chain_trace, '-o', alpha=0.7, markersize=3)
+        ax_chain.set_xlabel('SPR Step')
+        ax_chain.set_ylabel('Sum of Branch Lengths')
+        ax_chain.set_title(f'SPR Trace Chain {chain_idx}')
+        ax_chain.grid(True, linestyle='--', alpha=0.7)
+        plt.tight_layout()
+        plt.savefig(os.path.join(trace_output_dir, f'SPR_trace_chain_{chain_idx}.pdf'),
+                    bbox_inches='tight')
+        plt.close()
 
     return sample_labels, nj_tree, final_tree_l, output_df_l
 
@@ -595,6 +651,32 @@ def create_random_tree_topology(sample_labels, normal_name="diploid"):
     return tree
 
 
+def _create_unique_random_start_trees(sample_labels, normal_name, n_chains, max_attempt_factor=20):
+    """Create random start trees with unique topologies when possible."""
+    trees = []
+    topology_hashes = set()
+    attempts = 0
+    max_attempts = max_attempt_factor * max(1, n_chains)
+
+    while len(trees) < n_chains and attempts < max_attempts:
+        attempts += 1
+        cur_tree = create_random_tree_topology(list(sample_labels), normal_name=normal_name)
+        cur_hash = tree_hash.tree_hash(tree_hash.strip_branch_lengths(cur_tree))
+        if cur_hash in topology_hashes:
+            continue
+        topology_hashes.add(cur_hash)
+        trees.append(cur_tree)
+
+    if len(trees) < n_chains:
+        raise MEDICCError(
+            "SPR mode: Could not generate unique random start trees for all chains. "
+            f"Requested chains={n_chains}, unique_starts={len(trees)}, attempts={attempts}. "
+            "Try reducing --n-cores or use --spr-start nj."
+        )
+
+    return trees
+
+
 def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
     """ Updates the branch lengths in the tree using the internal nodes supplied in the FSA dict 
     """
@@ -626,8 +708,9 @@ def update_branch_lengths(tree, fst, ancestor_fsa, normal_name='diploid'):
                 child.branch_length = brs
 
 
-def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCMC_step=1000,
-             n_cores=None, sa_temp_start=10.0, sa_temp_end=0.01, sa_cooling="geometric"):
+def _spr_mode_single_chain(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCMC_step=1000,
+                           n_cores=None, sa_temp_start=10.0, sa_temp_end=0.01, sa_cooling="geometric",
+                           seed=None, chain_id=1):
     """Perform tree search via SPR moves with simulated annealing.
 
     Uses incremental ancestor reconstruction: after each SPR move, only the
@@ -651,6 +734,10 @@ def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCM
     """
     from medicc.ancestors import reconstruct_ancestors_incremental
 
+    if seed is not None:
+        np.random.seed(seed)
+        random.seed(seed)
+
     # Compute cooling schedule parameters
     if sa_cooling == "geometric":
         # T(i) = T_start * alpha^i, solve for alpha such that T(N-1) = T_end
@@ -666,8 +753,9 @@ def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCM
     else:
         raise ValueError(f"Unknown cooling schedule '{sa_cooling}'. Use 'geometric' or 'linear'.")
 
-    logger.info(f"SPR mode: Simulated annealing with {sa_cooling} cooling, "
-                f"T_start={sa_temp_start}, T_end={sa_temp_end}, steps={MCMC_step}")
+    logger.info(
+        f"SPR mode: chain {chain_id}, simulated annealing with {sa_cooling} cooling, "
+        f"T_start={sa_temp_start}, T_end={sa_temp_end}, steps={MCMC_step}")
 
     sum_of_branch_length_l = []
     # Keep track of topologies visited
@@ -735,8 +823,8 @@ def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCM
             ancestors_pre = new_ancestors
             uppass_cache_pre = new_uppass_cache
             sum_of_branch_length_l.append(sum_of_branch_length_new)
-            logger.info("SPR mode: step: {}, T: {:.4f}, accepted a better tree with sum of branch length {}".format(
-                i, T, sum_of_branch_length_new))
+            logger.info("SPR mode: chain {}, step: {}, T: {:.4f}, accepted a better tree with sum of branch length {}".format(
+                chain_id, i, T, sum_of_branch_length_new))
 
             # Check if the new tree is better than the global best
             if sum_of_branch_length_new < global_sum_of_branch_length:
@@ -756,14 +844,101 @@ def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCM
                 ancestors_pre = new_ancestors
                 uppass_cache_pre = new_uppass_cache
                 sum_of_branch_length_l.append(sum_of_branch_length_new)
-                logger.info("SPR mode: step: {}, T: {:.4f}, accepted a worse tree (p={:.4f}) with sum of branch length {}".format(
-                    i, T, accept_prob, sum_of_branch_length_new))
+                logger.info("SPR mode: chain {}, step: {}, T: {:.4f}, accepted a worse tree (p={:.4f}) with sum of branch length {}".format(
+                    chain_id, i, T, accept_prob, sum_of_branch_length_new))
             else:
                 sum_of_branch_length_l.append(sum_of_branch_length_pre)
                 logger.debug("SPR mode: step: {}, T: {:.4f}, rejected a worse tree (p={:.4f}) with sum of branch length {}".format(
                     i, T, accept_prob, sum_of_branch_length_new))
 
-    return global_tree_l, global_ancestor_l, sum_of_branch_length_l
+    return {
+        "best_trees": global_tree_l,
+        "best_ancestors": global_ancestor_l,
+        "trace": sum_of_branch_length_l,
+        "best_score": global_sum_of_branch_length,
+    }
+
+
+def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCMC_step=1000,
+             n_cores=None, sa_temp_start=10.0, sa_temp_end=0.01, sa_cooling="geometric",
+             chain_start_trees=None):
+    """Run SPR simulated annealing, using multi-chain mode automatically on multi-core runs."""
+    if chain_start_trees is None:
+        chain_start_trees = [copy.deepcopy(tree)]
+    else:
+        chain_start_trees = [copy.deepcopy(cur_tree) for cur_tree in chain_start_trees]
+
+    if len(chain_start_trees) == 1:
+        single_result = _spr_mode_single_chain(
+            tree=chain_start_trees[0],
+            samples_dict=samples_dict,
+            fst=fst,
+            normal_name=normal_name,
+            prune_weight=prune_weight,
+            MCMC_step=MCMC_step,
+            n_cores=n_cores,
+            sa_temp_start=sa_temp_start,
+            sa_temp_end=sa_temp_end,
+            sa_cooling=sa_cooling,
+            chain_id=1,
+        )
+        return single_result["best_trees"], single_result["best_ancestors"], single_result["trace"]
+
+    try:
+        from joblib import Parallel, delayed
+    except ImportError:
+        raise ImportError("joblib must be installed for multi-chain SPR parallelization")
+
+    n_chains = len(chain_start_trees)
+    n_jobs = n_chains if n_cores is None else min(max(1, n_cores), n_chains)
+    logger.info("SPR mode: Running %s parallel chains on %s cores", n_chains, n_jobs)
+
+    seed_sequence = np.random.SeedSequence()
+    chain_seeds = [int(seq.generate_state(1, dtype=np.uint32)[0]) for seq in seed_sequence.spawn(n_chains)]
+
+    chain_results = Parallel(n_jobs=n_jobs)(
+        delayed(_spr_mode_single_chain)(
+            tree=chain_start_trees[chain_idx],
+            samples_dict=samples_dict,
+            fst=fst,
+            normal_name=normal_name,
+            prune_weight=prune_weight,
+            MCMC_step=MCMC_step,
+            n_cores=1,
+            sa_temp_start=sa_temp_start,
+            sa_temp_end=sa_temp_end,
+            sa_cooling=sa_cooling,
+            seed=chain_seeds[chain_idx],
+            chain_id=chain_idx + 1,
+        )
+        for chain_idx in range(n_chains)
+    )
+
+    global_best_score = min(result["best_score"] for result in chain_results)
+    global_tree_l = []
+    global_ancestor_l = []
+    seen_topology_hashes = set()
+
+    for result in chain_results:
+        if not np.isclose(result["best_score"], global_best_score):
+            continue
+
+        for cur_tree, cur_ancestors in zip(result["best_trees"], result["best_ancestors"]):
+            cur_hash = tree_hash.tree_hash(tree_hash.strip_branch_lengths(cur_tree))
+            if cur_hash in seen_topology_hashes:
+                continue
+            seen_topology_hashes.add(cur_hash)
+            global_tree_l.append(cur_tree)
+            global_ancestor_l.append(cur_ancestors)
+
+    if len(global_tree_l) == 0:
+        fallback_result = chain_results[0]
+        global_tree_l = fallback_result["best_trees"]
+        global_ancestor_l = fallback_result["best_ancestors"]
+
+    chain_traces = [result["trace"] for result in chain_results]
+
+    return global_tree_l, global_ancestor_l, chain_traces
 
 
 def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df=None):
