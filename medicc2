@@ -143,7 +143,7 @@ parser.add_argument("--spr-mode-step", type=int, dest='spr_step', default=1000,
                     help='Expert option: Number of spr steps in spr mode (default: 1000).')
 parser.add_argument("--spr-start", type=str, dest="spr_start", default="nj",
                     help='''Expert option: Starting point for spr in spr mode. 
-                            Can be either "random" or "neighbor-joining" or "nj" for short (default: random).''')
+                            Can be either "random" or "neighbor-joining" or "nj" for short (default: nj).''')
 parser.add_argument("--sa-temp-start", type=float, dest='sa_temp_start', default=10.0,
                     help='Expert option: Simulated annealing starting temperature for SPR mode (default: 10.0).')
 parser.add_argument("--sa-temp-end", type=float, dest='sa_temp_end', default=0.01,
