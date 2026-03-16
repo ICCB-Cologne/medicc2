@@ -337,6 +337,7 @@ def write_branch_lengths(tree, out_name: str):
         for node in tree.find_clades():
             if node.name is not None and node.name != 'diploid':
                 f.write("{}\t{}\n".format(node.name, node.branch_length))
+        f.write("sum_of_branch_length\t{}\n".format(tree.total_branch_length()))
 
 
 def write_pairwise_distances(sample_labels, pairwise_distances, filename_prefix):
