@@ -5,19 +5,29 @@ import io
 
 
 def canonicalize_clade(clade):
-    """Recursively sort the clades to get a canonical form."""
+    """Recursively sort child clades by subtree structure."""
     if clade.is_terminal():
-        return
-    clade.clades.sort(key=lambda x: str(x.name) if x.name else '')
-    for subclade in clade.clades:
-        canonicalize_clade(subclade)
+        return ("leaf", str(clade.name) if clade.name else "")
+
+    # Build canonical signatures bottom-up, then sort children by signature.
+    child_signatures = [(canonicalize_clade(subclade), subclade) for subclade in clade.clades]
+    child_signatures.sort(key=lambda item: item[0])
+    clade.clades = [subclade for _, subclade in child_signatures]
+    return ("internal", tuple(signature for signature, _ in child_signatures))
+
+
+def strip_internal_node_names(tree):
+    """Return a copy of a tree where internal clade names are removed."""
+    tree_no_internal_names = copy.deepcopy(tree)
+    for clade in tree_no_internal_names.find_clades():
+        if not clade.is_terminal():
+            clade.name = None
+    return tree_no_internal_names
 
 
 def get_canonical_newick(tree):
-    """Return a canonical Newick string for a Biopython tree."""
-    # Deepcopy to avoid modifying the original tree
-    import copy
-    tree_copy = copy.deepcopy(tree)
+    """Return a canonical Newick string for topology-based comparisons."""
+    tree_copy = strip_internal_node_names(tree)
     canonicalize_clade(tree_copy.root)
     handle = io.StringIO()
     Phylo.write(tree_copy, handle, 'newick')
@@ -28,9 +38,6 @@ def get_canonical_newick(tree):
 def tree_hash(tree):
     canon_newick = get_canonical_newick(tree)
     return hashlib.md5(canon_newick.encode()).hexdigest()
-
-
-
 
 
 def strip_branch_lengths(tree):
