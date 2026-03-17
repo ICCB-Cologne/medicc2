@@ -661,7 +661,7 @@ def _create_unique_random_start_trees(sample_labels, normal_name, n_chains, max_
     while len(trees) < n_chains and attempts < max_attempts:
         attempts += 1
         cur_tree = create_random_tree_topology(list(sample_labels), normal_name=normal_name)
-        cur_hash = tree_hash.tree_hash(tree_hash.strip_branch_lengths(cur_tree))
+        cur_hash = tree_hash.hash_tree_with_collapse(cur_tree)
         if cur_hash in topology_hashes:
             continue
         topology_hashes.add(cur_hash)
@@ -759,7 +759,8 @@ def _spr_mode_single_chain(tree, samples_dict, fst, normal_name="diploid", prune
 
     sum_of_branch_length_l = []
     # Keep track of topologies visited
-    topology_visited = set()
+    topology_visited = set() # hash set used for proposing new topologies 
+    full_tree_hash = set() # hash set used for keeping only true different topologies after branch length optimization, see comments in second part of tree_hash.py 
 
     # MCMC starting point — full reconstruction
     ancestors, uppass_cache = medicc.reconstruct_ancestors(tree=tree,
@@ -773,6 +774,8 @@ def _spr_mode_single_chain(tree, samples_dict, fst, normal_name="diploid", prune
     sum_of_branch_length_l.append(medicc.tools.sum_of_branch_length(tree))
 
     topology_visited.add(tree_hash.tree_hash(tree_hash.strip_branch_lengths(tree)))
+    full_tree_hash.add(tree_hash.hash_tree_with_collapse(tree)) 
+
 
     global_tree_l = [tree]
     global_ancestor_l = [ancestors]
@@ -814,26 +817,33 @@ def _spr_mode_single_chain(tree, samples_dict, fst, normal_name="diploid", prune
         sum_of_branch_length_new = medicc.tools.sum_of_branch_length(new_tree_topology)
         logger.debug("SPR mode: step: {}, T: {:.4f}, proposed sum of branch length: {}".format(
             i, T, sum_of_branch_length_new))
-
+            
         # Accept or reject the new tree (simulated annealing)
         if sum_of_branch_length_new <= sum_of_branch_length_pre:
-            # Always accept improvements
-            tree_pre = new_tree_topology
-            sum_of_branch_length_pre = sum_of_branch_length_new
-            ancestors_pre = new_ancestors
-            uppass_cache_pre = new_uppass_cache
-            sum_of_branch_length_l.append(sum_of_branch_length_new)
-            logger.info("SPR mode: chain {}, step: {}, T: {:.4f}, accepted a better tree with sum of branch length {}".format(
-                chain_id, i, T, sum_of_branch_length_new))
+            new_tree_topology_hash_full = tree_hash.hash_tree_with_collapse(new_tree_topology)
+            if new_tree_topology_hash_full not in full_tree_hash:
+                full_tree_hash.add(new_tree_topology_hash_full)
+                logger.debug("SPR mode: step: {}, proposed new topology (after branch length optimization) is new and added to full_tree_hash".format(i))
+                # Always accept improvements
+                tree_pre = new_tree_topology
+                sum_of_branch_length_pre = sum_of_branch_length_new
+                ancestors_pre = new_ancestors
+                uppass_cache_pre = new_uppass_cache
+                sum_of_branch_length_l.append(sum_of_branch_length_new)
+                logger.info("SPR mode: chain {}, step: {}, T: {:.4f}, accepted a better tree with sum of branch length {}".format(
+                    chain_id, i, T, sum_of_branch_length_new))
 
-            # Check if the new tree is better than the global best
-            if sum_of_branch_length_new < global_sum_of_branch_length:
-                global_tree_l = [new_tree_topology]
-                global_ancestor_l = [new_ancestors]
-                global_sum_of_branch_length = sum_of_branch_length_new
-            elif sum_of_branch_length_new == global_sum_of_branch_length:
-                global_tree_l.append(new_tree_topology)
-                global_ancestor_l.append(new_ancestors)
+                # Check if the new tree is better than the global best
+                if sum_of_branch_length_new < global_sum_of_branch_length:
+                    global_tree_l = [new_tree_topology]
+                    global_ancestor_l = [new_ancestors]
+                    global_sum_of_branch_length = sum_of_branch_length_new
+                elif sum_of_branch_length_new == global_sum_of_branch_length:
+                    global_tree_l.append(new_tree_topology)
+                    global_ancestor_l.append(new_ancestors)
+            else:
+                logger.debug("SPR mode: step: {}, proposed new topology (after branch length optimization) is new but already in full_tree_hash, skipping".format(i))
+                sum_of_branch_length_l.append(sum_of_branch_length_pre)
         else:
             # Accept worse tree with probability exp(-delta / T)
             delta = sum_of_branch_length_new - sum_of_branch_length_pre
@@ -924,7 +934,7 @@ def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCM
             continue
 
         for cur_tree, cur_ancestors in zip(result["best_trees"], result["best_ancestors"]):
-            cur_hash = tree_hash.tree_hash(tree_hash.strip_branch_lengths(cur_tree))
+            cur_hash = tree_hash.hash_tree_with_collapse(cur_tree)
             if cur_hash in seen_topology_hashes:
                 continue
             seen_topology_hashes.add(cur_hash)
