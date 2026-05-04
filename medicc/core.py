@@ -74,15 +74,17 @@ def main(input_df,
 
         pairwise_distances = pd.DataFrame(0, columns=FSA_dict.keys(), index=FSA_dict.keys())
 
-        assert len([x for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name]) == \
-            len(np.unique(input_df.index.get_level_values('sample_id'))), \
-                "Number of samples differs in input tree and input dataframe"
-        assert np.all(
-            np.sort([x.name for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name]) ==
-            np.sort(np.unique(input_df.index.get_level_values('sample_id')))), (
-                "Input tree does not match input dataframe: "
-                f"{np.sort([x.name for x in list(input_tree.find_clades()) if x.name is not None and 'internal' not in x.name])}\n"
-                f"{np.sort(np.unique(input_df.index.get_level_values('sample_id')))}")
+        tree_leaves = [x.name for x in list(input_tree.find_clades())
+                       if x.name is not None and 'internal' not in x.name and x.name != normal_name]
+        df_samples = np.unique(input_df.index.get_level_values('sample_id'))[1:]
+
+        assert len(tree_leaves) == len(df_samples), \
+            "Number of samples differs in input tree and input dataframe"
+
+        assert np.all(np.sort(tree_leaves) == np.sort(df_samples)), (
+            "Input tree does not match input dataframe: "
+            f"{np.sort(tree_leaves)}\n"
+            f"{np.sort(df_samples)}")
         
         # necessary for the way that reconstruct_ancestors is performed
         if ancestral_reconstruction:
@@ -555,8 +557,14 @@ def calc_MED_distance(model_fst, profile_1, profile_2, chr_separator="X", euclid
     '''
 
     if not euclidean:
-        profile_1_short = profile_1
-        profile_2_short = profile_2
+        profile_1_list = profile_1.split(chr_separator)
+        profile_2_list = profile_2.split(chr_separator)
+        profile_1_list_wrap_each_chr_with_sep = [chr_separator + chrom + chr_separator for chrom in profile_1_list]
+        profile_2_list_wrap_each_chr_with_sep = [chr_separator + chrom + chr_separator for chrom in profile_2_list]
+        profile_1_wrapped = ''.join(profile_1_list_wrap_each_chr_with_sep)
+        profile_2_wrapped = ''.join(profile_2_list_wrap_each_chr_with_sep)
+        profile_1_short = profile_1_wrapped
+        profile_2_short = profile_2_wrapped
         if not disable_shortening:
             profile_1_short, profile_2_short = shorten_cn_strings(profile_1, profile_2)
         # Convert shrunken string to fsa

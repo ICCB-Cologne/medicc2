@@ -63,7 +63,7 @@ def create_1step_del_fst(symbol_table, separator='X', exclude_zero=False, w_stay
     return myfst
 
 
-def create_loh_fst(symbol_table, separator='X'):
+def create_loh_fst(symbol_table, separator='X', scale=1):
 
     cns = _get_int_cns_from_symbol_table(symbol_table, separator)
 
@@ -84,11 +84,11 @@ def create_loh_fst(symbol_table, separator='X'):
     ## others
     for state in range(1, 9):
         cost = state
-        myfst.add_arcs(0, [(s, t, cost, state) for s in cns.keys()
+        myfst.add_arcs(0, [(s, t, cost * scale, state) for s in cns.keys()
                            for t in cns.keys() if (cns[s]-cns[t]) == cost and t == '0'])
         myfst.add_arcs(state, [(s, t, 0, state) for s in cns.keys()
                                for t in cns.keys() if (cns[s]-cns[t]) <= cost and t == '0'])
-        myfst.add_arcs(state, [(s, t, cns[s]-cns[t]-cost, cns[s]-cns[t]) for s in cns.keys()
+        myfst.add_arcs(state, [(s, t, (cns[s]-cns[t]-cost) * scale, cns[s]-cns[t]) for s in cns.keys()
                                for t in cns.keys() if (cns[s]-cns[t]) > cost and t == '0'])
         myfst.add_arcs(state, [(s, s, 0, 0) for s in cns.keys()])
         if separator is not None and separator != '':
