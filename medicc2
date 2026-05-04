@@ -152,7 +152,15 @@ parser.add_argument("--sa-cooling", type=str, dest='sa_cooling', default='geomet
                     choices=['geometric', 'linear'],
                     help='Expert option: Simulated annealing cooling schedule for SPR mode (default: geometric).')
 # parser.add_argument("--euclidean", type=bool, dest="euclidean", default=False, help='''Expert option: Use Euclidean distance instead of FST for pairwise distances (default: False).''')
+parser.add_argument("--nni-mode", action='store_true', default=False, dest='nni',
+                    help='Expert option: Use NNI hill-climbing mode (default: False). '
+                         'Mutually exclusive with --spr-mode.', required=False)
+parser.add_argument("--nni-max-iter", type=int, dest='nni_max_iter', default=100,
+                    help='Expert option: Hard cap on NNI sweep iterations (default: 100).')
 args = parser.parse_args()
+
+if args.spr and args.nni:
+    parser.error("--spr-mode and --nni-mode are mutually exclusive; pick one.")
 
 
 if args.verbose:
@@ -223,7 +231,7 @@ if args.n_cores is not None:
 # Run main method
 logger.info("Running main reconstruction routine.")
 
-if not args.spr:
+if not args.spr and not args.nni:
     sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df = medicc.main(
         input_df=input_df,
         asymm_fst=fst,
@@ -348,24 +356,39 @@ if not args.spr:
     logger.info("Done.")
 
 else:
-    logger.info("Running MEDICC2 with spr moves.")
-    # Run medicc2 with spr moves
-    sample_labels, nj_tree, final_tree_l, output_df_l = medicc.main_spr(
-        input_df=input_df,
-        asymm_fst=fst,
-        output_dir=args.output_dir,
-        event_counting_fst=event_counting_fst,
-        normal_name=normal_name,
-        input_tree=input_tree,
-        chr_separator=args.fst_chr_separator.strip(),
-        n_cores=args.n_cores,
-        prune_weight=args.prune_weight,
-        spr_step=args.spr_step,
-        spr_start=args.spr_start,
-        sa_temp_start=args.sa_temp_start,
-        sa_temp_end=args.sa_temp_end,
-        sa_cooling=args.sa_cooling
-    )
+    if args.nni:
+        logger.info("Running MEDICC2 with NNI hill-climbing.")
+        sample_labels, nj_tree, final_tree_l, output_df_l = medicc.main_nni(
+            input_df=input_df,
+            asymm_fst=fst,
+            output_dir=args.output_dir,
+            event_counting_fst=event_counting_fst,
+            normal_name=normal_name,
+            input_tree=input_tree,
+            chr_separator=args.fst_chr_separator.strip(),
+            n_cores=args.n_cores,
+            prune_weight=args.prune_weight,
+            nni_max_iter=args.nni_max_iter,
+        )
+    else:  # args.spr
+        logger.info("Running MEDICC2 with spr moves.")
+        # Run medicc2 with spr moves
+        sample_labels, nj_tree, final_tree_l, output_df_l = medicc.main_spr(
+            input_df=input_df,
+            asymm_fst=fst,
+            output_dir=args.output_dir,
+            event_counting_fst=event_counting_fst,
+            normal_name=normal_name,
+            input_tree=input_tree,
+            chr_separator=args.fst_chr_separator.strip(),
+            n_cores=args.n_cores,
+            prune_weight=args.prune_weight,
+            spr_step=args.spr_step,
+            spr_start=args.spr_start,
+            sa_temp_start=args.sa_temp_start,
+            sa_temp_end=args.sa_temp_end,
+            sa_cooling=args.sa_cooling
+        )
 
     # Write results
     topology_counter = 1

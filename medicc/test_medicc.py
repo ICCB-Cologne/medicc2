@@ -478,3 +478,14 @@ def test_main_nni_end_to_end(tmp_path):
     assert len(final_tree_l[0].root.clades) == 2
     # NNI trace plot must have been produced
     assert os.path.exists(os.path.join(output_dir, "NNI_trace.pdf"))
+
+
+def test_cli_mutual_exclusion_spr_and_nni():
+    """medicc2 --spr-mode --nni-mode must exit with non-zero status."""
+    proc = subprocess.run(
+        ['python', 'medicc2', '--spr-mode', '--nni-mode', 'examples/simple_example/simple_example.tsv', '/tmp/x'],
+        cwd=pathlib.Path(__file__).parent.parent.absolute(),
+        capture_output=True, text=True)
+    assert proc.returncode != 0
+    combined = (proc.stdout + proc.stderr).lower()
+    assert '--spr-mode' in combined and '--nni-mode' in combined
