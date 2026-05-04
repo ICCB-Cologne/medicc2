@@ -248,3 +248,68 @@ def test_nni_mode_finds_improvement():
     assert result["trace"][-1] < result["trace"][0], (
         f"Expected at least one improvement, but trace is {result['trace']}")
     assert result["best_score"] == result["trace"][-1]
+
+
+def test_nni_incremental_matches_full_reconstruction():
+    """For each NNI neighbor of a small real tree, the score computed via the
+    incremental reconstruction must equal the score computed via a full
+    from-scratch reconstruction. This is the load-bearing correctness check
+    for the synthetic SPRResult."""
+    import medicc
+    import medicc.io
+    import medicc.core as core
+    from medicc.ancestors import reconstruct_ancestors_incremental
+
+    fst = medicc.io.read_fst()
+    symbol_table = fst.input_symbols()
+
+    # 5 samples + diploid -> n=5 leaves -> 4 NNI neighbors per sweep
+    import pandas as pd
+    profiles = {
+        "diploid": "1" * 8,
+        "s1": "2" * 8,
+        "s2": "3" * 8,
+        "s3": "4" * 8,
+        "s4": "5" * 8,
+        "s5": "6" * 8,
+    }
+    rows = []
+    for sample, prof in profiles.items():
+        for i, cn in enumerate(prof):
+            rows.append({"sample_id": sample, "chrom": "chr1",
+                         "start": i, "end": i + 1, "cn_a": cn})
+    df = pd.DataFrame(rows).set_index(["sample_id", "chrom", "start", "end"])
+    df["cn_a"] = df["cn_a"].astype("category")
+
+    fsa_dict, _ = core.create_standard_fsa_dict_from_data(df, symbol_table, "X")
+    tree = _make_search_shape_tree(5)
+
+    # Bootstrap: full reconstruction of the start tree to populate uppass_cache
+    ancestors, uppass_cache = medicc.reconstruct_ancestors(
+        tree=tree, samples_dict=fsa_dict, fst=fst,
+        normal_name="diploid", prune_weight=0,
+        spr_logger_disable=True)
+    core.update_branch_lengths(tree, fst, ancestors, "diploid")
+
+    for neighbor_tree, synthetic in nni.nni_neighbors(tree):
+        # Incremental
+        nbr_inc = copy.deepcopy(neighbor_tree)
+        inc_ancestors, _ = reconstruct_ancestors_incremental(
+            tree=nbr_inc, old_uppass_cache=uppass_cache,
+            samples_dict=fsa_dict, fst=fst, normal_name="diploid",
+            spr_result=synthetic, prune_weight=0)
+        core.update_branch_lengths(nbr_inc, fst, inc_ancestors, "diploid")
+        inc_score = medicc.tools.sum_of_branch_length(nbr_inc)
+
+        # Full from scratch
+        nbr_full = copy.deepcopy(neighbor_tree)
+        full_ancestors, _ = medicc.reconstruct_ancestors(
+            tree=nbr_full, samples_dict=fsa_dict, fst=fst,
+            normal_name="diploid", prune_weight=0,
+            spr_logger_disable=True)
+        core.update_branch_lengths(nbr_full, fst, full_ancestors, "diploid")
+        full_score = medicc.tools.sum_of_branch_length(nbr_full)
+
+        assert inc_score == full_score, (
+            f"Incremental score {inc_score} != full score {full_score} "
+            f"for NNI swap u={synthetic.prune_grandparent}, v={synthetic.regraft_parent}")
