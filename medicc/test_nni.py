@@ -173,3 +173,78 @@ def test_nni_mode_terminates_on_optimal_input():
     assert len(result["trace"]) == 1
     assert len(result["best_trees"]) == 1
     assert len(result["best_ancestors"]) == 1
+
+
+def test_nni_mode_finds_improvement():
+    """Construct a 4-leaf scenario where the start tree is suboptimal and one
+    NNI swap improves it. Verify the trace decreases and termination is at a
+    local optimum.
+
+    Profile design: s1/s3 have cn=2 and s2/s4 have cn=5 — two distinct groups.
+    The bad caterpillar tree places s2 (cn=5) between s3 (cn=2) and s4 (cn=5),
+    so the internal ancestor at internal_2 must reconcile divergent profiles.
+    After one NNI swap, s2 and s4 (both cn=5) become siblings — reducing the score.
+    """
+    import medicc
+    import medicc.io
+    import medicc.core as core
+    from medicc.core import nni_mode
+
+    fst = medicc.io.read_fst()
+    symbol_table = fst.input_symbols()
+
+    # s1 and s3 have cn=2; s2 and s4 have cn=5
+    import pandas as pd
+    profiles = {
+        "diploid": "1" * 10,
+        "s1": "2" * 10,
+        "s2": "5" * 10,
+        "s3": "2" * 10,
+        "s4": "5" * 10,
+    }
+    rows = []
+    for sample, prof in profiles.items():
+        for i, cn in enumerate(prof):
+            rows.append({"sample_id": sample, "chrom": "chr1",
+                         "start": i, "end": i + 1, "cn_a": cn})
+    df = pd.DataFrame(rows).set_index(["sample_id", "chrom", "start", "end"])
+    df["cn_a"] = df["cn_a"].astype("category")
+
+    fsa_dict, _ = core.create_standard_fsa_dict_from_data(df, symbol_table, "X")
+
+    # Bad caterpillar: diploid -> internal_0 -> {s1, internal_1}
+    #                             internal_1 -> {s2, internal_2}
+    #                             internal_2 -> {s3, s4}
+    # s2 (cn=5) is forced as uncle of s3 (cn=2) and s4 (cn=5), raising the
+    # score at internal_1. The optimal NNI swap at edge (internal_1, internal_2)
+    # moves s2 out and puts s3/s4 with a correct ancestor.
+    bad_tree = Tree(root=Clade(name="diploid", clades=[
+        Clade(name="internal_0", clades=[
+            Clade(name="s1"),
+            Clade(name="internal_1", clades=[
+                Clade(name="s2"),
+                Clade(name="internal_2", clades=[
+                    Clade(name="s3"),
+                    Clade(name="s4"),
+                ]),
+            ]),
+        ])
+    ]), rooted=True)
+
+    result = nni_mode(
+        tree=bad_tree,
+        samples_dict=fsa_dict,
+        fst=fst,
+        normal_name="diploid",
+        prune_weight=0,
+        nni_max_iter=10,
+        n_cores=None,
+    )
+
+    # Trace must be strictly non-increasing (with at least one strict drop), or
+    # a single entry if the start happened to be optimal.
+    assert all(result["trace"][i+1] <= result["trace"][i] for i in range(len(result["trace"])-1))
+    # We expect an improvement on this constructed scenario
+    assert result["trace"][-1] < result["trace"][0], (
+        f"Expected at least one improvement, but trace is {result['trace']}")
+    assert result["best_score"] == result["trace"][-1]
