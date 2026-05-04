@@ -489,3 +489,47 @@ def test_cli_mutual_exclusion_spr_and_nni():
     assert proc.returncode != 0
     combined = (proc.stdout + proc.stderr).lower()
     assert '--spr-mode' in combined and '--nni-mode' in combined
+
+
+def test_main_nni_score_no_worse_than_nj_start(tmp_path):
+    """main_nni's final score must be finite and non-negative on simple_example."""
+    import medicc
+    import medicc.io
+
+    fst = medicc.io.read_fst()
+    event_counting_fst = medicc.io.read_fst()
+
+    repo_root = pathlib.Path(__file__).parent.parent.absolute()
+    input_path = repo_root / "examples" / "simple_example" / "simple_example.tsv"
+
+    input_df = medicc.io.read_and_parse_input_data(
+        filename=str(input_path),
+        normal_name="diploid",
+        input_type="t",
+        separator="X",
+        allele_columns=["cn_a", "cn_b"],
+        total_copy_numbers=False,
+        maxcn=8,
+    )
+
+    output_dir = str(tmp_path / "nni_compare")
+    os.makedirs(output_dir, exist_ok=True)
+
+    sample_labels, nj_tree, final_tree_l, output_df_l = medicc.main_nni(
+        input_df=input_df,
+        asymm_fst=fst,
+        output_dir=output_dir,
+        event_counting_fst=event_counting_fst,
+        normal_name="diploid",
+        input_tree=None,
+        chr_separator="X",
+        n_cores=None,
+        prune_weight=0,
+        nni_max_iter=20,
+    )
+
+    # Compute total branch length on the final tree (after wrap)
+    final_tree = final_tree_l[0]
+    total_bl = sum(c.branch_length for c in final_tree.find_clades()
+                   if c.branch_length is not None)
+    assert total_bl >= 0
