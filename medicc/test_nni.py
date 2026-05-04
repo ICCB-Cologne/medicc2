@@ -54,3 +54,49 @@ def test_nni_neighbor_count_n8():
     tree = _make_search_shape_tree(8)
     # n=8 -> 2(n-3) = 10 neighbors
     assert len(list(nni.nni_neighbors(tree))) == 10
+
+
+def test_nni_neighbors_are_distinct():
+    tree = _make_search_shape_tree(6)
+    hashes = set()
+    input_hash = tree_hash.tree_hash(tree_hash.strip_branch_lengths(tree))
+    for neighbor_tree, _ in nni.nni_neighbors(tree):
+        h = tree_hash.tree_hash(tree_hash.strip_branch_lengths(neighbor_tree))
+        assert h != input_hash, "NNI neighbor identical to input"
+        assert h not in hashes, "NNI neighbors not pairwise distinct"
+        hashes.add(h)
+    # n=6 -> 2(n-3) = 6 neighbors
+    assert len(hashes) == 6
+
+
+def _child_sets_by_name(tree):
+    return {c.name: frozenset(child.name for child in c.clades)
+            for c in tree.find_clades() if len(c.clades) > 0}
+
+
+def test_nni_neighbor_changes_exactly_two_internal_child_sets():
+    tree = _make_search_shape_tree(5)
+    input_csets = _child_sets_by_name(tree)
+    for neighbor_tree, _ in nni.nni_neighbors(tree):
+        nbr_csets = _child_sets_by_name(neighbor_tree)
+        differing = [name for name in input_csets if input_csets[name] != nbr_csets[name]]
+        assert len(differing) == 2, \
+            f"NNI move should change exactly 2 internal child sets, got {len(differing)}"
+
+
+def test_nni_preserves_internal_node_names():
+    tree = _make_search_shape_tree(5)
+    input_names = {c.name for c in tree.find_clades() if c.name is not None}
+    for neighbor_tree, _ in nni.nni_neighbors(tree):
+        nbr_names = {c.name for c in neighbor_tree.find_clades() if c.name is not None}
+        assert input_names == nbr_names
+
+
+def test_nni_skips_root_incident_edges():
+    tree = _make_search_shape_tree(5)
+    root = tree.root
+    root_children = set(root.clades)
+    for _, spr_result in nni.nni_neighbors(tree):
+        # u (prune_grandparent) must not be root or a root-child
+        assert spr_result.prune_grandparent != root.name
+        assert spr_result.prune_grandparent not in {c.name for c in root_children}
