@@ -433,3 +433,48 @@ def get_number_of_events(output_dir, file_prefix):
     tree_size = float(summary[2].split('\t')[1].rstrip())
 
     return nr_events, tree_size
+
+
+def test_main_nni_end_to_end(tmp_path):
+    """Run main_nni on the simple_example dataset and verify output shape."""
+    import medicc
+    import medicc.io
+
+    fst = medicc.io.read_fst()
+    event_counting_fst = medicc.io.read_fst()
+
+    repo_root = pathlib.Path(__file__).parent.parent.absolute()
+    input_path = repo_root / "examples" / "simple_example" / "simple_example.tsv"
+
+    input_df = medicc.io.read_and_parse_input_data(
+        filename=str(input_path),
+        normal_name="diploid",
+        input_type="t",
+        separator="X",
+        allele_columns=["cn_a", "cn_b"],
+        total_copy_numbers=False,
+        maxcn=8,
+    )
+
+    output_dir = str(tmp_path / "nni_out")
+    os.makedirs(output_dir, exist_ok=True)
+
+    sample_labels, nj_tree, final_tree_l, output_df_l = medicc.main_nni(
+        input_df=input_df,
+        asymm_fst=fst,
+        output_dir=output_dir,
+        event_counting_fst=event_counting_fst,
+        normal_name="diploid",
+        input_tree=None,
+        chr_separator="X",
+        n_cores=None,
+        prune_weight=0,
+        nni_max_iter=20,
+    )
+
+    assert len(final_tree_l) == 1
+    assert len(output_df_l) == 1
+    # Final tree must be in the wrapped output form: root has 2 clades
+    assert len(final_tree_l[0].root.clades) == 2
+    # NNI trace plot must have been produced
+    assert os.path.exists(os.path.join(output_dir, "NNI_trace.pdf"))

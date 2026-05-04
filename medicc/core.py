@@ -359,6 +359,112 @@ def main_spr(input_df,
     return sample_labels, nj_tree, final_tree_l, output_df_l
 
 
+def main_nni(input_df,
+             asymm_fst,
+             output_dir,
+             event_counting_fst,
+             normal_name='diploid',
+             input_tree=None,
+             chr_separator='X',
+             n_cores=None,
+             prune_weight=0,
+             nni_max_iter=100):
+    """NNI hill-climbing main method.
+
+    Starts from the MEDICC NJ tree (or `input_tree` if provided) and runs
+    deterministic steepest-ascent NNI hill-climbing until no neighbor strictly
+    improves the score, or `nni_max_iter` sweeps are reached.
+    """
+    symbol_table = asymm_fst.input_symbols()
+
+    logger.info("Validating input.")
+    io.validate_input(input_df, symbol_table, normal_name=normal_name)
+
+    logger.info("Compiling input sequences into FSAs.")
+    FSA_dict, CN_str_dict = create_standard_fsa_dict_from_data(input_df, symbol_table, chr_separator)
+    sample_labels = input_df.index.get_level_values('sample_id').unique()
+
+    if input_tree is None:
+        logger.info("NNI mode: Start with a Neighbor-joining tree.")
+        logger.info("NNI mode: Calculating pairwise distance matrices.")
+        if n_cores is not None and n_cores > 1:
+            pairwise_distances = parallelization_calc_pairwise_distance(
+                sample_labels, asymm_fst, CN_str_dict, n_cores)
+        else:
+            pairwise_distances = calc_pairwise_distance_matrix(asymm_fst, CN_str_dict)
+
+        if (pairwise_distances == np.inf).any().any():
+            affected_pairs = [(pairwise_distances.index[s1], pairwise_distances.index[s2])
+                              for s1, s2 in zip(*np.where((pairwise_distances == np.inf)))]
+            raise MEDICCError("Evolutionary distances could not be calculated for some sample "
+                              "pairings. Please check the input data.\n\nThe affected pairs are: "
+                              f"{affected_pairs}")
+
+        logger.info("NNI mode: Inferring tree topology using neighbor-joining.")
+        nj_tree = infer_tree_topology(
+            pairwise_distances.values, pairwise_distances.index, normal_name=normal_name)
+        logger.debug("NNI mode: Adjust the Neighbor-joining tree structure for tree search.")
+        nj_tree = _reshape_nj_for_search(nj_tree, normal_name)
+    else:
+        logger.info("NNI mode: Tree provided, using it as the starting point.")
+
+        tree_leaves = [x.name for x in list(input_tree.find_clades())
+                       if x.name is not None and 'internal' not in x.name and x.name != normal_name]
+        df_samples = np.unique(input_df.index.get_level_values('sample_id'))[1:]
+
+        assert len(tree_leaves) == len(df_samples), \
+            "Number of samples differs in input tree and input dataframe"
+        assert np.all(np.sort(tree_leaves) == np.sort(df_samples)), (
+            "Input tree does not match input dataframe: "
+            f"{np.sort(tree_leaves)}\n{np.sort(df_samples)}")
+
+        input_tree.root_with_outgroup(
+            [x for x in input_tree.root.clades if x.name != normal_name][0].name)
+        nj_tree = input_tree
+
+    logger.info("NNI mode: Running NNI hill-climbing to infer phylogenetic tree.")
+    nni_result = nni_mode(
+        tree=copy.deepcopy(nj_tree),
+        samples_dict=FSA_dict,
+        fst=asymm_fst,
+        normal_name=normal_name,
+        prune_weight=prune_weight,
+        nni_max_iter=nni_max_iter,
+        n_cores=n_cores,
+    )
+    final_tree_l = nni_result["best_trees"]
+    ancestors_l = nni_result["best_ancestors"]
+    trace = nni_result["trace"]
+
+    logger.info("NNI mode: Creating output copynumbers.")
+    output_df_l = [create_df_from_fsa(input_df, ancestors) for ancestors in ancestors_l]
+
+    for i, final_tree in enumerate(final_tree_l):
+        ancestors = ancestors_l[i]
+        _wrap_tree_for_output(final_tree, event_counting_fst, ancestors, normal_name)
+
+    # Wrap the nj_tree the same way (mirrors main_spr)
+    new_root_clade = Bio.Phylo.PhyloXML.Clade(branch_length=0)
+    nj_tree.root.branch_length = 0
+    new_root_clade.clades.append(nj_tree.root)
+    new_root_clade.clades.append(nj_tree.root.clades[0])
+    nj_tree.root.clades = []
+    nj_tree.root = new_root_clade
+
+    logger.info("NNI mode: Plotting NNI trace.")
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(trace, '-o', alpha=0.7, markersize=4)
+    ax.set_xlabel('NNI Sweep')
+    ax.set_ylabel('Sum of Branch Lengths')
+    ax.set_title('NNI Trace')
+    ax.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, 'NNI_trace.pdf'), bbox_inches='tight')
+    plt.close()
+
+    return sample_labels, nj_tree, final_tree_l, output_df_l
+
+
 def create_standard_fsa_dict_from_data(input_data,
                                        symbol_table: fstlib.SymbolTable,
                                        separator: str = "X") -> dict:
