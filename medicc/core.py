@@ -983,6 +983,88 @@ def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCM
     return global_tree_l, global_ancestor_l, chain_traces
 
 
+def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
+             nni_max_iter=100, n_cores=None):
+    """Iterated steepest-ascent NNI hill-climbing.
+
+    At each iteration: enumerate all NNI neighbors of the current tree, evaluate
+    each via incremental ancestor reconstruction, accept the strictly-best
+    neighbor if it improves on the current score. Stop when a full sweep
+    produces no improvement or nni_max_iter is reached.
+
+    Returns:
+        dict with keys: best_trees (list of 1), best_ancestors (list of 1),
+        trace (list of scores, one entry per accepted iteration starting from
+        initial), best_score (final score).
+    """
+    from medicc.ancestors import reconstruct_ancestors_incremental
+    from medicc.nni import nni_neighbors
+
+    assert tree.root.name == normal_name, \
+        "nni_mode expects a search-shape tree (root.name == normal_name)"
+
+    # Initial full reconstruction
+    ancestors, uppass_cache = medicc.reconstruct_ancestors(
+        tree=tree, samples_dict=samples_dict, fst=fst,
+        normal_name=normal_name, prune_weight=prune_weight,
+        spr_logger_disable=True, n_cores=n_cores)
+    update_branch_lengths(tree, fst, ancestors, normal_name)
+    current_score = medicc.tools.sum_of_branch_length(tree)
+    trace = [current_score]
+    logger.info(f"NNI mode: initial score = {current_score}")
+
+    current_tree = tree
+    current_ancestors = ancestors
+    current_uppass_cache = uppass_cache
+
+    for sweep in range(nni_max_iter):
+        best = None  # (score, tree, ancestors, uppass_cache)
+        n_evaluated = 0
+        for neighbor_tree, synthetic_spr_result in nni_neighbors(current_tree):
+            n_evaluated += 1
+            new_ancestors, new_uppass_cache = reconstruct_ancestors_incremental(
+                tree=neighbor_tree,
+                old_uppass_cache=current_uppass_cache,
+                samples_dict=samples_dict,
+                fst=fst,
+                normal_name=normal_name,
+                spr_result=synthetic_spr_result,
+                prune_weight=prune_weight)
+            update_branch_lengths(neighbor_tree, fst, new_ancestors, normal_name)
+            score = medicc.tools.sum_of_branch_length(neighbor_tree)
+            if best is None or score < best[0]:
+                best = (score, neighbor_tree, new_ancestors, new_uppass_cache)
+
+        if best is None:
+            logger.info(f"NNI mode: sweep {sweep}: no neighbors enumerated, terminating")
+            break
+
+        if best[0] < current_score:
+            previous_score = current_score
+            current_score, current_tree, current_ancestors, current_uppass_cache = best
+            trace.append(current_score)
+            logger.info(
+                f"NNI mode: sweep {sweep}: evaluated {n_evaluated} neighbors, "
+                f"accepted improvement {previous_score} -> {current_score}")
+        else:
+            logger.info(
+                f"NNI mode: sweep {sweep}: evaluated {n_evaluated} neighbors, "
+                f"no improvement (best neighbor = {best[0]}, current = {current_score}), "
+                f"terminating at NNI-local optimum")
+            break
+    else:
+        logger.warning(
+            f"NNI mode: reached nni_max_iter={nni_max_iter} without converging — "
+            f"hard cap hit; returning current tree at score {current_score}")
+
+    return {
+        "best_trees": [current_tree],
+        "best_ancestors": [current_ancestors],
+        "trace": trace,
+        "best_score": current_score,
+    }
+
+
 def summarize_patient(tree, pdm, sample_labels, normal_name='diploid', events_df=None):
     """Calculate several summary values for the provided samples
 

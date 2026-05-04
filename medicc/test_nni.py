@@ -132,3 +132,44 @@ def test_nni_synthetic_spr_result_dirty_set():
         assert actual == expected, (
             f"Dirty set mismatch for NNI swap u={u_name}, v={v_name}: "
             f"expected {expected}, got {actual}")
+
+
+def test_nni_mode_terminates_on_optimal_input():
+    """If the start tree is already at an NNI-local optimum, nni_mode terminates
+    in 1 sweep with 0 accepted moves and returns the input tree unchanged."""
+    import medicc
+    import medicc.io
+    import medicc.core as core
+    from medicc.core import nni_mode
+
+    # Use a tiny dataset where 3 samples + diploid -> n=3 leaves -> 0 NNI neighbors,
+    # so termination is forced by zero enumeration.
+    fst = medicc.io.read_fst()
+    symbol_table = fst.input_symbols()
+
+    # Build minimal sample data: 3 samples with single-position copy-number profiles
+    import pandas as pd
+    rows = []
+    for sample, cn in [("diploid", "1"), ("s1", "1"), ("s2", "2"), ("s3", "3")]:
+        rows.append({"sample_id": sample, "chrom": "chr1", "start": 0, "end": 1,
+                     "cn_a": cn})
+    df = pd.DataFrame(rows).set_index(["sample_id", "chrom", "start", "end"])
+    df["cn_a"] = df["cn_a"].astype("category")
+
+    fsa_dict, _ = core.create_standard_fsa_dict_from_data(df, symbol_table, "X")
+
+    # Build a search-shape tree by hand (n=3 non-diploid leaves -> 0 NNI moves)
+    tree = _make_search_shape_tree(3)
+
+    result = nni_mode(
+        tree=tree,
+        samples_dict=fsa_dict,
+        fst=fst,
+        normal_name="diploid",
+        prune_weight=0,
+        nni_max_iter=10,
+        n_cores=None,
+    )
+    assert len(result["trace"]) == 1
+    assert len(result["best_trees"]) == 1
+    assert len(result["best_ancestors"]) == 1
