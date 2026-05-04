@@ -138,10 +138,48 @@ def main(input_df,
     return sample_labels, pairwise_distances, nj_tree, final_tree, output_df, events_df
 
 
+def _reshape_nj_for_search(nj_tree, normal_name):
+    """Reshape an NJ tree for in-place tree search.
+
+    After this transformation:
+      - tree.root.name == normal_name
+      - tree.root has exactly one structural child (the MRCA, e.g. "internal_0")
+      - the diploid leaf is no longer a child of the root
+
+    Mutates and returns the input tree.
+    """
+    nj_tree.root_with_outgroup(normal_name)
+    nj_tree.root.clades = [clade for clade in nj_tree.root.clades if clade.name != normal_name]
+    nj_tree.root.name = normal_name
+    return nj_tree
+
+
+def _wrap_tree_for_output(final_tree, fst, ancestors, normal_name):
+    """Wrap a search-shape tree back into the standard PhyloXML output form.
+
+    The search shape has tree.root named after the diploid with a single
+    structural child (the MRCA). For plotting and output, MEDICC2 expects a new
+    unnamed root with two clades: the diploid and the MRCA. This function does
+    that wrap and updates branch lengths using the supplied FST and ancestors.
+
+    Mutates and returns the input tree.
+    """
+    new_root_clade = Bio.Phylo.PhyloXML.Clade(branch_length=0)
+    final_tree.root.branch_length = 0
+    new_root_clade.clades.append(final_tree.root)
+    new_root_clade.clades.append(final_tree.root.clades[0])
+    final_tree.root.clades = []
+    final_tree.root = new_root_clade
+
+    logger.info("Updating branch lengths of final tree using ancestors.")
+    update_branch_lengths(final_tree, fst, ancestors, normal_name)
+    return final_tree
+
+
 def main_spr(input_df,
              asymm_fst,
              output_dir,
-             event_counting_fst, 
+             event_counting_fst,
              normal_name='diploid',
              input_tree=None,
              chr_separator='X',
@@ -216,9 +254,7 @@ def main_spr(input_df,
 
             logger.debug(
                 "SPR mode: Adjust the Neighbor-joining tree structure to be compatible with the MCMC process.")
-            nj_tree.root_with_outgroup(normal_name)
-            nj_tree.root.clades = [clade for clade in nj_tree.root.clades if clade.name != normal_name]
-            nj_tree.root.name = normal_name
+            nj_tree = _reshape_nj_for_search(nj_tree, normal_name)
 
             if use_multichain:
                 logger.info("SPR mode: Multi-chain enabled with %s chains. All chains start from the same neighbor-joining tree.",
@@ -268,21 +304,9 @@ def main_spr(input_df,
     output_df_l = [create_df_from_fsa(input_df, ancestors) for ancestors in ancestors_l]
 
     # Adjust the tree format for MEDICC2's plotting function
-    # create a new root clade with no labels and attach normal_name and MRCA to it
     for i, final_tree in enumerate(final_tree_l):
-        new_root_clade = Bio.Phylo.PhyloXML.Clade(branch_length=0)
-        final_tree.root.branch_length = 0
-        new_root_clade.clades.append(final_tree.root)
-        new_root_clade.clades.append(final_tree.root.clades[0])
-        final_tree.root.clades = []
-        final_tree.root = new_root_clade
-
-        # Update branch length using event-counting fst 
         ancestors = ancestors_l[i]
-
-        ## Update branch lengths with ancestors
-        logger.info("Updating branch lengths of final tree using ancestors.")
-        update_branch_lengths(final_tree, event_counting_fst, ancestors, normal_name)
+        _wrap_tree_for_output(final_tree, event_counting_fst, ancestors, normal_name)
 
 
 
