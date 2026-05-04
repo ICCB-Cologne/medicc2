@@ -100,3 +100,35 @@ def test_nni_skips_root_incident_edges():
         # u (prune_grandparent) must not be root or a root-child
         assert spr_result.prune_grandparent != root.name
         assert spr_result.prune_grandparent not in {c.name for c in root_children}
+
+
+def test_nni_synthetic_spr_result_dirty_set():
+    """For each NNI neighbor, the dirty up-pass set computed from the synthetic
+    SPRResult must equal {v, u, parent(u), ..., root_name}."""
+    tree = _make_search_shape_tree(6)
+    normal_name = "diploid"
+
+    # Build name->parent_name map on the ORIGINAL tree (before any swap)
+    parent_of_orig = {}
+    for c in tree.find_clades(order="preorder"):
+        for child in c.clades:
+            parent_of_orig[child.name] = c.name
+    root_name = tree.root.name
+
+    for neighbor_tree, spr_result in nni.nni_neighbors(tree):
+        u_name = spr_result.prune_grandparent
+        v_name = spr_result.regraft_parent
+
+        # Expected dirty set: {v, u, parent(u) on the new tree, ..., root}
+        # Since NNI doesn't change u's ancestors (only u's and v's child sets),
+        # the parent chain of u is identical in old and new trees.
+        expected = {v_name, u_name}
+        cur = u_name
+        while cur != root_name:
+            cur = parent_of_orig[cur]
+            expected.add(cur)
+
+        actual = _get_dirty_nodes_up(neighbor_tree, spr_result, normal_name)
+        assert actual == expected, (
+            f"Dirty set mismatch for NNI swap u={u_name}, v={v_name}: "
+            f"expected {expected}, got {actual}")
