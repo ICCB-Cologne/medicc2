@@ -1091,17 +1091,25 @@ def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCM
 
 def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
              nni_max_iter=100, n_cores=None):
-    """Iterated steepest-ascent NNI hill-climbing.
+    """Iterated steepest-ascent NNI hill-climbing with plateau traversal.
 
-    At each iteration: enumerate all NNI neighbors of the current tree, evaluate
-    each via incremental ancestor reconstruction, accept the strictly-best
-    neighbor if it improves on the current score. Stop when a full sweep
-    produces no improvement or nni_max_iter is reached.
+    At each sweep: enumerate all NNI neighbors of every tree in the current
+    frontier, evaluate each via incremental ancestor reconstruction, and accept
+    the globally best set:
+      - If the best score strictly improves on current: replace the frontier
+        with the single best neighbor (or all tied-best if multiple share it).
+      - If the best score equals current: expand the frontier with all tied-best
+        neighbors (plateau traversal — do not terminate yet).
+      - If no neighbor improves or ties: terminate at an NNI-local optimum.
+
+    Stop when a full sweep produces no improvement/tie, or nni_max_iter is
+    reached.
 
     Returns:
-        dict with keys: best_trees (list of 1), best_ancestors (list of 1),
-        trace (list of scores, one entry per accepted iteration starting from
-        initial), best_score (final score).
+        dict with keys: best_trees (list of trees at optimum), best_ancestors
+        (list of corresponding ancestor dicts), trace (list of scores, one
+        entry per accepted iteration starting from initial), best_score (final
+        score).
     """
     from medicc.ancestors import reconstruct_ancestors_incremental
     from medicc.nni import nni_neighbors
@@ -1119,53 +1127,72 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
     trace = [current_score]
     logger.info(f"NNI mode: initial score = {current_score}")
 
-    current_tree = tree
-    current_ancestors = ancestors
-    current_uppass_cache = uppass_cache
+    # Frontier: list of (tree, ancestors, uppass_cache) tuples
+    frontier = [(tree, ancestors, uppass_cache)]
 
     for sweep in range(nni_max_iter):
-        best = None  # (score, tree, ancestors, uppass_cache)
+        # Collect all neighbors across every tree in the frontier
+        best_score = None
+        best_candidates = []  # list of (tree, ancestors, uppass_cache)
         n_evaluated = 0
-        for neighbor_tree, synthetic_spr_result in nni_neighbors(current_tree):
-            n_evaluated += 1
-            new_ancestors, new_uppass_cache = reconstruct_ancestors_incremental(
-                tree=neighbor_tree,
-                old_uppass_cache=current_uppass_cache,
-                samples_dict=samples_dict,
-                fst=fst,
-                normal_name=normal_name,
-                spr_result=synthetic_spr_result,
-                prune_weight=prune_weight)
-            update_branch_lengths(neighbor_tree, fst, new_ancestors, normal_name)
-            score = medicc.tools.sum_of_branch_length(neighbor_tree)
-            if best is None or score < best[0]:
-                best = (score, neighbor_tree, new_ancestors, new_uppass_cache)
 
-        if best is None:
+        for current_tree, current_ancestors, current_uppass_cache in frontier:
+            for neighbor_tree, synthetic_spr_result in nni_neighbors(current_tree):
+                n_evaluated += 1
+                new_ancestors, new_uppass_cache = reconstruct_ancestors_incremental(
+                    tree=neighbor_tree,
+                    old_uppass_cache=current_uppass_cache,
+                    samples_dict=samples_dict,
+                    fst=fst,
+                    normal_name=normal_name,
+                    spr_result=synthetic_spr_result,
+                    prune_weight=prune_weight)
+                update_branch_lengths(neighbor_tree, fst, new_ancestors, normal_name)
+                score = medicc.tools.sum_of_branch_length(neighbor_tree)
+                if best_score is None or score < best_score:
+                    best_score = score
+                    best_candidates = [(neighbor_tree, new_ancestors, new_uppass_cache)]
+                elif score == best_score:
+                    best_candidates.append((neighbor_tree, new_ancestors, new_uppass_cache))
+
+        if not best_candidates:
             logger.info(f"NNI mode: sweep {sweep}: no neighbors enumerated, terminating")
             break
 
-        if best[0] < current_score:
+        if best_score < current_score:
+            # Strict improvement: replace frontier
             previous_score = current_score
-            current_score, current_tree, current_ancestors, current_uppass_cache = best
+            current_score = best_score
+            frontier = best_candidates
             trace.append(current_score)
             logger.info(
-                f"NNI mode: sweep {sweep}: evaluated {n_evaluated} neighbors, "
-                f"accepted improvement {previous_score} -> {current_score}")
+                f"NNI mode: sweep {sweep}: evaluated {n_evaluated} neighbors across "
+                f"{len(frontier)} frontier tree(s), accepted improvement "
+                f"{previous_score} -> {current_score} "
+                f"({len(best_candidates)} tied-best neighbor(s))")
+        elif best_score == current_score:
+            # Plateau: expand frontier with all equally-good neighbors
+            frontier = best_candidates
+            logger.info(
+                f"NNI mode: sweep {sweep}: evaluated {n_evaluated} neighbors across "
+                f"{len(frontier)} frontier tree(s), plateau — expanding frontier to "
+                f"{len(best_candidates)} equally-good neighbor(s) at score {current_score}")
         else:
             logger.info(
-                f"NNI mode: sweep {sweep}: evaluated {n_evaluated} neighbors, "
-                f"no improvement (best neighbor = {best[0]}, current = {current_score}), "
+                f"NNI mode: sweep {sweep}: evaluated {n_evaluated} neighbors across "
+                f"{len(frontier)} frontier tree(s), no improvement "
+                f"(best neighbor = {best_score}, current = {current_score}), "
                 f"terminating at NNI-local optimum")
             break
     else:
         logger.warning(
             f"NNI mode: reached nni_max_iter={nni_max_iter} without converging — "
-            f"hard cap hit; returning current tree at score {current_score}")
+            f"hard cap hit; returning current frontier of {len(frontier)} tree(s) "
+            f"at score {current_score}")
 
     return {
-        "best_trees": [current_tree],
-        "best_ancestors": [current_ancestors],
+        "best_trees": [t for t, _, _ in frontier],
+        "best_ancestors": [a for _, a, _ in frontier],
         "trace": trace,
         "best_score": current_score,
     }
