@@ -688,6 +688,9 @@ def test_nni_mode_step_records_count():
         assert isinstance(newick_str, str)
         assert len(newick_str) > 0
         assert isinstance(score, (int, float))
+    steps = [r[0] for r in step_records]
+    assert steps == sorted(steps), "Step numbers should be monotonically increasing"
+    assert len(set(steps)) == len(steps), "Step numbers should be unique"
 
 
 def test_nni_mode_step_records_empty_when_no_trace_dir():

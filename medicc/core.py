@@ -1106,10 +1106,11 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
     reached.
 
     Args:
-        nni_trace_dir: If not None, accumulate (step, newick, score) for every
-            evaluated neighbor and include them in the returned dict under
-            'step_records'. Step numbers are pre-assigned in contiguous blocks
-            before dispatch so parallel and serial paths produce identical numbering.
+        nni_trace_dir: If not None, enables per-neighbor step recording. Used
+            only as a boolean sentinel here — no files are written by nni_mode()
+            itself; the caller (main_nni) is responsible for writing step_records
+            to disk. Step numbers are pre-assigned in contiguous blocks before
+            dispatch so parallel and serial paths produce identical numbering.
 
     Returns:
         dict with keys: best_trees (list of trees at optimum), best_ancestors
@@ -1138,9 +1139,9 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
     # Frontier: list of (tree, ancestors, uppass_cache) tuples
     frontier = [(tree, ancestors, uppass_cache)]
 
-    do_trace = nni_trace_dir is not None
+    do_trace = nni_trace_dir is not None  # used as boolean sentinel; no files written here
     step_records = []  # list of (step, newick_str, score)
-    step_offset = 0    # global step counter, incremented before each dispatch block
+    step_offset = 0    # global across all sweeps — step numbers are unique for the entire run
 
     for sweep in range(nni_max_iter):
         best_score = None
