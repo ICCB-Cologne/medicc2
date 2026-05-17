@@ -471,11 +471,12 @@ def main_nni(input_df,
     if nni_trace_dir is not None and step_records:
         logger.info("NNI mode: Writing per-step trace files to %s", nni_trace_dir)
         os.makedirs(nni_trace_dir, exist_ok=True)
+        # Per-step .txt files are the primary artifacts; nni_trace.tsv is aggregated from them for convenience.
         for step, newick_str, score in step_records:
             fname = os.path.join(nni_trace_dir, f"step_{step:08d}.txt")
             with open(fname, "w") as f:
                 f.write(newick_str + "\n")
-                f.write(repr(score) + "\n")
+                f.write(str(float(score)) + "\n")
 
         logger.info("NNI mode: Aggregating trace files into nni_trace.tsv")
         step_files = sorted(
