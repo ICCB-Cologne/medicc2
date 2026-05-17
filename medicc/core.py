@@ -368,12 +368,16 @@ def main_nni(input_df,
              chr_separator='X',
              n_cores=None,
              prune_weight=0,
-             nni_max_iter=100):
+             nni_max_iter=100,
+             nni_trace_dir=None):
     """NNI hill-climbing main method.
 
     Starts from the MEDICC NJ tree (or `input_tree` if provided) and runs
     deterministic steepest-ascent NNI hill-climbing until no neighbor strictly
     improves the score, or `nni_max_iter` sweeps are reached.
+
+    nni_trace_dir: If not None, write one file per evaluated NNI neighbor into
+        this directory, then aggregate into nni_trace.tsv.
     """
     symbol_table = asymm_fst.input_symbols()
 
@@ -431,10 +435,12 @@ def main_nni(input_df,
         prune_weight=prune_weight,
         nni_max_iter=nni_max_iter,
         n_cores=n_cores,
+        nni_trace_dir=nni_trace_dir,
     )
     final_tree_l = nni_result["best_trees"]
     ancestors_l = nni_result["best_ancestors"]
     trace = nni_result["trace"]
+    step_records = nni_result["step_records"]
 
     logger.info("NNI mode: Creating output copynumbers.")
     output_df_l = [create_df_from_fsa(input_df, ancestors) for ancestors in ancestors_l]
@@ -461,6 +467,30 @@ def main_nni(input_df,
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, 'NNI_trace.pdf'), bbox_inches='tight')
     plt.close()
+
+    if nni_trace_dir is not None and step_records:
+        logger.info("NNI mode: Writing per-step trace files to %s", nni_trace_dir)
+        os.makedirs(nni_trace_dir, exist_ok=True)
+        for step, newick_str, score in step_records:
+            fname = os.path.join(nni_trace_dir, f"step_{step:08d}.txt")
+            with open(fname, "w") as f:
+                f.write(newick_str + "\n")
+                f.write(repr(score) + "\n")
+
+        logger.info("NNI mode: Aggregating trace files into nni_trace.tsv")
+        step_files = sorted(
+            f for f in os.listdir(nni_trace_dir) if f.startswith("step_") and f.endswith(".txt")
+        )
+        tsv_path = os.path.join(nni_trace_dir, "nni_trace.tsv")
+        with open(tsv_path, "w") as tsv:
+            tsv.write("step\tnewick\tsum_of_branch_length\n")
+            for fname in step_files:
+                step_num = int(fname[len("step_"):-len(".txt")])
+                with open(os.path.join(nni_trace_dir, fname)) as f:
+                    lines = f.read().strip().splitlines()
+                newick_str = lines[0]
+                score_str = lines[1]
+                tsv.write(f"{step_num}\t{newick_str}\t{score_str}\n")
 
     return sample_labels, nj_tree, final_tree_l, output_df_l
 

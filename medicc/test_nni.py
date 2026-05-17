@@ -723,3 +723,94 @@ def test_nni_mode_step_records_empty_when_no_trace_dir():
         nni_trace_dir=None,
     )
     assert result["step_records"] == []
+
+
+def test_main_nni_writes_trace_files():
+    """main_nni with nni_trace_dir writes per-step files and nni_trace.tsv."""
+    import pathlib, tempfile, os
+    import medicc
+    import medicc.core as core
+    import medicc.io
+    import pandas as pd
+
+    repo_root = pathlib.Path(__file__).parent.parent.absolute()
+    input_path = repo_root / "examples" / "simple_example" / "simple_example.tsv"
+    input_df = medicc.io.read_and_parse_input_data(
+        filename=str(input_path),
+        normal_name="diploid",
+        input_type="t",
+        separator="X",
+        allele_columns=["cn_a", "cn_b"],
+        total_copy_numbers=False,
+        maxcn=8,
+    )
+    fst = medicc.io.read_fst(user_fst=None, no_wgd=False,
+                              total_copy_numbers=False, wgd_x2=False)
+    event_fst = medicc.io.read_fst(user_fst=None, no_wgd=False,
+                                   total_copy_numbers=False, wgd_x2=False)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        trace_dir = os.path.join(tmpdir, "NNI_trace")
+        core.main_nni(
+            input_df=input_df,
+            asymm_fst=fst,
+            output_dir=tmpdir,
+            event_counting_fst=event_fst,
+            normal_name="diploid",
+            nni_max_iter=1,
+            n_cores=None,
+            nni_trace_dir=trace_dir,
+        )
+
+        step_files = sorted(f for f in os.listdir(trace_dir) if f.startswith("step_") and f.endswith(".txt"))
+        assert len(step_files) > 0, "No step files written"
+
+        with open(os.path.join(trace_dir, step_files[0])) as f:
+            lines = f.read().strip().splitlines()
+        assert len(lines) == 2, f"Expected 2 lines in step file, got {len(lines)}"
+        float(lines[1])  # line 2 must be a parseable number
+
+        tsv_path = os.path.join(trace_dir, "nni_trace.tsv")
+        assert os.path.exists(tsv_path), "nni_trace.tsv not written"
+        tsv = pd.read_csv(tsv_path, sep="\t")
+        assert list(tsv.columns) == ["step", "newick", "sum_of_branch_length"]
+        assert len(tsv) == len(step_files)
+        assert list(tsv["step"]) == sorted(tsv["step"].tolist()), "TSV rows not in step order"
+
+
+def test_main_nni_no_trace_files_when_no_trace_dir():
+    """main_nni without nni_trace_dir creates no NNI_trace directory."""
+    import pathlib, tempfile, os
+    import medicc
+    import medicc.core as core
+    import medicc.io
+
+    repo_root = pathlib.Path(__file__).parent.parent.absolute()
+    input_path = repo_root / "examples" / "simple_example" / "simple_example.tsv"
+    input_df = medicc.io.read_and_parse_input_data(
+        filename=str(input_path),
+        normal_name="diploid",
+        input_type="t",
+        separator="X",
+        allele_columns=["cn_a", "cn_b"],
+        total_copy_numbers=False,
+        maxcn=8,
+    )
+    fst = medicc.io.read_fst(user_fst=None, no_wgd=False,
+                              total_copy_numbers=False, wgd_x2=False)
+    event_fst = medicc.io.read_fst(user_fst=None, no_wgd=False,
+                                   total_copy_numbers=False, wgd_x2=False)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        core.main_nni(
+            input_df=input_df,
+            asymm_fst=fst,
+            output_dir=tmpdir,
+            event_counting_fst=event_fst,
+            normal_name="diploid",
+            nni_max_iter=1,
+            n_cores=None,
+            nni_trace_dir=None,
+        )
+        trace_dir = os.path.join(tmpdir, "NNI_trace")
+        assert not os.path.exists(trace_dir), "NNI_trace dir should not exist"
