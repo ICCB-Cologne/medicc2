@@ -1121,7 +1121,7 @@ def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCM
 
 
 def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
-             nni_max_iter=100, n_cores=None, nni_trace_dir=None):
+             nni_max_iter=1000, n_cores=None, nni_trace_dir=None):
     """Iterated steepest-ascent NNI hill-climbing with plateau traversal.
 
     At each sweep: enumerate all NNI neighbors of every tree in the current
@@ -1133,10 +1133,12 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
         neighbors (plateau traversal — do not terminate yet).
       - If no neighbor improves or ties: terminate at an NNI-local optimum.
 
-    Stop when a full sweep produces no improvement/tie, or nni_max_iter is
-    reached.
+    Stop when a full sweep produces no improvement/tie, or nni_max_iter total
+    neighbor trees have been evaluated.
 
     Args:
+        nni_max_iter: Hard cap on the total number of neighbor trees evaluated
+            across all sweeps (not the number of sweeps). Default 1000.
         nni_trace_dir: If not None, enables per-neighbor step recording. Used
             only as a boolean sentinel here — no files are written by nni_mode()
             itself; the caller (main_nni) is responsible for writing step_records
@@ -1173,8 +1175,11 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
     do_trace = nni_trace_dir is not None  # used as boolean sentinel; no files written here
     step_records = []  # list of (step, newick_str, score)
     step_offset = 0    # global across all sweeps — step numbers are unique for the entire run
+    # step_offset doubles as the total-neighbors-evaluated counter for the nni_max_iter cap
 
-    for sweep in range(nni_max_iter):
+    sweep = 0
+    hit_cap = False
+    while True:
         best_score = None
         best_candidates = []  # list of (tree, ancestors, uppass_cache)
         n_evaluated = 0
@@ -1260,11 +1265,18 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
                 f"(best neighbor = {best_score}, current = {current_score}), "
                 f"terminating at NNI-local optimum")
             break
-    else:
+
+        sweep += 1
+
+        if step_offset >= nni_max_iter:
+            hit_cap = True
+            break
+
+    if hit_cap:
         logger.warning(
-            f"NNI mode: reached nni_max_iter={nni_max_iter} without converging — "
-            f"hard cap hit; returning current frontier of {len(frontier)} tree(s) "
-            f"at score {current_score}")
+            f"NNI mode: reached nni_max_iter={nni_max_iter} total neighbors evaluated "
+            f"without converging — hard cap hit; returning current frontier of "
+            f"{len(frontier)} tree(s) at score {current_score}")
 
     return {
         "best_trees": [t for t, _, _ in frontier],

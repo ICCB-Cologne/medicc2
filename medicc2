@@ -155,8 +155,9 @@ parser.add_argument("--sa-cooling", type=str, dest='sa_cooling', default='geomet
 parser.add_argument("--nni-mode", action='store_true', default=False, dest='nni',
                     help='Expert option: Use NNI hill-climbing mode (default: False). '
                          'Mutually exclusive with --spr-mode.', required=False)
-parser.add_argument("--nni-max-iter", type=int, dest='nni_max_iter', default=100,
-                    help='Expert option: Hard cap on NNI sweep iterations (default: 100).')
+parser.add_argument("--nni-max-iter", type=int, dest='nni_max_iter', default=1000,
+                    help='Expert option: Hard cap on the total number of NNI neighbor trees evaluated '
+                         'across all sweeps (default: 1000).')
 parser.add_argument("--nni-trace", action='store_true', default=False, dest='nni_trace',
                     help='Expert option: Export per-move NNI trace files to <output_dir>/NNI_trace/. '
                          'Only applies in --nni-mode. Creates one file per evaluated NNI neighbor '
