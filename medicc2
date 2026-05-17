@@ -157,6 +157,10 @@ parser.add_argument("--nni-mode", action='store_true', default=False, dest='nni'
                          'Mutually exclusive with --spr-mode.', required=False)
 parser.add_argument("--nni-max-iter", type=int, dest='nni_max_iter', default=100,
                     help='Expert option: Hard cap on NNI sweep iterations (default: 100).')
+parser.add_argument("--nni-trace", action='store_true', default=False, dest='nni_trace',
+                    help='Expert option: Export per-move NNI trace files to <output_dir>/NNI_trace/. '
+                         'Only applies in --nni-mode. Creates one file per evaluated NNI neighbor '
+                         'and aggregates into nni_trace.tsv (default: False).')
 args = parser.parse_args()
 
 if args.spr and args.nni:
@@ -369,6 +373,7 @@ else:
             n_cores=args.n_cores,
             prune_weight=args.prune_weight,
             nni_max_iter=args.nni_max_iter,
+            nni_trace_dir=os.path.join(args.output_dir, "NNI_trace") if args.nni_trace else None,
         )
     else:  # args.spr
         logger.info("Running MEDICC2 with spr moves.")
