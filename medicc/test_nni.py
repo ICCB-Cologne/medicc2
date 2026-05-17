@@ -458,6 +458,77 @@ def test_nni_mode_strict_improvement_collapses_frontier():
         assert abs(score - result["best_score"]) < 1e-9
 
 
+def test_nni_parallel_matches_serial():
+    """evaluate_nni_neighbors_parallel must return the same scores as the serial
+    nni_neighbors path, and cover the same set of neighbor topologies."""
+    import medicc
+    import medicc.io
+    import medicc.core as core
+    import medicc.tree_hash as tree_hash
+    from medicc.ancestors import reconstruct_ancestors_incremental
+    from medicc.nni import evaluate_nni_neighbors_parallel
+
+    fst = medicc.io.read_fst()
+    symbol_table = fst.input_symbols()
+
+    import pandas as pd
+    profiles = {
+        "diploid": "1" * 6,
+        "s1": "2" * 6,
+        "s2": "3" * 6,
+        "s3": "4" * 6,
+        "s4": "5" * 6,
+        "s5": "6" * 6,
+    }
+    rows = []
+    for sample, prof in profiles.items():
+        for i, cn in enumerate(prof):
+            rows.append({"sample_id": sample, "chrom": "chr1",
+                         "start": i, "end": i + 1, "cn_a": cn})
+    df = pd.DataFrame(rows).set_index(["sample_id", "chrom", "start", "end"])
+    df["cn_a"] = df["cn_a"].astype("category")
+    fsa_dict, _ = core.create_standard_fsa_dict_from_data(df, symbol_table, "X")
+
+    tree = _make_search_shape_tree(5)
+    ancestors, uppass_cache = medicc.reconstruct_ancestors(
+        tree=tree, samples_dict=fsa_dict, fst=fst,
+        normal_name="diploid", prune_weight=0, spr_logger_disable=True)
+    core.update_branch_lengths(tree, fst, ancestors, "diploid")
+
+    # Serial reference
+    serial_scores = {}
+    for neighbor_tree, synthetic in nni.nni_neighbors(tree):
+        nbr = copy.deepcopy(neighbor_tree)
+        inc_ancestors, _ = reconstruct_ancestors_incremental(
+            tree=nbr, old_uppass_cache=uppass_cache,
+            samples_dict=fsa_dict, fst=fst, normal_name="diploid",
+            spr_result=synthetic, prune_weight=0)
+        core.update_branch_lengths(nbr, fst, inc_ancestors, "diploid")
+        h = tree_hash.tree_hash(tree_hash.strip_branch_lengths(nbr))
+        serial_scores[h] = medicc.tools.sum_of_branch_length(nbr)
+
+    # Parallel path (n_cores=2)
+    parallel_results = evaluate_nni_neighbors_parallel(
+        tree=tree,
+        old_uppass_cache=uppass_cache,
+        samples_dict=fsa_dict,
+        fst=fst,
+        normal_name="diploid",
+        prune_weight=0,
+        n_cores=2,
+    )
+    parallel_scores = {}
+    for nbr_tree, _, _, score in parallel_results:
+        h = tree_hash.tree_hash(tree_hash.strip_branch_lengths(nbr_tree))
+        parallel_scores[h] = score
+
+    assert set(serial_scores.keys()) == set(parallel_scores.keys()), \
+        "Parallel and serial paths produced different sets of neighbor topologies"
+    for h in serial_scores:
+        assert serial_scores[h] == parallel_scores[h], \
+            f"Score mismatch for topology {h}: serial={serial_scores[h]}, parallel={parallel_scores[h]}"
+
+
 def test_nni_incremental_matches_full_reconstruction():
     """For each NNI neighbor of a small real tree, the score computed via the
     incremental reconstruction must equal the score computed via a full

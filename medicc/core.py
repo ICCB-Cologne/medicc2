@@ -1112,7 +1112,7 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
         score).
     """
     from medicc.ancestors import reconstruct_ancestors_incremental
-    from medicc.nni import nni_neighbors
+    from medicc.nni import nni_neighbors, evaluate_nni_neighbors_parallel
 
     assert tree.root.name == normal_name, \
         "nni_mode expects a search-shape tree (root.name == normal_name)"
@@ -1136,24 +1136,43 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
         best_candidates = []  # list of (tree, ancestors, uppass_cache)
         n_evaluated = 0
 
+        use_parallel = n_cores is not None and n_cores > 1
         for current_tree, current_ancestors, current_uppass_cache in frontier:
-            for neighbor_tree, synthetic_spr_result in nni_neighbors(current_tree):
-                n_evaluated += 1
-                new_ancestors, new_uppass_cache = reconstruct_ancestors_incremental(
-                    tree=neighbor_tree,
+            if use_parallel:
+                neighbor_results = evaluate_nni_neighbors_parallel(
+                    tree=current_tree,
                     old_uppass_cache=current_uppass_cache,
                     samples_dict=samples_dict,
                     fst=fst,
                     normal_name=normal_name,
-                    spr_result=synthetic_spr_result,
-                    prune_weight=prune_weight)
-                update_branch_lengths(neighbor_tree, fst, new_ancestors, normal_name)
-                score = medicc.tools.sum_of_branch_length(neighbor_tree)
-                if best_score is None or score < best_score:
-                    best_score = score
-                    best_candidates = [(neighbor_tree, new_ancestors, new_uppass_cache)]
-                elif score == best_score:
-                    best_candidates.append((neighbor_tree, new_ancestors, new_uppass_cache))
+                    prune_weight=prune_weight,
+                    n_cores=n_cores,
+                )
+                for neighbor_tree, new_ancestors, new_uppass_cache, score in neighbor_results:
+                    n_evaluated += 1
+                    if best_score is None or score < best_score:
+                        best_score = score
+                        best_candidates = [(neighbor_tree, new_ancestors, new_uppass_cache)]
+                    elif score == best_score:
+                        best_candidates.append((neighbor_tree, new_ancestors, new_uppass_cache))
+            else:
+                for neighbor_tree, synthetic_spr_result in nni_neighbors(current_tree):
+                    n_evaluated += 1
+                    new_ancestors, new_uppass_cache = reconstruct_ancestors_incremental(
+                        tree=neighbor_tree,
+                        old_uppass_cache=current_uppass_cache,
+                        samples_dict=samples_dict,
+                        fst=fst,
+                        normal_name=normal_name,
+                        spr_result=synthetic_spr_result,
+                        prune_weight=prune_weight)
+                    update_branch_lengths(neighbor_tree, fst, new_ancestors, normal_name)
+                    score = medicc.tools.sum_of_branch_length(neighbor_tree)
+                    if best_score is None or score < best_score:
+                        best_score = score
+                        best_candidates = [(neighbor_tree, new_ancestors, new_uppass_cache)]
+                    elif score == best_score:
+                        best_candidates.append((neighbor_tree, new_ancestors, new_uppass_cache))
 
         if not best_candidates:
             logger.info(f"NNI mode: sweep {sweep}: no neighbors enumerated, terminating")
