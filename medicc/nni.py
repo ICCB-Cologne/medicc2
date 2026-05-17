@@ -116,11 +116,11 @@ def nni_neighbors(tree):
 
 
 def _eval_nni_neighbor(tree, move, old_uppass_cache, samples_dict, fst,
-                       normal_name, prune_weight):
+                       normal_name, prune_weight, step=0):
     """Apply one NNI move and evaluate it.  Runs inside a worker process.
 
     Deepcopy happens here so the main process never copies the tree before
-    forking.  Returns (new_tree, ancestors, uppass_cache, score).
+    forking.  Returns (new_tree, ancestors, uppass_cache, score, step).
     """
     # Import lazily — these are heavy and only needed inside workers.
     from medicc.ancestors import reconstruct_ancestors_incremental
@@ -151,16 +151,19 @@ def _eval_nni_neighbor(tree, move, old_uppass_cache, samples_dict, fst,
     )
     core.update_branch_lengths(new_tree, fst, ancestors, normal_name)
     score = medicc.tools.sum_of_branch_length(new_tree)
-    return new_tree, ancestors, new_uppass_cache, score
+    return new_tree, ancestors, new_uppass_cache, score, step
 
 
 def evaluate_nni_neighbors_parallel(tree, old_uppass_cache, samples_dict, fst,
-                                    normal_name, prune_weight, n_cores):
+                                    normal_name, prune_weight, n_cores,
+                                    step_start=0):
     """Evaluate all NNI neighbors in parallel using joblib.
 
-    Returns a list of (new_tree, ancestors, uppass_cache, score) tuples,
+    Returns a list of (new_tree, ancestors, uppass_cache, score, step) tuples,
     one per NNI neighbor.  The deepcopy of `tree` is deferred into each
     worker so the main process does not copy the tree before forking.
+    `step_start` sets the step number of the first neighbor; subsequent
+    neighbors get step_start+1, step_start+2, etc.
     """
     try:
         from joblib import Parallel, delayed
@@ -173,8 +176,9 @@ def evaluate_nni_neighbors_parallel(tree, old_uppass_cache, samples_dict, fst,
 
     results = Parallel(n_jobs=n_cores)(
         delayed(_eval_nni_neighbor)(
-            tree, move, old_uppass_cache, samples_dict, fst, normal_name, prune_weight
+            tree, move, old_uppass_cache, samples_dict, fst, normal_name, prune_weight,
+            step=step_start + i,
         )
-        for move in moves
+        for i, move in enumerate(moves)
     )
     return results

@@ -518,7 +518,7 @@ def test_nni_parallel_matches_serial():
         n_cores=2,
     )
     parallel_scores = {}
-    for nbr_tree, _, _, score in parallel_results:
+    for nbr_tree, _, _, score, *_ in parallel_results:
         h = tree_hash.tree_hash(tree_hash.strip_branch_lengths(nbr_tree))
         parallel_scores[h] = score
 
@@ -592,3 +592,59 @@ def test_nni_incremental_matches_full_reconstruction():
         assert inc_score == full_score, (
             f"Incremental score {inc_score} != full score {full_score} "
             f"for NNI swap u={synthetic.prune_grandparent}, v={synthetic.regraft_parent}")
+
+
+def test_evaluate_nni_neighbors_parallel_returns_step():
+    """Each result from evaluate_nni_neighbors_parallel must include its step number."""
+    import medicc.nni as nni_mod
+    from unittest.mock import patch, MagicMock
+    tree = _make_search_shape_tree(5)
+    moves = nni_mod._enumerate_moves(tree)
+    n_moves = len(moves)
+
+    call_steps = []
+    def fake_eval(tree, move, old_uppass_cache, samples_dict, fst, normal_name, prune_weight, step=0):
+        call_steps.append(step)
+        return (MagicMock(), {}, {}, 10, step)
+
+    with patch("medicc.nni._eval_nni_neighbor", side_effect=fake_eval):
+        results = nni_mod.evaluate_nni_neighbors_parallel(
+            tree=tree,
+            old_uppass_cache={},
+            samples_dict={},
+            fst=MagicMock(),
+            normal_name="diploid",
+            prune_weight=0,
+            n_cores=1,
+            step_start=10,
+        )
+    assert len(results) == n_moves
+    assert sorted(call_steps) == list(range(10, 10 + n_moves))
+    for result in results:
+        assert len(result) == 5
+
+
+def test_evaluate_nni_neighbors_parallel_step_start_zero():
+    """step_start=0 gives steps 0, 1, 2, ..."""
+    import medicc.nni as nni_mod
+    from unittest.mock import patch, MagicMock
+    tree = _make_search_shape_tree(4)
+    moves = nni_mod._enumerate_moves(tree)
+
+    call_steps = []
+    def fake_eval(tree, move, old_uppass_cache, samples_dict, fst, normal_name, prune_weight, step=0):
+        call_steps.append(step)
+        return (MagicMock(), {}, {}, 5, step)
+
+    with patch("medicc.nni._eval_nni_neighbor", side_effect=fake_eval):
+        results = nni_mod.evaluate_nni_neighbors_parallel(
+            tree=tree,
+            old_uppass_cache={},
+            samples_dict={},
+            fst=MagicMock(),
+            normal_name="diploid",
+            prune_weight=0,
+            n_cores=1,
+            step_start=0,
+        )
+    assert sorted(call_steps) == list(range(len(moves)))
