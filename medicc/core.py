@@ -1090,7 +1090,7 @@ def spr_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0, MCM
 
 
 def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
-             nni_max_iter=100, n_cores=None):
+             nni_max_iter=100, n_cores=None, nni_trace_dir=None):
     """Iterated steepest-ascent NNI hill-climbing with plateau traversal.
 
     At each sweep: enumerate all NNI neighbors of every tree in the current
@@ -1105,14 +1105,22 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
     Stop when a full sweep produces no improvement/tie, or nni_max_iter is
     reached.
 
+    Args:
+        nni_trace_dir: If not None, accumulate (step, newick, score) for every
+            evaluated neighbor and include them in the returned dict under
+            'step_records'. Step numbers are pre-assigned in contiguous blocks
+            before dispatch so parallel and serial paths produce identical numbering.
+
     Returns:
         dict with keys: best_trees (list of trees at optimum), best_ancestors
         (list of corresponding ancestor dicts), trace (list of scores, one
         entry per accepted iteration starting from initial), best_score (final
-        score).
+        score), step_records (list of (step, newick_str, score) tuples —
+        empty when nni_trace_dir is None).
     """
     from medicc.ancestors import reconstruct_ancestors_incremental
-    from medicc.nni import nni_neighbors, evaluate_nni_neighbors_parallel
+    from medicc.nni import nni_neighbors, evaluate_nni_neighbors_parallel, _enumerate_moves
+    from medicc.tree_hash import get_canonical_newick
 
     assert tree.root.name == normal_name, \
         "nni_mode expects a search-shape tree (root.name == normal_name)"
@@ -1130,8 +1138,11 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
     # Frontier: list of (tree, ancestors, uppass_cache) tuples
     frontier = [(tree, ancestors, uppass_cache)]
 
+    do_trace = nni_trace_dir is not None
+    step_records = []  # list of (step, newick_str, score)
+    step_offset = 0    # global step counter, incremented before each dispatch block
+
     for sweep in range(nni_max_iter):
-        # Collect all neighbors across every tree in the frontier
         best_score = None
         best_candidates = []  # list of (tree, ancestors, uppass_cache)
         n_evaluated = 0
@@ -1139,6 +1150,11 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
         use_parallel = n_cores is not None and n_cores > 1
         for current_tree, current_ancestors, current_uppass_cache in frontier:
             if use_parallel:
+                # Pre-assign step block before dispatch
+                n_moves = len(_enumerate_moves(current_tree))
+                step_start = step_offset
+                step_offset += n_moves
+
                 neighbor_results = evaluate_nni_neighbors_parallel(
                     tree=current_tree,
                     old_uppass_cache=current_uppass_cache,
@@ -1147,16 +1163,24 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
                     normal_name=normal_name,
                     prune_weight=prune_weight,
                     n_cores=n_cores,
+                    step_start=step_start,
                 )
-                for neighbor_tree, new_ancestors, new_uppass_cache, score in neighbor_results:
+                for neighbor_tree, new_ancestors, new_uppass_cache, score, step in neighbor_results:
                     n_evaluated += 1
+                    if do_trace:
+                        step_records.append((step, get_canonical_newick(neighbor_tree), score))
                     if best_score is None or score < best_score:
                         best_score = score
                         best_candidates = [(neighbor_tree, new_ancestors, new_uppass_cache)]
                     elif score == best_score:
                         best_candidates.append((neighbor_tree, new_ancestors, new_uppass_cache))
             else:
-                for neighbor_tree, synthetic_spr_result in nni_neighbors(current_tree):
+                # Pre-assign step block before the serial loop
+                n_moves = len(_enumerate_moves(current_tree))
+                step_start = step_offset
+                step_offset += n_moves
+
+                for i, (neighbor_tree, synthetic_spr_result) in enumerate(nni_neighbors(current_tree)):
                     n_evaluated += 1
                     new_ancestors, new_uppass_cache = reconstruct_ancestors_incremental(
                         tree=neighbor_tree,
@@ -1168,6 +1192,9 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
                         prune_weight=prune_weight)
                     update_branch_lengths(neighbor_tree, fst, new_ancestors, normal_name)
                     score = medicc.tools.sum_of_branch_length(neighbor_tree)
+                    step = step_start + i
+                    if do_trace:
+                        step_records.append((step, get_canonical_newick(neighbor_tree), score))
                     if best_score is None or score < best_score:
                         best_score = score
                         best_candidates = [(neighbor_tree, new_ancestors, new_uppass_cache)]
@@ -1179,7 +1206,6 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
             break
 
         if best_score < current_score:
-            # Strict improvement: replace frontier
             previous_score = current_score
             current_score = best_score
             frontier = best_candidates
@@ -1190,7 +1216,6 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
                 f"{previous_score} -> {current_score} "
                 f"({len(best_candidates)} tied-best neighbor(s))")
         elif best_score == current_score:
-            # Plateau: expand frontier with all equally-good neighbors
             frontier = best_candidates
             logger.info(
                 f"NNI mode: sweep {sweep}: evaluated {n_evaluated} neighbors across "
@@ -1214,6 +1239,7 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
         "best_ancestors": [a for _, a, _ in frontier],
         "trace": trace,
         "best_score": current_score,
+        "step_records": step_records,
     }
 
 

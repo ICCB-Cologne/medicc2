@@ -648,3 +648,75 @@ def test_evaluate_nni_neighbors_parallel_step_start_zero():
             step_start=0,
         )
     assert sorted(call_steps) == list(range(len(moves)))
+
+
+def test_nni_mode_step_records_count():
+    """nni_mode with nni_trace_dir accumulates one record per evaluated neighbor."""
+    import tempfile, os
+    import medicc
+    import medicc.core as core
+    import medicc.io
+    import fstlib
+
+    tree = _make_search_shape_tree(4)
+    fst = medicc.io.read_fst(user_fst=None, no_wgd=False,
+                              total_copy_numbers=False, wgd_x2=False)
+    symbol_table = fst.input_symbols()
+    cn_str = "22X22"
+    samples = ["diploid", "s1", "s2", "s3", "s4"]
+    samples_dict = {
+        s: fstlib.factory.from_string(cn_str, arc_type="standard",
+                                      isymbols=symbol_table, osymbols=symbol_table)
+        for s in samples
+    }
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        result = core.nni_mode(
+            tree=tree,
+            samples_dict=samples_dict,
+            fst=fst,
+            normal_name="diploid",
+            prune_weight=0,
+            nni_max_iter=2,
+            n_cores=None,
+            nni_trace_dir=tmpdir,
+        )
+    step_records = result["step_records"]
+    assert len(step_records) > 0
+    for step, newick_str, score in step_records:
+        assert isinstance(step, int)
+        assert isinstance(newick_str, str)
+        assert len(newick_str) > 0
+        assert isinstance(score, (int, float))
+
+
+def test_nni_mode_step_records_empty_when_no_trace_dir():
+    """nni_mode without nni_trace_dir returns empty step_records."""
+    import medicc
+    import medicc.core as core
+    import medicc.io
+    import fstlib
+
+    tree = _make_search_shape_tree(4)
+    fst = medicc.io.read_fst(user_fst=None, no_wgd=False,
+                              total_copy_numbers=False, wgd_x2=False)
+    symbol_table = fst.input_symbols()
+    cn_str = "22X22"
+    samples = ["diploid", "s1", "s2", "s3", "s4"]
+    samples_dict = {
+        s: fstlib.factory.from_string(cn_str, arc_type="standard",
+                                      isymbols=symbol_table, osymbols=symbol_table)
+        for s in samples
+    }
+
+    result = core.nni_mode(
+        tree=tree,
+        samples_dict=samples_dict,
+        fst=fst,
+        normal_name="diploid",
+        prune_weight=0,
+        nni_max_iter=2,
+        n_cores=None,
+        nni_trace_dir=None,
+    )
+    assert result["step_records"] == []
