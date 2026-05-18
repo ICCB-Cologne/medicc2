@@ -1154,7 +1154,7 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
     """
     from medicc.ancestors import reconstruct_ancestors_incremental
     from medicc.nni import nni_neighbors, evaluate_nni_neighbors_parallel, _enumerate_moves
-    from medicc.tree_hash import get_canonical_newick
+    from medicc.tree_hash import get_canonical_newick, get_topology_hash
 
     assert tree.root.name == normal_name, \
         "nni_mode expects a search-shape tree (root.name == normal_name)"
@@ -1179,6 +1179,8 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
 
     sweep = 0
     hit_cap = False
+    frontier_hashes = frozenset(get_topology_hash(t) for t, _, _ in frontier)
+    visited_hashes = set(frontier_hashes)  # all topology hashes ever in the frontier
     while True:
         best_score = None
         best_candidates = []  # list of (tree, ancestors, uppass_cache)
@@ -1242,22 +1244,44 @@ def nni_mode(tree, samples_dict, fst, normal_name="diploid", prune_weight=0,
             logger.info(f"NNI mode: sweep {sweep}: no neighbors enumerated, terminating")
             break
 
+        def _dedup_candidates(candidates):
+            seen = set()
+            result = []
+            for t, anc, cache in candidates:
+                h = get_topology_hash(t)
+                if h not in seen:
+                    seen.add(h)
+                    result.append((t, anc, cache))
+            return result
+
         if best_score < current_score:
             previous_score = current_score
             current_score = best_score
-            frontier = best_candidates
+            frontier = _dedup_candidates(best_candidates)
+            frontier_hashes = frozenset(get_topology_hash(t) for t, _, _ in frontier)
+            visited_hashes = set(frontier_hashes)  # reset visited on improvement
             trace.append(current_score)
             logger.info(
                 f"NNI mode: sweep {sweep}: evaluated {n_evaluated} neighbors across "
                 f"{len(frontier)} frontier tree(s), accepted improvement "
                 f"{previous_score} -> {current_score} "
-                f"({len(best_candidates)} tied-best neighbor(s))")
+                f"({len(frontier)} unique tied-best neighbor(s), {len(best_candidates)} before dedup)")
         elif best_score == current_score:
-            frontier = best_candidates
+            frontier = _dedup_candidates(best_candidates)
+            new_frontier_hashes = frozenset(get_topology_hash(t) for t, _, _ in frontier)
+            if new_frontier_hashes.issubset(visited_hashes):
+                logger.info(
+                    f"NNI mode: sweep {sweep}: evaluated {n_evaluated} neighbors across "
+                    f"{len(frontier)} frontier tree(s), plateau exhausted — all "
+                    f"{len(frontier)} neighbor(s) already visited at score {current_score}, terminating")
+                break
+            visited_hashes.update(new_frontier_hashes)
+            frontier_hashes = new_frontier_hashes
             logger.info(
                 f"NNI mode: sweep {sweep}: evaluated {n_evaluated} neighbors across "
                 f"{len(frontier)} frontier tree(s), plateau — expanding frontier to "
-                f"{len(best_candidates)} equally-good neighbor(s) at score {current_score}")
+                f"{len(frontier)} unique equally-good neighbor(s) at score {current_score} "
+                f"({len(best_candidates)} before dedup)")
         else:
             logger.info(
                 f"NNI mode: sweep {sweep}: evaluated {n_evaluated} neighbors across "
